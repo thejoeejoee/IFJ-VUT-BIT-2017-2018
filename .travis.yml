@@ -25,3 +25,5 @@ after_success:
 env:
   global:
     - CODECOV_TOKEN=49426dd4-a887-4501-9cf6-36f51915647a
+
+dist: trusty

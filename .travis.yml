@@ -4,6 +4,15 @@ compiler:
   - clang
   - gcc
 
+addons:
+  apt:
+    # sources:
+    #  - kalakris-cmake
+    packages:
+      - cmake
+      - lcov
+    # - gfortran
+
 script:
   - mkdir build && cd build
   - cmake .. -DENABLE_COVERAGE=On && make && make test

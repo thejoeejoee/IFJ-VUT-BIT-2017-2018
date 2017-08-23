@@ -11,7 +11,7 @@ script:
   - make lcov
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash) -X gcov
+  - bash <(curl -s https://codecov.io/bash) -X gcov,coveragepy
 
 env:
   global:

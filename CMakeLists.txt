@@ -12,4 +12,5 @@ add_test(NAME test COMMAND ifj2017_test)
 
 add_executable(ifj2017 src/ifj2017.c src/interpreter.c)
 
+add_coverage(ifj2017_test)
 coverage_evaluate()

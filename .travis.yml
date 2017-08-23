@@ -1,0 +1,18 @@
+language: c
+
+compiler:
+  - clang
+  - gcc
+
+script:
+  - mkdir build && cd build
+  - cmake .. -DENABLE_COVERAGE=On && make && make test
+  - make gcov
+  - make lcov
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash) -X gcov
+
+env:
+  global:
+    - CODECOV_TOKEN=49426dd4-a887-4501-9cf6-36f51915647a

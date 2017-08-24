@@ -1,6 +1,6 @@
 ignore:
   - "test/**/*"
-  - "test/*"
+  - "test/.*"
 
 codecov:
   branch: develop

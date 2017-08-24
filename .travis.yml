@@ -1,4 +1,5 @@
 language: c
+dist: trusty
 
 compiler:
   - clang
@@ -26,4 +27,10 @@ env:
   global:
     - CODECOV_TOKEN=49426dd4-a887-4501-9cf6-36f51915647a
 
-dist: trusty
+notifications:
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/da3c347eb90f4d6ea088
+    on_success: always  # options: [always|never|change] default: always
+    on_failure: always  # options: [always|never|change] default: always
+    on_start: always     # options: [always|never|change] default: always

@@ -4,3 +4,10 @@ ignore:
 
 codecov:
   branch: develop
+
+coverage:
+  notify:
+    gitter:
+      default:
+        url: "https://webhooks.gitter.im/e/aa59bcc5753f98258931"
+        threshold: 1%

@@ -1,0 +1,79 @@
+\documentclass[11pt,a4paper,titlepage]{article}
+
+% Set document dimensions
+\usepackage[paper=a4paper,top=2cm,left=2cm,right=2cm,bottom=2cm,includefoot]{geometry}
+
+% For todo notes
+\usepackage{todonotes} 
+
+% Set czech font
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[czech]{babel}
+
+% Set packages for including images
+\usepackage{graphicx}
+\usepackage{svg}
+\usepackage{pdfpages}
+
+% Include pseudo-algorithm to latex document
+\usepackage{algorithm2e}
+
+% Colour our links, remove weird boxes
+\usepackage[colorlinks,linkcolor={black},citecolor={blue!80!black},urlcolor={blue!80!black}]{hyperref}
+
+% Stop indentation on new paragraphs
+\usepackage[parfill]{parskip}
+
+% Give us the Capital H that we all know and love
+\usepackage{float}
+
+% Tone down the line spacing after section titles
+
+\usepackage{titlesec}
+
+% Cool maths printing
+\usepackage{amsmath}
+
+% Packages for including source code to latex document
+\usepackage{listings}
+\lstset{
+	escapeinside={/*@}{@*/}, language=C,
+	basicstyle=\fontsize{12}{14}\selectfont,
+	numbers=left,numbersep=2pt,xleftmargin=2pt,frame=tb,
+    columns=fullflexible,showstringspaces=false,tabsize=4,
+    keepspaces=true,showtabs=false,showspaces=false,
+    backgroundcolor=\color{white}, morekeywords={inline,public,
+    class,private,protected,struct},captionpos=t,lineskip=-0.4em,
+	aboveskip=10pt, extendedchars=true, breaklines=true,
+	prebreak = \raisebox{0ex}[0ex][0ex]{\ensuremath{\hookleftarrow}},
+	keywordstyle=\color[rgb]{0,0,1},
+	commentstyle=\color[rgb]{0.133,0.545,0.133},
+	stringstyle=\color[rgb]{0.627,0.126,0.941}
+}
+
+% For table of contents
+\usepackage[tocflat]{tocstyle}
+\usetocstyle{standard}
+\usepackage{blindtext}
+% Redefinition of ToC command to get centered heading
+\makeatletter
+\renewcommand\tableofcontents{%
+  \null\hfill\textbf{\Large\contentsname}\hfill\null\par
+  \@mkboth{\MakeUppercase\contentsname}{\MakeUppercase\contentsname}%
+  \@starttoc{toc}%
+}
+\makeatother
+
+% Body of document
+\begin{document}
+	\input{src/_titlepage.tex}
+	\input{src/_content.tex}
+	\input{src/_introduction.tex}
+	\input{src/_structure_od_project.tex}
+	\input{src/_ial_data_structs.tex}
+	\input{src/_team_work.tex}
+	\input{src/_conclusion.tex}
+	\newpage	
+	\input{src/_examples.tex}
+\end{document}

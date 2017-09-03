@@ -19,12 +19,16 @@ clean:
 
 # Translate from source code (latex template)
 # to directory build
+# TODO: more generic solution
 build/%.pdf: $(SOURCE_DIR)/%.tex
 	mkdir $(TARGER_DIR)
 	inkscape --file=./$(SOURCE_DIR)/$(SOURCE_MEDIA_DIR)/fit_logo.svg --export-area-drawing --without-gui --export-pdf=$(TARGER_DIR)/output.pdf
 	inkscape --file=./$(SOURCE_DIR)/$(SOURCE_MEDIA_DIR)/data_structure.svg --export-area-drawing --without-gui --export-pdf=$(TARGER_DIR)/data_structure.pdf	
-	pdflatex -halt-on-error -output-directory ./$(TARGER_DIR) ../$(SOURCE_DIR)/dokumentace.tex
-	pdflatex -halt-on-error -output-directory ./$(TARGER_DIR) ../$(SOURCE_DIR)/dokumentace.tex
+	pdflatex -interaction nonstopmode -shell-escape -output-directory ./$(TARGER_DIR) ../$(SOURCE_DIR)/dokumentace.tex
+	pdflatex -interaction nonstopmode -shell-escape -output-directory ./$(TARGER_DIR) ../$(SOURCE_DIR)/dokumentace.tex
+
+# %.pdf: %.tex
+#	(cd $(@D); for i in "$(seq 3)"; do pdflatex -interaction nonstopmode -shell-escape $(<F); done)
 
 # Install important packages for latex build
 install:

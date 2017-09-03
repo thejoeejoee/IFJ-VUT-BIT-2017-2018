@@ -18,6 +18,7 @@ addons:
       - texlive-latex-recommended
       - texlive-lang-czechslovak
       - texlive-science
+      - texlive-full
 
 script:
   - mkdir build && cd build

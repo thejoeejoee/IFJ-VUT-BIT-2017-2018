@@ -7,15 +7,15 @@ compiler:
 
 addons:
   apt:
-    # sources:
-    #  - kalakris-cmake
     packages:
       - cmake
       - lcov
-    # - gfortran
-
-install:
-  - (cd doc && make install)
+      # doc
+      - texlive-latex-base
+      - texlive-latex-extra
+      - texlive-fonts-recommended
+      - texlive-lang-czechslovak
+      - texlive-science
 
 script:
   - mkdir build && cd build

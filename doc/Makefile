@@ -15,7 +15,7 @@ all: clean $(TARGER_DIR)/$(TARGET_FILE)
 
 # Clean translation directory 
 clean:
-	rm -r $(TARGER_DIR)
+	rm -fr $(TARGER_DIR)
 
 # Translate from source code (latex template)
 # to directory build

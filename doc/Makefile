@@ -28,5 +28,5 @@ build/%.pdf: $(SOURCE_DIR)/%.tex
 
 # Install important packages for latex build
 install:
-	- apt-get update && apt install  --no-install-recommends texlive-latex-base texlive-latex-extra texlive-fonts-recommended texlive-lang-czechslovak texlive-science
+	- apt-get update && apt install  --no-install-recommends texlive-latex-base texlive-latex-extra texlive-fonts-recommended texlive-lang-czechslovak texlive-science texlive-latex-recommended
 

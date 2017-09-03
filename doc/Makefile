@@ -11,7 +11,7 @@ TARGET_FILE = dokumentace.pdf
 
 
 # Main translation line
-all: $(TARGER_DIR)/$(TARGET_FILE)
+all: clean $(TARGER_DIR)/$(TARGET_FILE)
 
 # Clean translation directory 
 clean:
@@ -26,7 +26,7 @@ build/%.pdf: $(SOURCE_DIR)/%.tex
 	pdflatex -halt-on-error -output-directory ./$(TARGER_DIR) ../$(SOURCE_DIR)/dokumentace.tex
 	pdflatex -halt-on-error -output-directory ./$(TARGER_DIR) ../$(SOURCE_DIR)/dokumentace.tex
 
-# Install important packages for clean translation
+# Install important packages for latex build
 install:
-	- apt-get update
-	- apt-get install inkscape
+	- apt-get update && apt install  --no-install-recommends texlive-latex-base texlive-latex-extra texlive-fonts-recommended texlive-lang-czechslovak texlive-science
+

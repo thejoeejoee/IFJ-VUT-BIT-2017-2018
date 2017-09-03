@@ -14,6 +14,9 @@ addons:
       - lcov
     # - gfortran
 
+install:
+  - cd doc && make install
+
 script:
   - mkdir build && cd build
   - cmake .. -DENABLE_COVERAGE=On && make && make test
@@ -22,6 +25,9 @@ script:
 
 after_success:
   - bash <(curl -s https://codecov.io/bash) -X gcov,coveragepy
+
+after_script:
+  - cd doc && make || true
 
 env:
   global:

@@ -19,7 +19,7 @@ TEX = pdflatex -shell-escape
 all: $(TARGET_FILE)
 
 $(TARGET_FILE): $(SOURCE_DIR)/$(DOC_NAME).tex
-	mkdir -p $(TARGET_DIR) && while ($(TEX) -output-directory $(TARGET_DIR) $< ; grep -q "Rerun to get cross" $(DOC_NAME).log) do true ; done
+	mkdir -p $(TARGET_DIR) && while ($(TEX) -output-directory $(TARGET_DIR) $< ; grep -q "Rerun to get cross" $(TARGET_DIR)/$(DOC_NAME).log) do true ; done
 
 # Install important packages for latex build
 install:

@@ -1,0 +1,27 @@
+ignore:
+  # - "test"  # ignore folders and all its contents
+
+comment:
+  layout: "tree,diff,changes"
+  behavior: once
+  require_changes: true
+
+coverage:
+  notify:
+    gitter:
+      default:
+        url: "https://webhooks.gitter.im/e/aa59bcc5753f98258931"
+        threshold: 1%
+  status:
+    patch:
+      default:
+        target: 95%
+        only_pulls: true
+    project:
+      default: false
+      tests:
+        paths: "test/"
+        threshold: 10%
+      project:
+        paths: "!test/"
+        threshold: 10%

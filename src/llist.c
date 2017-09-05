@@ -6,13 +6,13 @@
 #include <stdlib.h>
 
 void llist_init(struct LList** list) {
-    *list = malloc(sizeof(struct LList));
+    *list = (struct LList*)malloc(sizeof(struct LList));
     (*list)->head = NULL;
     (*list)->tail = NULL;
 }
 
 void llist_append(struct LList* list, int value) {
-    struct LListItem* new_item = malloc(sizeof(struct LListItem));
+    struct LListItem* new_item = (struct LListItem*)malloc(sizeof(struct LListItem));
     struct LListItem* last_item = list->tail;
 
     if(list->head == NULL)

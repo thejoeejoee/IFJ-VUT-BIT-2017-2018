@@ -6,7 +6,7 @@ include(test/CMakeLists.txt)
 enable_testing()
 find_package(codecov)
 
-add_executable(ifj2017_test test/interpreter.cpp)
+add_executable(ifj2017_test test/interpreter.cpp test/llist.cpp)
 target_link_libraries(ifj2017_test gtest)
 add_test(NAME test COMMAND ifj2017_test)
 

@@ -39,7 +39,7 @@ void llist_remove_one(struct LList* list, int value) {
 
             if(current_item == list->head)      // check whether new head need to be set
                 list->head = next_item;
-            else if(current_item == list->tail) // check whether new tail need to be set
+            if(current_item == list->tail) // check whether new tail need to be set
                 list->tail = previous_item;
 
             if(previous_item != NULL)

@@ -22,6 +22,9 @@ doc/build
 .idea/**/tasks.xml
 .idea/dictionaries
 
+# Visual Studio specific ignores
+.vs/
+
 # Sensitive or high-churn files:
 .idea/**/dataSources/
 .idea/**/dataSources.ids

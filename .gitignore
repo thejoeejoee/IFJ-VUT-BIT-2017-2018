@@ -1,3 +1,6 @@
+# general ignores
+[Bb]uild/
+
 # CMake specific ignores
 CMakeCache.txt
 CMakeFiles

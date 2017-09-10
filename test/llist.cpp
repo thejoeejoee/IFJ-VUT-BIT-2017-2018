@@ -126,6 +126,10 @@ TEST_F(LlistTestFixture, test_clean_list) {
 
 TEST_F(LlistTestFixture, test_remove_one) {
 
+    /*
+     * Test remove one when llist have just one item
+     */
+
     // Init list
     LList *llist;
     llist_init(&llist);
@@ -142,13 +146,69 @@ TEST_F(LlistTestFixture, test_remove_one) {
     );
 
     EXPECT_EQ(
-            NULL,
-            llist->tail
+        NULL,
+        llist->tail
     );
-
 
     // clean list
     llist_delete(&llist);
+
+    /*
+     * Test remove one when llist have more than one item
+     */
+
+    // Init list
+    llist_init(&llist);
+
+    // Add four items to the list
+    for(int i = 0; i <= 2; i++) {
+        llist_append(llist, i);
+    }
+
+    // Remove items with value 2 & 4
+    llist_remove_one(llist, 1);
+
+    // Get two items from llist
+    LListItem *first = llist->head;
+    LListItem *second = first->next;
+
+    // Test values in items
+    EXPECT_EQ(
+            0,
+            first->value
+    );
+
+    EXPECT_EQ(
+            2,
+            second->value
+    );
+
+    // Test pointers in first item
+    EXPECT_EQ(
+            NULL,
+            first->previous
+    );
+
+    EXPECT_EQ(
+            second,
+            first->next
+    );
+
+    // Test pointers in second item
+    EXPECT_EQ(
+            first,
+            second->previous
+    );
+
+    EXPECT_EQ(
+            NULL,
+            second->next
+    );
+
+    // clean list
+    llist_delete(&llist);
+
+
 }
 
 

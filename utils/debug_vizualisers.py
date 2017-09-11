@@ -1,22 +1,27 @@
 #!/usr/bin/python
 import gdb.printing
 
+_ = str
 
-class DebugStructure:
-    # TODO: improve via https://www.rethinkdb.com/blog/make-debugging-easier-with-custom-pretty-printers/
+class LList(object):
     def __init__(self, structure):
         self._structure = structure
 
-    def to_string(self):
-        return 'My representation of DebugStructure with key={} and next={}'.format(
-            self._structure['key'],
-            self._structure['next']
-        )
+    def display_hint(self):
+        return 'array'
 
+    def children(self):
+        current = self._structure['head']
+        i = 0
+        while current:
+            item = current.dereference()
+            yield _(i), item['value']
+            i += 1
+            current = item['next']
 
 def lookup_type(val):
-    if str(val.type) == 'DebugStructure':
-        return DebugStructure(val)
+    if _(val.type) == 'LList *':
+        return LList(val)
     return None
 
 

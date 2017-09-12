@@ -28,7 +28,7 @@ script:
   - cd ..
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash) -X coveragepy -X gcov
+  - bash ./utils/codecov.sh -X coveragepy -X gcov
 
 after_script:
   - (cd doc && make || true)

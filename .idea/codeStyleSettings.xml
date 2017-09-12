@@ -6,6 +6,8 @@
         <Objective-C>
           <option name="INDENT_CLASS_MEMBERS" value="8" />
           <option name="INDENT_VISIBILITY_KEYWORDS" value="4" />
+          <option name="SPACE_BEFORE_POINTER_IN_DECLARATION" value="false" />
+          <option name="SPACE_AFTER_POINTER_IN_DECLARATION" value="true" />
         </Objective-C>
         <Objective-C-extensions>
           <file>

@@ -1,9 +1,6 @@
-//
-// Created by ns288774 on 5.9.2017.
-//
-
-#ifndef IFJ2017_LLIST_H
-#define IFJ2017_LLIST_H
+#pragma once
+#ifndef _LLIST_H
+#define _LLIST_H
 
 struct LListItem;
 
@@ -27,6 +24,7 @@ struct LListItem {
     struct LListItem* next;
     struct LListItem* previous;
 };
+
 /**
  * @brief llist_init Allocates memory for list and null head and tail.
  * @param list Address of pointer which will point to llist structure.
@@ -53,4 +51,4 @@ void llist_remove_one(struct LList* list, int value);
  */
 void llist_delete(struct LList** list);
 
-#endif //IFJ2017_LLIST_H
+#endif //_LLIST_H

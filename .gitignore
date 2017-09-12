@@ -1,3 +1,6 @@
+# general ignores
+[Bb]uild/
+
 # CMake specific ignores
 CMakeCache.txt
 CMakeFiles
@@ -10,11 +13,17 @@ compile_commands.json
 CTestTestfile.cmake
 cmake-build-debug
 
+# doc ignores
+doc/build
+!doc/Makefile
 
 # IDEA specific ignores
 .idea/**/workspace.xml
 .idea/**/tasks.xml
 .idea/dictionaries
+
+# Visual Studio specific ignores
+.vs/
 
 # Sensitive or high-churn files:
 .idea/**/dataSources/

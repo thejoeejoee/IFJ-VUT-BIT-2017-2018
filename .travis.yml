@@ -7,21 +7,31 @@ compiler:
 
 addons:
   apt:
-    # sources:
-    #  - kalakris-cmake
     packages:
       - cmake
       - lcov
-    # - gfortran
+      # doc
+      - inkscape
+      - texlive-latex-base
+      - texlive-latex-extra
+      - texlive-fonts-recommended
+      - texlive-latex-recommended
+      - texlive-lang-czechslovak
+      - texlive-science
+      - texlive-full
 
 script:
   - mkdir build && cd build
   - cmake .. -DENABLE_COVERAGE=On && make && CTEST_OUTPUT_ON_FAILURE=1 GTEST_COLOR=1 make test
   - make gcov
   - make lcov
+  - cd ..
 
 after_success:
   - bash <(curl -s https://codecov.io/bash) -X coveragepy -X gcov
+
+after_script:
+  - (cd doc && make || true)
 
 env:
   global:

@@ -5,3 +5,11 @@
 [![Join the chat at https://gitter.im/IFJ-VUT-BIT-2017-2018/](https://img.shields.io/badge/GITTER-join%20chat-green.svg)](https://gitter.im/IFJ-VUT-BIT-2017-2018/)
 
 Repository for program interpret of custom language IFJ2017 written in C tested under Google tests.
+
+Authors
+------------ 
+* Tomáš Pazdiora
+* Son Hai Nguyen
+* Martin Omacht
+* Josef Kolář
+* Martin Kobelka

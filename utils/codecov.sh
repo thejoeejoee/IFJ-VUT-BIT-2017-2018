@@ -1238,6 +1238,8 @@ then
   syntax_bracket='^[[:space:]]*[\{\}][[:space:]]*(//.*)?$'
   # [ or ]
   syntax_list='^[[:space:]]*[][][[:space:]]*(//.*)?$'
+  # ) << "Google test assertion message"; // also with comment
+  syntax_google_test_message='^[[:space:]]*\)[[:space:]]*<<[[:space:]]*"[^"]*";[[:space:]]*(//.*)?$'
 
   skip_dirs="-not -path '*/$bower_components/*' \
              -not -path '*/node_modules/*'"
@@ -1324,6 +1326,7 @@ then
       grep -nIHE \
            -e $empty_line \
            -e $syntax_bracket \
+           -e $syntax_google_test_message \
            -e '// LCOV_EXCL' \
            {} \; \
       | cut_and_join \

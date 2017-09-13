@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="LList">
+    <Expand>
+      <CustomListItems MaxItemsPerView="1000">
+        <Variable Name="iter" InitialValue="head"/>
+        <Loop>
+          <Break Condition="iter == nullptr"/>
+          <Item>*iter</Item>
+          <Break Condition="iter == tail"/>
+          <Exec>iter = iter->next</Exec>
+        </Loop>
+      </CustomListItems>
+    </Expand>
+  </Type>
+  <Type Name="LListItem">
+    <DisplayString>{value}</DisplayString>
+  </Type>
+</AutoVisualizer>

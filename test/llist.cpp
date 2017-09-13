@@ -3,8 +3,6 @@
 #include "../src/llist.h"
 #include "../src/llist.c"
 
-#define NUMBER 42
-
 class LlistTestFixture : public ::testing::Test {
 
 protected:
@@ -21,7 +19,7 @@ protected:
 
 };
 
-TEST_F(LlistTestFixture, test_init) {
+TEST_F(LlistTestFixture, Initialization) {
 
     /*
      * Test constructor
@@ -39,13 +37,12 @@ TEST_F(LlistTestFixture, test_init) {
 
     // Test head on null
     EXPECT_EQ(
-            NULL,
+    NULL,
             llist->head
     ) << "Error head pointer";
 
     // Test tail on null
-    EXPECT_EQ(
-            NULL,
+    EXPECT_EQ(NULL,
             llist->tail
     ) << "Error tail pointer";
 
@@ -53,39 +50,29 @@ TEST_F(LlistTestFixture, test_init) {
     free(llist);
 }
 
-TEST_F(LlistTestFixture, test_clean) {
-
+TEST_F(LlistTestFixture, Destruction) {
     /*
      * Test destructor for list with one item
      */
 
-    // Init list
-    LList *llist;
-    llist_init(&llist);
-
     // Add one number
-    llist_append(llist, NUMBER);
+    llist_append(llist, 42);
 
     // Remove all elements from list
     llist_delete(&llist);
 
     // Test when list is free
-    EXPECT_EQ(
-            NULL,
-            llist
+    EXPECT_TRUE(
+            llist == NULL
     ) << "Error destruct list with one item";
 
 }
 
-TEST_F(LlistTestFixture, test_clean_more_items) {
+TEST_F(LlistTestFixture, DestructionWithMultipleItems) {
 
     /*
      * Test destruct for list with more than one item
      */
-
-    // Init list
-    LList *llist;
-    llist_init(&llist);
 
     // Add ten elements to the list
     for(int i = 0; i < 2; i++) {
@@ -95,27 +82,26 @@ TEST_F(LlistTestFixture, test_clean_more_items) {
     // clean list
     llist_delete(&llist);
 
-    EXPECT_EQ(
-            NULL,
-            llist
+    EXPECT_TRUE(
+            llist == NULL
     ) << "Error destruct list with more than one item";
 }
 
-TEST_F(LlistTestFixture, test_add_one_item) {
-
+TEST_F(LlistTestFixture, SimpleAppend) {
+    const int number = 42;
     // Add one number
-    llist_append(llist, NUMBER);
+    llist_append(llist, number);
 
     // Test correct head value
     EXPECT_EQ(
-        NUMBER,
-        llist->head->value
+        llist->head->value,
+        number
     ) << "The value in head is incorrect";
 
     // Test correct tail value
     EXPECT_EQ(
-        NUMBER,
-        llist->tail->value
+        llist->tail->value,
+        number
     ) << "The value in tail is incorrect";
 
     // TEST tail and head are the same
@@ -146,20 +132,20 @@ TEST_F(LlistTestFixture, test_add_one_item) {
     ) << "Next pointer in tail dont have NULL value";
 
     // remove number from list
-    llist_remove_one(llist, NUMBER);
+    llist_remove_one(llist, number);
 }
 
-TEST_F(LlistTestFixture, test_remove_one) {
+TEST_F(LlistTestFixture, SimpleRemove) {
 
     /*
      * Test remove one when llist have just one item
      */
-
+    const int number = 42;
     // Add one number
-    llist_append(llist, NUMBER);
+    llist_append(llist, number);
 
     // Remove number
-    llist_remove_one(llist, NUMBER);
+    llist_remove_one(llist, number);
 
     EXPECT_EQ(
         NULL,
@@ -172,11 +158,11 @@ TEST_F(LlistTestFixture, test_remove_one) {
     ) << "Tail is not NULL";
 
     // Remove number from list
-    llist_remove_one(llist, NUMBER);
+    llist_remove_one(llist, number);
 
 }
 
-TEST_F(LlistTestFixture, test_remove_one_more_items) {
+TEST_F(LlistTestFixture, MultipleRemove) {
 
     /*
      * Test remove one when llist have more than one item
@@ -196,13 +182,13 @@ TEST_F(LlistTestFixture, test_remove_one_more_items) {
 
     // Test values in items
     EXPECT_EQ(
-            0,
-            first->value
+            first->value,
+            0
     ) << "Error value in first item";
 
     EXPECT_EQ(
-            2,
-            second->value
+            second->value,
+            2
     ) << "Error value in second item";
 
     // Test pointers in first item

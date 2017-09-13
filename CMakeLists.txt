@@ -3,7 +3,9 @@ cmake_minimum_required(VERSION 3.0)
 project(ifj2017)
 
 #init
-SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -pedantic -std=c99")
+IF (NOT MSVC)
+	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -pedantic -std=c99")
+ENDIF ()
 
 include(test/CMakeLists.txt)
 enable_testing()

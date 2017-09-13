@@ -1,8 +1,6 @@
-//
-// Created by ns288774 on 5.9.2017.
-//
 
 #include "llist.h"
+#include "debug.h"
 #include <stdlib.h>
 
 void llist_init(struct LList** list) {
@@ -54,6 +52,10 @@ void llist_remove_one(struct LList* list, int value) {
 }
 
 void llist_delete(struct LList** list) {
+    if (list == NULL || *list == NULL) {
+        DEBUG("NULL LList pointer.");
+        return;
+    }
     struct LListItem* current_item = (*list)->head;
     struct LListItem* next_item = NULL;
 

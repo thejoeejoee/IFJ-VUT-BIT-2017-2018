@@ -22,13 +22,13 @@ addons:
 
 script:
   - mkdir build && cd build
-  - cmake .. -DENABLE_COVERAGE=On && make && make test
+  - cmake .. -DENABLE_COVERAGE=On && make && CTEST_OUTPUT_ON_FAILURE=1 GTEST_COLOR=1 make test
   - make gcov
   - make lcov
   - cd ..
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash) -X coveragepy -X gcov
+  - bash ./utils/codecov.sh -X coveragepy -X gcov
 
 after_script:
   - (cd doc && make || true)

@@ -53,7 +53,7 @@ void llist_remove_one(struct LList* list, int value) {
 
 void llist_delete(struct LList** list) {
     if (list == NULL || *list == NULL) {
-        DEBUG("NULL LList pointer.");
+        LOG_DEBUG("NULL LList pointer.");
         return;
     }
     struct LListItem* current_item = (*list)->head;

@@ -2,11 +2,10 @@
 #include "ial.h"
 
 void hash_table_append_item(HashTable* table, HashTableListItem* new_item) {
-    if (table == NULL || new_item == NULL)
-        // TODO resolve states with NULL params
-        return;
+    _NULL_POINTER_CHECK(table,);
+    _NULL_POINTER_CHECK(new_item,);
 
-    size_t index = hash(new_item->key) % table->arr_size;
+    size_t index = hash(new_item->key) % table->bucket_count;
     HashTableListItem* target = table->items[index];
 
     new_item->next = NULL;
@@ -23,12 +22,13 @@ void hash_table_append_item(HashTable* table, HashTableListItem* new_item) {
 
 void hash_table_clear(HashTable* table, void(* free_data)(void*)) {
     if (table == NULL) return;
-    assert(free_data != NULL);
+    _NULL_POINTER_CHECK(table,);
+    _NULL_POINTER_CHECK(free_data,);
 
-    HashTableListItem* item_to_free = NULL,
-            * tmp_item = NULL;
+    HashTableListItem* item_to_free = NULL;
+    HashTableListItem* tmp_item = NULL;
 
-    for (size_t i = 0; i < table->arr_size; ++i) {
+    for (size_t i = 0; i < table->bucket_count; ++i) {
         item_to_free = table->items[i];
         if (item_to_free == NULL) continue;
         do {
@@ -39,10 +39,11 @@ void hash_table_clear(HashTable* table, void(* free_data)(void*)) {
             free(tmp_item);
         } while (item_to_free != NULL);
     }
-    table->n = 0;
+    table->item_count = 0;
 }
 
 HashTableListItem* hash_table_create_item(const char* key) {
+    _NULL_POINTER_CHECK(key, NULL);
     HashTableListItem* new_item = NULL;
     char* copied_key = NULL;
 
@@ -67,9 +68,10 @@ HashTableListItem* hash_table_create_item(const char* key) {
 }
 
 HashTableListItem* hash_table_find(HashTable* table, const char* key) {
-    if (table == NULL || key == NULL) return NULL;
+    _NULL_POINTER_CHECK(table, NULL);
+    _NULL_POINTER_CHECK(key, NULL);
 
-    size_t index = hash(key) % table->arr_size;
+    size_t index = hash(key) % table->bucket_count;
     HashTableListItem* item = table->items[index];
 
     if (item != NULL)
@@ -86,10 +88,11 @@ HashTableListItem* hash_table_find(HashTable* table, const char* key) {
 
 void hash_table_foreach(HashTable* table,
                         void(* callback)(const char*, void*)) {
-    if (table == NULL || callback == NULL) return;
+    _NULL_POINTER_CHECK(table,);
+    _NULL_POINTER_CHECK(callback,);
 
     HashTableListItem* item;
-    for (size_t i = 0; i < table->arr_size; ++i) {
+    for (size_t i = 0; i < table->bucket_count; ++i) {
         item = table->items[i];
         while (item != NULL) {
             callback(item->key, &item->data);
@@ -105,8 +108,8 @@ HashTable* hash_table_init(size_t size) {
 
     if (NULL == (table = (HashTable*) malloc(need_memory))) return NULL;
 
-    table->arr_size = size;
-    table->n = 0;
+    table->bucket_count = size;
+    table->item_count = 0;
     for (size_t i = 0; i < size; ++i)
         table->items[i] = NULL;
 
@@ -114,26 +117,27 @@ HashTable* hash_table_init(size_t size) {
 }
 
 size_t hash_table_size(HashTable* table) {
-    if (table == NULL) return -1;
-    return table->n;
+    _NULL_POINTER_CHECK(table, 0);
+    return table->item_count;
 }
 
 size_t hash_table_bucket_count(HashTable* table) {
-    if (table == NULL) return -1;
-    return table->arr_size;
+    _NULL_POINTER_CHECK(table, 0);
+    return table->bucket_count;
 }
 
 void hash_table_free(HashTable* table, void(* free_data)(void*)) {
-    if (table == NULL) return;
+    _NULL_POINTER_CHECK(table,);
     hash_table_clear(table, free_data);
 
     free(table);
 }
 
 HashTableListItem* hash_table_lookup_add(HashTable* table, const char* key) {
-    if (table == NULL || key == NULL) return NULL;
+    _NULL_POINTER_CHECK(table, NULL);
+    _NULL_POINTER_CHECK(key, NULL);
 
-    size_t index = hash(key) % table->arr_size;
+    size_t index = hash(key) % table->bucket_count;
     HashTableListItem* item = table->items[index];
 
     if (item != NULL)
@@ -157,7 +161,7 @@ HashTableListItem* hash_table_lookup_add(HashTable* table, const char* key) {
         // link to next
         item->next = new_item;
     }
-    table->n++;
+    table->item_count++;
 
     return new_item;
 }
@@ -166,12 +170,12 @@ HashTable* hash_table_move(size_t new_size, HashTable* source) {
     HashTable* destination = hash_table_init(new_size);
     if (destination == NULL) return NULL;
 
-    destination->arr_size = new_size;
+    destination->bucket_count = new_size;
 
     HashTableListItem* item = NULL;
     HashTableListItem* next = NULL;
 
-    for (size_t source_bucket_i = 0; source_bucket_i < source->arr_size; ++source_bucket_i) {
+    for (size_t source_bucket_i = 0; source_bucket_i < source->bucket_count; ++source_bucket_i) {
         item = source->items[source_bucket_i];
         source->items[source_bucket_i] = NULL;
         while (item != NULL) {
@@ -181,16 +185,17 @@ HashTable* hash_table_move(size_t new_size, HashTable* source) {
         };
     }
 
-    destination->n = source->n;
-    source->n = 0;
+    destination->item_count = source->item_count;
+    source->item_count = 0;
 
     return destination;
 }
 
 bool hash_table_remove(HashTable* table, const char* key) {
-    if (table == NULL || key == NULL) return NULL;
+    _NULL_POINTER_CHECK(table, NULL);
+    _NULL_POINTER_CHECK(key, NULL);
 
-    size_t index = hash(key) % table->arr_size;
+    size_t index = hash(key) % table->bucket_count;
     HashTableListItem* item = table->items[index];
     HashTableListItem* prev = NULL;
 

@@ -6,6 +6,15 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "debug.h"
+
+#define _NULL_POINTER_CHECK(pointer, return_value) DEBUG_CODE({\
+        if ((pointer) == NULL) {\
+            LOG_WARNING("NULL pointer: " #pointer ".");\
+            return return_value;\
+        }\
+    })
+
 
 typedef struct hash_table_list_item_t {
     char* key;
@@ -15,8 +24,8 @@ typedef struct hash_table_list_item_t {
 
 
 typedef struct hash_table_t {
-    size_t arr_size;
-    size_t n;
+    size_t bucket_count;
+    size_t item_count;
     HashTableListItem* items[];
 } HashTable;
 

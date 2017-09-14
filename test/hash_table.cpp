@@ -1,6 +1,5 @@
 #include "gtest/gtest.h"
 
-#include "../src/ial.h"
 #include "../src/ial.c"
 
 class HashTableTestFixture : public ::testing::Test {

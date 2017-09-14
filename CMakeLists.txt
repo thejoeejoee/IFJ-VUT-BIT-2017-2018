@@ -9,8 +9,6 @@ ENDIF ()
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_C_STANDARD 99)
 
-include(test/CMakeLists.txt)
-
 # Visual Studio debug visualizers
 IF (MSVC)
     file(
@@ -22,6 +20,9 @@ IF (MSVC)
 ELSE ()
     set(VS_visualizers "")
 ENDIF ()
+
+# ifj2017_test
+include(test/CMakeLists.txt)
 
 # ifj2017
 file(

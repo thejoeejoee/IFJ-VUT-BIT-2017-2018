@@ -113,12 +113,12 @@ HashTable* hash_table_init(size_t size) {
     return table;
 }
 
-long hash_table_size(HashTable* table) {
+size_t hash_table_size(HashTable* table) {
     if (table == NULL) return -1;
     return table->n;
 }
 
-long hash_table_bucket_count(HashTable* table) {
+size_t hash_table_bucket_count(HashTable* table) {
     if (table == NULL) return -1;
     return table->arr_size;
 }

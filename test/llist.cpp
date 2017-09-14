@@ -88,7 +88,7 @@ TEST_F(LlistTestFixture, DestructionWithMultipleItems) {
 }
 
 TEST_F(LlistTestFixture, SimpleAppend) {
-    const int number = 42;
+    constexpr int number = 42;
     // Add one number
     llist_append(llist, number);
 

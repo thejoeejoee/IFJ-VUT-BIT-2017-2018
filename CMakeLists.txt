@@ -3,36 +3,25 @@ cmake_minimum_required(VERSION 3.0)
 project(ifj2017)
 
 #init
-IF (NOT MSVC)
-	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -pedantic -std=c99")
+IF (CMAKE_COMPILER_IS_GNUCC)
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -pedantic -std=c99")
 ENDIF ()
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_C_STANDARD 99)
 
 include(test/CMakeLists.txt)
-enable_testing()
-find_package(codecov)
 
 # Visual Studio debug visualizers
 IF (MSVC)
-	file(
-        	GLOB_RECURSE VS_debug_visualizers
-        	LIST_DIRECTORIES false
-        	RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}"
-        	"utils/*.natvis"
-	)
+    file(
+            GLOB_RECURSE VS_debug_visualizers
+            LIST_DIRECTORIES false
+            RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}"
+            "utils/*.natvis"
+    )
 ELSE ()
-	set(VS_visualizers "")
+    set(VS_visualizers "")
 ENDIF ()
-
-# ifj2017_test
-file(
-        GLOB_RECURSE ifj2017_test_SRC
-        LIST_DIRECTORIES false
-        RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}"
-        "test/*.cpp" "test/*.hpp"
-)
-add_executable(ifj2017_test ${ifj2017_test_SRC} ${VS_debug_visualizers})
-target_link_libraries(ifj2017_test gtest)
-add_test(NAME test COMMAND ifj2017_test)
 
 # ifj2017
 file(
@@ -42,10 +31,6 @@ file(
         "src/*.c" "src/*.h"
 )
 add_executable(ifj2017 ${ifj2017_SRC} ${VS_debug_visualizers})
-
-# coverage
-add_coverage(ifj2017_test)
-coverage_evaluate()
 
 # automatic source groups by folder structure
 set(_all_sources ${ifj2017_test_SRC} ${ifj2017_SRC} ${VS_debug_visualizers})

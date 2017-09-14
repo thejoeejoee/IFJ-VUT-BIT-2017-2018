@@ -36,3 +36,21 @@ endif ()
 
 # link downloaded codecov
 set(CMAKE_MODULE_PATH "${CMAKE_BINARY_DIR}/codecov-src/cmake" ${CMAKE_MODULE_PATH})
+
+# ifj2017_test
+file(
+        GLOB_RECURSE ifj2017_test_SRC
+        LIST_DIRECTORIES false
+        RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}"
+        "test/*.cpp" "test/*.hpp"
+)
+add_executable(ifj2017_test ${ifj2017_test_SRC} ${VS_debug_visualizers})
+target_link_libraries(ifj2017_test gtest)
+add_test(NAME test COMMAND ifj2017_test)
+
+enable_testing()
+find_package(codecov)
+
+# coverage
+add_coverage(ifj2017_test)
+coverage_evaluate()

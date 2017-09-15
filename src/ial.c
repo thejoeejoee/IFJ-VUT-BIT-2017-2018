@@ -1,6 +1,8 @@
 #include <assert.h>
 #include "ial.h"
 
+size_t hash(const char* str);
+
 void hash_table_append_item(HashTable* table, HashTableListItem* new_item) {
     _NULL_POINTER_CHECK(table,);
     _NULL_POINTER_CHECK(new_item,);
@@ -20,8 +22,7 @@ void hash_table_append_item(HashTable* table, HashTableListItem* new_item) {
     }
 }
 
-void hash_table_clear(HashTable* table, void(* free_data)(void*)) {
-    if (table == NULL) return;
+void hash_table_clear_buckets(HashTable* table, _free_data_callback free_data) {
     _NULL_POINTER_CHECK(table,);
     _NULL_POINTER_CHECK(free_data,);
 
@@ -42,7 +43,7 @@ void hash_table_clear(HashTable* table, void(* free_data)(void*)) {
     table->item_count = 0;
 }
 
-HashTableListItem* hash_table_create_item(const char* key) {
+HashTableListItem* hash_table_new_item(const char* key) {
     _NULL_POINTER_CHECK(key, NULL);
     HashTableListItem* new_item = NULL;
     char* copied_key = NULL;
@@ -67,7 +68,7 @@ HashTableListItem* hash_table_create_item(const char* key) {
     return new_item;
 }
 
-HashTableListItem* hash_table_find(HashTable* table, const char* key) {
+HashTableListItem* hash_table_get(HashTable* table, const char* key) {
     _NULL_POINTER_CHECK(table, NULL);
     _NULL_POINTER_CHECK(key, NULL);
 
@@ -126,14 +127,14 @@ size_t hash_table_bucket_count(HashTable* table) {
     return table->bucket_count;
 }
 
-void hash_table_free(HashTable* table, void(* free_data)(void*)) {
+void hash_table_free(HashTable* table, _free_data_callback free_data) {
     _NULL_POINTER_CHECK(table,);
-    hash_table_clear(table, free_data);
+    hash_table_clear_buckets(table, free_data);
 
     free(table);
 }
 
-HashTableListItem* hash_table_lookup_add(HashTable* table, const char* key) {
+HashTableListItem* hash_table_get_or_create(HashTable* table, const char* key) {
     _NULL_POINTER_CHECK(table, NULL);
     _NULL_POINTER_CHECK(key, NULL);
 
@@ -151,7 +152,7 @@ HashTableListItem* hash_table_lookup_add(HashTable* table, const char* key) {
         };
 
     // key not found, we need to allocate new item
-    HashTableListItem* new_item = hash_table_create_item(key);
+    HashTableListItem* new_item = hash_table_new_item(key);
     if (new_item == NULL) return NULL;
 
     if (item == NULL) {
@@ -191,7 +192,7 @@ HashTable* hash_table_move(size_t new_size, HashTable* source) {
     return destination;
 }
 
-bool hash_table_remove(HashTable* table, const char* key) {
+bool hash_table_delete(HashTable* table, const char* key) {
     _NULL_POINTER_CHECK(table, NULL);
     _NULL_POINTER_CHECK(key, NULL);
 

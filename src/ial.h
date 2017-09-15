@@ -29,6 +29,8 @@ typedef struct hash_table_t {
     HashTableListItem* items[];
 } HashTable;
 
+typedef void(* _free_data_callback)(void*);
+
 /**
  * Construct new hash table with given size.
  * @return Ptr to allocated hash table, NULL in case of error.
@@ -58,25 +60,19 @@ size_t hash_table_bucket_count(HashTable* table);
  * new item is created and inserted to hash table.
  * @return Ptr to created/found item in hash table.
  */
-HashTableListItem* hash_table_lookup_add(HashTable* table, const char* key);
+HashTableListItem* hash_table_get_or_create(HashTable* table, const char* key);
 
 /**
  * Try to find item in hast table by given key.
  * @return Ptr to found item or NULL.
  */
-HashTableListItem* hash_table_find(HashTable* table, const char* key);
+HashTableListItem* hash_table_get(HashTable* table, const char* key);
 
 /**
  * Allocate memory for hash table item and associated key, which is copied from given.
- * @internal
  * @return Ptr to new item.
  */
-HashTableListItem* hash_table_create_item(const char* key);
-
-/**
- * Given item simply append to correct bucket of given table.
- */
-void hash_table_append_item(HashTable* table, HashTableListItem* item);
+HashTableListItem* hash_table_new_item(const char* key);
 
 /**
  * Call given function on all items in hash table.
@@ -87,24 +83,17 @@ void hash_table_foreach(HashTable* table, void(* callback)(const char*, void*));
  * Try to remove item from table by given key.
  * @return true, if item was found and removed, else false
  */
-bool hash_table_remove(HashTable* table, const char* key);
+bool hash_table_delete(HashTable* table, const char* key);
 
 /**
  * Dealloc all items with key from given hash table.
  */
-void hash_table_clear(HashTable* table, void(* free_data)(void*));
+void hash_table_clear_buckets(HashTable* table, _free_data_callback free_data);
 
 /**
  * Dealloc table from memory.
  * @param HTable
  */
-void hash_table_free(HashTable* table, void(* free_data)(void*));
-
-/**
- * Header for hash function needed by this lib.
- * @param str string to hash
- * @return computed hash
- */
-size_t hash(const char* str);
+void hash_table_free(HashTable* table, _free_data_callback free_data);
 
 #endif //_IAL_H

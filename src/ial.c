@@ -75,16 +75,12 @@ HashTableListItem* hash_table_get(HashTable* table, const char* key) {
     size_t index = hash(key) % table->bucket_count;
     HashTableListItem* item = table->items[index];
 
-    if (item != NULL)
-        while (1) {
-            if (0 == strcmp(key, item->key))
-                return item;
-
-            if (item->next == NULL) break;
-
-            item = item->next;
-        };
-    return NULL;
+	while (item != NULL) {
+		if (0 == strcmp(key, item->key))
+			return item;
+		item = item->next;
+	}
+	return item;
 }
 
 void hash_table_foreach(HashTable* table,

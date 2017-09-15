@@ -10,6 +10,7 @@
 #define LOG_VERBOSITY_DEBUG 2
 #define LOG_VERBOSITY_INFO 1
 #define LOG_VERBOSITY_WARNING 0
+#define LOG_VERBOSITY_NONE -1
 
 extern short log_verbosity;
 
@@ -43,6 +44,7 @@ do {\
 #define LOG_INFO(...)
 #define LOG_WARNING(...)
 #define DEBUG_CODE(...)
+#define NULL_POINTER_CHECK(...)
 
 #endif
 #endif //_DEBUG_H

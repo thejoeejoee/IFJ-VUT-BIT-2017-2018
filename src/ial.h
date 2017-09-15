@@ -22,7 +22,7 @@ typedef struct hash_table_t {
     HashTableListItem* items[];
 } HashTable;
 
-typedef void(* _free_data_callback)(void*);
+typedef void(* free_data_callback_f)(void*);
 
 /**
  * Construct new hash table with given size.
@@ -76,17 +76,17 @@ void hash_table_foreach(HashTable* table, void(* callback)(const char*, void*));
  * Try to remove item from table by given key.
  * @return true, if item was found and removed, else false
  */
-bool hash_table_delete(HashTable* table, const char* key);
+bool hash_table_delete(HashTable* table, const char* key, free_data_callback_f free_data_callback);
 
 /**
  * Dealloc all items with key from given hash table.
  */
-void hash_table_clear_buckets(HashTable* table, _free_data_callback free_data);
+void hash_table_clear_buckets(HashTable* table, free_data_callback_f free_data);
 
 /**
  * Dealloc table from memory.
  * @param HTable
  */
-void hash_table_free(HashTable* table, _free_data_callback free_data);
+void hash_table_free(HashTable* table, free_data_callback_f free_data);
 
 #endif //_IAL_H

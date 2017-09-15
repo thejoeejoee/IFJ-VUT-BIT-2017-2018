@@ -2,7 +2,7 @@
 
 #include "../src/debug.h"
 
-short log_verbosity = LOG_VERBOSITY_DEBUG;
+short log_verbosity = LOG_VERBOSITY_NONE;
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);

@@ -204,10 +204,11 @@ bool hash_table_delete(HashTable* table, const char* key,
 
     while (42) {
         if (0 == strcmp(key, item->key)) {
-            if (prev != NULL)
-                prev->next = item->next;
+            if (prev == NULL)
+                table->items[index] = item->next;
             else
-                table->items[index] = item;
+                prev->next = item->next;
+
             free(item->key);
             free_data_callback(item->data);
             free(item);

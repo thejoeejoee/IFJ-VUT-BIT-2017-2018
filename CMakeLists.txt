@@ -15,7 +15,7 @@ IF (MSVC)
             GLOB_RECURSE VS_debug_visualizers
             LIST_DIRECTORIES false
             RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}"
-            "utils/*.natvis"
+            "utils/vs/*.natvis"
     )
 ELSE ()
     set(VS_visualizers "")

@@ -30,6 +30,13 @@ do {\
 
 #define DEBUG_CODE(code) code
 
+#define NULL_POINTER_CHECK(pointer, return_value) DEBUG_CODE({\
+        if ((pointer) == NULL) {\
+            LOG_WARNING("NULL pointer `" #pointer "`.");\
+            return return_value;\
+        }\
+    })
+
 #else
 
 #define LOG_DEBUG(...)

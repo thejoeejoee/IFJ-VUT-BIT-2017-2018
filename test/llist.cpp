@@ -5,16 +5,17 @@
 
 class LlistTestFixture : public ::testing::Test {
 
-protected:
+    protected:
 
-        LList *llist;
+        LList* llist;
 
         virtual void SetUp() {
             llist_init(&llist);
         }
 
         virtual void TearDown() {
-            llist_delete(&llist);
+            if (llist != NULL)
+                llist_delete(&llist);
         }
 
 };
@@ -26,7 +27,7 @@ TEST_F(LlistTestFixture, Initialization) {
      */
 
     // Init seznam
-    LList *llist;
+    LList* llist;
     llist_init(&llist);
 
     // Test for correctly allocated memory
@@ -37,13 +38,13 @@ TEST_F(LlistTestFixture, Initialization) {
 
     // Test head on null
     EXPECT_EQ(
-    NULL,
+            NULL,
             llist->head
     ) << "Error head pointer";
 
     // Test tail on null
     EXPECT_EQ(NULL,
-            llist->tail
+              llist->tail
     ) << "Error tail pointer";
 
     // Clean memory
@@ -75,7 +76,7 @@ TEST_F(LlistTestFixture, DestructionWithMultipleItems) {
      */
 
     // Add ten elements to the list
-    for(int i = 0; i < 2; i++) {
+    for (int i = 0; i < 2; i++) {
         llist_append(llist, i);
     }
 
@@ -94,14 +95,14 @@ TEST_F(LlistTestFixture, SimpleAppend) {
 
     // Test correct head value
     EXPECT_EQ(
-        llist->head->value,
-        number
+            llist->head->value,
+            number
     ) << "The value in head is incorrect";
 
     // Test correct tail value
     EXPECT_EQ(
-        llist->tail->value,
-        number
+            llist->tail->value,
+            number
     ) << "The value in tail is incorrect";
 
     // TEST tail and head are the same
@@ -114,7 +115,7 @@ TEST_F(LlistTestFixture, SimpleAppend) {
     EXPECT_EQ(
             NULL,
             llist->head->previous
-    )<< "Previous pointer in head dont have NULL value";
+    ) << "Previous pointer in head dont have NULL value";
 
     EXPECT_EQ(
             NULL,
@@ -125,7 +126,7 @@ TEST_F(LlistTestFixture, SimpleAppend) {
     EXPECT_EQ(
             NULL,
             llist->tail->previous
-    )<< "Previout pointer in tail dont have NULL value";
+    ) << "Previout pointer in tail dont have NULL value";
     EXPECT_EQ(
             NULL,
             llist->tail->next
@@ -148,13 +149,13 @@ TEST_F(LlistTestFixture, SimpleRemove) {
     llist_remove_one(llist, number);
 
     EXPECT_EQ(
-        NULL,
-        llist->head
+            NULL,
+            llist->head
     ) << "Head is not NULL";
 
     EXPECT_EQ(
-        NULL,
-        llist->tail
+            NULL,
+            llist->tail
     ) << "Tail is not NULL";
 
     // Remove number from list
@@ -177,8 +178,8 @@ TEST_F(LlistTestFixture, MultipleRemove) {
     llist_remove_one(llist, 1);
 
     // Get two items from llist
-    LListItem *first = llist->head;
-    LListItem *second = first->next;
+    LListItem* first = llist->head;
+    LListItem* second = first->next;
 
     // Test values in items
     EXPECT_EQ(

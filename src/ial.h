@@ -8,13 +8,6 @@
 
 #include "debug.h"
 
-#define _NULL_POINTER_CHECK(pointer, return_value) DEBUG_CODE({\
-        if ((pointer) == NULL) {\
-            LOG_WARNING("NULL pointer: " #pointer ".");\
-            return return_value;\
-        }\
-    })
-
 
 typedef struct hash_table_list_item_t {
     char* key;

@@ -2,6 +2,8 @@
 #ifndef _LLIST_H
 #define _LLIST_H
 
+#include "debug.h"
+
 struct LListItem;
 
 /**

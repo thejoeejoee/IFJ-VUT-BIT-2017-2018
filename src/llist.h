@@ -10,12 +10,12 @@ struct LListItem;
  * @brief The LList structure contains the beginning and the end of linear list. An empty list
  * has null end and beginning.
  */
-struct LList {
+typedef struct LList {
     /// The beginning of list.
     struct LListItem* head;
     /// The end of list.
     struct LListItem* tail;
-};
+} LList;
 
 /**
  * @brief The LListItem structure is single item of linear list which contains single integer

@@ -5,14 +5,30 @@
 #include <stdbool.h>
 #include "debug.h"
 
+/**
+ * PUBLIC API FOR MEMORY MANAGER:
+ *
+ * ptr = memory_alloc(size)
+ * memory_free(ptr)
+ *
+ * Based on NDEBUG - if defined, both functions are mapped to stdlib.
+ * If not defined, global memory managed handles functions.
+ *
+ * memory_manager_enter and memory_manager_exit starts and closes memory session.
+ * Exit also frees all non-freed and warns about all memory leaks.
+ */
 #ifndef NDEBUG
-
-#define INFO_MAX_LENGTH 64
-#define INFO_FORMAT "%s:%d:%s()"
 
 #define memory_alloc(size) memory_manager_malloc(size, __FILENAME__, __LINE__, __func__, NULL)
 #define memory_free(address) memory_manager_free(address, NULL)
 
+#define INFO_MAX_LENGTH 64
+#define INFO_FORMAT "%s:%d:%s()"
+
+/**
+ * @brief Memory page as one unit of allocated memory. Stored also info about place of allocation, size and
+ * flag for state of freeing. Works as linked list, with next linked pages.
+ */
 typedef struct memory_manager_page_t {
     void* address;
     size_t size;
@@ -21,18 +37,60 @@ typedef struct memory_manager_page_t {
     struct memory_manager_page_t* next;
 } MemoryManagerPage;
 
+/**
+ * @brief Memory manager actually holds only header of linked list of pages.
+ */
 typedef struct memory_manager_t {
     MemoryManagerPage* head;
 } MemoryManager;
 
 extern MemoryManager memory_manager;
 
+/**
+ * Enters memory manager session for given manager.
+ * @param manager optional specified memory manager
+ */
 void memory_manager_enter(MemoryManager* manager);
 
+/**
+ * Exits session of given manager. Also deallocate all pages and non-freed memory blocks.
+ * For non-freed logs warnings for possible memory leaks.
+ * @param manager optional specified memory manager
+ */
 void memory_manager_exit(MemoryManager* manager);
+
+/**
+ * Replacement for malloc, which uses memory manager with pages and stored info about allocation.
+ * @param size size of wanted memory
+ * @param file source file of allocation
+ * @param line line in file of allocation
+ * @param func function of allocation
+ * @param manager optionally custom manager
+ * @return pointer to allocated memory block
+ */
+void* memory_manager_malloc(
+        size_t size,
+        const char* file,
+        unsigned line,
+        const char* func,
+        MemoryManager* manager
+);
+
+/**
+ * Replacement for free, mark page as freed
+ * @param address pointer to memory block to free
+ * @param manager memory manager
+ */
+void memory_manager_free(
+        void* address,
+        MemoryManager* manager
+);
 
 #else
 
+/**
+* Stdlib callbacks for memory management functions.
+*/
 #define memory_alloc malloc
 #define memory_free free
 #define memory_manager_enter(...)

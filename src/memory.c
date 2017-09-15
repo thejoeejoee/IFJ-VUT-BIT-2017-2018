@@ -73,13 +73,14 @@ void memory_manager_exit(MemoryManager* manager) {
 
     while (page != NULL) {
         next = page->next;
-        if (page->allocated) {
-            LOG_WARNING("Memory leak of %zu bytes from %s.", page->size, page->info);
-        }
         pages_count++;
         size_sum += page->size;
+
+        if (page->allocated) {
+            LOG_WARNING("Memory leak of %zu bytes from %s.", page->size, page->info);
+            free(page->address);
+        }
         free(page->info);
-        free(page->address);
         free(page);
         page = next;
     }

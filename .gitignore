@@ -33,3 +33,4 @@ doc/build
 .idea/**/sqlDataSources.xml
 .idea/**/dynamic.xml
 .idea/**/uiDesigner.xml
+*.pyc

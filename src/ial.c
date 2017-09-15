@@ -1,4 +1,3 @@
-#include <assert.h>
 #include "ial.h"
 
 size_t hash(const char* str);
@@ -37,9 +36,9 @@ void hash_table_clear_buckets(HashTable* table,
         do {
             tmp_item = item_to_free;
             item_to_free = item_to_free->next;
-            free(tmp_item->key);
+            memory_free(tmp_item->key);
             free_data(tmp_item->data);
-            free(tmp_item);
+            memory_free(tmp_item);
         } while (item_to_free != NULL);
     }
     table->item_count = 0;
@@ -50,17 +49,17 @@ HashTableListItem* hash_table_new_item(const char* key) {
     HashTableListItem* new_item = NULL;
     char* copied_key = NULL;
 
-    if (NULL == (new_item = (HashTableListItem*) malloc(sizeof(HashTableListItem))))
+    if (NULL == (new_item = (HashTableListItem*) memory_alloc(sizeof(HashTableListItem))))
         return NULL;
 
-    if (NULL == (copied_key = (char*) malloc(sizeof(char) * (strlen(key) + 1)))) {
-        free(new_item);
+    if (NULL == (copied_key = (char*) memory_alloc(sizeof(char) * (strlen(key) + 1)))) {
+        memory_free(new_item);
         return NULL;
     }
 
     if (NULL == strcpy(copied_key, key)) {
-        free(new_item);
-        free(copied_key);
+        memory_free(new_item);
+        memory_free(copied_key);
         return NULL;
     }
 
@@ -105,7 +104,7 @@ HashTable* hash_table_init(size_t size) {
     size_t need_memory = sizeof(HashTable) +
                          sizeof(HashTableListItem*) * size;
 
-    if (NULL == (table = (HashTable*) malloc(need_memory))) return NULL;
+    if (NULL == (table = (HashTable*) memory_alloc(need_memory))) return NULL;
 
     table->bucket_count = size;
     table->item_count = 0;
@@ -129,7 +128,7 @@ void hash_table_free(HashTable* table, free_data_callback_f free_data) {
     NULL_POINTER_CHECK(table,);
     hash_table_clear_buckets(table, free_data);
 
-    free(table);
+    memory_free(table);
 }
 
 HashTableListItem* hash_table_get_or_create(HashTable* table, const char* key) {
@@ -166,6 +165,7 @@ HashTableListItem* hash_table_get_or_create(HashTable* table, const char* key) {
 }
 
 HashTable* hash_table_move(size_t new_size, HashTable* source) {
+    NULL_POINTER_CHECK(source, NULL);
     HashTable* destination = hash_table_init(new_size);
     if (destination == NULL) return NULL;
 
@@ -209,9 +209,9 @@ bool hash_table_delete(HashTable* table, const char* key,
             else
                 prev->next = item->next;
 
-            free(item->key);
+            memory_free(item->key);
             free_data_callback(item->data);
-            free(item);
+            memory_free(item);
             return true;
         }
 

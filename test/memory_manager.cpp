@@ -8,11 +8,11 @@ class MemoryManagerTestFixture : public ::testing::Test {
     protected:
         MemoryManager memory_manager;
 
-        virtual void SetUp() {
+        void SetUp() override {
             memory_manager_enter(&memory_manager);
         }
 
-        virtual void TearDown() {
+        void TearDown() override {
             memory_manager_exit(&memory_manager);
         }
 
@@ -28,13 +28,13 @@ TEST_F(MemoryManagerTestFixture, Destruction) {
 }
 
 TEST_F(MemoryManagerTestFixture, InvalidMemoryAllocation) {
-    OVERRIDE_VERBOSITY(LOG_VERBOSITY_NONE, {
+    DISABLE_LOG({
         EXPECT_EQ(memory_manager_malloc(0, nullptr, 0, nullptr, &memory_manager), nullptr) << "Invalid size.";
     });
 }
 
 TEST_F(MemoryManagerTestFixture, InvalidMemoryDealocation) {
-    OVERRIDE_VERBOSITY(LOG_VERBOSITY_NONE, {
+    DISABLE_LOG({
         // TODO: free does return void.. so no method to check valid address
         memory_manager_free(&memory_manager, &memory_manager);
     });

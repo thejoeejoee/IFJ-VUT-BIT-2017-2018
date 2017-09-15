@@ -192,9 +192,9 @@ HashTable* hash_table_move(size_t new_size, HashTable* source) {
 
 bool hash_table_delete(HashTable* table, const char* key,
                        free_data_callback_f free_data_callback) {
-    NULL_POINTER_CHECK(table, NULL);
-    NULL_POINTER_CHECK(key, NULL);
-    NULL_POINTER_CHECK(free_data_callback, NULL);
+    NULL_POINTER_CHECK(table, false);
+    NULL_POINTER_CHECK(key, false);
+    NULL_POINTER_CHECK(free_data_callback, false);
 
     size_t index = hash(key) % table->bucket_count;
     HashTableListItem* item = table->items[index];

@@ -2,6 +2,8 @@
 
 #include "../src/memory.c"
 
+#ifndef NDEBUG
+
 class MemoryManagerTestFixture : public ::testing::Test {
     protected:
         MemoryManager memory_manager;
@@ -82,4 +84,4 @@ TEST_F(MemoryManagerTestFixture, MultipleMemoryAllocation) {
     EXPECT_EQ(first_page->address, nullptr) << "Nulled address of freed page.";
 }
 
-
+#endif

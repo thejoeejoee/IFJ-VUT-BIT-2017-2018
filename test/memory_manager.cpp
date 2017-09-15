@@ -28,12 +28,16 @@ TEST_F(MemoryManagerTestFixture, Destruction) {
 }
 
 TEST_F(MemoryManagerTestFixture, InvalidMemoryAllocation) {
-    EXPECT_EQ(memory_manager_malloc(0, nullptr, 0, nullptr, &memory_manager), nullptr) << "Invalid size.";
+    OVERRIDE_VERBOSITY(LOG_VERBOSITY_NONE, {
+        EXPECT_EQ(memory_manager_malloc(0, nullptr, 0, nullptr, &memory_manager), nullptr) << "Invalid size.";
+    });
 }
 
 TEST_F(MemoryManagerTestFixture, InvalidMemoryDealocation) {
-    // TODO: free does return void.. so no method to check valid address
-    memory_manager_free(&memory_manager, &memory_manager);
+    OVERRIDE_VERBOSITY(LOG_VERBOSITY_NONE, {
+        // TODO: free does return void.. so no method to check valid address
+        memory_manager_free(&memory_manager, &memory_manager);
+    });
 }
 
 TEST_F(MemoryManagerTestFixture, SingleMemoryAllocation) {
@@ -82,6 +86,11 @@ TEST_F(MemoryManagerTestFixture, MultipleMemoryAllocation) {
 
     EXPECT_FALSE(first_page->allocated) << "Allocation flag for freed memory.";
     EXPECT_EQ(first_page->address, nullptr) << "Nulled address of freed page.";
+
+    memory_manager_free(second_memory, &memory_manager);
+
+    EXPECT_FALSE(second_page->allocated) << "Allocation flag for freed memory.";
+    EXPECT_EQ(second_page->address, nullptr) << "Nulled address of freed page.";
 }
 
 #endif

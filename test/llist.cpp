@@ -1,23 +1,21 @@
 #include "gtest/gtest.h"
 
-#include "../src/llist.h"
 #include "../src/llist.c"
 
 class LlistTestFixture : public ::testing::Test {
-
     protected:
-
         LList* llist;
-
         virtual void SetUp() {
+            memory_manager_enter(nullptr);
             llist_init(&llist);
         }
 
         virtual void TearDown() {
-            if (llist != NULL)
+            if (llist != nullptr) {
                 llist_delete(&llist);
+            }
+            memory_manager_exit(nullptr);
         }
-
 };
 
 TEST_F(LlistTestFixture, Initialization) {
@@ -48,7 +46,7 @@ TEST_F(LlistTestFixture, Initialization) {
     ) << "Error tail pointer";
 
     // Clean memory
-    free(llist);
+    memory_free(llist);
 }
 
 TEST_F(LlistTestFixture, Destruction) {

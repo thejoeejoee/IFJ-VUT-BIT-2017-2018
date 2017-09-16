@@ -1,7 +1,9 @@
 #!/usr/bin/python
 
+import os
 import sys
 import json
+import plotly
 import plotly.plotly as py
 import plotly.graph_objs as go
 
@@ -57,31 +59,22 @@ def plotly_combine(data_a, data_b):
     return result
 
 
-
-# get benchmark results
-
-# benchmark results format example
-"""
-{
-	"build":42,
-	"benchmarks":[
-		{"name":"func", "time_ms":10.42},
-		{"name":"func_b", "time_ms":14.0},
-		{"name":"func_c", "time_ms":16}
-	]
-}
-"""
-
-if (len(sys.argv) == 2):
-    _filename = sys.argv[1];
+# init
+if (len(sys.argv) == 3):
+    build_nr = sys.argv[1];
+    filename = sys.argv[2];
 else:
-    print("usage: plotly_upload_results.py benchmark_results.json")
+    print("usage: USER=user API_KEY=key plotly_upload_results.py BUILD_NUMBER benchmark_results.json")
     exit()
 
-with open(_filename,"r") as data_file:    
-    benchmark_data = json.load(data_file)
+# get benchmark results
+try:
+    with open(filename,"r") as data_file:    
+        benchmark_data = json.load(data_file)
+except FileExistsError:
+    print("Warning: benchmark file \"{0}\" not found".format(filename))
+    exit()
 
-build_nr = benchmark_data["build"]
 new_data = []
 for benchmark in benchmark_data["benchmarks"]:
     tmp_data = {    "name":benchmark["name"],
@@ -90,15 +83,55 @@ for benchmark in benchmark_data["benchmarks"]:
                }
     new_data += [tmp_data]
 
+# login
+usr = os.environ.get('USER')
+key = os.environ.get('API_KEY')
+if (usr==None or key==None):
+    print("Environment variables USER or API_KEY are missing!")
+    exit()
 
-# get plotly figure
-file = open("plot_url","r") 
-plot_url = file.read()
-file.close()
-fig = py.get_figure(plot_url)
+try:
+    py.sign_in(usr, key)
 
-# combine with new data
-fig["data"] = plotly_combine(fig["data"], new_data)
+    # get plot_url or create new plot
+    dummy_fig = {'data': [{'type': 'scatter', 'x': [], 'y': []}]}
+    plot_url = py.plot(dummy_fig, filename="IFJ_benchmark", fileopt='append', auto_open=False)
 
-# upload
-plot_url = py.plot(fig, filename="IFJ_benchmark", auto_open=False)
+    # get plotly figure
+    fig = py.get_figure(plot_url)
+
+    # reset figure layout
+    layout = go.Layout(
+        title="IFJ Benchmark",
+        titlefont=dict(size=20),
+        xaxis=dict(
+            title='<b>build #</b>',
+            tickprefix='#',
+            titlefont=dict(size=20), 
+            type='category',
+            categoryorder='array',
+            showticklabels=True,
+            autorange=True
+        ),
+        yaxis=dict(
+            title='time [ms]',
+            ticksuffix='ms',
+            titlefont=dict(size=20),
+            showticklabels=True,
+            autorange=True
+        )
+    )
+
+    # combine with new data
+    fig["data"] = plotly_combine(fig["data"], new_data)
+    fig["layout"] = layout
+
+    # upload
+
+    result_url = py.plot(fig, filename="IFJ_benchmark", fileopt="overwrite", auto_open=False)
+    print("Benchmark results upload complete. ({0})".format(result_url))
+    exit()
+
+except:
+    print("Warning: benchmark results upload failed")
+    exit()

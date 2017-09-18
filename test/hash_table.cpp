@@ -84,9 +84,9 @@ TEST_F(HashTableTestFixture, InsertItems) {
                 });
 
     // Insert items
-    for (int i = 0; i < n_samples; i++) {
+    for (auto &key : keys) {
         EXPECT_NE(
-                hash_table_get_or_create(hash_table, keys[i]),
+                hash_table_get_or_create(hash_table, key),
                 nullptr
         ) << "Function should return item ptr";
     }
@@ -171,8 +171,9 @@ TEST_F(HashTableTestFixture, MoveEmptyTable) {
     hash_table_free(table, FreeData);
 }
 
-TEST_F(HashTableWithDataTestFixture, DISABLED_MoveTableWithItems) {
-    HashTable* new_table = hash_table_move(n_samples + 5, hash_table);
+TEST_F(HashTableWithDataTestFixture, MoveTableWithItems) {
+    size_t items = hash_table_size(hash_table);
+    HashTable* new_table = hash_table_move(n_samples * 2, hash_table);
 
     ASSERT_NE(
             new_table,
@@ -181,12 +182,22 @@ TEST_F(HashTableWithDataTestFixture, DISABLED_MoveTableWithItems) {
 
     EXPECT_EQ(
             hash_table_size(new_table),
-            hash_table_size(hash_table)
+            items
     ) << "New hash table should have the same size";
 
-    hash_table_free(new_table, FreeData);
+    EXPECT_EQ(
+            hash_table_size(hash_table),
+            0
+    ) << "Source table should have no items.";
 
-    // TODO: check all moved items
+    for (auto key : keys) {
+        EXPECT_NE(
+            hash_table_get(new_table, key),
+            nullptr
+        ) << "All items were copied.";
+    }
+
+    hash_table_free(new_table, FreeData);
 }
 
 TEST_F(HashTableTestFixture, MoveTableInvalid) {
@@ -200,14 +211,12 @@ TEST_F(HashTableTestFixture, MoveTableInvalid) {
 
 // TODO: Fix foreach tests
 TEST_F(HashTableTestFixture, ForeachInvalid) {
-    /*foreach_count = 0;
-
-    hash_table_foreach(nullptr, ForeachCount);
+    // hash_table_foreach(nullptr, ForeachCount);
 
     EXPECT_EQ(
             foreach_count,
             0
-    ) << "Callback function should not be called";*/
+    ) << "Callback function should not be called";
 }
 
 TEST_F(HashTableTestFixture, ForeachOnEmptyTable) {

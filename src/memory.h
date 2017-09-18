@@ -85,6 +85,12 @@ void memory_manager_free(
         MemoryManager* manager
 );
 
+/**
+ * Log stats about actual session of memory manager.
+ * @param manager optional memory manager
+ */
+void memory_manager_log_stats(MemoryManager* manager);
+
 #else
 
 /**
@@ -94,6 +100,7 @@ void memory_manager_free(
 #define memory_free free
 #define memory_manager_enter(...)
 #define memory_manager_exit(...)
+#define memory_manager_log_stats(...)
 
 #endif
 

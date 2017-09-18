@@ -97,4 +97,29 @@ void memory_manager_exit(MemoryManager* manager) {
     manager->head = NULL;
 }
 
+void memory_manager_log_stats(MemoryManager* manager) {
+    if (manager == NULL)
+        manager = &memory_manager;
+
+    MemoryManagerPage* page = manager->head;
+    MemoryManagerPage* next = NULL;
+    int allocated_pages_count = 0;
+    int allocated_size = 0;
+    int total_size = 0;
+
+    while (page != NULL) {
+        next = page->next;
+
+        allocated_size += page->size * page->allocated;
+        allocated_pages_count += page->allocated;
+        total_size += page->size;
+
+        page = next;
+    }
+    LOG_DEBUG(
+            "Allocated %d bytes in %d pages. Total memory usage %d bytes.",
+            allocated_size, allocated_pages_count, total_size
+    );
+}
+
 #endif

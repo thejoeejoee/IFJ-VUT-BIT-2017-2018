@@ -7,19 +7,24 @@ import plotly
 import plotly.plotly as py
 import plotly.graph_objs as go
 
-#TODO: refactor needed
+
+# TODO: refactor needed
 def parse(s):
     try:
         return int(s)
     except ValueError:
         return float(s)
+
+
 def conv(v):
-    if(isinstance(v,list)):
+    if isinstance(v, list):
         return v
-    elif(isinstance(v,int) or isinstance(v,float)):
+    elif isinstance(v, int) or isinstance(v, float):
         return [v]
-    elif(isinstance(v,str)):
+    elif isinstance(v, str):
         return [parse(v)]
+
+
 def plotly_combine(data_a, data_b):
     result = []
     # get set of names
@@ -33,23 +38,23 @@ def plotly_combine(data_a, data_b):
     # combine data
     for name in names:
         xy_tuples = []
-        tmp_data = {    "type":"scatter",
-                        "name":name, #name
-                        "hoverinfo":"x+y+name",
-                        "x":[], #build number
-                        "y":[] #time
-        }
+        tmp_data = {"type": "scatter",
+                    "name": name,  # name
+                    "hoverinfo": "x+y+name",
+                    "x": [],  # build number
+                    "y": []  # time
+                    }
         for data in data_a:
             if "name" in data.keys() and data["name"] == name:
-                xy_tuples.extend(zip(conv(data["x"]),conv(data["y"])))
+                xy_tuples.extend(zip(conv(data["x"]), conv(data["y"])))
         for data in data_b:
             if "name" in data.keys() and data["name"] == name:
-                xy_tuples.extend(zip(conv(data["x"]),conv(data["y"])))
+                xy_tuples.extend(zip(conv(data["x"]), conv(data["y"])))
 
         unified_tuples = list(dict(xy_tuples).items())
         unified_tuples.sort(key=lambda tup: tup[0])
 
-        if(unified_tuples):
+        if (unified_tuples):
             tmp_data["x"], tmp_data["y"] = zip(*unified_tuples)
             tmp_data["x"] = list(tmp_data["x"])
             tmp_data["y"] = list(tmp_data["y"])
@@ -60,16 +65,16 @@ def plotly_combine(data_a, data_b):
 
 
 # init
-if (len(sys.argv) == 3):
-    build_nr = sys.argv[1];
-    filename = sys.argv[2];
+if len(sys.argv) == 3:
+    build_nr = sys.argv[1]
+    filename = sys.argv[2]
 else:
     print("usage: USER=user API_KEY=key plotly_upload_results.py BUILD_NUMBER benchmark_results.json")
     exit()
 
 # get benchmark results
 try:
-    with open(filename,"r") as data_file:    
+    with open(filename, "r") as data_file:
         benchmark_data = json.load(data_file)
 except FileExistsError:
     print("Warning: benchmark file \"{0}\" not found".format(filename))
@@ -77,16 +82,16 @@ except FileExistsError:
 
 new_data = []
 for benchmark in benchmark_data["benchmarks"]:
-    tmp_data = {    "name":benchmark["name"],
-                    "x":build_nr,
-                    "y":benchmark["time_ms"]
-               }
+    tmp_data = {"name": benchmark["name"],
+                "x": build_nr,
+                "y": benchmark["time_ms"]
+                }
     new_data += [tmp_data]
 
 # login
 usr = os.environ.get('USER')
 key = os.environ.get('API_KEY')
-if (usr==None or key==None):
+if usr is None or key is None:
     print("Environment variables USER or API_KEY are missing!")
     exit()
 
@@ -107,7 +112,7 @@ try:
         xaxis=dict(
             title='<b>build #</b>',
             tickprefix='#',
-            titlefont=dict(size=20), 
+            titlefont=dict(size=20),
             type='category',
             categoryorder='array',
             showticklabels=True,

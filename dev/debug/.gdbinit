@@ -1,0 +1,1 @@
+python execfile('/home/thejoeejoee/projects/IFJ-VUT-BIT-2017-2018/dev/gdb/debug_visualizers.py')

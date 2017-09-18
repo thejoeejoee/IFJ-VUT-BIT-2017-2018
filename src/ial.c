@@ -1,9 +1,11 @@
-#include <assert.h>
 #include "ial.h"
+#include "debug.h"
+#include "memory.h"
 
 size_t hash(const char* str);
 
-void hash_table_append_item(HashTable* table, HashTableListItem* new_item) {
+void hash_table_append_item(HashTable* table,
+                            HashTableListItem* new_item) {
     NULL_POINTER_CHECK(table,);
     NULL_POINTER_CHECK(new_item,);
 
@@ -22,7 +24,8 @@ void hash_table_append_item(HashTable* table, HashTableListItem* new_item) {
     }
 }
 
-void hash_table_clear_buckets(HashTable* table, _free_data_callback free_data) {
+void hash_table_clear_buckets(HashTable* table,
+                              free_data_callback_f free_data) {
     NULL_POINTER_CHECK(table,);
     NULL_POINTER_CHECK(free_data,);
 
@@ -35,9 +38,9 @@ void hash_table_clear_buckets(HashTable* table, _free_data_callback free_data) {
         do {
             tmp_item = item_to_free;
             item_to_free = item_to_free->next;
-            free(tmp_item->key);
+            memory_free(tmp_item->key);
             free_data(tmp_item->data);
-            free(tmp_item);
+            memory_free(tmp_item);
         } while (item_to_free != NULL);
     }
     table->item_count = 0;
@@ -48,17 +51,17 @@ HashTableListItem* hash_table_new_item(const char* key) {
     HashTableListItem* new_item = NULL;
     char* copied_key = NULL;
 
-    if (NULL == (new_item = (HashTableListItem*) malloc(sizeof(HashTableListItem))))
+    if (NULL == (new_item = (HashTableListItem*) memory_alloc(sizeof(HashTableListItem))))
         return NULL;
 
-    if (NULL == (copied_key = (char*) malloc(sizeof(char) * (strlen(key) + 1)))) {
-        free(new_item);
+    if (NULL == (copied_key = (char*) memory_alloc(sizeof(char) * (strlen(key) + 1)))) {
+        memory_free(new_item);
         return NULL;
     }
 
     if (NULL == strcpy(copied_key, key)) {
-        free(new_item);
-        free(copied_key);
+        memory_free(new_item);
+        memory_free(copied_key);
         return NULL;
     }
 
@@ -103,7 +106,7 @@ HashTable* hash_table_init(size_t size) {
     size_t need_memory = sizeof(HashTable) +
                          sizeof(HashTableListItem*) * size;
 
-    if (NULL == (table = (HashTable*) malloc(need_memory))) return NULL;
+    if (NULL == (table = (HashTable*) memory_alloc(need_memory))) return NULL;
 
     table->bucket_count = size;
     table->item_count = 0;
@@ -123,11 +126,11 @@ size_t hash_table_bucket_count(HashTable* table) {
     return table->bucket_count;
 }
 
-void hash_table_free(HashTable* table, _free_data_callback free_data) {
+void hash_table_free(HashTable* table, free_data_callback_f free_data) {
     NULL_POINTER_CHECK(table,);
     hash_table_clear_buckets(table, free_data);
 
-    free(table);
+    memory_free(table);
 }
 
 HashTableListItem* hash_table_get_or_create(HashTable* table, const char* key) {
@@ -164,6 +167,7 @@ HashTableListItem* hash_table_get_or_create(HashTable* table, const char* key) {
 }
 
 HashTable* hash_table_move(size_t new_size, HashTable* source) {
+    NULL_POINTER_CHECK(source, NULL);
     HashTable* destination = hash_table_init(new_size);
     if (destination == NULL) return NULL;
 
@@ -188,9 +192,11 @@ HashTable* hash_table_move(size_t new_size, HashTable* source) {
     return destination;
 }
 
-bool hash_table_delete(HashTable* table, const char* key) {
-    NULL_POINTER_CHECK(table, NULL);
-    NULL_POINTER_CHECK(key, NULL);
+bool hash_table_delete(HashTable* table, const char* key,
+                       free_data_callback_f free_data_callback) {
+    NULL_POINTER_CHECK(table, false);
+    NULL_POINTER_CHECK(key, false);
+    NULL_POINTER_CHECK(free_data_callback, false);
 
     size_t index = hash(key) % table->bucket_count;
     HashTableListItem* item = table->items[index];
@@ -200,12 +206,14 @@ bool hash_table_delete(HashTable* table, const char* key) {
 
     while (42) {
         if (0 == strcmp(key, item->key)) {
-            if (prev != NULL)
-                prev->next = item->next;
+            if (prev == NULL)
+                table->items[index] = item->next;
             else
-                table->items[index] = item;
-            free(item->key);
-            free(item);
+                prev->next = item->next;
+
+            memory_free(item->key);
+            free_data_callback(item->data);
+            memory_free(item);
             return true;
         }
 

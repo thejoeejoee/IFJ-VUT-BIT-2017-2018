@@ -3,6 +3,7 @@
 #define _LLIST_H
 
 #include "debug.h"
+#include "memory.h"
 
 struct LListItem;
 
@@ -21,11 +22,11 @@ typedef struct LList {
  * @brief The LListItem structure is single item of linear list which contains single integer
  * value.
  */
-struct LListItem {
+typedef struct LListItem {
     int value;
     struct LListItem* next;
     struct LListItem* previous;
-};
+} LListItem;
 
 /**
  * @brief llist_init Allocates memory for list and null head and tail.

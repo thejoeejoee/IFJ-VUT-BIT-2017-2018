@@ -10,6 +10,7 @@
 #define LOG_VERBOSITY_DEBUG 2
 #define LOG_VERBOSITY_INFO 1
 #define LOG_VERBOSITY_WARNING 0
+#define LOG_VERBOSITY_NONE (-1)
 
 extern short log_verbosity;
 
@@ -37,13 +38,29 @@ do {\
         }\
     })
 
+#define OVERRIDE_VERBOSITY(verbosity, code) \
+    do { \
+        short _verbosity = log_verbosity; \
+        log_verbosity = verbosity; \
+        code \
+        log_verbosity = _verbosity; \
+    } while (false)
+
+#define DISABLE_LOG(code) OVERRIDE_VERBOSITY(LOG_VERBOSITY_NONE, code)
+
 #else
 
 #define LOG_DEBUG(...)
 #define LOG_INFO(...)
 #define LOG_WARNING(...)
 #define DEBUG_CODE(...)
+#define NULL_POINTER_CHECK(...)
+#define OVERRIDE_VERBOSITY(verbosity, code) code
+#define DISABLE_LOG(code) code
+#define LOG_VERBOSITY_NONE (-1)
+#define LOG_VERBOSITY_DEBUG LOG_VERBOSITY_NONE
+#define LOG_VERBOSITY_INFO LOG_VERBOSITY_NONE
+#define LOG_VERBOSITY_WARNING LOG_VERBOSITY_NONE
 
 #endif
 #endif //_DEBUG_H
-

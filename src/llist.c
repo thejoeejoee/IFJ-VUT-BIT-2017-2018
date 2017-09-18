@@ -2,17 +2,17 @@
 #include "llist.h"
 #include <stdlib.h>
 
-void llist_init(struct LList** list) {
-    *list = (struct LList*) malloc(sizeof(struct LList));
+void llist_init(LList** list) {
+    *list = (LList*) memory_alloc(sizeof(LList));
     (*list)->head = NULL;
     (*list)->tail = NULL;
 }
 
-void llist_append(struct LList* list, int value) {
+void llist_append(LList* list, int value) {
     NULL_POINTER_CHECK(list,);
 
-    struct LListItem* new_item = (struct LListItem*) malloc(sizeof(struct LListItem));
-    struct LListItem* last_item = list->tail;
+    LListItem* new_item = (LListItem*) memory_alloc(sizeof(LListItem));
+    LListItem* last_item = list->tail;
 
     if (list->head == NULL)
         list->head = new_item;
@@ -26,17 +26,17 @@ void llist_append(struct LList* list, int value) {
     list->tail = new_item;
 }
 
-void llist_remove_one(struct LList* list, int value) {
+void llist_remove_one(LList* list, int value) {
     NULL_POINTER_CHECK(list,);
 
-    struct LListItem* current_item = list->head;
+    LListItem* current_item = list->head;
     if (current_item == NULL)
         return;
 
     do {
         if (current_item->value == value) {
-            struct LListItem* previous_item = current_item->previous;
-            struct LListItem* next_item = current_item->next;
+            LListItem* previous_item = current_item->previous;
+            LListItem* next_item = current_item->next;
 
             if (current_item == list->head)      // check whether new head need to be set
                 list->head = next_item;
@@ -48,27 +48,27 @@ void llist_remove_one(struct LList* list, int value) {
             if (next_item != NULL)
                 next_item->previous = current_item->previous;
 
-            free(current_item);
+            memory_free(current_item);
             break;
         }
     } while ((current_item = current_item->next) != NULL);
 }
 
-void llist_delete(struct LList** list) {
+void llist_delete(LList** list) {
     NULL_POINTER_CHECK(list,);
     NULL_POINTER_CHECK(*list,);
 
-    struct LListItem* current_item = (*list)->head;
-    struct LListItem* next_item = NULL;
+    LListItem* current_item = (*list)->head;
+    LListItem* next_item = NULL;
 
     if (current_item != NULL) {
         do {
             next_item = current_item->next;
-            free(current_item);
+            memory_free(current_item);
             current_item = next_item;
         } while (current_item != NULL);
     }
 
-    free(*list);
+    memory_free(*list);
     *list = NULL;
 }

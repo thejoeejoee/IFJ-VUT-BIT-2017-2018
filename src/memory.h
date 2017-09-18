@@ -3,7 +3,6 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "debug.h"
 
 /**
  * PUBLIC API FOR MEMORY MANAGER:

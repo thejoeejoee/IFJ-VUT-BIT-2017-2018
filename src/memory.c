@@ -1,4 +1,5 @@
 #include "memory.h"
+#include "debug.h"
 
 #ifndef NDEBUG
 MemoryManager memory_manager;
@@ -26,8 +27,11 @@ void* memory_manager_malloc(
     new_page->info = (char*) malloc(INFO_MAX_LENGTH + 1);
     NULL_POINTER_CHECK(new_page->info, NULL);
     new_page->address = malloc(new_page->size);
-    // TODO: is possible memory leak important to solve?
-    NULL_POINTER_CHECK(new_page->address, NULL);
+    if (new_page->address == NULL) {
+        // at first free allocated info
+        free(new_page->info);
+        NULL_POINTER_CHECK(new_page->address, NULL);
+    }
 
     snprintf(new_page->info, INFO_MAX_LENGTH, INFO_FORMAT, file, line, func);
 

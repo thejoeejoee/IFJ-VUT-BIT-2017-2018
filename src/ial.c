@@ -1,4 +1,6 @@
 #include "ial.h"
+#include "debug.h"
+#include "memory.h"
 
 size_t hash(const char* str);
 

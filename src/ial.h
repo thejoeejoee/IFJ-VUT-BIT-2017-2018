@@ -6,10 +6,6 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "debug.h"
-#include "memory.h"
-
-
 typedef struct hash_table_list_item_t {
     char* key;
     void* data;

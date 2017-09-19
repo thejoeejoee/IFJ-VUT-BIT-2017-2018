@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "common.h"
 
 /**
  * PUBLIC API FOR MEMORY MANAGER:
@@ -18,8 +19,14 @@
  */
 #ifndef NDEBUG
 
-#define memory_alloc(size) memory_manager_malloc(size, __FILENAME__, __LINE__, __func__, NULL)
-#define memory_free(address) memory_manager_free(address, NULL)
+#define memory_alloc_2(size, manager) memory_manager_malloc(size, __FILENAME__, __LINE__, __func__, manager)
+#define memory_alloc_1(size) memory_manager_malloc(size, __FILENAME__, __LINE__, __func__, NULL)
+#define memory_alloc(...) GET_OVERLOADED_MACRO12(__VA_ARGS__, memory_alloc_2, memory_alloc_1)(__VA_ARGS__)
+
+#define memory_free_1(address) memory_manager_free(address, NULL)
+#define memory_free_2(address, manager) memory_manager_free(address, manager)
+#define memory_free(...) GET_OVERLOADED_MACRO12(__VA_ARGS__, memory_free_2, memory_free_1)(__VA_ARGS__)
+
 
 #define INFO_MAX_LENGTH 64
 #define INFO_FORMAT "%s:%d:%s()"
@@ -96,8 +103,8 @@ void memory_manager_log_stats(MemoryManager* manager);
 /**
 * Stdlib callbacks for memory management functions.
 */
-#define memory_alloc malloc
-#define memory_free free
+#define memory_alloc(size, ...) malloc(size)
+#define memory_free free(addr, ...) free(addr)
 #define memory_manager_enter(...)
 #define memory_manager_exit(...)
 #define memory_manager_log_stats(...)

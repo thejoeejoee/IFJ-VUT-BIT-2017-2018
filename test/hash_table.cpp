@@ -1,13 +1,21 @@
 #include "gtest/gtest.h"
 
 #include "../src/ial.c"
+#include "utils/functioncallcounter.h"
+
+void ForeachCount(const char* key, void* data) {}
 
 class HashTableTestFixture : public ::testing::Test {
     protected:
         HashTable* hash_table = nullptr;
-        int foreach_count = 0;
+        FunctionCallCounter<void, const char*, void*>* callCounter;
+
+        HashTableTestFixture() : testing::Test() {
+            callCounter = callCounterInstance(&ForeachCount);
+        }
 
         virtual void SetUp() {
+            callCounter->resetCounter();
             memory_manager_enter(NULL);
             hash_table = hash_table_init(8);
         }
@@ -21,22 +29,22 @@ class HashTableTestFixture : public ::testing::Test {
             if (data != nullptr)
                 free(data);
         }
-
-        void ForeachCount(const char* key, void* data) {
-            foreach_count++;
-        }
-
 };
 
 class HashTableWithDataTestFixture : public ::testing::Test {
     protected:
         HashTable* hash_table = nullptr;
-        static constexpr size_t n_samples = 5;
+        static const size_t n_samples = 5;
         const char* keys[n_samples] = {"test1", "test2", "test3", "test4", "test5"};
-        static int foreach_count;
+        FunctionCallCounter<void, const char*, void*>* callCounter;
+
+        HashTableWithDataTestFixture() : testing::Test() {
+            callCounter = callCounterInstance(&ForeachCount);
+        }
 
         virtual void SetUp() {
             memory_manager_enter(NULL);
+            callCounter->resetCounter();
             hash_table = hash_table_init(n_samples);
 
             // Insert items
@@ -54,11 +62,9 @@ class HashTableWithDataTestFixture : public ::testing::Test {
             if (data != nullptr)
                 free(data);
         }
-
-        void static ForeachCount(const char* key, void* data) {
-            foreach_count++;
-        }
 };
+
+const size_t HashTableWithDataTestFixture::n_samples;
 
 TEST_F(HashTableTestFixture, Initialization) {
     EXPECT_NE(hash_table, nullptr) << "Initialized hash table is not null";
@@ -211,32 +217,29 @@ TEST_F(HashTableTestFixture, MoveTableInvalid) {
 
 // TODO: Fix foreach tests
 TEST_F(HashTableTestFixture, ForeachInvalid) {
-    // hash_table_foreach(nullptr, ForeachCount);
+    hash_table_foreach(nullptr, callCounter->wrapper());
 
     EXPECT_EQ(
-            foreach_count,
+            callCounter->callCount(),
             0
     ) << "Callback function should not be called";
 }
 
 TEST_F(HashTableTestFixture, ForeachOnEmptyTable) {
-    /*HashTableTestFixture::foreach_count = 0;
-
-    hash_table_foreach(hash_table, ForeachCount);
+    hash_table_foreach(hash_table, callCounter->wrapper());
 
     EXPECT_EQ(
-            HashTableTestFixture::foreach_count,
+            callCounter->callCount(),
             0
-    ) << "Callback function should not be called";*/
+    ) << "Callback function should not be called";
 }
 
 TEST_F(HashTableWithDataTestFixture, Foreach) {
-    /*foreach_count = 0;
-
-    hash_table_foreach(hash_table, ForeachCount);
+    hash_table_foreach(hash_table, callCounter->wrapper());
+//    size_t n_samples = 5;
 
     EXPECT_EQ(
-        foreach_count,
+        callCounter->callCount(),
         n_samples
-    ) << "Callback function should be called " << n_samples << " times";*/
+    ) << "Callback function should be called " << n_samples << " times";
 }

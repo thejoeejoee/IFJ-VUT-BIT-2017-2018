@@ -96,9 +96,9 @@ def get_transformed_benchmark_data(filename, build_nr):
 def try_to_sign_in():
     usr = os.environ.get('USER')
     key = os.environ.get('API_KEY')
-    if usr is None or key is None:
+    if not usr or not key:
         print("Environment variables USER or API_KEY are missing!")
-    py.sign_in(usr, key)
+    plotly.tools.set_credentials_file(username=usr, api_key=key)
 
 
 def send_data(new_data):

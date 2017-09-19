@@ -11,14 +11,14 @@ addons:
       - cmake
       - lcov
       # doc
-      - inkscape
-      - texlive-latex-base
-      - texlive-latex-extra
-      - texlive-fonts-recommended
-      - texlive-latex-recommended
-      - texlive-lang-czechslovak
-      - texlive-science
-      - texlive-full
+      # - inkscape
+      # - texlive-latex-base
+      # - texlive-latex-extra
+      # - texlive-fonts-recommended
+      # - texlive-latex-recommended
+      # - texlive-lang-czechslovak
+      # - texlive-science
+      # - texlive-full
 
 script:
   - mkdir build && cd build
@@ -31,7 +31,7 @@ after_success:
   - bash ./utils/codecov.sh -X coveragepy -X gcov
 
 after_script:
-  - (cd doc && make || true)
+  # - (cd doc && make || true)
 
 env:
   global:

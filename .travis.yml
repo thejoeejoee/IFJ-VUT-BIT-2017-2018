@@ -10,7 +10,7 @@ addons:
     packages:
       - cmake
       - lcov
-      - python3
+      - python3.5
       - python3-pip
       # doc
       # - inkscape
@@ -22,6 +22,9 @@ addons:
       # - texlive-science
       # - texlive-full
 
+before_install:
+  - pip3 install --upgrade pip && pip3 install --upgrade requests[security] && pip3 install -r ./utils/plotly/requirements.txt || true
+
 script:
   - mkdir build && cd build
   - cmake .. -DENABLE_COVERAGE=On && make && CTEST_OUTPUT_ON_FAILURE=1 GTEST_COLOR=1 make test
@@ -31,7 +34,7 @@ script:
 
 after_success:
   - bash ./utils/codecov.sh -X coveragepy -X gcov
-  - pip install --upgrade requests[security] && pip install -r ./utils/plotly/requirements.txt && bash ./utils/benchmark.sh
+  - bash ./utils/benchmark.sh
 
 after_script:
   # - (cd doc && make || true)

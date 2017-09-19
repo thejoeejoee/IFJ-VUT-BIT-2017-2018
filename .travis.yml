@@ -23,7 +23,7 @@ addons:
       # - texlive-full
 
 before_install:
-  - pip3 install --upgrade pip && pip3 install --upgrade requests[security] && pip3 install -r ./utils/plotly/requirements.txt || true
+  - pip3 install --upgrade requests[security] && pip3 install -r ./utils/plotly/requirements.txt || true
 
 script:
   - mkdir build && cd build

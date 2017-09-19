@@ -29,6 +29,7 @@ script:
 
 after_success:
   - bash ./utils/codecov.sh -X coveragepy -X gcov
+  - bash ./utils/benchmark.sh
 
 after_script:
   - (cd doc && make || true)

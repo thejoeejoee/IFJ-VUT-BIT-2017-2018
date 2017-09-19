@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # coding=utf-8
 
 import json
@@ -76,6 +76,7 @@ def get_new_benchmark_data(filename):
     with open(filename) as data_file:
         return json.load(data_file)
 
+
 def get_transformed_benchmark_data(filename, build_nr):
     try:
         benchmark_data = get_new_benchmark_data(filename)
@@ -87,7 +88,7 @@ def get_transformed_benchmark_data(filename, build_nr):
         dict(
             name=benchmark["name"],
             x=build_nr,
-            y=benchmark["real_time"] #TODO: Warning: not checking benchmark["time_unit"], assuming nanoseconds !!! 
+            y=benchmark["real_time"]  # TODO: Warning: not checking benchmark["time_unit"], assuming nanoseconds !!!
         ) for benchmark in benchmark_data['benchmarks']
     ]
 

@@ -24,6 +24,9 @@ ENDIF ()
 # ifj2017_test
 include(test/CMakeLists.txt)
 
+# ifj2017_benchmark
+include(benchmark/CMakeLists.txt)
+
 # ifj2017
 file(
         GLOB_RECURSE ifj2017_SRC
@@ -34,7 +37,7 @@ file(
 add_executable(ifj2017 ${ifj2017_SRC} ${VS_debug_visualizers})
 
 # automatic source groups by folder structure
-set(_all_sources ${ifj2017_test_SRC} ${ifj2017_SRC} ${VS_debug_visualizers})
+set(_all_sources ${ifj2017_test_SRC} ${ifj2017_benchmark_SRC} ${ifj2017_SRC} ${VS_debug_visualizers})
 foreach (_source IN ITEMS ${_all_sources})
     get_filename_component(_source_path "${_source}" PATH)
     IF (MSVC)

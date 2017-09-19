@@ -1,7 +1,0 @@
-{
-	"benchmarks":[
-		{"name":"func", "time_ms":10.42},
-		{"name":"func_b", "time_ms":14.0},
-		{"name":"func_c", "time_ms":16}
-	]
-}

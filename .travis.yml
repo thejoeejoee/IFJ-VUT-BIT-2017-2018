@@ -1,5 +1,6 @@
 language: c
 dist: trusty
+sudo: required
 
 compiler:
   - clang
@@ -23,8 +24,8 @@ addons:
       # - texlive-full
 
 before_install:
-  - apt-get -qq update
-  - apt-get install -y python3-venv
+  - sudo apt-get -qq update
+  - sudo apt-get install -y python3-venv
 
   - cd utils/plotly
   - pyvenv .venv

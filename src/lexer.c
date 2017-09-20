@@ -19,18 +19,7 @@ Token* lexer_next_token(Lexer* lexer) {
     Token* token = memory_alloc(sizeof(Token));
     token->type = TokenType::TOKEN_UNKNOWN;
 
-
     int c = lexer->input_stream();
-
-    enum martin {
-        A,
-        B
-    };
-
-
-
-
-
 
     return token;
 

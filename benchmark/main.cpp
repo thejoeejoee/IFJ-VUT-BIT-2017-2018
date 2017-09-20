@@ -1,6 +1,9 @@
 #include <benchmark/benchmark.h>
 // TODO: resolve deps problems with dynamic memory manager switching based on cmake build type
-#include "../src/memory.c"
+extern "C" {
+#include "../src/memory.h"
+#include "../src/debug.h"
+}
 
 short log_verbosity = LOG_VERBOSITY_NONE;
 

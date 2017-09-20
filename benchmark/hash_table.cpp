@@ -1,6 +1,8 @@
 #include <benchmark/benchmark.h>
 #include <cmath>
-#include "../src/ial.c"
+extern "C" {
+#include "../src/ial.h"
+}
 
 class HashTableFixture : public benchmark::Fixture {
     protected:

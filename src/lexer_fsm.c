@@ -53,17 +53,17 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
                 return LEX_FSM__COMMENT_LINE;
             return LEX_FSM__INIT;
 
-        case LEX_FSM_COMMENT_BLOCK:
+        case LEX_FSM__COMMENT_BLOCK:
             if(c == '\'')
                 return LEX_FSM__COMMENT_BLOCK_END;
             else
-                return LEX_FSM_COMMENT_BLOCK;
+                return LEX_FSM__COMMENT_BLOCK;
 
         case LEX_FSM__COMMENT_BLOCK_END:
             if(c == '/')
                 return LEX_FSM__INIT;
             else
-                return LEX_FSM_COMMENT_BLOCK;
+                return LEX_FSM__COMMENT_BLOCK;
 
         default:
             break;

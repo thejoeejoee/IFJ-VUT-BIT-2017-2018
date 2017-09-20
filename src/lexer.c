@@ -5,7 +5,7 @@
 
 
 Lexer* lexer_init(lexer_input_stream_f input_stream) {
-    Lexer* lexer = memory_alloc(sizeof(Lexer));
+    Lexer* lexer = (Lexer *) memory_alloc(sizeof(Lexer));
 
     NULL_POINTER_CHECK(input_stream, NULL);
 

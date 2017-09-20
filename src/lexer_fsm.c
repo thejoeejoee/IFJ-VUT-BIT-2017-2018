@@ -15,10 +15,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
 
 
     switch (prev_state) {
-
-
         case LEX_FSM__INIT:
-
             switch (c) {
                 case '\'':
                     return LEX_FSM__COMMENT_LINE;
@@ -44,15 +41,12 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
             break;
 
         case LEX_FSM__SLASH:
-
             if (c == '\'')
                 return LEX_FSM_COMMENT_BLOCK;
-
             else {
                 stack[++stack_head] = c;
                 return LEX_FSM__DIVIDE;
             }
-
 
         case LEX_FSM__COMMENT_LINE:
             if (c != '\n')

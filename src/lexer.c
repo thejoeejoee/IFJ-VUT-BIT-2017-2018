@@ -17,7 +17,7 @@ Token* lexer_next_token(Lexer* lexer) {
     NULL_POINTER_CHECK(lexer, NULL);
 
     Token* token = memory_alloc(sizeof(Token));
-    token->type = TokenType::TOKEN_UNKNOWN;
+    token->type = TOKEN_UNKNOWN;
 
     int c = lexer->input_stream();
 

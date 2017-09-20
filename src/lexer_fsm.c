@@ -45,7 +45,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
 
         case LEX_FSM__SLASH:
 
-            if(c == '\'')
+            if (c == '\'')
                 return LEX_FSM_COMMENT_BLOCK;
 
             else {

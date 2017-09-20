@@ -1,6 +1,8 @@
 #include <benchmark/benchmark.h>
+// TODO: resolve deps problems with dynamic memory manager switching based on cmake build type
+#include "../src/memory.c"
 
-//TESTING BENCHMARK LIBRARY
+short log_verbosity = LOG_VERBOSITY_NONE;
 
 static void BM_StringCreation(benchmark::State &state) {
     while (state.KeepRunning())

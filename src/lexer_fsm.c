@@ -1,6 +1,6 @@
+#include <stdbool.h>
 #include "lexer_fsm.h"
 #include "debug.h"
-
 
 LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_f input_stream) {
     NULL_POINTER_CHECK(input_stream, LEX_FSM__LEG_SHOT);
@@ -59,4 +59,19 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
 
     // TODO never happened, Chuck Norris state
     return LEX_FSM__LEG_SHOT;
+}
+
+bool is_final_state(LexerFSMState state) {
+    switch(state) {
+        case LEX_FSM__COMMENT_LINE :
+        case LEX_FSM__ADD :
+        case LEX_FSM__SUBTRACT :
+        case LEX_FSM__MULTIPLY :
+        case LEX_FSM__DIVIDE :
+        case LEX_FSM__LEFT_BRACKET :
+        case LEX_FSM__RIGHT_BRACKET :
+            return true;
+        default:
+            return false;
+    }
 }

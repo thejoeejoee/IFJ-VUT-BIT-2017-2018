@@ -1,6 +1,8 @@
 #ifndef _LEXER_FSM_H
 #define _LEXER_FSM_H
 
+#include <stdbool.h>
+
 typedef int (* lexer_input_stream_f)();
 
 typedef enum {
@@ -36,5 +38,13 @@ typedef enum {
  * @return LexerFSMState
  */
 LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_f input_stream);
+
+/**
+ * @brief Find out if the state is final
+ *
+ * @param LexerFSMState state actual state
+ * @return bool
+ */
+bool is_final_state(LexerFSMState state);
 
 #endif // _LEXER_FSM_H

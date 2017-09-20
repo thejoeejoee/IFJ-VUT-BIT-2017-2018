@@ -1,11 +1,12 @@
 #include "lexer.h"
 #include "memory.h"
 #include "debug.h"
+#include "lexer_fsm.h"
 
 
 Lexer* lexer_init(lexer_input_stream_f input_stream) {
     Lexer* lexer = memory_alloc(sizeof(Lexer));
-    NULL_POINTER_CHECK(lexer, NULL);
+
     NULL_POINTER_CHECK(input_stream, NULL);
 
     lexer->input_stream = input_stream;
@@ -19,7 +20,12 @@ Token* lexer_next_token(Lexer* lexer) {
     Token* token = memory_alloc(sizeof(Token));
     token->type = TOKEN_UNKNOWN;
 
-    // TODO: call lexer FSM, compare states and set correct token type
+    LexerFSMState actual_state;
+    do {
+        actual_state = lexer_fsm_next_state(LEX_FSM__INIT, lexer->input_stream);
+    } while (!is_final_state(actual_state) || );
+
+    token->type = actual_state;
 
     return token;
 

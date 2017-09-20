@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
-
-#include "../src/llist.c"
+extern "C" {
+#include "../src/llist.h"
+}
 
 class LlistTestFixture : public ::testing::Test {
     protected:

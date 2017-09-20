@@ -1,6 +1,9 @@
 #include "gtest/gtest.h"
-
-#include "../src/ial.c"
+extern "C" {
+#include "../src/memory.h"
+#include "../src/debug.h"
+#include "../src/ial.h"
+}
 
 class HashTableTestFixture : public ::testing::Test {
     protected:

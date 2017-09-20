@@ -19,7 +19,7 @@ Token* lexer_next_token(Lexer* lexer) {
     Token* token = memory_alloc(sizeof(Token));
     token->type = TOKEN_UNKNOWN;
 
-    int c = lexer->input_stream();
+    // TODO: call lexer FSM, compare states and set correct token type
 
     return token;
 

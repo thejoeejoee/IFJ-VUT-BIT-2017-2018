@@ -1,6 +1,8 @@
 #include "gtest/gtest.h"
-
-#include "../src/memory.c"
+extern "C" {
+#include "../src/memory.h"
+#include "../src/debug.h"
+}
 
 #ifndef NDEBUG
 

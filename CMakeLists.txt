@@ -21,12 +21,6 @@ ELSE ()
     set(VS_visualizers "")
 ENDIF ()
 
-# ifj2017_test
-include(test/CMakeLists.txt)
-
-# ifj2017_benchmark
-include(benchmark/CMakeLists.txt)
-
 # ifj2017
 file(
         GLOB_RECURSE ifj2017_SRC
@@ -35,6 +29,15 @@ file(
         "src/*.c" "src/*.h"
 )
 add_executable(ifj2017 ${ifj2017_SRC} ${VS_debug_visualizers})
+
+set(ifj2017_SRC_no_main ${ifj2017_SRC})
+list(REMOVE_ITEM ifj2017_SRC_no_main "src/ifj2017.c")
+
+# ifj2017_test
+include(test/CMakeLists.txt)
+
+# ifj2017_benchmark
+include(benchmark/CMakeLists.txt)
 
 # automatic source groups by folder structure
 set(_all_sources ${ifj2017_test_SRC} ${ifj2017_benchmark_SRC} ${ifj2017_SRC} ${VS_debug_visualizers})

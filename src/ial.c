@@ -42,6 +42,7 @@ void hash_table_clear_buckets(HashTable* table,
             free_data(tmp_item->data);
             memory_free(tmp_item);
         } while (item_to_free != NULL);
+        table->items[i] = NULL;
     }
     table->item_count = 0;
 }

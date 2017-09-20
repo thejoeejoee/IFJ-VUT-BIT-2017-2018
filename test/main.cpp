@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
-
+extern "C" {
 #include "../src/debug.h"
+}
 
 short log_verbosity = LOG_VERBOSITY_DEBUG;
 

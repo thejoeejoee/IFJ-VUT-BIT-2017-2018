@@ -1,9 +1,13 @@
 #include "gtest/gtest.h"
+extern "C" {
+#include "../src/memory.h"
+#include "../src/debug.h"
+#include "../src/ial.h"
+}
 
-#include "../src/ial.c"
 #include "utils/functioncallcounter.h"
-
 void ForeachCount(const char* key, void* data) {}
+
 
 class HashTableTestFixture : public ::testing::Test {
     protected:

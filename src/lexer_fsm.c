@@ -15,23 +15,45 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
 
 
     switch (prev_state) {
+
+
         case LEX_FSM__INIT:
+
             switch (c) {
                 case '\'':
                     return LEX_FSM__COMMENT_LINE;
                 case '/':
-                    stack[++stack_head] = c;
-                    c = input_stream();
-                    switch (c) {
-                        case '\'':
-                            return LEX_FSM__COMMENT_BLOCK;
-                        default:
-                            return LEX_FSM__DIVIDE;
-                    }
+                    // It can be comment or divide symbol
+                    return LEX_FSM__SLASH;
+
+                case '+':
+                    return LEX_FSM__ADD;
+                case '-':
+                    return LEX_FSM__SUBTRACT;
+                case '*':
+                    return LEX_FSM__MULTIPLY;
+
+                case '(':
+                    return LEX_FSM__LEFT_BRACKET;
+                case ')':
+                    return LEX_FSM__RIGHT_BRACKET;
+
                 default:
                     break;
             }
             break;
+
+        case LEX_FSM__SLASH:
+
+            if(c == '\'')
+                return LEX_FSM_COMMENT_BLOCK;
+
+            else {
+                stack[++stack_head] = c;
+                return LEX_FSM__DIVIDE;
+            }
+
+
         case LEX_FSM__COMMENT_LINE:
             if (c != '\n')
                 return LEX_FSM__COMMENT_LINE;

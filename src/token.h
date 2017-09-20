@@ -10,6 +10,9 @@ typedef enum {
     TOKEN_BEGIN,
 } TokenType;
 
+/**
+ * @brief Represents a token
+ */
 typedef struct token_t {
     TokenType type;
 } Token;

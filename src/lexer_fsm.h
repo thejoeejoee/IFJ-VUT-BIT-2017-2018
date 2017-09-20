@@ -3,6 +3,8 @@
 
 #include <stdbool.h>
 
+#define LEXER_FSM_STACK_SIZE 128
+
 typedef int (* lexer_input_stream_f)();
 
 typedef enum {
@@ -13,8 +15,8 @@ typedef enum {
     // Comments
     LEX_FSM__COMMENT_LINE,
     LEX_FSM__SLASH,
-    LEX_FSM_COMMENT_BLOCK,
-    LEX_FSM_COMMENT_BLOCK_END,
+    LEX_FSM__COMMENT_BLOCK,
+    LEX_FSM__COMMENT_BLOCK_END,
 
     // Operations in mathematical expressions
     LEX_FSM__ADD,

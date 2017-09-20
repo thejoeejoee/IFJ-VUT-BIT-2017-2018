@@ -6,7 +6,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
     NULL_POINTER_CHECK(input_stream, LEX_FSM__LEG_SHOT);
 
     int c;
-    static int stack[64];
+    static int stack[LEXER_FSM_STACK_SIZE];
     static int stack_head = -1;
     if (stack_head != -1)
         c = stack[stack_head--];
@@ -42,7 +42,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
 
         case LEX_FSM__SLASH:
             if (c == '\'')
-                return LEX_FSM_COMMENT_BLOCK;
+                return LEX_FSM__COMMENT_BLOCK;
             else {
                 stack[++stack_head] = c;
                 return LEX_FSM__DIVIDE;
@@ -55,11 +55,11 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
 
         case LEX_FSM_COMMENT_BLOCK:
             if(c == '\'')
-                return LEX_FSM_COMMENT_BLOCK_END;
+                return LEX_FSM__COMMENT_BLOCK_END;
             else
                 return LEX_FSM_COMMENT_BLOCK;
 
-        case LEX_FSM_COMMENT_BLOCK_END:
+        case LEX_FSM__COMMENT_BLOCK_END:
             if(c == '/')
                 return LEX_FSM__INIT;
             else
@@ -74,7 +74,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
 }
 
 bool is_final_state(LexerFSMState state) {
-    switch(state) {
+    switch (state) {
         case LEX_FSM__COMMENT_LINE:
         case LEX_FSM__ADD:
         case LEX_FSM__SUBTRACT:

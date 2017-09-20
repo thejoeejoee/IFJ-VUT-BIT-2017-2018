@@ -25,7 +25,7 @@ Token* lexer_next_token(Lexer* lexer) {
         actual_state = lexer_fsm_next_state(LEX_FSM__INIT, lexer->input_stream);
     } while (!is_final_state(actual_state));
 
-    token->type = actual_state;
+    token->type = (TokenType) actual_state;
 
     return token;
 

@@ -7,18 +7,20 @@
 class StringByCharProvider {
     private:
         std::string string;
-
-    protected:
         size_t counter;
 
+    protected:
         StringByCharProvider() : counter(0) {}
 
     public:
         static StringByCharProvider* instance();
 
-        void set_string(std::string str);
+        void setString(std::string str);
 
-        int next_char();
+        int nextChar();
 };
+
+
+int token_stream();
 
 #endif //_STRINGBYCHARPROVIDER_H

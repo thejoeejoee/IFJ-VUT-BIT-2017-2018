@@ -14,6 +14,7 @@ typedef enum {
     LEX_FSM__COMMENT_LINE,
     LEX_FSM__SLASH,
     LEX_FSM_COMMENT_BLOCK,
+    LEX_FSM_COMMENT_BLOCK_END,
 
     // Operations in mathematical expressions
     LEX_FSM__ADD,

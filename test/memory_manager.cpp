@@ -1,4 +1,5 @@
 #include "gtest/gtest.h"
+
 extern "C" {
 #include "../src/memory.h"
 #include "../src/debug.h"
@@ -31,15 +32,15 @@ TEST_F(MemoryManagerTestFixture, Destruction) {
 
 TEST_F(MemoryManagerTestFixture, InvalidMemoryAllocation) {
     DISABLE_LOG({
-        EXPECT_EQ(memory_alloc(0, &memory_manager), nullptr) << "Invalid size.";
-    });
+                    EXPECT_EQ(memory_alloc(0, &memory_manager), nullptr) << "Invalid size.";
+                });
 }
 
 TEST_F(MemoryManagerTestFixture, InvalidMemoryDealocation) {
     DISABLE_LOG({
-        // TODO: free does return void.. so no method to check valid address
-        memory_free(&memory_manager, &memory_manager);
-    });
+                    // TODO: free does return void.. so no method to check valid address
+                    memory_free(&memory_manager, &memory_manager);
+                });
 }
 
 TEST_F(MemoryManagerTestFixture, SingleMemoryAllocation) {

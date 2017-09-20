@@ -3,7 +3,9 @@
 #include "gtest/gtest.h"
 #include "utils/stringbycharprovider.h"
 
-#include "../src/lexer_fsm.c"
+extern "C" {
+#include "../src/lexer_fsm.h"
+}
 
 
 int token_stream() {

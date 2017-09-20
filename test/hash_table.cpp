@@ -1,4 +1,5 @@
 #include "gtest/gtest.h"
+
 extern "C" {
 #include "../src/memory.h"
 #include "../src/debug.h"
@@ -6,6 +7,7 @@ extern "C" {
 }
 
 #include "utils/functioncallcounter.h"
+
 void ForeachCount(const char* key, void* data) {}
 
 
@@ -202,8 +204,8 @@ TEST_F(HashTableWithDataTestFixture, MoveTableWithItems) {
 
     for (auto key : keys) {
         EXPECT_NE(
-            hash_table_get(new_table, key),
-            nullptr
+                hash_table_get(new_table, key),
+                nullptr
         ) << "All items were copied.";
     }
 
@@ -243,7 +245,7 @@ TEST_F(HashTableWithDataTestFixture, Foreach) {
 //    size_t n_samples = 5;
 
     EXPECT_EQ(
-        callCounter->callCount(),
-        n_samples
+            callCounter->callCount(),
+            n_samples
     ) << "Callback function should be called " << n_samples << " times";
 }

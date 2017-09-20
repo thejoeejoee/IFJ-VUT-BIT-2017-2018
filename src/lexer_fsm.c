@@ -3,22 +3,23 @@
 
 LexerFSMState lexer_fsm_next_state(int c, LexerFSMState prev_state) {
     switch (prev_state) {
-        case LexerFSMState::INIT:
+        case LEX_FSM__INIT:
             switch (c) {
                 case '\'':
-                    return LexerFSMState::COMMENT__LINE;
+                    return LEX_FSM__COMMENT_LINE;
                 default:
                     break;
             }
-        case COMMENT__LINE:
+            break;
+        case LEX_FSM__COMMENT_LINE:
             if (c != '\n')
-                return COMMENT__LINE;
-            return INIT;
+                return LEX_FSM__COMMENT_LINE;
+            return LEX_FSM__INIT;
 
         default:
             break;
     }
 
     // TODO never happened, Chuck Norris state
-    return LexerFSMState::INIT;
+    return LEX_FSM__LEG_SHOT;
 }

@@ -53,6 +53,18 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
                 return LEX_FSM__COMMENT_LINE;
             return LEX_FSM__INIT;
 
+        case LEX_FSM_COMMENT_BLOCK:
+            if(c == '\'')
+                return LEX_FSM_COMMENT_BLOCK_END;
+            else
+                return LEX_FSM_COMMENT_BLOCK;
+
+        case LEX_FSM_COMMENT_BLOCK_END:
+            if(c == '/')
+                return LEX_FSM__INIT;
+            else
+                return LEX_FSM_COMMENT_BLOCK;
+
         default:
             break;
     }
@@ -63,13 +75,13 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
 
 bool is_final_state(LexerFSMState state) {
     switch(state) {
-        case LEX_FSM__COMMENT_LINE :
-        case LEX_FSM__ADD :
-        case LEX_FSM__SUBTRACT :
-        case LEX_FSM__MULTIPLY :
-        case LEX_FSM__DIVIDE :
-        case LEX_FSM__LEFT_BRACKET :
-        case LEX_FSM__RIGHT_BRACKET :
+        case LEX_FSM__COMMENT_LINE:
+        case LEX_FSM__ADD:
+        case LEX_FSM__SUBTRACT:
+        case LEX_FSM__MULTIPLY:
+        case LEX_FSM__DIVIDE:
+        case LEX_FSM__LEFT_BRACKET:
+        case LEX_FSM__RIGHT_BRACKET:
             return true;
         default:
             return false;

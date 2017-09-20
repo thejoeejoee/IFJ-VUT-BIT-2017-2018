@@ -104,7 +104,7 @@ void memory_manager_log_stats(MemoryManager* manager);
 * Stdlib callbacks for memory management functions.
 */
 #define memory_alloc(size, ...) malloc(size)
-#define memory_free free(addr, ...) free(addr)
+#define memory_free(addr, ...) free(addr)
 #define memory_manager_enter(...)
 #define memory_manager_exit(...)
 #define memory_manager_log_stats(...)

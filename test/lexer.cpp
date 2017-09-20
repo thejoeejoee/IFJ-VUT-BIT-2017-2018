@@ -60,13 +60,30 @@ TEST(LexerFSMTest, BlockComment) {
             LEX_FSM__COMMENT_BLOCK
     ) << "Quote in slash state turns state into block comment.";
 
-    provider->setString("f/'");
-    for (int i = 0; i < 3; ++i) {
+    provider->setString("f/");
+    for (int i = 0; i < 2; ++i) {
         EXPECT_EQ(
                 lexer_fsm_next_state(LEX_FSM__COMMENT_BLOCK, token_stream),
                 LEX_FSM__COMMENT_BLOCK
         ) << "All in block comment is ignored.";
     }
+    provider->setString("'X'/");
+    EXPECT_EQ(
+            lexer_fsm_next_state(LEX_FSM__COMMENT_BLOCK, token_stream),
+            LEX_FSM__COMMENT_BLOCK_END
+    ) << "Prepare for end of comment.";
+    EXPECT_EQ(
+            lexer_fsm_next_state(LEX_FSM__COMMENT_BLOCK_END, token_stream),
+            LEX_FSM__COMMENT_BLOCK
+    ) << "Prepared for end of comment, but broke.";
+    EXPECT_EQ(
+            lexer_fsm_next_state(LEX_FSM__COMMENT_BLOCK, token_stream),
+            LEX_FSM__COMMENT_BLOCK_END
+    ) << "Prepared for end of comment.";
+    EXPECT_EQ(
+            lexer_fsm_next_state(LEX_FSM__COMMENT_BLOCK_END, token_stream),
+            LEX_FSM__INIT
+    ) << "End of comment.";
 }
 
 TEST(LexerFSMTest, MathematicOperations) {

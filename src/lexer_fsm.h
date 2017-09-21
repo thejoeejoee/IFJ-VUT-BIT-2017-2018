@@ -2,6 +2,7 @@
 #define _LEXER_FSM_H
 
 #include <stdbool.h>
+#include "char_stack.h"
 
 #define LEXER_FSM_STACK_SIZE 128
 
@@ -44,7 +45,7 @@ typedef enum {
  * @param lexer_input_stream_f input_stream
  * @return LexerFSMState
  */
-LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_f input_stream);
+LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_f input_stream, CharStack *stack);
 
 /**
  * @brief Find out if the state is final

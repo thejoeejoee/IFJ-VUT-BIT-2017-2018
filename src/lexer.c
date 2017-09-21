@@ -6,10 +6,12 @@
 
 Lexer* lexer_init(lexer_input_stream_f input_stream) {
     Lexer* lexer = (Lexer *) memory_alloc(sizeof(Lexer));
+    CharStack *stack = char_stack_init();
 
     NULL_POINTER_CHECK(input_stream, NULL);
 
     lexer->input_stream = input_stream;
+    lexer->stack = stack;
 
     return lexer;
 }
@@ -22,7 +24,7 @@ Token* lexer_next_token(Lexer* lexer) {
 
     LexerFSMState actual_state;
     do {
-        actual_state = lexer_fsm_next_state(LEX_FSM__INIT, lexer->input_stream);
+        actual_state = lexer_fsm_next_state(LEX_FSM__INIT, lexer->input_stream, lexer->stack);
     } while (!is_final_state(actual_state));
 
     token->type = (TokenType) actual_state;

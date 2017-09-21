@@ -24,8 +24,9 @@ class LexerTokenizerTestFixture : public ::testing::Test {
 
 TEST_F(LexerTokenizerTestFixture, MathTokens) {
     StringByCharProvider* provider = StringByCharProvider::instance();
+    char_stack_free(&(lexer->stack));
 
-    provider->setString("+ \n - \t *");
+    provider->setString("+ \n -     + \t *");
 
     EXPECT_EQ(
         lexer_next_token(lexer)->type,
@@ -39,21 +40,14 @@ TEST_F(LexerTokenizerTestFixture, MathTokens) {
 
     EXPECT_EQ(
             lexer_next_token(lexer)->type,
-            TOKEN_MULTIPLY
-    ) << "Error get multiply token";
-
-
-}
-
-TEST_F(LexerTokenizerTestFixture, IdentifierMath) {
-    StringByCharProvider* provider = StringByCharProvider::instance();
-
-    provider->setString("aaaa + -");
+            TOKEN_ADD
+    ) << "Error get add token";
 
     EXPECT_EQ(
             lexer_next_token(lexer)->type,
-            TOKEN_ADD
-    ) << "Error get identifier token";
+            TOKEN_MULTIPLY
+    ) << "Error get multiply token";
+
 
 }
 

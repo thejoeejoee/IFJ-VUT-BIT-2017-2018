@@ -1,16 +1,14 @@
 #include <stdbool.h>
 #include "lexer_fsm.h"
 #include "debug.h"
+#include "char_stack.h"
 
-LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_f input_stream) {
+LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_f input_stream, CharStack *stack) {
     NULL_POINTER_CHECK(input_stream, LEX_FSM__LEG_SHOT);
 
-    int c;
-    static int stack[LEXER_FSM_STACK_SIZE];
-    static int stack_head = -1;
-    if (stack_head != -1)
-        c = stack[stack_head--];
-    else
+    int c = char_stack_pop(stack);
+
+    if (c == EOF)
         c = input_stream();
 
 
@@ -52,7 +50,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
             if (c == '\'')
                 return LEX_FSM__COMMENT_BLOCK;
             else {
-                stack[++stack_head] = c;
+                char_stack_push(stack, c);
                 return LEX_FSM__DIVIDE;
             }
 
@@ -60,7 +58,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
             if (c == 'a')
                 return LEX_FSM__IDENTIFIER_UNFINISHED;
             else {
-                stack[++stack_head] = c;
+                char_stack_push(stack, c);
                 return LEX_FSM__IDENTIFIER_FINISHED;
             }
 

@@ -2,9 +2,14 @@
 #define _CHAR_STACK_H
 
 #include <stdlib.h>
-#include "memory.h
+#include "memory.h"
 
-typedef struct char_stack_t CharStack;
+#define CHAR_STACK_MAX_LENGTH 256
+
+typedef struct char_stack_t {
+    ssize_t stack_head;
+    char stack[CHAR_STACK_MAX_LENGTH];
+} CharStack;
 
 /**
  * Initialization for char stack structure.
@@ -25,6 +30,13 @@ void char_stack_free(CharStack** stack);
  * @return true, if was push successful
  */
 bool char_stack_push(CharStack* stack, char c);
+
+/**
+ * @brief Make char stack empty
+ *
+ * @param stack
+ */
+void char_stack_empty(CharStack* stack);
 
 /**
  * Pop char from given stack. Returns EOF if stack is empty.

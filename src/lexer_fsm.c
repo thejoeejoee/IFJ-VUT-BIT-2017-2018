@@ -16,6 +16,11 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
 
     switch (prev_state) {
         case LEX_FSM__INIT:
+
+            // If it is a white space, we ignore it
+            if(is_white_space(c))
+                return LEX_FSM__INIT;
+
             switch (c) {
                 case '\'':
                     return LEX_FSM__COMMENT_LINE;
@@ -82,6 +87,18 @@ bool is_final_state(LexerFSMState state) {
         case LEX_FSM__DIVIDE:
         case LEX_FSM__LEFT_BRACKET:
         case LEX_FSM__RIGHT_BRACKET:
+            return true;
+        default:
+            return false;
+    }
+}
+
+bool is_white_space(char c) {
+
+    switch(c) {
+        case ' ':
+        case '\n':
+        case '\t':
             return true;
         default:
             return false;

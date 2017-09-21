@@ -6,6 +6,7 @@
 typedef enum {
     TOKEN_UNKNOWN = 0,
 
+    // Token types must have the same value as final state
     TOKEN_MULTIPLY = LEX_FSM__MULTIPLY,
     TOKEN_ADD = LEX_FSM__ADD,
     TOKEN_DIVIDE = LEX_FSM__DIVIDE,

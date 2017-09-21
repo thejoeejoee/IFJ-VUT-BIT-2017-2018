@@ -50,4 +50,12 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
  */
 bool is_final_state(LexerFSMState state);
 
+/**
+ * @brief Find out if the character is white space
+ *
+ * @param char c
+ * @return bool
+ */
+bool is_white_space(char c);
+
 #endif // _LEXER_FSM_H

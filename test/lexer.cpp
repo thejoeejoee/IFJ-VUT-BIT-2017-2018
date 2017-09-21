@@ -90,6 +90,7 @@ TEST(LexerFSMTest, MathematicOperations) {
     StringByCharProvider* provider = StringByCharProvider::instance();
 
     provider->setString("+-*/");
+
     EXPECT_EQ(
             lexer_fsm_next_state(LEX_FSM__INIT, token_stream),
             LEX_FSM__ADD
@@ -103,8 +104,39 @@ TEST(LexerFSMTest, MathematicOperations) {
             LEX_FSM__MULTIPLY
     ) << "Math multiply.";
     EXPECT_EQ(
-            // TODO: ugly dependency on internal implementation...
+    // TODO: ugly dependency on internal implementation...
             lexer_fsm_next_state(lexer_fsm_next_state(LEX_FSM__INIT, token_stream), token_stream),
             LEX_FSM__DIVIDE
     ) << "Math divide.";
 }
+
+TEST(LexerFSMTest, Identifier) {
+    StringByCharProvider* provider = StringByCharProvider::instance();
+
+    provider->setString("a");
+    EXPECT_EQ(
+            lexer_fsm_next_state(LEX_FSM__INIT, token_stream),
+            LEX_FSM__IDENTIFIER_UNFINISHED
+    ) << "Quote select line comment from init state.";
+
+    provider->setString("a");
+    EXPECT_EQ(
+            lexer_fsm_next_state(LEX_FSM__IDENTIFIER_UNFINISHED, token_stream),
+            LEX_FSM__IDENTIFIER_UNFINISHED
+    ) << "Quote select line comment from init state.";
+
+    provider->setString("a");
+    EXPECT_EQ(
+            lexer_fsm_next_state(LEX_FSM__IDENTIFIER_UNFINISHED, token_stream),
+            LEX_FSM__IDENTIFIER_UNFINISHED
+    ) << "Quote select line comment from init state.";
+
+    provider->setString(" ");
+    EXPECT_EQ(
+            lexer_fsm_next_state(LEX_FSM__IDENTIFIER_UNFINISHED, token_stream),
+            LEX_FSM__IDENTIFIER_FINISHED
+    ) << "Quote select line comment from init state.";
+
+}
+
+

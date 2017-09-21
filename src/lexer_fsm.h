@@ -28,7 +28,11 @@ typedef enum {
     LEX_FSM__LEFT_BRACKET,
     LEX_FSM__RIGHT_BRACKET,
 
+    // Identifier states
+    LEX_FSM__IDENTIFIER_UNFINISHED,
+    LEX_FSM__IDENTIFIER_FINISHED,
 
+    // Error state
     LEX_FSM__LEG_SHOT
 
 } LexerFSMState;

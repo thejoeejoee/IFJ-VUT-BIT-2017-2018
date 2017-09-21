@@ -45,3 +45,15 @@ TEST_F(LexerTokenizerTestFixture, MathTokens) {
 
 }
 
+TEST_F(LexerTokenizerTestFixture, IdentifierMath) {
+    StringByCharProvider* provider = StringByCharProvider::instance();
+
+    provider->setString("aaaa + -");
+
+    EXPECT_EQ(
+            lexer_next_token(lexer)->type,
+            TOKEN_ADD
+    ) << "Error get identifier token";
+
+}
+

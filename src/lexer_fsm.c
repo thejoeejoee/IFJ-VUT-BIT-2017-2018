@@ -21,6 +21,9 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
             if(is_white_space(c))
                 return LEX_FSM__INIT;
 
+            if(c == 'a')
+                return LEX_FSM__IDENTIFIER_UNFINISHED;
+
             switch (c) {
                 case '\'':
                     return LEX_FSM__COMMENT_LINE;
@@ -53,6 +56,14 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
                 return LEX_FSM__DIVIDE;
             }
 
+        case LEX_FSM__IDENTIFIER_UNFINISHED:
+            if (c == 'a')
+                return LEX_FSM__IDENTIFIER_UNFINISHED;
+            else {
+                stack[++stack_head] = c;
+                return LEX_FSM__IDENTIFIER_FINISHED;
+            }
+
         case LEX_FSM__COMMENT_LINE:
             if (c != '\n')
                 return LEX_FSM__COMMENT_LINE;
@@ -80,6 +91,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
 
 bool is_final_state(LexerFSMState state) {
     switch (state) {
+        case LEX_FSM__IDENTIFIER_FINISHED:
         case LEX_FSM__COMMENT_LINE:
         case LEX_FSM__ADD:
         case LEX_FSM__SUBTRACT:

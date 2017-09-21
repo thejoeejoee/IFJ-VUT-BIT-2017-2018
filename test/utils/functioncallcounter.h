@@ -17,8 +17,8 @@ class FunctionCallCounter {
         typedef R(*WatchedFunction)(Args...);
         typedef void(*CounterCallback)(Args...);
 
-        friend R wrapperFunction(Args...);
-        friend FunctionCallCounter<R, Args ...>* callCounterInstance(R (*function)(Args...));
+        friend R wrapperFunction<R, Args...>(Args...);
+        friend FunctionCallCounter<R, Args ...>* callCounterInstance<R,Args...>(R (*function)(Args...));
 
     private:
         WatchedFunction m_function;

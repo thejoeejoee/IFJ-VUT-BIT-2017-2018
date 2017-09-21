@@ -42,7 +42,7 @@ file(
         GLOB_RECURSE ifj2017_test_SRC
         LIST_DIRECTORIES false
         RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}"
-        "test/*.cpp" "test/*.hpp"
+        "test/*.cpp" "test/*.hpp" "test/*.h" "test/*.tpp"
 )
 add_executable(ifj2017_test ${ifj2017_SRC_no_main} ${ifj2017_test_SRC} ${VS_debug_visualizers})
 

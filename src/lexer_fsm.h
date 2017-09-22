@@ -45,7 +45,7 @@ typedef enum {
  * @param lexer_input_stream_f input_stream
  * @return LexerFSMState
  */
-LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_f input_stream, CharStack *stack);
+LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_f input_stream, CharStack* stack);
 
 /**
  * @brief Find out if the state is final
@@ -53,7 +53,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
  * @param LexerFSMState state actual state
  * @return bool
  */
-bool is_final_state(LexerFSMState state);
+bool lexer_fsm_is_final_state(LexerFSMState state);
 
 /**
  * @brief Find out if the character is white space
@@ -61,6 +61,6 @@ bool is_final_state(LexerFSMState state);
  * @param char c
  * @return bool
  */
-bool is_white_space(char c);
+bool lexer_is_white_space(char c);
 
 #endif // _LEXER_FSM_H

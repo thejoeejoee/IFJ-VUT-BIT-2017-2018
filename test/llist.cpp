@@ -9,12 +9,11 @@ class LlistTestFixture : public ::testing::Test {
         LList* llist;
 
         virtual void SetUp() {
-            memory_manager_enter(nullptr);
             llist_init(&llist);
         }
 
         virtual void TearDown() {
-            if (llist != nullptr) {
+            if(llist != nullptr) {
                 llist_delete(&llist);
             }
             memory_manager_exit(nullptr);
@@ -79,7 +78,7 @@ TEST_F(LlistTestFixture, DestructionWithMultipleItems) {
      */
 
     // Add ten elements to the list
-    for (int i = 0; i < 2; i++) {
+    for(int i = 0; i < 2; i++) {
         llist_append(llist, i);
     }
 
@@ -174,7 +173,7 @@ TEST_F(LlistTestFixture, MultipleRemove) {
      */
 
     // Add testing data to the list
-    for (int i = 0; i <= 2; i++) {
+    for(int i = 0; i <= 2; i++) {
         llist_append(llist, i);
     }
 

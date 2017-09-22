@@ -32,7 +32,7 @@ class HashTableTestFixture : public ::testing::Test {
         }
 
         void static FreeData(void* data) {
-            if (data != nullptr)
+            if(data != nullptr)
                 free(data);
         }
 };
@@ -54,7 +54,7 @@ class HashTableWithDataTestFixture : public ::testing::Test {
             hash_table = hash_table_init(n_samples);
 
             // Insert items
-            for (auto &key : keys) {
+            for(auto &key : keys) {
                 hash_table_get_or_create(hash_table, key);
             }
         }
@@ -65,7 +65,7 @@ class HashTableWithDataTestFixture : public ::testing::Test {
         }
 
         void static FreeData(void* data) {
-            if (data != nullptr)
+            if(data != nullptr)
                 free(data);
         }
 };
@@ -96,7 +96,7 @@ TEST_F(HashTableTestFixture, InsertItems) {
                 });
 
     // Insert items
-    for (auto &key : keys) {
+    for(auto &key : keys) {
         EXPECT_NE(
                 hash_table_get_or_create(hash_table, key),
                 nullptr
@@ -202,7 +202,7 @@ TEST_F(HashTableWithDataTestFixture, MoveTableWithItems) {
             0
     ) << "Source table should have no items.";
 
-    for (auto key : keys) {
+    for(auto key : keys) {
         EXPECT_NE(
                 hash_table_get(new_table, key),
                 nullptr
@@ -221,17 +221,19 @@ TEST_F(HashTableTestFixture, MoveTableInvalid) {
                 });
 }
 
-// TODO: Fix foreach tests
-TEST_F(HashTableTestFixture, ForeachInvalid) {
-    hash_table_foreach(nullptr, callCounter->wrapper());
+TEST_F(HashTableTestFixture, Foreach) {
+    DISABLE_LOG({
+
+                    hash_table_foreach(nullptr, callCounter->wrapper());
+                });
 
     EXPECT_EQ(
             callCounter->callCount(),
             0
     ) << "Callback function should not be called";
-}
 
-TEST_F(HashTableTestFixture, ForeachOnEmptyTable) {
+    callCounter->resetCounter();
+
     hash_table_foreach(hash_table, callCounter->wrapper());
 
     EXPECT_EQ(

@@ -21,6 +21,7 @@ void char_stack_free(CharStack** stack) {
 }
 
 void char_stack_empty(CharStack* stack) {
+    NULL_POINTER_CHECK(stack,);
     stack->stack_head = -1;
 }
 

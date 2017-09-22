@@ -3,26 +3,27 @@
 #include "debug.h"
 #include "char_stack.h"
 
-LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_f input_stream, CharStack *stack) {
+LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_f input_stream, CharStack* stack) {
     NULL_POINTER_CHECK(input_stream, LEX_FSM__LEG_SHOT);
+    NULL_POINTER_CHECK(stack, LEX_FSM__LEG_SHOT);
 
     int c = char_stack_pop(stack);
 
-    if (c == EOF)
+    if(c == EOF)
         c = input_stream();
 
 
-    switch (prev_state) {
+    switch(prev_state) {
         case LEX_FSM__INIT:
 
             // If it is a white space, we ignore it
-            if(is_white_space(c))
+            if(lexer_is_white_space(c))
                 return LEX_FSM__INIT;
 
             if(c == 'a')
                 return LEX_FSM__IDENTIFIER_UNFINISHED;
 
-            switch (c) {
+            switch(c) {
                 case '\'':
                     return LEX_FSM__COMMENT_LINE;
                 case '/':
@@ -47,7 +48,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
             break;
 
         case LEX_FSM__SLASH:
-            if (c == '\'')
+            if(c == '\'')
                 return LEX_FSM__COMMENT_BLOCK;
             else {
                 char_stack_push(stack, c);
@@ -55,7 +56,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
             }
 
         case LEX_FSM__IDENTIFIER_UNFINISHED:
-            if (c == 'a')
+            if(c == 'a')
                 return LEX_FSM__IDENTIFIER_UNFINISHED;
             else {
                 char_stack_push(stack, c);
@@ -63,7 +64,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
             }
 
         case LEX_FSM__COMMENT_LINE:
-            if (c != '\n')
+            if(c != '\n')
                 return LEX_FSM__COMMENT_LINE;
             return LEX_FSM__INIT;
 
@@ -87,8 +88,9 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
     return LEX_FSM__LEG_SHOT;
 }
 
-bool is_final_state(LexerFSMState state) {
-    switch (state) {
+bool lexer_fsm_is_final_state(LexerFSMState state) {
+    // TODO: inline of macro to better performance
+    switch(state) {
         case LEX_FSM__IDENTIFIER_FINISHED:
         case LEX_FSM__COMMENT_LINE:
         case LEX_FSM__ADD:
@@ -103,8 +105,8 @@ bool is_final_state(LexerFSMState state) {
     }
 }
 
-bool is_white_space(char c) {
-
+bool lexer_is_white_space(char c) {
+    // TODO: inline or macro version has better performance
     switch(c) {
         case ' ':
         case '\n':

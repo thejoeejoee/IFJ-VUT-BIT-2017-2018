@@ -49,6 +49,12 @@ typedef enum {
     LEX_FSM__IDENTIFIER_UNFINISHED,
     LEX_FSM__IDENTIFIER_FINISHED,
 
+    // Reserve words
+    LEX_FSM__IF,
+    LEX_FSM__ELSE,
+    LEX_FSM__BEGIN,
+    LEX_FSM__END,
+
     // Error state
     LEX_FSM__LEG_SHOT
 
@@ -60,6 +66,28 @@ typedef enum {
  * @return LexerFSM*
  */
 LexerFSM *lexer_fsm_init();
+
+/**
+ * @brief Add identifier symbol to the symbol stack
+ * @param lexer_fsm
+ * @param char c
+ * @return bool
+ */
+bool lexer_fsm_add_identifier_symbol(LexerFSM *lexer_fsm, char c);
+
+/**
+ * @bried add \0 to the end of identifier name
+ * @param lexer_fsm
+ */
+void lexer_fsm_end_identifier_name(LexerFSM *lexer_fsm);
+
+/**
+ * @brief Get identifier type from name
+ *
+ * @param char* name
+ * @return LexerFSMState
+ */
+LexerFSMState lexer_fsm_get_identifier_type(char *name);
 
 /**
  * @brief Get next state from prev state and next symbol

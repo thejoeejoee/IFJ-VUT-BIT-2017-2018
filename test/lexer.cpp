@@ -30,7 +30,6 @@ TEST_F(LexerTokenizerTestFixture, MathTokens) {
     provider->setString("+ \n -     + \t *");
 
     EXPECT_EQ(
-<<<<<<< dca6e92d804bf0fe312d920805a615b45ed8a6d7
             lexer_next_token(lexer)->type,
             TOKEN_ADD
     ) << "Error get add token";
@@ -50,61 +49,6 @@ TEST_F(LexerTokenizerTestFixture, MathTokens) {
             TOKEN_MULTIPLY
     ) << "Error get multiply token";
 
-=======
-            lexer_fsm_next_state(LEX_FSM__INIT, token_stream, stack),
-            LEX_FSM__ADD
-    ) << "Math add.";
-    EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__INIT, token_stream, stack),
-            LEX_FSM__SUBTRACT
-    ) << "Math subtract.";
-    EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__INIT, token_stream, stack),
-            LEX_FSM__MULTIPLY
-    ) << "Math multiply.";
-}
-
-TEST_F(LexerFSMTestFixture, RelationOperators) {
-    StringByCharProvider* provider = StringByCharProvider::instance();
-    char_stack_empty(stack);
-
-    provider->setString("<");
-    EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__INIT, token_stream, stack),
-            LEX_FSM__LEFT_SHARP_BRACKET
-    ) << "Left sharp bracker.";
-
-    provider->setString(">");
-    EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__INIT, token_stream, stack),
-            LEX_FSM__RIGHT_SHARP_BRACKET
-    ) << "Right sharp brackerr.";
-
-    provider->setString("=");
-    EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__RIGHT_SHARP_BRACKET, token_stream, stack),
-            LEX_FSM__BIGGER_SAME
-    ) << "Left sharp bracker.";
-
-    provider->setString("=");
-    EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__LEFT_SHARP_BRACKET, token_stream, stack),
-            LEX_FSM__SMALLER_SAME
-    ) << "Right sharp brackerr.";
-
-    provider->setString(" ");
-    EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__RIGHT_SHARP_BRACKET, token_stream, stack),
-            LEX_FSM__BIGGER
-    ) << "Left sharp bracker.";
-
-    provider->setString(" ");
-    EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__LEFT_SHARP_BRACKET, token_stream, stack),
-            LEX_FSM__SMALLER
-    ) << "Right sharp brackerr.";
-
->>>>>>> Repair error in get token, add identifier token and states
 
 }
 

@@ -1,5 +1,4 @@
 #include <stdbool.h>
-#include <ctype.h>
 #include "lexer_fsm.h"
 #include "debug.h"
 #include "char_stack.h"
@@ -21,7 +20,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
             if(lexer_is_white_space(c))
                 return LEX_FSM__INIT;
 
-            if(c == '_' || isalpha(c))
+            if(c == 'a')
                 return LEX_FSM__IDENTIFIER_UNFINISHED;
 
             switch(c) {
@@ -43,58 +42,25 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
                 case ')':
                     return LEX_FSM__RIGHT_BRACKET;
 
-                case '<':
-                    return LEX_FSM__LEFT_SHARP_BRACKET;
-                case '>':
-                    return LEX_FSM__RIGHT_SHARP_BRACKET;
-
                 default:
                     break;
             }
             break;
 
-<<<<<<< dca6e92d804bf0fe312d920805a615b45ed8a6d7
         case LEX_FSM__SLASH:
             if(c == '\'')
-                return LEX_FSM__COMMENT_BLOCK;
-=======
-        case LEX_FSM__IDENTIFIER_UNFINISHED:
-            if (isalpha(c) || isdigit(c) || c == '_')
-                return LEX_FSM__IDENTIFIER_UNFINISHED;
->>>>>>> Repair error in get token, add identifier token and states
-            else {
-                char_stack_push(stack, c);
-                return LEX_FSM__IDENTIFIER_FINISHED;
-            }
-        case LEX_FSM__LEFT_SHARP_BRACKET:
-            if(c == '=')
-                return LEX_FSM__SMALLER_SAME;
-            else {
-                char_stack_push(stack, c);
-                return LEX_FSM__SMALLER;
-            }
-
-<<<<<<< dca6e92d804bf0fe312d920805a615b45ed8a6d7
-        case LEX_FSM__IDENTIFIER_UNFINISHED:
-            if(c == 'a')
-                return LEX_FSM__IDENTIFIER_UNFINISHED;
-=======
-
-        case LEX_FSM__RIGHT_SHARP_BRACKET:
-            if(c == '=')
-                return LEX_FSM__BIGGER_SAME;
->>>>>>> Repair error in get token, add identifier token and states
-            else {
-                char_stack_push(stack, c);
-                return LEX_FSM__BIGGER;
-            }
-
-        case LEX_FSM__SLASH:
-            if (c == '\'')
                 return LEX_FSM__COMMENT_BLOCK;
             else {
                 char_stack_push(stack, c);
                 return LEX_FSM__DIVIDE;
+            }
+
+        case LEX_FSM__IDENTIFIER_UNFINISHED:
+            if(c == 'a')
+                return LEX_FSM__IDENTIFIER_UNFINISHED;
+            else {
+                char_stack_push(stack, c);
+                return LEX_FSM__IDENTIFIER_FINISHED;
             }
 
         case LEX_FSM__COMMENT_LINE:
@@ -133,10 +99,6 @@ bool lexer_fsm_is_final_state(LexerFSMState state) {
         case LEX_FSM__DIVIDE:
         case LEX_FSM__LEFT_BRACKET:
         case LEX_FSM__RIGHT_BRACKET:
-        case LEX_FSM__BIGGER:
-        case LEX_FSM__BIGGER_SAME:
-        case LEX_FSM__SMALLER:
-        case LEX_FSM__SMALLER_SAME:
             return true;
         default:
             return false;

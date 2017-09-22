@@ -28,14 +28,6 @@ typedef enum {
     // Brackets
     LEX_FSM__LEFT_BRACKET,
     LEX_FSM__RIGHT_BRACKET,
-    LEX_FSM__LEFT_SHARP_BRACKET,
-    LEX_FSM__RIGHT_SHARP_BRACKET,
-
-    // Comparatoirs
-    LEX_FSM__SMALLER,
-    LEX_FSM__BIGGER,
-    LEX_FSM__SMALLER_SAME,
-    LEX_FSM__BIGGER_SAME,
 
     // Identifier states
     LEX_FSM__IDENTIFIER_UNFINISHED,

@@ -34,18 +34,11 @@ Token* lexer_next_token(Lexer* lexer) {
 
     token->type = TOKEN_UNKNOWN;
 
-    LexerFSMState actual_state = LEX_FSM__INIT;
+    LexerFSMState actual_state;
     do {
-<<<<<<< dca6e92d804bf0fe312d920805a615b45ed8a6d7
         // loop from init state to one of final state
         actual_state = lexer_fsm_next_state(LEX_FSM__INIT, lexer->input_stream, lexer->stack);
     } while(!lexer_fsm_is_final_state(actual_state));
-=======
-
-        actual_state = lexer_fsm_next_state(actual_state, lexer->input_stream, lexer->stack);
-
-    } while (!is_final_state(actual_state));
->>>>>>> Repair error in get token, add identifier token and states
 
     token->type = (TokenType) actual_state;
 

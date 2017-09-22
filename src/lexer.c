@@ -34,10 +34,10 @@ Token* lexer_next_token(Lexer* lexer) {
 
     token->type = TOKEN_UNKNOWN;
 
-    LexerFSMState actual_state;
+    LexerFSMState actual_state = LEX_FSM__INIT;
     do {
         // loop from init state to one of final state
-        actual_state = lexer_fsm_next_state(LEX_FSM__INIT, lexer->input_stream, lexer->stack);
+        actual_state = lexer_fsm_next_state(actual_state, lexer->input_stream, lexer->stack);
     } while(!lexer_fsm_is_final_state(actual_state));
 
     token->type = (TokenType) actual_state;

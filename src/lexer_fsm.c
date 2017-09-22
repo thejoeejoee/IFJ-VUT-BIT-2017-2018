@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <ctype.h>
 #include "lexer_fsm.h"
 #include "debug.h"
 #include "char_stack.h"
@@ -19,6 +20,9 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
             // If it is a white space, we ignore it
             if(lexer_is_white_space(c))
                 return LEX_FSM__INIT;
+
+            if(c == '_' || isalpha(c))
+                return LEX_FSM__IDENTIFIER_UNFINISHED;
 
             if(c == 'a')
                 return LEX_FSM__IDENTIFIER_UNFINISHED;
@@ -47,20 +51,18 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
             }
             break;
 
+        case LEX_FSM__IDENTIFIER_UNFINISHED:
+            if(c == '_' || isdigit(c) || isalpha(c))
+                return LEX_FSM__IDENTIFIER_UNFINISHED;
+            else
+                return LEX_FSM__IDENTIFIER_FINISHED;
+
         case LEX_FSM__SLASH:
             if(c == '\'')
                 return LEX_FSM__COMMENT_BLOCK;
             else {
                 char_stack_push(stack, c);
                 return LEX_FSM__DIVIDE;
-            }
-
-        case LEX_FSM__IDENTIFIER_UNFINISHED:
-            if(c == 'a')
-                return LEX_FSM__IDENTIFIER_UNFINISHED;
-            else {
-                char_stack_push(stack, c);
-                return LEX_FSM__IDENTIFIER_FINISHED;
             }
 
         case LEX_FSM__COMMENT_LINE:

@@ -52,3 +52,24 @@ TEST_F(LexerTokenizerTestFixture, MathTokens) {
 
 }
 
+TEST_F(LexerTokenizerTestFixture, Identifiers) {
+    provider->setString("ahoj _9h7___ a_9");
+
+    EXPECT_EQ(
+            lexer_next_token(lexer)->type,
+            TOKEN_IDENTIFIER
+    ) << "Error IDENTIFIER add token";
+
+    EXPECT_EQ(
+            lexer_next_token(lexer)->type,
+            TOKEN_IDENTIFIER
+    ) << "Error IDENTIFIER subtract token";
+
+    EXPECT_EQ(
+            lexer_next_token(lexer)->type,
+            TOKEN_IDENTIFIER
+    ) << "Error IDENTIFIER  add token";
+
+
+}
+

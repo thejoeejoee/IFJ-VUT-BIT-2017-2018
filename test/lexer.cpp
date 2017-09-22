@@ -13,6 +13,7 @@ class LexerTokenizerTestFixture : public ::testing::Test {
     protected:
         Lexer* lexer;
         StringByCharProvider* provider;
+        Token *token;
 
         virtual void SetUp() {
             lexer = lexer_init(token_stream);
@@ -29,25 +30,37 @@ class LexerTokenizerTestFixture : public ::testing::Test {
 TEST_F(LexerTokenizerTestFixture, MathTokens) {
     provider->setString("+ \n -     + \t *");
 
+    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            lexer_next_token(lexer)->type,
+            token->type,
             TOKEN_ADD
     ) << "Error get add token";
+    memory_free(token);
+    token = NULL;
 
+    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            lexer_next_token(lexer)->type,
+            token->type,
             TOKEN_SUBTRACT
     ) << "Error get subtract token";
+    memory_free(token);
+    token = NULL;
 
+    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            lexer_next_token(lexer)->type,
+            token->type,
             TOKEN_ADD
     ) << "Error get add token";
+    memory_free(token);
+    token = NULL;
 
+    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            lexer_next_token(lexer)->type,
+            token->type,
             TOKEN_MULTIPLY
     ) << "Error get multiply token";
+    memory_free(token);
+    token = NULL;
 
 
 }
@@ -55,20 +68,29 @@ TEST_F(LexerTokenizerTestFixture, MathTokens) {
 TEST_F(LexerTokenizerTestFixture, Identifiers) {
     provider->setString("ahoj _9h7___ a_9");
 
+    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            lexer_next_token(lexer)->type,
+            token->type,
             TOKEN_IDENTIFIER
     ) << "Error IDENTIFIER add token";
+    memory_free(token);
+    token = NULL;
 
+    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            lexer_next_token(lexer)->type,
+            token->type,
             TOKEN_IDENTIFIER
     ) << "Error IDENTIFIER subtract token";
+    memory_free(token);
+    token = NULL;
 
+    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            lexer_next_token(lexer)->type,
+            token->type,
             TOKEN_IDENTIFIER
     ) << "Error IDENTIFIER  add token";
+    memory_free(token);
+    token = NULL;
 
 
 }
@@ -77,25 +99,37 @@ TEST_F(LexerTokenizerTestFixture, RelationOperators) {
     provider->setString("< > <= >=");
     char_stack_empty(lexer->lexer_fsm->stack);
 
+    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            lexer_next_token(lexer)->type,
+            token->type,
             TOKEN_SMALLER
     ) << "Error SMALLER add token";
+    memory_free(token);
+    token = NULL;
 
+    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            lexer_next_token(lexer)->type,
+            token->type,
             TOKEN_BIGGER
     ) << "Error BIGGER subtract token";
+    memory_free(token);
+    token = NULL;
 
+    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            lexer_next_token(lexer)->type,
+            token->type,
             TOKEN_SMALLER_EQUAL
     ) << "Error SMALLER_EQUAL token";
+    memory_free(token);
+    token = NULL;
 
+    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            lexer_next_token(lexer)->type,
+            token->type,
             TOKEN_BIGGER_EQUAL
     ) << "Error BIGGER_EQUAL token";
+    memory_free(token);
+    token = NULL;
 
 
 }
@@ -104,35 +138,53 @@ TEST_F(LexerTokenizerTestFixture, ComplexTest) {
     provider->setString("+ <= >= ahoj _8wtf *");
     char_stack_empty(lexer->lexer_fsm->stack);
 
+    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            lexer_next_token(lexer)->type,
+            token->type,
             TOKEN_ADD
     ) << "Error SMALLER add token";
+    memory_free(token);
+    token = NULL;
 
+    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            lexer_next_token(lexer)->type,
+            token->type,
             TOKEN_SMALLER_EQUAL
     ) << "Error SMALLER_EQUAL token";
+    memory_free(token);
+    token = NULL;
 
+    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            lexer_next_token(lexer)->type,
+            token->type,
             TOKEN_BIGGER_EQUAL
     ) << "Error BIGGER_EQUAL token";
+    memory_free(token);
+    token = NULL;
 
+    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            lexer_next_token(lexer)->type,
+            token->type,
             TOKEN_IDENTIFIER
     ) << "Error IDENTIFIER token";
+    memory_free(token);
+    token = NULL;
 
+    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            lexer_next_token(lexer)->type,
+            token->type,
             TOKEN_IDENTIFIER
     ) << "Error MULTIPLY token";
+    memory_free(token);
+    token = NULL;
 
+    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            lexer_next_token(lexer)->type,
+            token->type,
             TOKEN_MULTIPLY
     ) << "Error MULTIPLY token";
+    memory_free(token);
+    token = NULL;
 
 
 }
@@ -170,10 +222,14 @@ TEST_F(LexerTokenizerTestFixture, SecondComplexTest) {
     };
 
     for (int i = 0; i < count_of_tokens; i++) {
+
+        token = lexer_next_token(lexer);
         EXPECT_EQ(
-                lexer_next_token(lexer)->type,
+                token->type,
                 expected_tokens[i]
         ) << "Error token in complex test";
+        memory_free(token);
+        token = NULL;
     }
 
 
@@ -183,20 +239,29 @@ TEST_F(LexerTokenizerTestFixture, Keywords) {
     provider->setString("AS + sCOpE");
     char_stack_empty(lexer->lexer_fsm->stack);
 
+    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            lexer_next_token(lexer)->type,
+            token->type,
             TOKEN_AS
     ) << "Error AS token";
+    memory_free(token);
+    token = NULL;
 
+    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            lexer_next_token(lexer)->type,
+            token->type,
             TOKEN_ADD
     ) << "Error ADD token";
+    memory_free(token);
+    token = NULL;
 
+    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            lexer_next_token(lexer)->type,
+            token->type,
             TOKEN_SCOPE
     ) << "Error SCOPE token";
+    memory_free(token);
+    token = NULL;
 
 
 }

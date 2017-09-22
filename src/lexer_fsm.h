@@ -26,6 +26,9 @@ typedef enum {
     LEX_FSM__COMMENT_BLOCK_END,
 
     LEX_FSM__IDENTIFIER_UNFINISHED,
+    LEX_FSM__INTEGER_LITERAL_UNFINISHED,
+    LEX_FSM__DOUBLE_DOT,
+    LEX_FSM__DOUBLE_UNFINISHED,
 
     // Sharp brackets
     LEX_FSM__LEFT_SHARP_BRACKET,
@@ -38,6 +41,8 @@ typedef enum {
     LEX_FSM__MULTIPLY,
     LEX_FSM__LEFT_BRACKET,
     LEX_FSM__RIGHT_BRACKET,
+    LEX_FSM__INTEGER_LITERAL_FINISHED,
+    LEX_FSM__DOUBLE_FINISHED,
 
     // Relation operators
     LEX_FSM__SMALLER,
@@ -94,6 +99,13 @@ typedef enum {
  * @return LexerFSM*
  */
 LexerFSM *lexer_fsm_init();
+
+/**
+ * @brief Destructor for LexerFSM
+ *
+ * @param lexer_fsm
+ */
+void lexer_fsm_destruct(LexerFSM **lexer_fsm);
 
 /**
  * @brief Add identifier symbol to the symbol stack

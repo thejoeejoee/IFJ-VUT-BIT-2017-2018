@@ -14,6 +14,15 @@ LexerFSM *lexer_fsm_init() {
     return lexer;
 }
 
+void lexer_fsm_destruct(LexerFSM **lexer_fsm) {
+    NULL_POINTER_CHECK(lexer_fsm,);
+    NULL_POINTER_CHECK(*lexer_fsm,);
+
+    char_stack_free(&(*lexer_fsm)->stack);
+    memory_free(*lexer_fsm);
+    *lexer_fsm = NULL;
+}
+
 LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_f input_stream, LexerFSM *lexer_fsm) {
     NULL_POINTER_CHECK(input_stream, LEX_FSM__LEG_SHOT);
     NULL_POINTER_CHECK(lexer_fsm, LEX_FSM__LEG_SHOT);
@@ -34,6 +43,9 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
                 lexer_fsm_add_identifier_symbol(lexer_fsm, tolower(c));
                 return LEX_FSM__IDENTIFIER_UNFINISHED;
             }
+
+            if(isdigit(c))
+                return LEX_FSM__INTEGER_LITERAL_UNFINISHED;
 
             if(c == 'a')
                 return LEX_FSM__IDENTIFIER_UNFINISHED;
@@ -64,6 +76,31 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
                     break;
             }
             break;
+
+        case LEX_FSM__INTEGER_LITERAL_UNFINISHED:
+            if(isdigit(c))
+                return LEX_FSM__INTEGER_LITERAL_UNFINISHED;
+            else if(c == '.')
+                return LEX_FSM__DOUBLE_DOT;
+            else {
+                char_stack_push(lexer_fsm->stack, c);
+                return LEX_FSM__INTEGER_LITERAL_FINISHED;
+            }
+
+        case LEX_FSM__DOUBLE_DOT:
+            if(isdigit(c))
+                return LEX_FSM__DOUBLE_UNFINISHED;
+            else
+                return LEX_FSM__LEG_SHOT;
+
+        case LEX_FSM__DOUBLE_UNFINISHED:
+            if(isdigit(c))
+                return LEX_FSM__DOUBLE_UNFINISHED;
+            else{
+                char_stack_push(lexer_fsm->stack, c);
+                return LEX_FSM__DOUBLE_FINISHED;
+            }
+
 
         case LEX_FSM__LEFT_SHARP_BRACKET:
             if(c == '=')

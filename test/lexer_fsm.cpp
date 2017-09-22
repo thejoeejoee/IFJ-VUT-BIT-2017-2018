@@ -15,6 +15,10 @@ class LexerFSMTestFixture : public ::testing::Test {
             lexer_fsm = lexer_fsm_init();
         }
 
+        virtual void TearDown() {
+            lexer_fsm_destruct(&lexer_fsm);
+        }
+
 };
 
 

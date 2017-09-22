@@ -138,28 +138,23 @@ TEST_F(LexerTokenizerTestFixture, ComplexTest) {
 }
 
 TEST_F(LexerTokenizerTestFixture, Keywords) {
-    provider->setString("if else end ahoj");
+    provider->setString("AS + sCOpE");
     char_stack_empty(lexer->lexer_fsm->stack);
 
     EXPECT_EQ(
             lexer_next_token(lexer)->type,
-            TOKEN_IF
-    ) << "Error IF add token";
+            TOKEN_AS
+    ) << "Error AS token";
 
     EXPECT_EQ(
             lexer_next_token(lexer)->type,
-            TOKEN_ELSE
-    ) << "Error ELSE add token";
+            TOKEN_ADD
+    ) << "Error ADD token";
 
     EXPECT_EQ(
             lexer_next_token(lexer)->type,
-            TOKEN_END
-    ) << "Error END add token";
-
-    EXPECT_EQ(
-            lexer_next_token(lexer)->type,
-            TOKEN_IDENTIFIER
-    ) << "Error IDENTIFIER add token";
+            TOKEN_SCOPE
+    ) << "Error SCOPE token";
 
 
 }

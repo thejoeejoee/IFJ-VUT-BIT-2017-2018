@@ -130,23 +130,26 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
 LexerFSMState lexer_fsm_get_identifier_type(char *name) {
     // TODO: Macro is faster....
 
-    if(strcmp(name, "if") == 0) {
-        return LEX_FSM__IF;
+    const int number_of_keywords = 35;
+
+    char* keywords[] = {
+            "as", "asc", "declare", "dim", "do",
+            "double", "else", "end", "chr", "function",
+            "if", "input", "integer", "length", "loop",
+            "print", "return", "scope", "string", "substr",
+            "then", "while", "and", "boolean", "continue",
+            "elseif", "exit", "false", "for", "next", "not",
+            "or", "shared", "static", "true"
+    };
+
+
+    LexerFSMState return_state = LEX_FSM__IDENTIFIER_FINISHED;
+    for (int i = 0; i < number_of_keywords; i++) {
+        if (strcmp(keywords[i], name) == 0)
+            return_state = LEX_FSM__AS + i;
     }
 
-    if(strcmp(name, "else") == 0) {
-        return LEX_FSM__ELSE;
-    }
-
-    if(strcmp(name, "begin") == 0) {
-        return LEX_FSM__BEGIN;
-    }
-
-    if(strcmp(name, "end") == 0) {
-        return LEX_FSM__END;
-    }
-
-    return LEX_FSM__IDENTIFIER_FINISHED;
+    return return_state;
 }
 
 bool lexer_fsm_add_identifier_symbol(LexerFSM *lexer_fsm, char c) {
@@ -164,10 +167,41 @@ void lexer_fsm_end_identifier_name(LexerFSM *lexer_fsm) {
 bool lexer_fsm_is_final_state(LexerFSMState state) {
     // TODO: inline of macro to better performance
     switch(state) {
-        case LEX_FSM__IF:
+        case LEX_FSM__AS:
+        case LEX_FSM__ASC:
+        case LEX_FSM__DECLARE:
+        case LEX_FSM__DIM:
+        case LEX_FSM__DO:
+        case LEX_FSM__DOUBLE:
         case LEX_FSM__ELSE:
-        case LEX_FSM__BEGIN:
         case LEX_FSM__END:
+        case LEX_FSM__CHR:
+        case LEX_FSM__FUNCTION:
+        case LEX_FSM__IF:
+        case LEX_FSM__INPUT:
+        case LEX_FSM__INTEGER:
+        case LEX_FSM__LENGTH:
+        case LEX_FSM__LOOP:
+        case LEX_FSM__PRINT:
+        case LEX_FSM__RETURN:
+        case LEX_FSM__SCOPE:
+        case LEX_FSM__STRING:
+        case LEX_FSM__SUBSTR:
+        case LEX_FSM__THEN:
+        case LEX_FSM__WHILE:
+        case LEX_FSM__AND:
+        case LEX_FSM__BOOLEAN:
+        case LEX_FSM__CONTINUE:
+        case LEX_FSM__ELSEIF:
+        case LEX_FSM__EXIT:
+        case LEX_FSM__FALSE:
+        case LEX_FSM__FOR:
+        case LEX_FSM__NEXT:
+        case LEX_FSM__NOT:
+        case LEX_FSM__OR:
+        case LEX_FSM__SHARED:
+        case LEX_FSM__STATIC:
+        case LEX_FSM__TRUE:
         case LEX_FSM__IDENTIFIER_FINISHED:
         case LEX_FSM__COMMENT_LINE:
         case LEX_FSM__ADD:

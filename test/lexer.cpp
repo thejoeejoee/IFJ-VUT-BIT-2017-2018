@@ -90,12 +90,49 @@ TEST_F(LexerTokenizerTestFixture, RelationOperators) {
     EXPECT_EQ(
             lexer_next_token(lexer)->type,
             TOKEN_SMALLER_EQUAL
-    ) << "Error SMALLER_EQUAL  add token";
+    ) << "Error SMALLER_EQUAL token";
 
     EXPECT_EQ(
             lexer_next_token(lexer)->type,
             TOKEN_BIGGER_EQUAL
-    ) << "Error BIGGER_EQUAL  add token";
+    ) << "Error BIGGER_EQUAL token";
+
+
+}
+
+TEST_F(LexerTokenizerTestFixture, ComplexTest) {
+    provider->setString("+ <= >= ahoj _8wtf *");
+    char_stack_empty(lexer->stack);
+
+    EXPECT_EQ(
+            lexer_next_token(lexer)->type,
+            TOKEN_ADD
+    ) << "Error SMALLER add token";
+
+    EXPECT_EQ(
+            lexer_next_token(lexer)->type,
+            TOKEN_SMALLER_EQUAL
+    ) << "Error SMALLER_EQUAL token";
+
+    EXPECT_EQ(
+            lexer_next_token(lexer)->type,
+            TOKEN_BIGGER_EQUAL
+    ) << "Error BIGGER_EQUAL token";
+
+    EXPECT_EQ(
+            lexer_next_token(lexer)->type,
+            TOKEN_IDENTIFIER
+    ) << "Error IDENTIFIER token";
+
+    EXPECT_EQ(
+            lexer_next_token(lexer)->type,
+            TOKEN_IDENTIFIER
+    ) << "Error MULTIPLY token";
+
+    EXPECT_EQ(
+            lexer_next_token(lexer)->type,
+            TOKEN_MULTIPLY
+    ) << "Error MULTIPLY token";
 
 
 }

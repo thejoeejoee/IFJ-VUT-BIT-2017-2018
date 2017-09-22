@@ -137,6 +137,48 @@ TEST_F(LexerTokenizerTestFixture, ComplexTest) {
 
 }
 
+TEST_F(LexerTokenizerTestFixture, SecondComplexTest) {
+    provider->setString("/' Program 2: Vypocet faktorialu (rekurzivne) '/\n"
+                                "Declare Function factorial (n As Integer) As Integer\n"
+                                "Function factorial (n As Integer) As Integer\n"
+                                "Dim temp_result As Integer\n"
+                                "Dim decremented_n As Integer\n"
+                                "Dim result As Integer\n"
+                                "If n < 2 Then\n"
+                                "result = 1\n"
+                                "Else\n"
+                                "decremented_n = n - 1\n"
+                                "temp_result = factorial(decremented_n)\n"
+                                "result = n * temp_result\n"
+                                "End If\n"
+                                "Return result\n"
+                                "End Function");
+    char_stack_empty(lexer->lexer_fsm->stack);
+
+    const int count_of_tokens = 27;
+
+    TokenType expected_tokens[] = {
+            TOKEN_DECLARE, TOKEN_FUNCTION, TOKEN_IDENTIFIER,
+            TOKEN_LEFT_BRACKET, TOKEN_IDENTIFIER, TOKEN_AS,
+            TOKEN_INTEGER, TOKEN_RIGHT_BRACKET, TOKEN_AS,
+            TOKEN_INTEGER, TOKEN_FUNCTION, TOKEN_IDENTIFIER,
+            TOKEN_LEFT_BRACKET, TOKEN_IDENTIFIER, TOKEN_AS,
+            TOKEN_INTEGER, TOKEN_RIGHT_BRACKET, TOKEN_AS,
+            TOKEN_INTEGER, TOKEN_DIM, TOKEN_IDENTIFIER,
+            TOKEN_AS, TOKEN_INTEGER, TOKEN_DIM,
+            TOKEN_IDENTIFIER, TOKEN_AS, TOKEN_INTEGER
+    };
+
+    for (int i = 0; i < count_of_tokens; i++) {
+        EXPECT_EQ(
+                lexer_next_token(lexer)->type,
+                expected_tokens[i]
+        ) << "Error token in complex test";
+    }
+
+
+}
+
 TEST_F(LexerTokenizerTestFixture, Keywords) {
     provider->setString("AS + sCOpE");
     char_stack_empty(lexer->lexer_fsm->stack);

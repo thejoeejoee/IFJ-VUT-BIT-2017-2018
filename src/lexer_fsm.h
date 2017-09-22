@@ -25,28 +25,25 @@ typedef enum {
     LEX_FSM__COMMENT_BLOCK,
     LEX_FSM__COMMENT_BLOCK_END,
 
-    // Operations in mathematical expressions
-    LEX_FSM__ADD,
-    LEX_FSM__SUBTRACT,
-    LEX_FSM__DIVIDE,
-    LEX_FSM__MULTIPLY,
-
-    // Brackets
-    LEX_FSM__LEFT_BRACKET,
-    LEX_FSM__RIGHT_BRACKET,
+    LEX_FSM__IDENTIFIER_UNFINISHED,
 
     // Sharp brackets
     LEX_FSM__LEFT_SHARP_BRACKET,
     LEX_FSM__RIGHT_SHARP_BRACKET,
+
+    // FINAL STATES
+    LEX_FSM__ADD,
+    LEX_FSM__SUBTRACT,
+    LEX_FSM__DIVIDE,
+    LEX_FSM__MULTIPLY,
+    LEX_FSM__LEFT_BRACKET,
+    LEX_FSM__RIGHT_BRACKET,
 
     // Relation operators
     LEX_FSM__SMALLER,
     LEX_FSM__BIGGER,
     LEX_FSM__SMALLER_EQUAL,
     LEX_FSM__BIGGER_EQUAL,
-
-    // Identifier states
-    LEX_FSM__IDENTIFIER_UNFINISHED,
     LEX_FSM__IDENTIFIER_FINISHED,
 
     // Reserve words

@@ -23,7 +23,6 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
     if(c == EOF)
         c = input_stream();
 
-
     switch(prev_state) {
         case LEX_FSM__INIT:
 
@@ -52,7 +51,6 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
                     return LEX_FSM__SUBTRACT;
                 case '*':
                     return LEX_FSM__MULTIPLY;
-
                 case '(':
                     return LEX_FSM__LEFT_BRACKET;
                 case ')':
@@ -75,6 +73,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
                 return LEX_FSM__SMALLER;
             }
         case LEX_FSM__RIGHT_SHARP_BRACKET:
+
             if(c == '=')
                 return LEX_FSM__BIGGER_EQUAL;
             else{
@@ -142,7 +141,6 @@ LexerFSMState lexer_fsm_get_identifier_type(char *name) {
             "or", "shared", "static", "true"
     };
 
-
     LexerFSMState return_state = LEX_FSM__IDENTIFIER_FINISHED;
     for (int i = 0; i < number_of_keywords; i++) {
         if (strcmp(keywords[i], name) == 0)
@@ -162,62 +160,11 @@ void lexer_fsm_end_identifier_name(LexerFSM *lexer_fsm) {
     lexer_fsm->char_position = -1;
 }
 
-
-
 bool lexer_fsm_is_final_state(LexerFSMState state) {
     // TODO: inline of macro to better performance
-    switch(state) {
-        case LEX_FSM__AS:
-        case LEX_FSM__ASC:
-        case LEX_FSM__DECLARE:
-        case LEX_FSM__DIM:
-        case LEX_FSM__DO:
-        case LEX_FSM__DOUBLE:
-        case LEX_FSM__ELSE:
-        case LEX_FSM__END:
-        case LEX_FSM__CHR:
-        case LEX_FSM__FUNCTION:
-        case LEX_FSM__IF:
-        case LEX_FSM__INPUT:
-        case LEX_FSM__INTEGER:
-        case LEX_FSM__LENGTH:
-        case LEX_FSM__LOOP:
-        case LEX_FSM__PRINT:
-        case LEX_FSM__RETURN:
-        case LEX_FSM__SCOPE:
-        case LEX_FSM__STRING:
-        case LEX_FSM__SUBSTR:
-        case LEX_FSM__THEN:
-        case LEX_FSM__WHILE:
-        case LEX_FSM__AND:
-        case LEX_FSM__BOOLEAN:
-        case LEX_FSM__CONTINUE:
-        case LEX_FSM__ELSEIF:
-        case LEX_FSM__EXIT:
-        case LEX_FSM__FALSE:
-        case LEX_FSM__FOR:
-        case LEX_FSM__NEXT:
-        case LEX_FSM__NOT:
-        case LEX_FSM__OR:
-        case LEX_FSM__SHARED:
-        case LEX_FSM__STATIC:
-        case LEX_FSM__TRUE:
-        case LEX_FSM__IDENTIFIER_FINISHED:
-        case LEX_FSM__COMMENT_LINE:
-        case LEX_FSM__ADD:
-        case LEX_FSM__SUBTRACT:
-        case LEX_FSM__MULTIPLY:
-        case LEX_FSM__DIVIDE:
-        case LEX_FSM__LEFT_BRACKET:
-        case LEX_FSM__RIGHT_BRACKET:
-        case LEX_FSM__SMALLER:
-        case LEX_FSM__BIGGER:
-        case LEX_FSM__SMALLER_EQUAL:
-        case LEX_FSM__BIGGER_EQUAL:
-            return true;
-        default:
-            return false;
-    }
+    if (state >= LEX_FSM__ADD && state <= LEX_FSM__TRUE)
+        return true;
+    return false;
 }
 
 bool lexer_is_white_space(char c) {

@@ -4,6 +4,9 @@
 #include "token.h"
 #include "lexer_fsm.h"
 
+/**
+ * @brief Represents lexer
+ */
 typedef struct lexer_t {
     lexer_input_stream_f input_stream;
     LexerFSM *lexer_fsm;

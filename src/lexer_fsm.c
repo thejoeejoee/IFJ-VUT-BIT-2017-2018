@@ -4,11 +4,20 @@
 #include "debug.h"
 #include "char_stack.h"
 
-LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_f input_stream, CharStack* stack) {
-    NULL_POINTER_CHECK(input_stream, LEX_FSM__LEG_SHOT);
-    NULL_POINTER_CHECK(stack, LEX_FSM__LEG_SHOT);
+LexerFSM *lexer_fsm_init() {
+    LexerFSM* lexer = (LexerFSM*) memory_alloc(sizeof(LexerFSM));
+    NULL_POINTER_CHECK(lexer, NULL);
+    CharStack* stack = char_stack_init();
+    lexer->stack = stack;
 
-    int c = char_stack_pop(stack);
+    return lexer;
+}
+
+LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_f input_stream, LexerFSM *lexer_fsm) {
+    NULL_POINTER_CHECK(input_stream, LEX_FSM__LEG_SHOT);
+    NULL_POINTER_CHECK(lexer_fsm, LEX_FSM__LEG_SHOT);
+
+    int c = char_stack_pop(lexer_fsm->stack);
 
     if(c == EOF)
         c = input_stream();
@@ -59,14 +68,14 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
             if(c == '=')
                 return LEX_FSM__SMALLER_EQUAL;
             else{
-                char_stack_push(stack, c);
+                char_stack_push(lexer_fsm->stack, c);
                 return LEX_FSM__SMALLER;
             }
         case LEX_FSM__RIGHT_SHARP_BRACKET:
             if(c == '=')
                 return LEX_FSM__BIGGER_EQUAL;
             else{
-                char_stack_push(stack, c);
+                char_stack_push(lexer_fsm->stack, c);
                 return LEX_FSM__BIGGER;
             }
 
@@ -80,7 +89,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
             if(c == '\'')
                 return LEX_FSM__COMMENT_BLOCK;
             else {
-                char_stack_push(stack, c);
+                char_stack_push(lexer_fsm->stack, c);
                 return LEX_FSM__DIVIDE;
             }
 

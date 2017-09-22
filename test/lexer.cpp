@@ -75,7 +75,7 @@ TEST_F(LexerTokenizerTestFixture, Identifiers) {
 
 TEST_F(LexerTokenizerTestFixture, RelationOperators) {
     provider->setString("< > <= >=");
-    char_stack_empty(lexer->stack);
+    char_stack_empty(lexer->lexer_fsm->stack);
 
     EXPECT_EQ(
             lexer_next_token(lexer)->type,
@@ -102,7 +102,7 @@ TEST_F(LexerTokenizerTestFixture, RelationOperators) {
 
 TEST_F(LexerTokenizerTestFixture, ComplexTest) {
     provider->setString("+ <= >= ahoj _8wtf *");
-    char_stack_empty(lexer->stack);
+    char_stack_empty(lexer->lexer_fsm->stack);
 
     EXPECT_EQ(
             lexer_next_token(lexer)->type,

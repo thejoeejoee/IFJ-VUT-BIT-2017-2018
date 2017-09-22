@@ -9,14 +9,10 @@ extern "C" {
 
 class LexerFSMTestFixture : public ::testing::Test {
     protected:
-        CharStack* stack;
+        LexerFSM* lexer_fsm;
 
         virtual void SetUp() {
-            stack = char_stack_init();
-        }
-
-        virtual void TearDown() {
-            char_stack_free(&stack);
+            lexer_fsm = lexer_fsm_init();
         }
 
 };
@@ -24,11 +20,11 @@ class LexerFSMTestFixture : public ::testing::Test {
 
 TEST_F(LexerFSMTestFixture, UnknownCharacter) {
     StringByCharProvider* provider = StringByCharProvider::instance();
-    char_stack_empty(stack);
+    char_stack_empty(lexer_fsm->stack);
 
     provider->setString("@");
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__INIT, token_stream, stack),
+            lexer_fsm_next_state(LEX_FSM__INIT, token_stream, lexer_fsm),
             LEX_FSM__LEG_SHOT
     ) << "Unknown character for lexer.";
 
@@ -39,25 +35,25 @@ TEST_F(LexerFSMTestFixture, LineComment) {
 
     provider->setString("'");
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__INIT, token_stream, stack),
+            lexer_fsm_next_state(LEX_FSM__INIT, token_stream, lexer_fsm),
             LEX_FSM__COMMENT_LINE
     ) << "Quote select line comment from init state.";
 
     provider->setString("a");
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__COMMENT_LINE, token_stream, stack),
+            lexer_fsm_next_state(LEX_FSM__COMMENT_LINE, token_stream, lexer_fsm),
             LEX_FSM__COMMENT_LINE
     ) << "All content is ignored in comment line.";
 
     provider->setString("'");
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__COMMENT_LINE, token_stream, stack),
+            lexer_fsm_next_state(LEX_FSM__COMMENT_LINE, token_stream, lexer_fsm),
             LEX_FSM__COMMENT_LINE
     ) << "Also quote is ignored in line comment.";
 
     provider->setString("\n");
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__COMMENT_LINE, token_stream, stack),
+            lexer_fsm_next_state(LEX_FSM__COMMENT_LINE, token_stream, lexer_fsm),
             LEX_FSM__INIT
     ) << "End of line resets line comment to init state.";
 }
@@ -67,36 +63,36 @@ TEST_F(LexerFSMTestFixture, BlockComment) {
 
     provider->setString("/'");
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__INIT, token_stream, stack),
+            lexer_fsm_next_state(LEX_FSM__INIT, token_stream, lexer_fsm),
             LEX_FSM__SLASH
     ) << "Slash is start character for comment or dividing.";
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__SLASH, token_stream, stack),
+            lexer_fsm_next_state(LEX_FSM__SLASH, token_stream, lexer_fsm),
             LEX_FSM__COMMENT_BLOCK
     ) << "Quote in slash state turns state into block comment.";
 
     provider->setString("f/");
     for(int i = 0; i < 2; ++i) {
         EXPECT_EQ(
-                lexer_fsm_next_state(LEX_FSM__COMMENT_BLOCK, token_stream, stack),
+                lexer_fsm_next_state(LEX_FSM__COMMENT_BLOCK, token_stream, lexer_fsm),
                 LEX_FSM__COMMENT_BLOCK
         ) << "All in block comment is ignored.";
     }
     provider->setString("'X'/");
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__COMMENT_BLOCK, token_stream, stack),
+            lexer_fsm_next_state(LEX_FSM__COMMENT_BLOCK, token_stream, lexer_fsm),
             LEX_FSM__COMMENT_BLOCK_END
     ) << "Prepare for end of comment.";
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__COMMENT_BLOCK_END, token_stream, stack),
+            lexer_fsm_next_state(LEX_FSM__COMMENT_BLOCK_END, token_stream, lexer_fsm),
             LEX_FSM__COMMENT_BLOCK
     ) << "Prepared for end of comment, but broke.";
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__COMMENT_BLOCK, token_stream, stack),
+            lexer_fsm_next_state(LEX_FSM__COMMENT_BLOCK, token_stream, lexer_fsm),
             LEX_FSM__COMMENT_BLOCK_END
     ) << "Prepared for end of comment.";
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__COMMENT_BLOCK_END, token_stream, stack),
+            lexer_fsm_next_state(LEX_FSM__COMMENT_BLOCK_END, token_stream, lexer_fsm),
             LEX_FSM__INIT
     ) << "End of comment.";
 }
@@ -107,15 +103,15 @@ TEST_F(LexerFSMTestFixture, MathematicOperations) {
     provider->setString("+-*/");
 
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__INIT, token_stream, stack),
+            lexer_fsm_next_state(LEX_FSM__INIT, token_stream, lexer_fsm),
             LEX_FSM__ADD
     ) << "Math add.";
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__INIT, token_stream, stack),
+            lexer_fsm_next_state(LEX_FSM__INIT, token_stream, lexer_fsm),
             LEX_FSM__SUBTRACT
     ) << "Math subtract.";
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__INIT, token_stream, stack),
+            lexer_fsm_next_state(LEX_FSM__INIT, token_stream, lexer_fsm),
             LEX_FSM__MULTIPLY
     ) << "Math multiply.";
 }
@@ -125,25 +121,25 @@ TEST_F(LexerFSMTestFixture, Identifier) {
 
     provider->setString("a");
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__INIT, token_stream, stack),
+            lexer_fsm_next_state(LEX_FSM__INIT, token_stream, lexer_fsm),
             LEX_FSM__IDENTIFIER_UNFINISHED
     ) << "Quote select line comment from init state.";
 
     provider->setString("a");
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__IDENTIFIER_UNFINISHED, token_stream, stack),
+            lexer_fsm_next_state(LEX_FSM__IDENTIFIER_UNFINISHED, token_stream, lexer_fsm),
             LEX_FSM__IDENTIFIER_UNFINISHED
     ) << "Quote select line comment from init state.";
 
     provider->setString("a");
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__IDENTIFIER_UNFINISHED, token_stream, stack),
+            lexer_fsm_next_state(LEX_FSM__IDENTIFIER_UNFINISHED, token_stream, lexer_fsm),
             LEX_FSM__IDENTIFIER_UNFINISHED
     ) << "Quote select line comment from init state.";
 
     provider->setString(" ");
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__IDENTIFIER_UNFINISHED, token_stream, stack),
+            lexer_fsm_next_state(LEX_FSM__IDENTIFIER_UNFINISHED, token_stream, lexer_fsm),
             LEX_FSM__IDENTIFIER_FINISHED
     ) << "Quote select line comment from init state.";
 

@@ -8,6 +8,12 @@
 
 typedef int (* lexer_input_stream_f)();
 
+typedef struct lexer_fsm_t {
+    CharStack* stack;
+    char identifier_name[256];
+    int char_position;
+} LexerFSM;
+
 typedef enum {
 
     // Start state
@@ -49,13 +55,20 @@ typedef enum {
 } LexerFSMState;
 
 /**
+ * @brief Constructor for LexerFSM
+ *
+ * @return LexerFSM*
+ */
+LexerFSM *lexer_fsm_init();
+
+/**
  * @brief Get next state from prev state and next symbol
  *
  * @param LexerFSMState prev_state
  * @param lexer_input_stream_f input_stream
  * @return LexerFSMState
  */
-LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_f input_stream, CharStack* stack);
+LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_f input_stream, LexerFSM *lexer_fsm);
 
 /**
  * @brief Find out if the state is final

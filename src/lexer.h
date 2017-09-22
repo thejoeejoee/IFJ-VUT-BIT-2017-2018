@@ -6,7 +6,7 @@
 
 typedef struct lexer_t {
     lexer_input_stream_f input_stream;
-    CharStack* stack;
+    LexerFSM *lexer_fsm;
 } Lexer;
 
 

@@ -45,11 +45,30 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
                     return LEX_FSM__LEFT_BRACKET;
                 case ')':
                     return LEX_FSM__RIGHT_BRACKET;
+                case '<':
+                    return LEX_FSM__LEFT_SHARP_BRACKET;
+                case '>':
+                    return LEX_FSM__RIGHT_SHARP_BRACKET;
 
                 default:
                     break;
             }
             break;
+
+        case LEX_FSM__LEFT_SHARP_BRACKET:
+            if(c == '=')
+                return LEX_FSM__SMALLER_EQUAL;
+            else{
+                char_stack_push(stack, c);
+                return LEX_FSM__SMALLER;
+            }
+        case LEX_FSM__RIGHT_SHARP_BRACKET:
+            if(c == '=')
+                return LEX_FSM__BIGGER_EQUAL;
+            else{
+                char_stack_push(stack, c);
+                return LEX_FSM__BIGGER;
+            }
 
         case LEX_FSM__IDENTIFIER_UNFINISHED:
             if(c == '_' || isdigit(c) || isalpha(c))
@@ -101,6 +120,10 @@ bool lexer_fsm_is_final_state(LexerFSMState state) {
         case LEX_FSM__DIVIDE:
         case LEX_FSM__LEFT_BRACKET:
         case LEX_FSM__RIGHT_BRACKET:
+        case LEX_FSM__SMALLER:
+        case LEX_FSM__BIGGER:
+        case LEX_FSM__SMALLER_EQUAL:
+        case LEX_FSM__BIGGER_EQUAL:
             return true;
         default:
             return false;

@@ -73,3 +73,29 @@ TEST_F(LexerTokenizerTestFixture, Identifiers) {
 
 }
 
+TEST_F(LexerTokenizerTestFixture, RelationOperators) {
+    provider->setString("< > <= >=");
+    char_stack_empty(lexer->stack);
+
+    EXPECT_EQ(
+            lexer_next_token(lexer)->type,
+            TOKEN_SMALLER
+    ) << "Error SMALLER add token";
+
+    EXPECT_EQ(
+            lexer_next_token(lexer)->type,
+            TOKEN_BIGGER
+    ) << "Error BIGGER subtract token";
+
+    EXPECT_EQ(
+            lexer_next_token(lexer)->type,
+            TOKEN_SMALLER_EQUAL
+    ) << "Error SMALLER_EQUAL  add token";
+
+    EXPECT_EQ(
+            lexer_next_token(lexer)->type,
+            TOKEN_BIGGER_EQUAL
+    ) << "Error BIGGER_EQUAL  add token";
+
+
+}

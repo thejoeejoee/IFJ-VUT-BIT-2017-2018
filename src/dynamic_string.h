@@ -7,9 +7,9 @@
 #define STRING_INITIAL_CAPACITY 128 // should be power of 2
 
 typedef struct string_t {
-	char *_content; // only for internal usage
-	size_t _size; // only for internal usage, size of string data (including null terminator)
-	size_t _capacity; // only for internal usage, capacity for string data
+    char* _content; // only for internal usage
+    size_t _size; // only for internal usage, size of string data (including null terminator)
+    size_t _capacity; // only for internal usage, capacity for string data
 } String;
 
 /**
@@ -40,7 +40,7 @@ void string_delete(String* string); //TODO: another function with custom capacit
 * @param String* string Dynamic string to which we need to append.
 * @param const char c Character to be appended.
 */
-void string_append_c(String* string, const char c);
+void string_append_c(String* string, char c);
 
 /**
 * @brief Append c string to dynamic string
@@ -63,7 +63,11 @@ void string_append(String* string, const String* b);
 *
 * @param String* string Dynamic string to be cleared.
 */
-inline void string_clear(String* string) { ASSERT(string->_capacity >= 1); string->_size = 1; string->_content[0] = 0; }
+inline void string_clear(String* string) {
+    ASSERT(string->_capacity >= 1);
+    string->_size = 1;
+    string->_content[0] = 0;
+}
 
 /**
 * @brief Get dynamic string content
@@ -80,8 +84,8 @@ inline char* string_content(String* string) { return string->_content; }
 * @return size_t Length of dynamic string 'string'.
 */
 inline size_t string_length(String* string) { //excluding null terminator
-	ASSERT(string->_size >= 1);
-	return string->_size - 1;
+    ASSERT(string->_size >= 1);
+    return string->_size - 1;
 }
 
 #endif

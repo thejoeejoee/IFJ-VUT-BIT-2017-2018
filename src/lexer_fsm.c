@@ -30,6 +30,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
     NULL_POINTER_CHECK(input_stream, LEX_FSM__LEG_SHOT);
     NULL_POINTER_CHECK(lexer_fsm, LEX_FSM__LEG_SHOT);
 
+    // stored chars in stack from before loops have priority
     int c = char_stack_pop(lexer_fsm->stack);
 
     if(c == EOF)

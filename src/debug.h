@@ -40,7 +40,7 @@ do {\
 
 #define ASSERT(expression) DEBUG_CODE({\
         if (!(expression)) {\
-			LOG_WARNING("Assertion failed: " #expression );\
+            LOG_WARNING("Assertion failed: `" #expression "`.");\
         }\
     })
 
@@ -61,6 +61,7 @@ do {\
 #define LOG_WARNING(...)
 #define DEBUG_CODE(...)
 #define NULL_POINTER_CHECK(...)
+#define ASSERT(...)
 #define OVERRIDE_VERBOSITY(verbosity, code) code
 #define DISABLE_LOG(code) code
 #define LOG_VERBOSITY_NONE (-1)

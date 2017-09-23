@@ -6,6 +6,7 @@
 #include "dynamic_string.h"
 
 extern inline char* string_content(String* string);
+extern inline void string_clear(String* string);
 
 LexerFSM *lexer_fsm_init() {
     LexerFSM* lexer = (LexerFSM*) memory_alloc(sizeof(LexerFSM));

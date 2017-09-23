@@ -5,20 +5,18 @@
 #include "char_stack.h"
 #include "dynamic_string.h"
 
-extern inline char* string_content(String* string);
-extern inline void string_clear(String* string);
 
-LexerFSM *lexer_fsm_init() {
+LexerFSM* lexer_fsm_init() {
     LexerFSM* lexer = (LexerFSM*) memory_alloc(sizeof(LexerFSM));
     NULL_POINTER_CHECK(lexer, NULL);
     CharStack* stack = char_stack_init();
-    lexer->actual_value = string_new_cap(20);
+    lexer->actual_value = string_init_with_capacity(20);
     lexer->stack = stack;
 
     return lexer;
 }
 
-void lexer_fsm_destruct(LexerFSM **lexer_fsm) {
+void lexer_fsm_destruct(LexerFSM** lexer_fsm) {
     NULL_POINTER_CHECK(lexer_fsm,);
     NULL_POINTER_CHECK(*lexer_fsm,);
 
@@ -27,7 +25,7 @@ void lexer_fsm_destruct(LexerFSM **lexer_fsm) {
     *lexer_fsm = NULL;
 }
 
-LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_f input_stream, LexerFSM *lexer_fsm) {
+LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_f input_stream, LexerFSM* lexer_fsm) {
     NULL_POINTER_CHECK(input_stream, LEX_FSM__LEG_SHOT);
     NULL_POINTER_CHECK(lexer_fsm, LEX_FSM__LEG_SHOT);
 
@@ -88,12 +86,10 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
             if(isdigit(c)) {
                 string_append_c(&(lexer_fsm->actual_value), c);
                 return LEX_FSM__INTEGER_LITERAL_UNFINISHED;
-            }
-            else if(c == '.') {
+            } else if(c == '.') {
                 string_append_c(&(lexer_fsm->actual_value), c);
                 return LEX_FSM__DOUBLE_DOT;
-            }
-            else {
+            } else {
                 char_stack_push(lexer_fsm->stack, c);
                 return LEX_FSM__INTEGER_LITERAL_FINISHED;
             }
@@ -102,16 +98,14 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
             if(isdigit(c)) {
                 string_append_c(&(lexer_fsm->actual_value), c);
                 return LEX_FSM__DOUBLE_UNFINISHED;
-            }
-            else
+            } else
                 return LEX_FSM__LEG_SHOT;
 
         case LEX_FSM__DOUBLE_UNFINISHED:
             if(isdigit(c)) {
                 string_append_c(&(lexer_fsm->actual_value), c);
                 return LEX_FSM__DOUBLE_UNFINISHED;
-            }
-            else{
+            } else {
                 char_stack_push(lexer_fsm->stack, c);
                 return LEX_FSM__DOUBLE_FINISHED;
             }
@@ -120,7 +114,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
         case LEX_FSM__LEFT_SHARP_BRACKET:
             if(c == '=')
                 return LEX_FSM__SMALLER_EQUAL;
-            else{
+            else {
                 char_stack_push(lexer_fsm->stack, c);
                 return LEX_FSM__SMALLER;
             }
@@ -128,7 +122,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
 
             if(c == '=')
                 return LEX_FSM__BIGGER_EQUAL;
-            else{
+            else {
                 char_stack_push(lexer_fsm->stack, c);
                 return LEX_FSM__BIGGER;
             }
@@ -137,8 +131,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
             if(c == '_' || isdigit(c) || isalpha(c)) {
                 string_append_c(&(lexer_fsm->actual_value), tolower(c));
                 return LEX_FSM__IDENTIFIER_UNFINISHED;
-            }
-            else {
+            } else {
                 char_stack_push(lexer_fsm->stack, tolower(c));
                 LexerFSMState return_state = lexer_fsm_get_identifier_type(string_content(&(lexer_fsm->actual_value)));
                 string_clear(&(lexer_fsm->actual_value));
@@ -178,30 +171,30 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
     return LEX_FSM__LEG_SHOT;
 }
 
-LexerFSMState lexer_fsm_get_identifier_type(char *name) {
+LexerFSMState lexer_fsm_get_identifier_type(char* name) {
     // TODO: Macro is faster....
 
     static const int number_of_keywords = 35;
 
     static const char* keywords[] = {
-			// keywords
+            // keywords
             "as", "asc", "declare", "dim", "do",
             "double", "else", "end", "chr", "function",
             "if", "input", "integer", "length", "loop",
             "print", "return", "scope", "string", "substr",
-            "then", "while", 
-			// reserved
-			"and", "boolean", "continue",
+            "then", "while",
+            // reserved
+            "and", "boolean", "continue",
             "elseif", "exit", "false", "for", "next", "not",
             "or", "shared", "static", "true"
     };
 
-	ASSERT(sizeof(keywords) / sizeof(*keywords) == number_of_keywords);
+    ASSERT(sizeof(keywords) / sizeof(*keywords) == number_of_keywords);
 
-    for (int i = 0; i < number_of_keywords; i++) {
-		if (strcmp(keywords[i], name) == 0) {
-			return LEX_FSM__AS + i;
-		}
+    for(int i = 0; i < number_of_keywords; i++) {
+        if(strcmp(keywords[i], name) == 0) {
+            return LEX_FSM__AS + i;
+        }
     }
 
     return LEX_FSM__IDENTIFIER_FINISHED;
@@ -209,7 +202,7 @@ LexerFSMState lexer_fsm_get_identifier_type(char *name) {
 
 bool lexer_fsm_is_final_state(LexerFSMState state) {
     // TODO: inline of macro to better performance
-    if (state >= LEX_FSM__ADD && state <= LEX_FSM__TRUE)
+    if(state >= LEX_FSM__ADD && state <= LEX_FSM__TRUE)
         return true;
     return false;
 }

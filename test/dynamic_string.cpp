@@ -8,7 +8,7 @@ class DynamicStringTestFixture : public ::testing::Test {
 protected:
 	String string;
 	virtual void SetUp() {
-		string = string_new();
+		string = string_init();
 	}
 	virtual void TearDown() {
 		string_delete(&string);
@@ -30,7 +30,7 @@ TEST_F(DynamicStringTestFixture, Append) {
 		string_content(&string), "ABcdef"
 	) << "Error appending string";
 
-	auto tmp = string_new();
+	auto tmp = string_init();
 	string_append_s(&tmp, "Ghjkl");
 	string_append(&string, &tmp);
 

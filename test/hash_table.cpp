@@ -36,8 +36,7 @@ class HashTableTestFixture : public ::testing::Test {
 class HashTableWithDataTestFixture : public ::testing::Test {
     protected:
         HashTable* hash_table = nullptr;
-        static const size_t n_samples = 5;
-        const char* keys[n_samples] = {"test1", "test2", "test3", "test4", "test5"};
+        std::vector<const char*> keys = {"test1", "test2", "test3", "test4", "test5"};
         FunctionCallCounter<void, const char*, void*>* callCounter;
 
         HashTableWithDataTestFixture() : testing::Test() {
@@ -46,7 +45,7 @@ class HashTableWithDataTestFixture : public ::testing::Test {
 
         virtual void SetUp() {
             callCounter->resetCounter();
-            hash_table = hash_table_init(n_samples);
+            hash_table = hash_table_init(keys.size());
 
             // Insert items
             for(auto &key : keys) {
@@ -64,8 +63,6 @@ class HashTableWithDataTestFixture : public ::testing::Test {
         }
 };
 
-const size_t HashTableWithDataTestFixture::n_samples;
-
 TEST_F(HashTableTestFixture, Initialization) {
     EXPECT_NE(hash_table, nullptr) << "Initialized hash table is not null";
 }
@@ -78,8 +75,7 @@ TEST_F(HashTableTestFixture, SizeEmpty) {
 }
 
 TEST_F(HashTableTestFixture, InsertItems) {
-    constexpr size_t n_samples = 3;
-    const char* keys[n_samples] = {"test1", "test2", "test3"};
+    std::vector<const char*> keys = {"test1", "test2", "test3"};
 
     // Test function
     DISABLE_LOG({
@@ -100,8 +96,8 @@ TEST_F(HashTableTestFixture, InsertItems) {
     // Check size
     EXPECT_EQ(
             hash_table_size(hash_table),
-            n_samples
-    ) << "Hash table should have items";
+            keys.size()
+    ) << "Hash table should have " << keys.size() << " items";
 }
 
 TEST_F(HashTableTestFixture, MemoryDeallocation) {
@@ -179,7 +175,7 @@ TEST_F(HashTableTestFixture, MoveEmptyTable) {
 
 TEST_F(HashTableWithDataTestFixture, MoveTableWithItems) {
     size_t items = hash_table_size(hash_table);
-    HashTable* new_table = hash_table_move(n_samples * 2, hash_table);
+    HashTable* new_table = hash_table_move(keys.size() * 2, hash_table);
 
     ASSERT_NE(
             new_table,
@@ -238,10 +234,9 @@ TEST_F(HashTableTestFixture, Foreach) {
 
 TEST_F(HashTableWithDataTestFixture, Foreach) {
     hash_table_foreach(hash_table, callCounter->wrapper());
-//    size_t n_samples = 5;
 
     EXPECT_EQ(
             callCounter->callCount(),
-            n_samples
-    ) << "Callback function should be called times";
+            keys.size()
+    ) << "Callback function should be called " << keys.size() << " times";
 }

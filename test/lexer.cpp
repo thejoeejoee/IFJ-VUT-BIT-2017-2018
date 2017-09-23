@@ -207,7 +207,7 @@ TEST_F(LexerTokenizerTestFixture, SecondComplexTest) {
                                 "End Function");
     char_stack_empty(lexer->lexer_fsm->stack);
 
-    TokenType expected_tokens[] = {
+    std::vector<TokenType> expectedTokens = {
             TOKEN_DECLARE, TOKEN_FUNCTION, TOKEN_IDENTIFIER,
             TOKEN_LEFT_BRACKET, TOKEN_IDENTIFIER, TOKEN_AS,
             TOKEN_INTEGER, TOKEN_RIGHT_BRACKET, TOKEN_AS,
@@ -219,14 +219,11 @@ TEST_F(LexerTokenizerTestFixture, SecondComplexTest) {
             TOKEN_IDENTIFIER, TOKEN_AS, TOKEN_INTEGER
     };
 
-	int count_of_tokens = sizeof(expected_tokens) / sizeof(*expected_tokens);
-
-    for (int i = 0; i < count_of_tokens; i++) {
-
+    for (const TokenType expectedToken: expectedTokens) {
         token = lexer_next_token(lexer);
         EXPECT_EQ(
                 token->type,
-                expected_tokens[i]
+                expectedToken
         ) << "Error token in complex test";
         memory_free(token);
         token = NULL;

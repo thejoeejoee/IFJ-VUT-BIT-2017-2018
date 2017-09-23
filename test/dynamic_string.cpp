@@ -51,3 +51,13 @@ TEST_F(DynamicStringTestFixture, Realloc) {
 		strlen(string_content(&string)), 256
 	) << "Error reallocating dynamic string";
 }
+
+TEST_F(DynamicStringTestFixture, Clear) {
+
+	string_append_s(&string, "Live long, and prosper.");
+	string_clear(&string);
+
+	EXPECT_EQ(
+		strlen(string_content(&string)), 0
+	) << "Error clearing dynamic string";
+}

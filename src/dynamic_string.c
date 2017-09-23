@@ -91,8 +91,3 @@ void string_append(String* string, const String* b) {
 	string->_content[new_size - 1] = 0;
 	string->_size = new_size;
 }
-
-size_t string_length(String * string) {
-	ASSERT(string->_size >= 1);
-	return string->_size - 1;
-}

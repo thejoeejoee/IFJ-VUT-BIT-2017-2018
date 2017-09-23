@@ -71,6 +71,9 @@ inline char* string_content(String* string) { return string->_content; }
 * @param String* string Dynamic string whose length we need.
 * @return size_t Length of dynamic string 'string'.
 */
-size_t string_length(String* string); //excluding null terminator
+inline size_t string_length(String* string) { //excluding null terminator
+	ASSERT(string->_size >= 1);
+	return string->_size - 1;
+}; 
 
 #endif

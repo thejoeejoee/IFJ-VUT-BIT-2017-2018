@@ -9,8 +9,8 @@ short log_verbosity = LOG_VERBOSITY_INFO;
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);
-    memory_manager_enter(nullptr);
+    memory_manager_enter(NULL);
     auto ret = RUN_ALL_TESTS();
-    memory_manager_exit(nullptr);
+    memory_manager_exit(NULL);
     return ret;
 }

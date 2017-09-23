@@ -11,6 +11,9 @@ class CharStackTestFixture : public ::testing::Test {
         virtual void SetUp() {
             stack = char_stack_init();
         }
+		virtual void TearDown() {
+			char_stack_free(&stack);
+		}
 };
 
 TEST_F(CharStackTestFixture, AddItem) {

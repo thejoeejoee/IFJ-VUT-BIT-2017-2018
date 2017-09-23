@@ -22,13 +22,11 @@ class HashTableTestFixture : public ::testing::Test {
 
         virtual void SetUp() {
             callCounter->resetCounter();
-            memory_manager_enter(NULL);
             hash_table = hash_table_init(8);
         }
 
         virtual void TearDown() {
             EXPECT_NO_FATAL_FAILURE(hash_table_free(hash_table, FreeData));
-            memory_manager_exit(NULL);
         }
 
         void static FreeData(void* data) {
@@ -49,7 +47,6 @@ class HashTableWithDataTestFixture : public ::testing::Test {
         }
 
         virtual void SetUp() {
-            memory_manager_enter(NULL);
             callCounter->resetCounter();
             hash_table = hash_table_init(n_samples);
 
@@ -61,7 +58,6 @@ class HashTableWithDataTestFixture : public ::testing::Test {
 
         virtual void TearDown() {
             EXPECT_NO_FATAL_FAILURE(hash_table_free(hash_table, FreeData));
-            memory_manager_exit(NULL);
         }
 
         void static FreeData(void* data) {

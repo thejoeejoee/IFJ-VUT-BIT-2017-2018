@@ -29,7 +29,7 @@
 #define memory_free(...) MSVC_EXPAND(GET_OVERLOADED_MACRO12(__VA_ARGS__, memory_free_2, memory_free_1)(__VA_ARGS__))
 
 
-#define INFO_MAX_LENGTH 64
+#define INFO_MAX_LENGTH 128
 #define INFO_FORMAT "%s:%d:%s()"
 
 /**

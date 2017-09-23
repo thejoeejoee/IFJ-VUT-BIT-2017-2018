@@ -16,7 +16,6 @@ class LlistTestFixture : public ::testing::Test {
             if(llist != nullptr) {
                 llist_delete(&llist);
             }
-            memory_manager_exit(nullptr);
         }
 };
 
@@ -49,7 +48,7 @@ TEST_F(LlistTestFixture, Initialization) {
     ) << "Error tail pointer";
 
     // Clean memory
-    memory_free(llist);
+	llist_delete(&llist);
 }
 
 TEST_F(LlistTestFixture, Destruction) {

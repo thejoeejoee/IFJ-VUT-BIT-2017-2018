@@ -2,6 +2,7 @@
 #define _DYNAMIC_STRING_H
 
 #include <stdlib.h>
+#include "debug.h"
 
 #define STRING_INITIAL_CAPACITY 128 // should be power of 2
 
@@ -56,6 +57,13 @@ void string_append_s(String* string, const char* s);
 * @param const String* b Dynamic string to be appended.
 */
 void string_append(String* string, const String* b);
+
+/**
+* @brief Clear contents of dynamic string
+*
+* @param String* string Dynamic string to be cleared.
+*/
+inline void string_clear(String* string) { ASSERT(string->_capacity >= 1); string->_size = 1; string->_content[0] = 0; }
 
 /**
 * @brief Get dynamic string content

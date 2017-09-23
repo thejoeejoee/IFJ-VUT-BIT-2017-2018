@@ -29,8 +29,8 @@
 #define memory_free(...) MSVC_EXPAND(GET_OVERLOADED_MACRO12(__VA_ARGS__, memory_free_2, memory_free_1)(__VA_ARGS__))
 
 
-#define INFO_MAX_LENGTH 128
-#define INFO_FORMAT "%s:%d:%s()"
+#define MEMORY_MANAGER_INFO_MAX_LENGTH 128
+#define MEMORY_MANAGER_INFO_FORMAT "%s:%d:%s()"
 
 /**
  * @brief Memory page as one unit of allocated memory. Stored also info about place of allocation, size and

@@ -6,17 +6,19 @@
 #include "dynamic_string.h"
 
 
-LexerFSM* lexer_fsm_init() {
+LexerFSM* lexer_fsm_init(lexer_input_stream_f input_stream) {
+    NULL_POINTER_CHECK(input_stream, NULL);
     LexerFSM* lexer = (LexerFSM*) memory_alloc(sizeof(LexerFSM));
     NULL_POINTER_CHECK(lexer, NULL);
     CharStack* stack = char_stack_init();
-    lexer->stream_buffer = string_init_with_capacity(20);
+    lexer->stream_buffer = string_init_with_capacity(LEXER_FSM_STREAM_BUFFER_DEFAULT_LENGHT);
     lexer->stack = stack;
+    lexer->input_stream = input_stream;
 
     return lexer;
 }
 
-void lexer_fsm_destruct(LexerFSM** lexer_fsm) {
+void lexer_fsm_free(LexerFSM** lexer_fsm) {
     NULL_POINTER_CHECK(lexer_fsm,);
     NULL_POINTER_CHECK(*lexer_fsm,);
 
@@ -25,15 +27,14 @@ void lexer_fsm_destruct(LexerFSM** lexer_fsm) {
     *lexer_fsm = NULL;
 }
 
-LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_f input_stream, LexerFSM* lexer_fsm) {
-    NULL_POINTER_CHECK(input_stream, LEX_FSM__LEG_SHOT);
+LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm) {
     NULL_POINTER_CHECK(lexer_fsm, LEX_FSM__LEG_SHOT);
 
     // stored chars in stack from before loops have priority
     int c = char_stack_pop(lexer_fsm->stack);
 
     if(c == EOF)
-        c = input_stream();
+        c = lexer_fsm->input_stream();
 
     switch(prev_state) {
         case LEX_FSM__INIT:

@@ -6,11 +6,10 @@
 
 Lexer* lexer_init(lexer_input_stream_f input_stream) {
     Lexer* lexer = (Lexer*) memory_alloc(sizeof(Lexer));
-    LexerFSM* lexer_fsm = lexer_fsm_init();
+    LexerFSM* lexer_fsm = lexer_fsm_init(input_stream);
 
     NULL_POINTER_CHECK(input_stream, NULL);
 
-    lexer->input_stream = input_stream;
     lexer->lexer_fsm = lexer_fsm;
 
     return lexer;
@@ -20,7 +19,7 @@ void lexer_free(Lexer** lexer) {
     NULL_POINTER_CHECK(lexer,);
     NULL_POINTER_CHECK(*lexer,);
 
-    lexer_fsm_destruct(&((*lexer)->lexer_fsm));
+    lexer_fsm_free(&((*lexer)->lexer_fsm));
     memory_free(*lexer);
     *lexer = NULL;
 }
@@ -37,7 +36,7 @@ Token* lexer_next_token(Lexer* lexer) {
     LexerFSMState actual_state = LEX_FSM__INIT;
     do {
         // loop from init state to one of final state
-        actual_state = lexer_fsm_next_state(actual_state, lexer->input_stream, lexer->lexer_fsm);
+        actual_state = lexer_fsm_next_state(actual_state, lexer->lexer_fsm);
     } while(!lexer_fsm_is_final_state(actual_state) || actual_state == LEX_FSM__LEG_SHOT);
 
     token->type = (TokenType) actual_state;

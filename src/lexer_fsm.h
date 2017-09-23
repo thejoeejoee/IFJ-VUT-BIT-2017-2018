@@ -5,11 +5,14 @@
 #include "char_stack.h"
 #include "dynamic_string.h"
 
+#define LEXER_FSM_STREAM_BUFFER_DEFAULT_LENGHT 16
+
 typedef int (* lexer_input_stream_f)();
 
 typedef struct lexer_fsm_t {
     CharStack* stack;
     String stream_buffer;
+    lexer_input_stream_f input_stream;
 } LexerFSM;
 
 typedef enum {
@@ -94,16 +97,17 @@ typedef enum {
 /**
  * @brief Constructor for LexerFSM
  *
+ * @param input_stream Callable to gen chars from stream.
  * @return LexerFSM*
  */
-LexerFSM *lexer_fsm_init();
+LexerFSM *lexer_fsm_init(lexer_input_stream_f input_stream);
 
 /**
  * @brief Destructor for LexerFSM
  *
  * @param lexer_fsm
  */
-void lexer_fsm_destruct(LexerFSM **lexer_fsm);
+void lexer_fsm_free(LexerFSM** lexer_fsm);
 
 /**
  * @brief Add identifier symbol to the symbol stack
@@ -134,7 +138,7 @@ LexerFSMState lexer_fsm_get_identifier_type(char *name);
  * @param lexer_input_stream_f input_stream
  * @return LexerFSMState
  */
-LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_f input_stream, LexerFSM *lexer_fsm);
+LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM *lexer_fsm);
 
 /**
  * @brief Find out if the state is final

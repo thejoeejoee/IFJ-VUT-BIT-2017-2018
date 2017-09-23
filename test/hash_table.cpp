@@ -149,23 +149,23 @@ TEST_F(HashTableWithDataTestFixture, GetValidItem) {
 }
 
 TEST_F(HashTableWithDataTestFixture, DeleteInvalidItem) {
-    EXPECT_FALSE(hash_table_delete(hash_table, "invalid", FreeData)) << "Invalid key should return false";
+    EXPECT_FALSE(hash_table_remove(hash_table, "invalid", FreeData)) << "Invalid key should return false";
 }
 
 TEST_F(HashTableWithDataTestFixture, DeleteValidItem) {
-    EXPECT_TRUE(hash_table_delete(hash_table, keys[2], FreeData)) << "Deleting valid key should return true";
+    EXPECT_TRUE(hash_table_remove(hash_table, keys[2], FreeData)) << "Deleting valid key should return true";
 }
 
 TEST_F(HashTableTestFixture, DeleteOnEmptyTable) {
-    ASSERT_FALSE(hash_table_delete(hash_table, "nokey", FreeData)) << "Empty table should return false";
+    ASSERT_FALSE(hash_table_remove(hash_table, "nokey", FreeData)) << "Empty table should return false";
 }
 
 
 TEST_F(HashTableTestFixture, InvalidDelete) {
     DISABLE_LOG({
-                    ASSERT_FALSE(hash_table_delete(nullptr, "nokey", FreeData)) << "Null table should return false";
+                    ASSERT_FALSE(hash_table_remove(nullptr, "nokey", FreeData)) << "Null table should return false";
                     ASSERT_FALSE(
-                            hash_table_delete(hash_table, nullptr, FreeData)) << "Null key should return false";
+                            hash_table_remove(hash_table, nullptr, FreeData)) << "Null key should return false";
                 });
 }
 

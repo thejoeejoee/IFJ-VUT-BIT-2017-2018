@@ -11,7 +11,7 @@ protected:
 		string = string_init();
 	}
 	virtual void TearDown() {
-		string_delete(&string);
+		string_free(&string);
 	}
 };
 
@@ -38,7 +38,7 @@ TEST_F(DynamicStringTestFixture, Append) {
 		string_content(&string), "ABcdefGhjkl"
 	) << "Error appending dynamic string";
 
-	string_delete(&tmp);
+	string_free(&tmp);
 }
 
 TEST_F(DynamicStringTestFixture, Realloc) {

@@ -19,7 +19,7 @@ String string_init_with_capacity(size_t initial_capacity) {
     return string;
 }
 
-void string_delete(String* string) {
+void string_free(String* string) {
     NULL_POINTER_CHECK(string,)
     NULL_POINTER_CHECK(string->content,)
 

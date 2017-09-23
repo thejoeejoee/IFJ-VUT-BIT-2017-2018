@@ -36,7 +36,6 @@ TEST_F(LexerTokenizerTestFixture, MathTokens) {
             TOKEN_ADD
     ) << "Error get add token";
     memory_free(token);
-    token = NULL;
 
     token = lexer_next_token(lexer);
     EXPECT_EQ(
@@ -44,7 +43,6 @@ TEST_F(LexerTokenizerTestFixture, MathTokens) {
             TOKEN_SUBTRACT
     ) << "Error get subtract token";
     memory_free(token);
-    token = NULL;
 
     token = lexer_next_token(lexer);
     EXPECT_EQ(
@@ -52,7 +50,6 @@ TEST_F(LexerTokenizerTestFixture, MathTokens) {
             TOKEN_ADD
     ) << "Error get add token";
     memory_free(token);
-    token = NULL;
 
     token = lexer_next_token(lexer);
     EXPECT_EQ(
@@ -60,7 +57,6 @@ TEST_F(LexerTokenizerTestFixture, MathTokens) {
             TOKEN_MULTIPLY
     ) << "Error get multiply token";
     memory_free(token);
-    token = NULL;
 
 
 }
@@ -74,7 +70,6 @@ TEST_F(LexerTokenizerTestFixture, Identifiers) {
             TOKEN_IDENTIFIER
     ) << "Error IDENTIFIER add token";
     memory_free(token);
-    token = NULL;
 
     token = lexer_next_token(lexer);
     EXPECT_EQ(
@@ -82,7 +77,6 @@ TEST_F(LexerTokenizerTestFixture, Identifiers) {
             TOKEN_IDENTIFIER
     ) << "Error IDENTIFIER subtract token";
     memory_free(token);
-    token = NULL;
 
     token = lexer_next_token(lexer);
     EXPECT_EQ(
@@ -90,7 +84,6 @@ TEST_F(LexerTokenizerTestFixture, Identifiers) {
             TOKEN_IDENTIFIER
     ) << "Error IDENTIFIER  add token";
     memory_free(token);
-    token = NULL;
 
 
 }
@@ -105,7 +98,6 @@ TEST_F(LexerTokenizerTestFixture, RelationOperators) {
             TOKEN_SMALLER
     ) << "Error SMALLER add token";
     memory_free(token);
-    token = NULL;
 
     token = lexer_next_token(lexer);
     EXPECT_EQ(
@@ -113,7 +105,6 @@ TEST_F(LexerTokenizerTestFixture, RelationOperators) {
             TOKEN_BIGGER
     ) << "Error BIGGER subtract token";
     memory_free(token);
-    token = NULL;
 
     token = lexer_next_token(lexer);
     EXPECT_EQ(
@@ -121,7 +112,6 @@ TEST_F(LexerTokenizerTestFixture, RelationOperators) {
             TOKEN_SMALLER_EQUAL
     ) << "Error SMALLER_EQUAL token";
     memory_free(token);
-    token = NULL;
 
     token = lexer_next_token(lexer);
     EXPECT_EQ(
@@ -129,7 +119,6 @@ TEST_F(LexerTokenizerTestFixture, RelationOperators) {
             TOKEN_BIGGER_EQUAL
     ) << "Error BIGGER_EQUAL token";
     memory_free(token);
-    token = NULL;
 
 
 }
@@ -144,7 +133,6 @@ TEST_F(LexerTokenizerTestFixture, ComplexTest) {
             TOKEN_ADD
     ) << "Error SMALLER add token";
     memory_free(token);
-    token = NULL;
 
     token = lexer_next_token(lexer);
     EXPECT_EQ(
@@ -152,7 +140,6 @@ TEST_F(LexerTokenizerTestFixture, ComplexTest) {
             TOKEN_SMALLER_EQUAL
     ) << "Error SMALLER_EQUAL token";
     memory_free(token);
-    token = NULL;
 
     token = lexer_next_token(lexer);
     EXPECT_EQ(
@@ -160,7 +147,6 @@ TEST_F(LexerTokenizerTestFixture, ComplexTest) {
             TOKEN_BIGGER_EQUAL
     ) << "Error BIGGER_EQUAL token";
     memory_free(token);
-    token = NULL;
 
     token = lexer_next_token(lexer);
     EXPECT_EQ(
@@ -168,7 +154,6 @@ TEST_F(LexerTokenizerTestFixture, ComplexTest) {
             TOKEN_IDENTIFIER
     ) << "Error IDENTIFIER token";
     memory_free(token);
-    token = NULL;
 
     token = lexer_next_token(lexer);
     EXPECT_EQ(
@@ -176,7 +161,6 @@ TEST_F(LexerTokenizerTestFixture, ComplexTest) {
             TOKEN_IDENTIFIER
     ) << "Error MULTIPLY token";
     memory_free(token);
-    token = NULL;
 
     token = lexer_next_token(lexer);
     EXPECT_EQ(
@@ -184,27 +168,28 @@ TEST_F(LexerTokenizerTestFixture, ComplexTest) {
             TOKEN_MULTIPLY
     ) << "Error MULTIPLY token";
     memory_free(token);
-    token = NULL;
 
 
 }
 
 TEST_F(LexerTokenizerTestFixture, SecondComplexTest) {
-    provider->setString("/' Program 2: Vypocet faktorialu (rekurzivne) '/\n"
-                                "Declare Function factorial (n As Integer) As Integer\n"
-                                "Function factorial (n As Integer) As Integer\n"
-                                "Dim temp_result As Integer\n"
-                                "Dim decremented_n As Integer\n"
-                                "Dim result As Integer\n"
-                                "If n < 2 Then\n"
-                                "result = 1\n"
-                                "Else\n"
-                                "decremented_n = n - 1\n"
-                                "temp_result = factorial(decremented_n)\n"
-                                "result = n * temp_result\n"
-                                "End If\n"
-                                "Return result\n"
-                                "End Function");
+    provider->setString(R"RAW(
+/'Program 2: Vypocet faktorialu (rekurzivne)'/
+Declare Function factorial (n As Integer) As Integer
+Function factorial (n As Integer) As Integer
+Dim temp_result As Integer
+Dim decremented_n As Integer
+Dim result As Integer
+If n < 2 Then
+result = 1
+Else
+decremented_n = n - 1
+temp_result = factorial(decremented_n)
+result = n * temp_result
+End If
+Return result
+End Function
+)RAW");
     char_stack_empty(lexer->lexer_fsm->stack);
 
     std::vector<TokenType> expectedTokens = {
@@ -219,6 +204,8 @@ TEST_F(LexerTokenizerTestFixture, SecondComplexTest) {
             TOKEN_IDENTIFIER, TOKEN_AS, TOKEN_INTEGER
     };
 
+
+
     for (const TokenType expectedToken: expectedTokens) {
         token = lexer_next_token(lexer);
         EXPECT_EQ(
@@ -226,7 +213,6 @@ TEST_F(LexerTokenizerTestFixture, SecondComplexTest) {
                 expectedToken
         ) << "Error token in complex test";
         memory_free(token);
-        token = NULL;
     }
 
 
@@ -242,7 +228,6 @@ TEST_F(LexerTokenizerTestFixture, Keywords) {
             TOKEN_AS
     ) << "Error AS token";
     memory_free(token);
-    token = NULL;
 
     token = lexer_next_token(lexer);
     EXPECT_EQ(
@@ -250,7 +235,6 @@ TEST_F(LexerTokenizerTestFixture, Keywords) {
             TOKEN_ADD
     ) << "Error ADD token";
     memory_free(token);
-    token = NULL;
 
     token = lexer_next_token(lexer);
     EXPECT_EQ(
@@ -258,7 +242,6 @@ TEST_F(LexerTokenizerTestFixture, Keywords) {
             TOKEN_SCOPE
     ) << "Error SCOPE token";
     memory_free(token);
-    token = NULL;
 
 
 }

@@ -138,7 +138,6 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
             }
             else {
                 char_stack_push(lexer_fsm->stack, tolower(c));
-                string_append_c(&(lexer_fsm->actual_value), '\0');
                 LexerFSMState return_state = lexer_fsm_get_identifier_type(string_content(&(lexer_fsm->actual_value)));
                 string_clear(&(lexer_fsm->actual_value));
                 return return_state;

@@ -16,4 +16,21 @@
   <Type Name="LListItem">
     <DisplayString>{value}</DisplayString>
   </Type>
+
+  <Type Name="memory_manager_t">
+    <Expand>
+      <CustomListItems MaxItemsPerView="1000">
+        <Variable Name="iter" InitialValue="head"/>
+        <Loop>
+          <Break Condition="iter == nullptr"/>
+          <Item Name="{iter->info}">*iter</Item>
+          <Exec>iter = iter->next</Exec>
+        </Loop>
+      </CustomListItems>
+    </Expand>
+  </Type>
+  <Type Name="memory_manager_page_t">
+    <DisplayString Condition="allocated">Allocated {size} bytes</DisplayString>
+    <DisplayString Condition="!allocated">Free</DisplayString>
+  </Type>
 </AutoVisualizer>

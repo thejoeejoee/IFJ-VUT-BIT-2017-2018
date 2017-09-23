@@ -3,13 +3,16 @@
 #include "lexer_fsm.h"
 #include "debug.h"
 #include "char_stack.h"
+#include "dynamic_string.h"
+
+extern inline char* string_content(String* string);
 
 LexerFSM *lexer_fsm_init() {
     LexerFSM* lexer = (LexerFSM*) memory_alloc(sizeof(LexerFSM));
     NULL_POINTER_CHECK(lexer, NULL);
     CharStack* stack = char_stack_init();
+    lexer->actual_value = string_new_cap(20);
     lexer->stack = stack;
-    lexer->char_position = -1;
 
     return lexer;
 }
@@ -40,12 +43,12 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
                 return LEX_FSM__INIT;
 
             if(c == '_' || isalpha(c)) {
-                lexer_fsm_add_identifier_symbol(lexer_fsm, tolower(c));
+                string_append_c(&(lexer_fsm->actual_value), tolower(c));
                 return LEX_FSM__IDENTIFIER_UNFINISHED;
             }
 
             if(isdigit(c)) {
-                lexer_fsm_add_identifier_symbol(lexer_fsm, c);
+                string_append_c(&(lexer_fsm->actual_value), c);
                 return LEX_FSM__INTEGER_LITERAL_UNFINISHED;
             }
 
@@ -81,22 +84,21 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
 
         case LEX_FSM__INTEGER_LITERAL_UNFINISHED:
             if(isdigit(c)) {
-                lexer_fsm_add_identifier_symbol(lexer_fsm, c);
+                string_append_c(&(lexer_fsm->actual_value), c);
                 return LEX_FSM__INTEGER_LITERAL_UNFINISHED;
             }
             else if(c == '.') {
-                lexer_fsm_add_identifier_symbol(lexer_fsm, c);
+                string_append_c(&(lexer_fsm->actual_value), c);
                 return LEX_FSM__DOUBLE_DOT;
             }
             else {
-                lexer_fsm_end_identifier_name(lexer_fsm);
                 char_stack_push(lexer_fsm->stack, c);
                 return LEX_FSM__INTEGER_LITERAL_FINISHED;
             }
 
         case LEX_FSM__DOUBLE_DOT:
             if(isdigit(c)) {
-                lexer_fsm_add_identifier_symbol(lexer_fsm, c);
+                string_append_c(&(lexer_fsm->actual_value), c);
                 return LEX_FSM__DOUBLE_UNFINISHED;
             }
             else
@@ -104,11 +106,10 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
 
         case LEX_FSM__DOUBLE_UNFINISHED:
             if(isdigit(c)) {
-                lexer_fsm_add_identifier_symbol(lexer_fsm, c);
+                string_append_c(&(lexer_fsm->actual_value), c);
                 return LEX_FSM__DOUBLE_UNFINISHED;
             }
             else{
-                lexer_fsm_end_identifier_name(lexer_fsm);
                 char_stack_push(lexer_fsm->stack, c);
                 return LEX_FSM__DOUBLE_FINISHED;
             }
@@ -132,14 +133,15 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
 
         case LEX_FSM__IDENTIFIER_UNFINISHED:
             if(c == '_' || isdigit(c) || isalpha(c)) {
-                lexer_fsm_add_identifier_symbol(lexer_fsm, tolower(c));
+                string_append_c(&(lexer_fsm->actual_value), tolower(c));
                 return LEX_FSM__IDENTIFIER_UNFINISHED;
             }
             else {
                 char_stack_push(lexer_fsm->stack, tolower(c));
-                lexer_fsm_end_identifier_name(lexer_fsm);
 
-                return lexer_fsm_get_identifier_type(lexer_fsm->actual_value);
+                string_content(&(lexer_fsm->actual_value));
+
+                return lexer_fsm_get_identifier_type("AS");
             }
 
         case LEX_FSM__SLASH:
@@ -202,16 +204,6 @@ LexerFSMState lexer_fsm_get_identifier_type(char *name) {
     }
 
     return LEX_FSM__IDENTIFIER_FINISHED;
-}
-
-bool lexer_fsm_add_identifier_symbol(LexerFSM *lexer_fsm, char c) {
-    lexer_fsm->actual_value[++(lexer_fsm->char_position)] = c;
-    return true;
-}
-
-void lexer_fsm_end_identifier_name(LexerFSM *lexer_fsm) {
-    lexer_fsm->actual_value[++(lexer_fsm->char_position)] = '\0';
-    lexer_fsm->char_position = -1;
 }
 
 bool lexer_fsm_is_final_state(LexerFSMState state) {

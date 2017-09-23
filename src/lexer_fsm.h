@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include "char_stack.h"
+#include "dynamic_string.h"
 
 #define LEXER_FSM_STACK_SIZE 128
 
@@ -10,10 +11,7 @@ typedef int (* lexer_input_stream_f)();
 
 typedef struct lexer_fsm_t {
     CharStack* stack;
-
-    //TODO: We need dynamic array for it. There is no limit for length.
-    char actual_value[256];
-    int char_position;
+    String actual_value;
 } LexerFSM;
 
 typedef enum {

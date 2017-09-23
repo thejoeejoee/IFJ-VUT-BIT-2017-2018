@@ -43,7 +43,7 @@ void string_delete(String *string) {
 }
 
 // helper function for allocating more space if needed
-inline void string_update_capacity(String* string, size_t needed_size) {
+static inline void string_update_capacity(String* string, size_t needed_size) {
 	NULL_POINTER_CHECK(string,)
 	if (needed_size > string->_capacity) {
 		size_t new_capacity = 2 * string->_capacity;

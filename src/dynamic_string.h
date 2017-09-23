@@ -82,6 +82,6 @@ inline char* string_content(String* string) { return string->_content; }
 inline size_t string_length(String* string) { //excluding null terminator
 	ASSERT(string->_size >= 1);
 	return string->_size - 1;
-}; 
+}
 
 #endif

@@ -38,6 +38,12 @@ do {\
         }\
     })
 
+#define ASSERT(expression) DEBUG_CODE({\
+        if (!(expression)) {\
+			LOG_WARNING("Assertion failed: " #expression );\
+        }\
+    })
+
 #define OVERRIDE_VERBOSITY(verbosity, code) \
     do { \
         short _verbosity = log_verbosity; \

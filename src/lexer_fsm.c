@@ -166,25 +166,30 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
 LexerFSMState lexer_fsm_get_identifier_type(char *name) {
     // TODO: Macro is faster....
 
-    const int number_of_keywords = 35;
+    static const int number_of_keywords = 35;
 
-    char* keywords[] = {
+    static const char* keywords[] = {
+			// keywords
             "as", "asc", "declare", "dim", "do",
             "double", "else", "end", "chr", "function",
             "if", "input", "integer", "length", "loop",
             "print", "return", "scope", "string", "substr",
-            "then", "while", "and", "boolean", "continue",
+            "then", "while", 
+			// reserved
+			"and", "boolean", "continue",
             "elseif", "exit", "false", "for", "next", "not",
             "or", "shared", "static", "true"
     };
 
-    LexerFSMState return_state = LEX_FSM__IDENTIFIER_FINISHED;
+	ASSERT(sizeof(keywords) / sizeof(*keywords) == number_of_keywords);
+
     for (int i = 0; i < number_of_keywords; i++) {
-        if (strcmp(keywords[i], name) == 0)
-            return_state = LEX_FSM__AS + i;
+		if (strcmp(keywords[i], name) == 0) {
+			return LEX_FSM__AS + i;
+		}
     }
 
-    return return_state;
+    return LEX_FSM__IDENTIFIER_FINISHED;
 }
 
 bool lexer_fsm_add_identifier_symbol(LexerFSM *lexer_fsm, char c) {

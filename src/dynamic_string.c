@@ -88,3 +88,8 @@ void string_append(String* string, const String* b) {
     string->_content[new_size - 1] = 0;
     string->_size = new_size;
 }
+
+// force creation of external symbol
+extern inline void string_clear(String* string);
+extern inline char* string_content(String* string);
+extern inline size_t string_length(String* string);

@@ -207,8 +207,6 @@ TEST_F(LexerTokenizerTestFixture, SecondComplexTest) {
                                 "End Function");
     char_stack_empty(lexer->lexer_fsm->stack);
 
-    const int count_of_tokens = 27;
-
     TokenType expected_tokens[] = {
             TOKEN_DECLARE, TOKEN_FUNCTION, TOKEN_IDENTIFIER,
             TOKEN_LEFT_BRACKET, TOKEN_IDENTIFIER, TOKEN_AS,
@@ -220,6 +218,8 @@ TEST_F(LexerTokenizerTestFixture, SecondComplexTest) {
             TOKEN_AS, TOKEN_INTEGER, TOKEN_DIM,
             TOKEN_IDENTIFIER, TOKEN_AS, TOKEN_INTEGER
     };
+
+	int count_of_tokens = sizeof(expected_tokens) / sizeof(*expected_tokens);
 
     for (int i = 0; i < count_of_tokens; i++) {
 

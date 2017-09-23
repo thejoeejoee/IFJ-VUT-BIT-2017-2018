@@ -10,7 +10,9 @@ typedef int (* lexer_input_stream_f)();
 
 typedef struct lexer_fsm_t {
     CharStack* stack;
-    char identifier_name[256];
+
+    //TODO: We need dynamic array for it. There is no limit for length.
+    char actual_value[256];
     int char_position;
 } LexerFSM;
 

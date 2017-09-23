@@ -44,8 +44,10 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
                 return LEX_FSM__IDENTIFIER_UNFINISHED;
             }
 
-            if(isdigit(c))
+            if(isdigit(c)) {
+                lexer_fsm_add_identifier_symbol(lexer_fsm, c);
                 return LEX_FSM__INTEGER_LITERAL_UNFINISHED;
+            }
 
             if(c == 'a')
                 return LEX_FSM__IDENTIFIER_UNFINISHED;
@@ -78,25 +80,35 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
             break;
 
         case LEX_FSM__INTEGER_LITERAL_UNFINISHED:
-            if(isdigit(c))
+            if(isdigit(c)) {
+                lexer_fsm_add_identifier_symbol(lexer_fsm, c);
                 return LEX_FSM__INTEGER_LITERAL_UNFINISHED;
-            else if(c == '.')
+            }
+            else if(c == '.') {
+                lexer_fsm_add_identifier_symbol(lexer_fsm, c);
                 return LEX_FSM__DOUBLE_DOT;
+            }
             else {
+                lexer_fsm_end_identifier_name(lexer_fsm);
                 char_stack_push(lexer_fsm->stack, c);
                 return LEX_FSM__INTEGER_LITERAL_FINISHED;
             }
 
         case LEX_FSM__DOUBLE_DOT:
-            if(isdigit(c))
+            if(isdigit(c)) {
+                lexer_fsm_add_identifier_symbol(lexer_fsm, c);
                 return LEX_FSM__DOUBLE_UNFINISHED;
+            }
             else
                 return LEX_FSM__LEG_SHOT;
 
         case LEX_FSM__DOUBLE_UNFINISHED:
-            if(isdigit(c))
+            if(isdigit(c)) {
+                lexer_fsm_add_identifier_symbol(lexer_fsm, c);
                 return LEX_FSM__DOUBLE_UNFINISHED;
+            }
             else{
+                lexer_fsm_end_identifier_name(lexer_fsm);
                 char_stack_push(lexer_fsm->stack, c);
                 return LEX_FSM__DOUBLE_FINISHED;
             }
@@ -127,7 +139,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
                 char_stack_push(lexer_fsm->stack, tolower(c));
                 lexer_fsm_end_identifier_name(lexer_fsm);
 
-                return lexer_fsm_get_identifier_type(lexer_fsm->identifier_name);
+                return lexer_fsm_get_identifier_type(lexer_fsm->actual_value);
             }
 
         case LEX_FSM__SLASH:
@@ -193,12 +205,12 @@ LexerFSMState lexer_fsm_get_identifier_type(char *name) {
 }
 
 bool lexer_fsm_add_identifier_symbol(LexerFSM *lexer_fsm, char c) {
-    lexer_fsm->identifier_name[++(lexer_fsm->char_position)] = c;
+    lexer_fsm->actual_value[++(lexer_fsm->char_position)] = c;
     return true;
 }
 
 void lexer_fsm_end_identifier_name(LexerFSM *lexer_fsm) {
-    lexer_fsm->identifier_name[++(lexer_fsm->char_position)] = '\0';
+    lexer_fsm->actual_value[++(lexer_fsm->char_position)] = '\0';
     lexer_fsm->char_position = -1;
 }
 

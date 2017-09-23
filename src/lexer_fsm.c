@@ -10,7 +10,7 @@ LexerFSM* lexer_fsm_init() {
     LexerFSM* lexer = (LexerFSM*) memory_alloc(sizeof(LexerFSM));
     NULL_POINTER_CHECK(lexer, NULL);
     CharStack* stack = char_stack_init();
-    lexer->actual_value = string_init_with_capacity(20);
+    lexer->stream_buffer = string_init_with_capacity(20);
     lexer->stack = stack;
 
     return lexer;
@@ -43,12 +43,12 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
                 return LEX_FSM__INIT;
 
             if(c == '_' || isalpha(c)) {
-                string_append_c(&(lexer_fsm->actual_value), tolower(c));
+                string_append_c(&(lexer_fsm->stream_buffer), tolower(c));
                 return LEX_FSM__IDENTIFIER_UNFINISHED;
             }
 
             if(isdigit(c)) {
-                string_append_c(&(lexer_fsm->actual_value), c);
+                string_append_c(&(lexer_fsm->stream_buffer), c);
                 return LEX_FSM__INTEGER_LITERAL_UNFINISHED;
             }
 
@@ -84,10 +84,10 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
 
         case LEX_FSM__INTEGER_LITERAL_UNFINISHED:
             if(isdigit(c)) {
-                string_append_c(&(lexer_fsm->actual_value), c);
+                string_append_c(&(lexer_fsm->stream_buffer), c);
                 return LEX_FSM__INTEGER_LITERAL_UNFINISHED;
             } else if(c == '.') {
-                string_append_c(&(lexer_fsm->actual_value), c);
+                string_append_c(&(lexer_fsm->stream_buffer), c);
                 return LEX_FSM__DOUBLE_DOT;
             } else {
                 char_stack_push(lexer_fsm->stack, c);
@@ -96,14 +96,14 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
 
         case LEX_FSM__DOUBLE_DOT:
             if(isdigit(c)) {
-                string_append_c(&(lexer_fsm->actual_value), c);
+                string_append_c(&(lexer_fsm->stream_buffer), c);
                 return LEX_FSM__DOUBLE_UNFINISHED;
             } else
                 return LEX_FSM__LEG_SHOT;
 
         case LEX_FSM__DOUBLE_UNFINISHED:
             if(isdigit(c)) {
-                string_append_c(&(lexer_fsm->actual_value), c);
+                string_append_c(&(lexer_fsm->stream_buffer), c);
                 return LEX_FSM__DOUBLE_UNFINISHED;
             } else {
                 char_stack_push(lexer_fsm->stack, c);
@@ -129,12 +129,12 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, lexer_input_stream_
 
         case LEX_FSM__IDENTIFIER_UNFINISHED:
             if(c == '_' || isdigit(c) || isalpha(c)) {
-                string_append_c(&(lexer_fsm->actual_value), tolower(c));
+                string_append_c(&(lexer_fsm->stream_buffer), tolower(c));
                 return LEX_FSM__IDENTIFIER_UNFINISHED;
             } else {
                 char_stack_push(lexer_fsm->stack, tolower(c));
-                LexerFSMState return_state = lexer_fsm_get_identifier_type(string_content(&(lexer_fsm->actual_value)));
-                string_clear(&(lexer_fsm->actual_value));
+                LexerFSMState return_state = lexer_fsm_get_identifier_type(string_content(&(lexer_fsm->stream_buffer)));
+                string_clear(&(lexer_fsm->stream_buffer));
                 return return_state;
             }
 

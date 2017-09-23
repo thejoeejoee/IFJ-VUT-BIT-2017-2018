@@ -59,12 +59,6 @@ HashTableListItem* hash_table_get_or_create(HashTable* table, const char* key);
 HashTableListItem* hash_table_get(HashTable* table, const char* key);
 
 /**
- * Allocate memory for hash table item and associated key, which is copied from given.
- * @return Ptr to new item.
- */
-HashTableListItem* hash_table_new_item(const char* key);
-
-/**
  * Call given function on all items in hash table.
  */
 void hash_table_foreach(HashTable* table, void(* callback)(const char*, void*));

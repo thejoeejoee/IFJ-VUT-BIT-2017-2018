@@ -5,13 +5,11 @@
 #include "char_stack.h"
 #include "dynamic_string.h"
 
-#define LEXER_FSM_STACK_SIZE 128
-
 typedef int (* lexer_input_stream_f)();
 
 typedef struct lexer_fsm_t {
     CharStack* stack;
-    String actual_value;
+    String stream_buffer;
 } LexerFSM;
 
 typedef enum {

@@ -5,13 +5,20 @@
 #include "debug.h"
 
 #define STRING_INITIAL_CAPACITY 128 // should be power of 2
-#define string_init(...) string_init_with_capacity(STRING_INITIAL_CAPACITY)
+#define string_init() string_init_with_capacity(STRING_INITIAL_CAPACITY)
 
 typedef struct string_t {
     char* content; // only for internal usage
     size_t size; // only for internal usage, size of string data (including null terminator)
     size_t capacity; // only for internal usage, capacity for string data
 } String;
+
+/**
+* @brief Creates and allocates new empty dynamic string (including null terminator) with STRING_INITIAL_CAPACITY capacity
+*
+* @return String New empty dynamic string
+*/
+//String string_new();
 
 /**
 * @brief Creates and allocates new empty dynamic string (including null terminator) with custom capacity

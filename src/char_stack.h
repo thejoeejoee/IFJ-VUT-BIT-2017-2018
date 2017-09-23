@@ -7,7 +7,7 @@
 #define CHAR_STACK_MAX_LENGTH 256
 
 typedef struct char_stack_t {
-    ssize_t stack_head;
+    short stack_head;
     char stack[CHAR_STACK_MAX_LENGTH];
 } CharStack;
 

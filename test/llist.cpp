@@ -1,4 +1,5 @@
 #include "gtest/gtest.h"
+
 extern "C" {
 #include "../src/llist.h"
 }
@@ -8,7 +9,6 @@ class LlistTestFixture : public ::testing::Test {
         LList* llist;
 
         virtual void SetUp() {
-            memory_manager_enter(nullptr);
             llist_init(&llist);
         }
 
@@ -16,7 +16,6 @@ class LlistTestFixture : public ::testing::Test {
             if (llist != nullptr) {
                 llist_delete(&llist);
             }
-            memory_manager_exit(nullptr);
         }
 };
 

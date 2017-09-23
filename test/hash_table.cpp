@@ -1,4 +1,5 @@
 #include "gtest/gtest.h"
+
 extern "C" {
 #include "../src/memory.h"
 #include "../src/debug.h"
@@ -6,6 +7,7 @@ extern "C" {
 }
 
 #include "utils/functioncallcounter.h"
+
 void ForeachCount(const char* key, void* data) {}
 
 
@@ -20,13 +22,11 @@ class HashTableTestFixture : public ::testing::Test {
 
         virtual void SetUp() {
             callCounter->resetCounter();
-            memory_manager_enter(NULL);
             hash_table = hash_table_init(8);
         }
 
         virtual void TearDown() {
             EXPECT_NO_FATAL_FAILURE(hash_table_free(hash_table, FreeData));
-            memory_manager_exit(NULL);
         }
 
         void static FreeData(void* data) {
@@ -47,7 +47,6 @@ class HashTableWithDataTestFixture : public ::testing::Test {
         }
 
         virtual void SetUp() {
-            memory_manager_enter(NULL);
             callCounter->resetCounter();
             hash_table = hash_table_init(n_samples);
 
@@ -58,13 +57,10 @@ class HashTableWithDataTestFixture : public ::testing::Test {
         }
 
         virtual void TearDown() {
-            EXPECT_NO_FATAL_FAILURE(hash_table_free(hash_table, FreeData));
-            memory_manager_exit(NULL);
+            hash_table_free(hash_table, FreeData);
         }
 
         void static FreeData(void* data) {
-            if (data != nullptr)
-                free(data);
         }
 };
 
@@ -202,8 +198,8 @@ TEST_F(HashTableWithDataTestFixture, MoveTableWithItems) {
 
     for (auto key : keys) {
         EXPECT_NE(
-            hash_table_get(new_table, key),
-            nullptr
+                hash_table_get(new_table, key),
+                nullptr
         ) << "All items were copied.";
     }
 
@@ -243,7 +239,7 @@ TEST_F(HashTableWithDataTestFixture, Foreach) {
 //    size_t n_samples = 5;
 
     EXPECT_EQ(
-        callCounter->callCount(),
-        n_samples
+            callCounter->callCount(),
+            n_samples
     ) << "Callback function should be called " << n_samples << " times";
 }

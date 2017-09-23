@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "debug.h"
 #include "common.h"
 
 /**
@@ -17,7 +18,6 @@
  * memory_manager_enter and memory_manager_exit starts and closes memory session.
  * Exit also frees all non-freed and warns about all memory leaks.
  */
-#ifndef NDEBUG
 
 #define memory_alloc_2(size, manager) memory_manager_malloc(size, __FILENAME__, __LINE__, __func__, manager)
 #define memory_alloc_1(size) memory_manager_malloc(size, __FILENAME__, __LINE__, __func__, NULL)
@@ -27,20 +27,28 @@
 #define memory_free_2(address, manager) memory_manager_free(address, manager)
 #define memory_free(...) GET_OVERLOADED_MACRO12(__VA_ARGS__, memory_free_2, memory_free_1)(__VA_ARGS__)
 
-
+#ifdef NDEBUG
+#define _OFFSET_PAGE_TO_ADDRESS(page) ((void *) (((size_t) (page)) + sizeof(MemoryManagerPage)))
+#define _OFFSET_ADDRESS_TO_PAGE(address) ((MemoryManagerPage *) (((size_t) (address)) - sizeof(MemoryManagerPage)))
+#define memory_manager_enter(...)
+#define memory_manager_exit(...)
+#else
 #define INFO_MAX_LENGTH 64
 #define INFO_FORMAT "%s:%d:%s()"
+#endif
 
 /**
  * @brief Memory page as one unit of allocated memory. Stored also info about place of allocation, size and
  * flag for state of freeing. Works as linked list, with next linked pages.
  */
 typedef struct memory_manager_page_t {
-    void* address;
-    size_t size;
-    bool allocated;
-    char* info;
     struct memory_manager_page_t* next;
+#ifndef NDEBUG
+    void* address;
+    bool allocated;
+    size_t size;
+    char* info;
+#endif
 } MemoryManagerPage;
 
 /**
@@ -52,6 +60,7 @@ typedef struct memory_manager_t {
 
 extern MemoryManager memory_manager;
 
+#ifndef NDEBUG
 /**
  * Enters memory manager session for given manager.
  * @param manager optional specified memory manager
@@ -64,6 +73,7 @@ void memory_manager_enter(MemoryManager* manager);
  * @param manager optional specified memory manager
  */
 void memory_manager_exit(MemoryManager* manager);
+#endif
 
 /**
  * Replacement for malloc, which uses memory manager with pages and stored info about allocation.
@@ -97,18 +107,5 @@ void memory_manager_free(
  * @param manager optional memory manager
  */
 void memory_manager_log_stats(MemoryManager* manager);
-
-#else
-
-/**
-* Stdlib callbacks for memory management functions.
-*/
-#define memory_alloc(size, ...) malloc(size)
-#define memory_free(addr, ...) free(addr)
-#define memory_manager_enter(...)
-#define memory_manager_exit(...)
-#define memory_manager_log_stats(...)
-
-#endif
 
 #endif //_MEMORY_H

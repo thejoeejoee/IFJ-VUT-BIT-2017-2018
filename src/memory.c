@@ -1,8 +1,9 @@
 #include "memory.h"
 #include "debug.h"
 
-#ifndef NDEBUG
 MemoryManager memory_manager;
+
+#ifndef NDEBUG
 
 void* memory_manager_malloc(
         size_t size,
@@ -12,7 +13,7 @@ void* memory_manager_malloc(
         MemoryManager* manager
 ) {
     if (!size) {
-        LOG_WARNING("Invalid size %zd .", size);
+        LOG_WARNING("Invalid size %zd.", size);
         return NULL;
     }
     if (manager == NULL)
@@ -58,6 +59,7 @@ void memory_manager_free(void* address,
     page->allocated = false;
     free(page->address);
     page->address = NULL;
+
 }
 
 void memory_manager_enter(MemoryManager* manager) {
@@ -120,6 +122,60 @@ void memory_manager_log_stats(MemoryManager* manager) {
             "Allocated %d bytes in %d pages. Total memory usage %d bytes.",
             allocated_size, allocated_pages_count, total_size
     );
+}
+
+#else
+
+void* memory_manager_malloc(
+        size_t size,
+        const char* file,
+        unsigned line,
+        const char* func,
+        MemoryManager* manager
+) {
+    if (!size) {
+        LOG_WARNING("Invalid size %zd .", size);
+        return NULL;
+    }
+    if (manager == NULL)
+        manager = &memory_manager;
+
+    size_t total_size = sizeof(MemoryManagerPage) + size;
+
+    MemoryManagerPage* page = (MemoryManagerPage*) malloc(total_size);
+    NULL_POINTER_CHECK(page, NULL);
+
+    page->next = manager->head;
+    manager->head = page;
+
+    return _OFFSET_PAGE_TO_ADDRESS(page);
+}
+
+void memory_manager_free(void* address,
+                         MemoryManager* manager) {
+    NULL_POINTER_CHECK(address,);
+    if (manager == NULL)
+        manager = &memory_manager;
+
+    MemoryManagerPage* page = manager->head;
+    MemoryManagerPage* page_before = NULL;
+    while (page != NULL) {
+        if (page == _OFFSET_ADDRESS_TO_PAGE(address))
+            break;
+
+        page_before = page;
+        page = page->next;
+    }
+    if (page == NULL) {
+        LOG_WARNING("Allocated memory with address %p to free not found.", address);
+        return;
+    }
+    if (page_before == NULL)
+        manager->head = page->next;
+    else
+        page_before->next = page->next;
+
+    free(page);
 }
 
 #endif

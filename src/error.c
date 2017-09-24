@@ -1,7 +1,6 @@
 #include "error.h"
 #include "debug.h"
-
-short exit_error_code = ERROR_NONE;
+#include "memory.h"
 
 void exit_with_code(ErrorCode code) {
     switch (code) {
@@ -25,5 +24,7 @@ void exit_with_code(ErrorCode code) {
             break;
         default:;
     }
+    // free all allocated memory blocks
+    memory_manager_exit(NULL);
     exit(code);
 }

@@ -12,8 +12,6 @@ typedef enum error_code_t {
     ERROR_MEMORY = 99,
 } ErrorCode;
 
-extern short exit_error_code;
-
 void exit_with_code(ErrorCode code);
 
 #endif //_ERROR_H

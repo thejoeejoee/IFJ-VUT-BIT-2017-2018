@@ -57,7 +57,6 @@ typedef struct memory_manager_t {
 
 extern MemoryManager memory_manager;
 
-#ifndef NDEBUG
 
 /**
  * Enters memory manager session for given manager.
@@ -71,8 +70,6 @@ void memory_manager_enter(MemoryManager* manager);
  * @param manager optional specified memory manager
  */
 void memory_manager_exit(MemoryManager* manager);
-
-#endif
 
 /**
  * Replacement for malloc, which uses memory manager with pages and stored info about allocation.

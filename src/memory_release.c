@@ -6,8 +6,6 @@ MemoryManager memory_manager;
 
 #define _OFFSET_PAGE_TO_ADDRESS(page) ((void *) (((size_t) (page)) + sizeof(MemoryManagerPage)))
 #define _OFFSET_ADDRESS_TO_PAGE(address) ((MemoryManagerPage *) (((size_t) (address)) - sizeof(MemoryManagerPage)))
-#define memory_manager_enter(...)
-#define memory_manager_exit(...)
 #define memory_manager_log_stats(...)
 
 void* memory_manager_malloc(
@@ -63,6 +61,26 @@ void memory_manager_free(void* address,
         page_before->next = page->next;
 
     free(page);
+}
+
+void memory_manager_enter(MemoryManager* manager) {
+    if (manager == NULL)
+        manager = &memory_manager;
+    manager->head = NULL;
+}
+
+void memory_manager_exit(MemoryManager* manager) {
+    if (manager == NULL)
+        manager = &memory_manager;
+    MemoryManagerPage* page = manager->head;
+    MemoryManagerPage* next = NULL;
+
+    while (page != NULL) {
+        next = page->next;
+        free(page);
+        page = next;
+    }
+    manager->head = NULL;
 }
 
 #endif

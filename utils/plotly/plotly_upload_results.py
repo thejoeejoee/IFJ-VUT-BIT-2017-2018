@@ -13,6 +13,8 @@ from plotly.exceptions import PlotlyError
 
 PLOTLY_FILENAME = "IFJ"
 
+GITHUB_COMMIT_LINK = '<a href="https://github.com/thejoeejoee/IFJ-VUT-BIT-2017-2018/commit/{}">{}</a>'
+
 
 def parse_numeric(s):
     try:
@@ -62,13 +64,13 @@ def plotly_combine(data_a, data_b):
 
 
 def get_upload_metadata():
-    if len(sys.argv) == 4:
-        return sys.argv[1], sys.argv[2], sys.argv[3]
+    if len(sys.argv) == 5:
+        return sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
 
     print(
-        "Wrong script run, usage: USER=user API_KEY=key plotly_upload_results.py BRANCH_NAME BUILD_NUMBER benchmark_results.json"
+        "Wrong script run, usage: USER=user API_KEY=key plotly_upload_results.py BRANCH_NAME BUILD_NUMBER TRAVIS_COMMIT benchmark_results.json"
     )
-    return None, None, None
+    return None, None, None, None
 
 
 def get_new_benchmark_data(filename):
@@ -84,7 +86,7 @@ def resolve_time_by_unit(real_time, unit):
     }.get(unit, 1)
 
 
-def get_transformed_benchmark_data(filename, build_nr):
+def get_transformed_benchmark_data(filename, build_nr, commit_hash):
     try:
         benchmark_data = get_new_benchmark_data(filename)
     except (FileNotFoundError, ValueError):
@@ -94,7 +96,7 @@ def get_transformed_benchmark_data(filename, build_nr):
     return [
         dict(
             name=benchmark["name"],
-            x=build_nr,
+            x=GITHUB_COMMIT_LINK.format(commit_hash, build_nr),
             y=resolve_time_by_unit(benchmark["real_time"], benchmark["time_unit"])
         ) for benchmark in benchmark_data['benchmarks']
     ]
@@ -119,7 +121,7 @@ def send_data(new_data, filename):
 
         # reset figure layout
         layout = go.Layout(
-            title="IFJ Benchmark",
+            title=filename,
             titlefont=dict(size=20),
             xaxis=dict(
                 title='<b>build #</b>',
@@ -150,8 +152,8 @@ def send_data(new_data, filename):
 
 
 # ini
-branch_name, build_nr, benchmark_filename = get_upload_metadata()
-data = get_transformed_benchmark_data(benchmark_filename, build_nr)  # login
+branch_name, build_nr, commit_hash, benchmark_filename = get_upload_metadata()
+data = get_transformed_benchmark_data(benchmark_filename, build_nr, commit_hash)  # login
 
 try:
     try_to_sign_in()

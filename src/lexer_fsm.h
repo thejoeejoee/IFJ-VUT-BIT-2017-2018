@@ -26,14 +26,19 @@ typedef enum {
     LEX_FSM__COMMENT_BLOCK,
     LEX_FSM__COMMENT_BLOCK_END,
 
-    LEX_FSM__IDENTIFIER_UNFINISHED,
-    LEX_FSM__INTEGER_LITERAL_UNFINISHED,
-    LEX_FSM__DOUBLE_DOT,
-    LEX_FSM__DOUBLE_UNFINISHED,
 
     // Sharp brackets
     LEX_FSM__LEFT_SHARP_BRACKET,
     LEX_FSM__RIGHT_SHARP_BRACKET,
+
+    // Other unfinished states
+    LEX_FSM__IDENTIFIER_UNFINISHED,
+    LEX_FSM__INTEGER_LITERAL_UNFINISHED,
+    LEX_FSM__DOUBLE_DOT,
+    LEX_FSM__DOUBLE_UNFINISHED,
+    LEX_FSM__DOUBLE_E,
+    LEX_FSM__DOUBLE_E_UNFINISHED,
+    
 
     // FINAL STATES
     LEX_FSM__ADD,
@@ -147,13 +152,5 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM *lexer_fsm
  * @return bool
  */
 bool lexer_fsm_is_final_state(LexerFSMState state);
-
-/**
- * @brief Find out if the character is white space
- *
- * @param char c
- * @return bool
- */
-bool lexer_is_white_space(char c);
 
 #endif // _LEXER_FSM_H

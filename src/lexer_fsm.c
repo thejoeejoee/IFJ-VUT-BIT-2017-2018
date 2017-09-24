@@ -40,7 +40,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
         case LEX_FSM__INIT:
 
             // If it is a white space, we ignore it
-            if(lexer_is_white_space(c))
+            if(isspace(c))
                 return LEX_FSM__INIT;
 
             if(c == '_' || isalpha(c)) {
@@ -106,11 +106,37 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
             if(isdigit(c)) {
                 string_append_c(&(lexer_fsm->stream_buffer), c);
                 return LEX_FSM__DOUBLE_UNFINISHED;
-            } else {
+            }
+
+            else if(tolower(c) == 'e') {
+                string_append_c(&(lexer_fsm->stream_buffer), c);
+                return LEX_FSM__DOUBLE_E;
+            }
+
+            else {
                 char_stack_push(lexer_fsm->stack, c);
                 return LEX_FSM__DOUBLE_FINISHED;
             }
 
+        case LEX_FSM__DOUBLE_E:
+            if(isdigit(c)) {
+                string_append_c(&(lexer_fsm->stream_buffer), c);
+                return LEX_FSM__DOUBLE_E_UNFINISHED;
+            }
+            else{
+                return LEX_FSM__LEG_SHOT;
+            }
+            
+        case LEX_FSM__DOUBLE_E_UNFINISHED:
+            if(isdigit(c)) {
+                string_append_c(&(lexer_fsm->stream_buffer), c);
+                return LEX_FSM__DOUBLE_E_UNFINISHED;
+            }
+            else{
+                char_stack_push(lexer_fsm->stack, c);
+                return LEX_FSM__DOUBLE_FINISHED;
+                
+            }
 
         case LEX_FSM__LEFT_SHARP_BRACKET:
             if(c == '=')
@@ -135,7 +161,6 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
             } else {
                 char_stack_push(lexer_fsm->stack, tolower(c));
                 LexerFSMState return_state = lexer_fsm_get_identifier_type(string_content(&(lexer_fsm->stream_buffer)));
-                string_clear(&(lexer_fsm->stream_buffer));
                 return return_state;
             }
 
@@ -206,16 +231,4 @@ bool lexer_fsm_is_final_state(LexerFSMState state) {
     if(state >= LEX_FSM__ADD && state <= LEX_FSM__TRUE)
         return true;
     return false;
-}
-
-bool lexer_is_white_space(char c) {
-    // TODO: inline or macro version has better performance
-    switch(c) {
-        case ' ':
-        case '\n':
-        case '\t':
-            return true;
-        default:
-            return false;
-    }
 }

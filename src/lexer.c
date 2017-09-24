@@ -40,6 +40,8 @@ Token* lexer_next_token(Lexer* lexer) {
     } while(!lexer_fsm_is_final_state(actual_state) || actual_state == LEX_FSM__LEG_SHOT);
 
     token->type = (TokenType) actual_state;
+    
+    string_clear(&(lexer->lexer_fsm->stream_buffer));
 
     return token;
 

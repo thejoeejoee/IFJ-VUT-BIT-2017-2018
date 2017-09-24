@@ -5,6 +5,9 @@
 #include "char_stack.h"
 #include "dynamic_string.h"
 
+#define REWIND_CHAR(c) char_stack_push(lexer_fsm->stack, (char) (c))
+#define STORE_CHAR(c) string_append_c(&(lexer_fsm->stream_buffer), (char) (c));
+
 
 LexerFSM* lexer_fsm_init(lexer_input_stream_f input_stream) {
     NULL_POINTER_CHECK(input_stream, NULL);
@@ -49,12 +52,12 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
                 return LEX_FSM__INIT;
 
             if(c == '_' || isalpha(c)) {
-                string_append_c(&(lexer_fsm->stream_buffer), tolower(c));
+                STORE_CHAR(tolower(c));
                 return LEX_FSM__IDENTIFIER_UNFINISHED;
             }
 
             if(isdigit(c)) {
-                string_append_c(&(lexer_fsm->stream_buffer), c);
+                STORE_CHAR(c);
                 return LEX_FSM__INTEGER_LITERAL_UNFINISHED;
             }
 
@@ -112,7 +115,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
                 case '\\':
                     return LEX_FSM__STRING_SLASH;
                 default:
-                    string_append_c(&(lexer_fsm->stream_buffer), c);
+                    STORE_CHAR(c);
                     return LEX_FSM__STRING_LOAD;
             }
 
@@ -153,7 +156,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
                     int numeric_char_value = atoi(lexer_fsm->numeric_char_value);
 
                     if(numeric_char_value >= 0 && numeric_char_value <= 255) {
-                        string_append_c(&(lexer_fsm->stream_buffer), (char)numeric_char_value);
+                        string_append_c(&(lexer_fsm->stream_buffer), (char) numeric_char_value);
                         return LEX_FSM__STRING_LOAD;
                     }
 
@@ -164,13 +167,13 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
 
         case LEX_FSM__INTEGER_LITERAL_UNFINISHED:
             if(isdigit(c)) {
-                string_append_c(&(lexer_fsm->stream_buffer), c);
+                STORE_CHAR(c);
                 return LEX_FSM__INTEGER_LITERAL_UNFINISHED;
             } else if(c == '.') {
-                string_append_c(&(lexer_fsm->stream_buffer), c);
+                STORE_CHAR(c);
                 return LEX_FSM__DOUBLE_DOT;
             } else {
-                char_stack_push(lexer_fsm->stack, c);
+                REWIND_CHAR(c);
                 return LEX_FSM__INTEGER_LITERAL_FINISHED;
             }
 
@@ -178,44 +181,41 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
 
         case LEX_FSM__DOUBLE_DOT:
             if(isdigit(c)) {
-                string_append_c(&(lexer_fsm->stream_buffer), c);
+                STORE_CHAR(c);
                 return LEX_FSM__DOUBLE_UNFINISHED;
             } else
                 return LEX_FSM__ERROR;
 
         case LEX_FSM__DOUBLE_UNFINISHED:
             if(isdigit(c)) {
-                string_append_c(&(lexer_fsm->stream_buffer), c);
+                STORE_CHAR(c);
                 return LEX_FSM__DOUBLE_UNFINISHED;
             } else if(tolower(c) == 'e') {
-                string_append_c(&(lexer_fsm->stream_buffer), c);
+                STORE_CHAR(c);
                 return LEX_FSM__DOUBLE_E;
             } else {
-                char_stack_push(lexer_fsm->stack, c);
+                REWIND_CHAR(c);
                 return LEX_FSM__DOUBLE_FINISHED;
             }
 
         case LEX_FSM__DOUBLE_E:
             if(isdigit(c)) {
-                string_append_c(&(lexer_fsm->stream_buffer), c);
+                STORE_CHAR(c);
                 return LEX_FSM__DOUBLE_E_UNFINISHED;
-            }
-            else if(c == '-' || c == '+') {
-                string_append_c(&(lexer_fsm->stream_buffer), c);
+            } else if(c == '-' || c == '+') {
+                STORE_CHAR(c);
                 return LEX_FSM__DOUBLE_E_UNFINISHED;
-            }
-            else {
+            } else {
                 return LEX_FSM__ERROR;
             }
 
         case LEX_FSM__DOUBLE_E_UNFINISHED:
             if(isdigit(c)) {
-                string_append_c(&(lexer_fsm->stream_buffer), c);
+                STORE_CHAR(c);
                 return LEX_FSM__DOUBLE_E_UNFINISHED;
             } else {
-                char_stack_push(lexer_fsm->stack, c);
+                REWIND_CHAR(c);
                 return LEX_FSM__DOUBLE_FINISHED;
-
             }
 
             // Relation operators
@@ -227,7 +227,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
                 case '>':
                     return LEX_FSM__SMALLER_BIGGER;
                 default:
-                    char_stack_push(lexer_fsm->stack, c);
+                    REWIND_CHAR(c);
                     return LEX_FSM__SMALLER;
             }
 
@@ -236,7 +236,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
             if(c == '=')
                 return LEX_FSM__BIGGER_EQUAL;
             else {
-                char_stack_push(lexer_fsm->stack, c);
+                REWIND_CHAR(c);
                 return LEX_FSM__BIGGER;
             }
 
@@ -244,10 +244,10 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
 
         case LEX_FSM__IDENTIFIER_UNFINISHED:
             if(c == '_' || isdigit(c) || isalpha(c)) {
-                string_append_c(&(lexer_fsm->stream_buffer), tolower(c));
+                STORE_CHAR(tolower(c));
                 return LEX_FSM__IDENTIFIER_UNFINISHED;
             } else {
-                char_stack_push(lexer_fsm->stack, tolower(c));
+                REWIND_CHAR(tolower(c));
                 LexerFSMState return_state = lexer_fsm_get_identifier_type(string_content(&(lexer_fsm->stream_buffer)));
                 return return_state;
             }
@@ -258,7 +258,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
             if(c == '\'')
                 return LEX_FSM__COMMENT_BLOCK;
             else {
-                char_stack_push(lexer_fsm->stack, c);
+                REWIND_CHAR(c);
                 return LEX_FSM__DIVIDE;
             }
 

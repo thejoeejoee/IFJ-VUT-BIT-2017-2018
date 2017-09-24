@@ -160,5 +160,5 @@ try:
 except PlotlyError as e:
     print('Failed to sign in: ', e)
 else:
-    url = send_data(data, ' - '.join((PLOTLY_FILENAME, branch_name)))
+    url = send_data(data, ' - '.join((PLOTLY_FILENAME, branch_name)).replace('/', '_'))
     print("Benchmark results upload complete. ({0})".format(url))

@@ -53,16 +53,14 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
                 return LEX_FSM__INTEGER_LITERAL_UNFINISHED;
             }
 
-            if(c == 'a')
-                return LEX_FSM__IDENTIFIER_UNFINISHED;
-
             switch(c) {
+                case '!':
+                    return LEX_FSM__STRING_EXC;
                 case '\'':
                     return LEX_FSM__COMMENT_LINE;
                 case '/':
                     // It can be comment or divide symbol
                     return LEX_FSM__SLASH;
-
                 case '+':
                     return LEX_FSM__ADD;
                 case '-':
@@ -82,6 +80,26 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
                     break;
             }
             break;
+
+        case LEX_FSM__STRING_EXC:
+            if(c == '"') {
+                return LEX_FSM__STRING_LOAD;
+            }
+            else {
+                return LEX_FSM__LEG_SHOT;
+            }
+
+        case LEX_FSM__STRING_LOAD:
+            if(c == '"') {
+                return LEX_FSM__STRING_VALUE;
+            }
+            else if(c == '\n') {
+                return LEX_FSM__LEG_SHOT;
+            }
+            else {
+                string_append_c(&(lexer_fsm->stream_buffer), c);
+                return LEX_FSM__STRING_LOAD;
+            }
 
         case LEX_FSM__INTEGER_LITERAL_UNFINISHED:
             if(isdigit(c)) {
@@ -126,7 +144,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
             else{
                 return LEX_FSM__LEG_SHOT;
             }
-            
+
         case LEX_FSM__DOUBLE_E_UNFINISHED:
             if(isdigit(c)) {
                 string_append_c(&(lexer_fsm->stream_buffer), c);
@@ -135,7 +153,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
             else{
                 char_stack_push(lexer_fsm->stack, c);
                 return LEX_FSM__DOUBLE_FINISHED;
-                
+
             }
 
         case LEX_FSM__LEFT_SHARP_BRACKET:

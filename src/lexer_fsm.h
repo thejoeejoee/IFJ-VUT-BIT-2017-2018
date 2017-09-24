@@ -38,7 +38,10 @@ typedef enum {
     LEX_FSM__DOUBLE_UNFINISHED,
     LEX_FSM__DOUBLE_E,
     LEX_FSM__DOUBLE_E_UNFINISHED,
-    
+
+    // String unfinished states
+    LEX_FSM__STRING_EXC,
+    LEX_FSM__STRING_LOAD,
 
     // FINAL STATES
     LEX_FSM__ADD,
@@ -49,6 +52,7 @@ typedef enum {
     LEX_FSM__RIGHT_BRACKET,
     LEX_FSM__INTEGER_LITERAL_FINISHED,
     LEX_FSM__DOUBLE_FINISHED,
+    LEX_FSM__STRING_VALUE,
 
     // Relation operators
     LEX_FSM__SMALLER,

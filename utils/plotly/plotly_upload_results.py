@@ -11,7 +11,7 @@ import plotly.graph_objs as go
 import plotly.plotly as py
 from plotly.exceptions import PlotlyError
 
-PLOTLY_FILENAME = "IFJ_benchmark"
+PLOTLY_FILENAME = "IFJ"
 
 
 def parse_numeric(s):
@@ -62,13 +62,13 @@ def plotly_combine(data_a, data_b):
 
 
 def get_upload_metadata():
-    if len(sys.argv) == 3:
-        return sys.argv[1], sys.argv[2]
+    if len(sys.argv) == 4:
+        return sys.argv[1], sys.argv[2], sys.argv[3]
 
     print(
-        "Wrong script run, usage: USER=user API_KEY=key plotly_upload_results.py BUILD_NUMBER benchmark_results.json"
+        "Wrong script run, usage: USER=user API_KEY=key plotly_upload_results.py BRANCH_NAME BUILD_NUMBER benchmark_results.json"
     )
-    return None, None
+    return None, None, None
 
 
 def get_new_benchmark_data(filename):
@@ -82,6 +82,7 @@ def resolve_time_by_unit(real_time, unit):
         "ms": 10 ** 6,
         "us": 10 ** 3
     }.get(unit, 1)
+
 
 def get_transformed_benchmark_data(filename, build_nr):
     try:
@@ -107,11 +108,11 @@ def try_to_sign_in():
     plotly.tools.set_credentials_file(username=usr, api_key=key)
 
 
-def send_data(new_data):
+def send_data(new_data, filename):
     try:
         # get plot_url or create new plot
         dummy_fig = {'data': [{'type': 'scatter', 'x': [], 'y': []}]}
-        plot_url = py.plot(dummy_fig, filename=PLOTLY_FILENAME, fileopt='append', auto_open=False)
+        plot_url = py.plot(dummy_fig, filename=filename, fileopt='append', auto_open=False)
 
         # get plotly figure
         fig = py.get_figure(plot_url)
@@ -142,14 +143,14 @@ def send_data(new_data):
         fig["data"] = plotly_combine(fig["data"], new_data)
         fig["layout"] = layout
 
-        return py.plot(fig, filename=PLOTLY_FILENAME, fileopt="overwrite", auto_open=False)
+        return py.plot(fig, filename=filename, fileopt="overwrite", auto_open=False)
 
     except Exception as e:
         print("Warning: benchmark results upload failed: ", e)
 
 
 # ini
-build_nr, benchmark_filename = get_upload_metadata()
+branch_name, build_nr, benchmark_filename = get_upload_metadata()
 data = get_transformed_benchmark_data(benchmark_filename, build_nr)  # login
 
 try:
@@ -157,5 +158,5 @@ try:
 except PlotlyError as e:
     print('Failed to sign in: ', e)
 else:
-    url = send_data(data)
+    url = send_data(data, ' - '.join((PLOTLY_FILENAME, branch_name)))
     print("Benchmark results upload complete. ({0})".format(url))

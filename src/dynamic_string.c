@@ -7,15 +7,10 @@
 String string_init_with_capacity(size_t initial_capacity) {
     ASSERT(initial_capacity > 1); //smaller capacity than 2 makes no sense
     String string;
-    string.size = 1;
     string.content = (char*) memory_alloc(sizeof(char) * initial_capacity);
-    // TODO: null pointer check
-    if(string.content == NULL) {
-        string.capacity = 0;
-    } else {
-        string.content[0] = 0; //c-string terminator
-        string.capacity = initial_capacity;
-    }
+    string.content[0] = 0; //c-string terminator
+    string.size = 1;
+    string.capacity = initial_capacity;
     return string;
 }
 
@@ -36,9 +31,7 @@ static inline void string_update_capacity(String* string, size_t needed_size) {
             new_capacity <<= 2; //multiply new capacity by 2
             // TODO: check overflow
         }
-        // TODO: realloc, memory pool?
         char* tmp = (char*) memory_alloc(sizeof(char) * new_capacity);
-        // TODO: check malloc
         strcpy(tmp, string->content);
         memory_free(string->content);
         string->capacity = new_capacity;

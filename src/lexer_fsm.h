@@ -109,7 +109,7 @@ typedef enum {
     LEX_FSM__EOF,
 
     // Error state
-    LEX_FSM__LEG_SHOT,
+            LEX_FSM__ERROR,
 
 } LexerFSMState;
 
@@ -127,20 +127,6 @@ LexerFSM *lexer_fsm_init(lexer_input_stream_f input_stream);
  * @param lexer_fsm
  */
 void lexer_fsm_free(LexerFSM** lexer_fsm);
-
-/**
- * @brief Add identifier symbol to the symbol stack
- * @param lexer_fsm
- * @param char c
- * @return bool
- */
-bool lexer_fsm_add_identifier_symbol(LexerFSM *lexer_fsm, char c);
-
-/**
- * @bried add \0 to the end of identifier name
- * @param lexer_fsm
- */
-void lexer_fsm_end_identifier_name(LexerFSM *lexer_fsm);
 
 /**
  * @brief Get identifier type from name

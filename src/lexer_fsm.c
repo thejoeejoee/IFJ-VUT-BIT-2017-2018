@@ -30,7 +30,7 @@ void lexer_fsm_free(LexerFSM** lexer_fsm) {
 }
 
 LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm) {
-    NULL_POINTER_CHECK(lexer_fsm, LEX_FSM__LEG_SHOT);
+    NULL_POINTER_CHECK(lexer_fsm, LEX_FSM__ERROR);
 
     // stored chars in stack from before loops have priority
     int c = char_stack_pop(lexer_fsm->stack);
@@ -99,7 +99,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
             if(c == '"') {
                 return LEX_FSM__STRING_LOAD;
             } else {
-                return LEX_FSM__LEG_SHOT;
+                return LEX_FSM__ERROR;
             }
 
         case LEX_FSM__STRING_LOAD:
@@ -108,7 +108,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
                 case '"':
                     return LEX_FSM__STRING_VALUE;
                 case '\n':
-                    return LEX_FSM__LEG_SHOT;
+                    return LEX_FSM__ERROR;
                 case '\\':
                     return LEX_FSM__STRING_SLASH;
                 default:
@@ -137,7 +137,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
                     string_append_c(&(lexer_fsm->stream_buffer), '\t');
                     return LEX_FSM__STRING_LOAD;
                 default:
-                    return LEX_FSM__LEG_SHOT;
+                    return LEX_FSM__ERROR;
             }
 
             // Integer literal
@@ -181,7 +181,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
                 string_append_c(&(lexer_fsm->stream_buffer), c);
                 return LEX_FSM__DOUBLE_UNFINISHED;
             } else
-                return LEX_FSM__LEG_SHOT;
+                return LEX_FSM__ERROR;
 
         case LEX_FSM__DOUBLE_UNFINISHED:
             if(isdigit(c)) {
@@ -205,7 +205,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
                 return LEX_FSM__DOUBLE_E_UNFINISHED;
             }
             else {
-                return LEX_FSM__LEG_SHOT;
+                return LEX_FSM__ERROR;
             }
 
         case LEX_FSM__DOUBLE_E_UNFINISHED:
@@ -285,7 +285,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
     }
 
     // TODO never happened, Chuck Norris state
-    return LEX_FSM__LEG_SHOT;
+    return LEX_FSM__ERROR;
 }
 
 LexerFSMState lexer_fsm_get_identifier_type(char* name) {
@@ -319,7 +319,7 @@ LexerFSMState lexer_fsm_get_identifier_type(char* name) {
 
 bool lexer_fsm_is_final_state(LexerFSMState state) {
     // TODO: inline of macro to better performance
-    if(state >= LEX_FSM__ADD && state <= LEX_FSM__LEG_SHOT)
+    if(state >= LEX_FSM__ADD && state <= LEX_FSM__ERROR)
         return true;
     return false;
 }

@@ -111,7 +111,7 @@ TEST_F(LexerFSMTestFixture, UnknownCharacter) {
     provider->setString("@");
     EXPECT_EQ(
             lexer_fsm_next_state(LEX_FSM__INIT, lexer_fsm),
-            LEX_FSM__LEG_SHOT
+            LEX_FSM__ERROR
     ) << "Unknown character for lexer.";
 
 }

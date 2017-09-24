@@ -182,6 +182,35 @@ TEST_F(LexerTokenizerTestFixture, Identifiers) {
 
 }
 
+TEST_F(LexerTokenizerTestFixture, EOFToken) {
+    provider->setString("");
+
+    token = lexer_next_token(lexer);
+    EXPECT_EQ(
+            token->type,
+            TOKEN_EOF
+    ) << "Error EOF token";
+    memory_free(token);
+
+    provider->setString("ahoj ");
+
+    token = lexer_next_token(lexer);
+    EXPECT_EQ(
+            token->type,
+            TOKEN_IDENTIFIER
+    ) << "Error IDENTIFIER token";
+    memory_free(token);
+
+    token = lexer_next_token(lexer);
+    EXPECT_EQ(
+            token->type,
+            TOKEN_EOF
+    ) << "Error EOF token";
+    memory_free(token);
+
+
+}
+
 TEST_F(LexerTokenizerTestFixture, RelationOperators) {
     provider->setString("< > <= >= <>");
     char_stack_empty(lexer->lexer_fsm->stack);
@@ -314,6 +343,13 @@ TEST_F(LexerTokenizerTestFixture, ComplexTest) {
     ) << "Error MULTIPLY token";
     memory_free(token);
 
+    token = lexer_next_token(lexer);
+    EXPECT_EQ(
+            token->type,
+            TOKEN_EOF
+    ) << "Error EOF token";
+    memory_free(token);
+
 
 }
 
@@ -358,7 +394,7 @@ End Function
             TOKEN_IDENTIFIER, TOKEN_EQUAL, TOKEN_IDENTIFIER,
             TOKEN_MULTIPLY, TOKEN_IDENTIFIER, TOKEN_END,
             TOKEN_IF, TOKEN_RETURN, TOKEN_IDENTIFIER,
-            TOKEN_END, TOKEN_FUNCTION
+            TOKEN_END, TOKEN_FUNCTION, TOKEN_EOF
     };
 
 
@@ -438,7 +474,7 @@ End Scope
             TOKEN_SMALLER_BIGGER, TOKEN_STRING_VALUE, TOKEN_RIGHT_BRACKET,
             TOKEN_PRINT, TOKEN_STRING_VALUE, TOKEN_SEMICOLON,
             TOKEN_INPUT, TOKEN_IDENTIFIER, TOKEN_LOOP,
-            TOKEN_END, TOKEN_SCOPE
+            TOKEN_END, TOKEN_SCOPE, TOKEN_EOF
     };
 
 

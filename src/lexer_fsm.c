@@ -84,7 +84,8 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
                     return LEX_FSM__SEMICOLON;
                 case ',':
                     return LEX_FSM__COMMA;
-
+                case EOF:
+                    return LEX_FSM__EOF;
 
                 default:
                     break;

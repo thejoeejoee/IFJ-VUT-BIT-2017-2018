@@ -77,6 +77,12 @@ def get_new_benchmark_data(filename):
         return json.load(data_file)
 
 
+def resolve_time_by_unit(real_time, unit):
+    return real_time * {
+        "ms": 10 ** 6,
+        "us": 10 ** 3
+    }.get(unit, 1)
+
 def get_transformed_benchmark_data(filename, build_nr):
     try:
         benchmark_data = get_new_benchmark_data(filename)
@@ -88,7 +94,7 @@ def get_transformed_benchmark_data(filename, build_nr):
         dict(
             name=benchmark["name"],
             x=build_nr,
-            y=benchmark["real_time"]  # TODO: Warning: not checking benchmark["time_unit"], assuming nanoseconds !!!
+            y=resolve_time_by_unit(benchmark["real_time"], benchmark["time_unit"])
         ) for benchmark in benchmark_data['benchmarks']
     ]
 

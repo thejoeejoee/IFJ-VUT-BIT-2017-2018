@@ -39,8 +39,11 @@ list(REMOVE_ITEM ifj2017_SRC_no_main "src/ifj2017.c")
 # ifj2017_test
 include(test/CMakeLists.txt)
 
+# ifj2017_benchmark
+include(benchmark/CMakeLists.txt)
+
 # automatic source groups by folder structure
-set(_all_sources ${ifj2017_test_SRC} ${ifj2017_SRC} ${VS_debug_visualizers})
+set(_all_sources ${ifj2017_test_SRC} ${ifj2017_benchmark_SRC} ${ifj2017_SRC} ${VS_debug_visualizers})
 foreach (_source IN ITEMS ${_all_sources})
     get_filename_component(_source_path "${_source}" PATH)
     IF (MSVC)

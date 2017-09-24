@@ -293,7 +293,7 @@ LexerFSMState lexer_fsm_get_identifier_type(char* name) {
 
 bool lexer_fsm_is_final_state(LexerFSMState state) {
     // TODO: inline of macro to better performance
-    if(state >= LEX_FSM__ADD && state <= LEX_FSM__TRUE)
+    if(state >= LEX_FSM__ADD && state <= LEX_FSM__LEG_SHOT)
         return true;
     return false;
 }

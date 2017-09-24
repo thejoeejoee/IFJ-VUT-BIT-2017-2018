@@ -218,6 +218,86 @@ End Function
 
 }
 
+TEST_F(LexerTokenizerTestFixture, ThirdComplexTest) {
+    provider->setString(R"RAW(
+/' Program 3: Prace s retezci a vestavenymi funkcemi '/
+Scope
+Dim s1 aS String
+Dim s2 As String
+Dim s1len As Integer
+'Hlavni telo programu
+s1 As String
+s2 As String
+s1len As Integer
+s1 = !"Toto je nejaky text"
+s2 = s1 + !", ktery jeste trochu obohatime"
+Print s1; !"\\n"; s2; !"\\n";
+s1len = Length(s1)
+s1len = s1len - 4 + 1
+s1 = SubStr(s2, s1len, 4)
+Print !"4 znaky od "; s1len; !". znaku v \\\""; s2; !"\\\":"; s1; !"\\n";
+Print !"Zadejte serazenou posloupnost vsech malych pismen a-h, ";
+Print !"pricemz se pismena nesmeji v posloupnosti opakovat";
+Input s1
+Do While (s1 <> !"abcdefgh")
+Print !"\\nSpatne zadana posloupnost, zkuste znovu";
+Input s1
+Loop
+End Scope
+)RAW");
+    char_stack_empty(lexer->lexer_fsm->stack);
+
+    std::vector<TokenType> expectedTokens = {
+            TOKEN_SCOPE, TOKEN_DIM, TOKEN_IDENTIFIER,
+            TOKEN_AS, TOKEN_STRING, TOKEN_DIM,
+            TOKEN_IDENTIFIER, TOKEN_AS, TOKEN_STRING,
+            TOKEN_DIM, TOKEN_IDENTIFIER, TOKEN_AS,
+            TOKEN_INTEGER, TOKEN_IDENTIFIER, TOKEN_AS,
+            TOKEN_STRING, TOKEN_IDENTIFIER, TOKEN_AS,
+            TOKEN_STRING, TOKEN_IDENTIFIER, TOKEN_AS,
+            TOKEN_INTEGER, TOKEN_IDENTIFIER, TOKEN_EQUAL,
+            TOKEN_STRING_VALUE, TOKEN_IDENTIFIER, TOKEN_EQUAL,
+            TOKEN_IDENTIFIER, TOKEN_ADD, TOKEN_STRING_VALUE,
+            TOKEN_PRINT, TOKEN_IDENTIFIER, TOKEN_SEMICOLON,
+            TOKEN_STRING_VALUE, TOKEN_SEMICOLON, TOKEN_IDENTIFIER,
+            TOKEN_SEMICOLON, TOKEN_STRING_VALUE, TOKEN_SEMICOLON,
+            TOKEN_IDENTIFIER, TOKEN_EQUAL, TOKEN_LENGTH,
+            TOKEN_LEFT_BRACKET, TOKEN_IDENTIFIER, TOKEN_RIGHT_BRACKET,
+            TOKEN_IDENTIFIER, TOKEN_EQUAL, TOKEN_IDENTIFIER,
+            TOKEN_SUBTRACT, TOKEN_INTEGER_LITERAL, TOKEN_ADD,
+            TOKEN_INTEGER_LITERAL, TOKEN_IDENTIFIER, TOKEN_EQUAL,
+            TOKEN_SUBSTR, TOKEN_LEFT_BRACKET, TOKEN_IDENTIFIER,
+            TOKEN_COMMA, TOKEN_IDENTIFIER, TOKEN_COMMA,
+            TOKEN_INTEGER_LITERAL, TOKEN_RIGHT_BRACKET,
+            TOKEN_PRINT, TOKEN_STRING_VALUE, TOKEN_SEMICOLON,
+            TOKEN_IDENTIFIER, TOKEN_SEMICOLON, TOKEN_STRING_VALUE,
+            TOKEN_SEMICOLON, TOKEN_IDENTIFIER, TOKEN_SEMICOLON,
+            TOKEN_STRING_VALUE, TOKEN_SEMICOLON, TOKEN_IDENTIFIER,
+            TOKEN_SEMICOLON, TOKEN_STRING_VALUE, TOKEN_SEMICOLON,
+            TOKEN_PRINT, TOKEN_STRING_VALUE, TOKEN_SEMICOLON,
+            TOKEN_PRINT, TOKEN_STRING_VALUE, TOKEN_SEMICOLON,
+            TOKEN_INPUT, TOKEN_IDENTIFIER, TOKEN_DO,
+            TOKEN_WHILE, TOKEN_LEFT_BRACKET, TOKEN_IDENTIFIER,
+            TOKEN_SMALLER_BIGGER, TOKEN_STRING_VALUE, TOKEN_RIGHT_BRACKET,
+            TOKEN_PRINT, TOKEN_STRING_VALUE, TOKEN_SEMICOLON,
+            TOKEN_INPUT, TOKEN_IDENTIFIER, TOKEN_LOOP,
+            TOKEN_END, TOKEN_SCOPE
+    };
+
+
+
+    for (const TokenType expectedToken: expectedTokens) {
+        token = lexer_next_token(lexer);
+        EXPECT_EQ(
+                token->type,
+                expectedToken
+        ) << "Error token in complex test";
+        memory_free(token);
+    }
+
+
+}
+
 TEST_F(LexerTokenizerTestFixture, Keywords) {
     provider->setString("AS + sCOpE");
     char_stack_empty(lexer->lexer_fsm->stack);

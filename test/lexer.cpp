@@ -26,9 +26,37 @@ class LexerTokenizerTestFixture : public ::testing::Test {
 
 };
 
+TEST_F(LexerTokenizerTestFixture, Keywords) {
+    provider->setString("AS + sCOpE");
+    char_stack_empty(lexer->lexer_fsm->stack);
+
+    token = lexer_next_token(lexer);
+    EXPECT_EQ(
+            token->type,
+            TOKEN_AS
+    ) << "Error AS token";
+    memory_free(token);
+
+    token = lexer_next_token(lexer);
+    EXPECT_EQ(
+            token->type,
+            TOKEN_ADD
+    ) << "Error ADD token";
+    memory_free(token);
+
+    token = lexer_next_token(lexer);
+    EXPECT_EQ(
+            token->type,
+            TOKEN_SCOPE
+    ) << "Error SCOPE token";
+    memory_free(token);
+
+
+}
+
 
 TEST_F(LexerTokenizerTestFixture, MathTokens) {
-    provider->setString("+ \n -     + \t *");
+    provider->setString("+ \n -     + \t * /");
 
     token = lexer_next_token(lexer);
     EXPECT_EQ(
@@ -56,6 +84,13 @@ TEST_F(LexerTokenizerTestFixture, MathTokens) {
             token->type,
             TOKEN_MULTIPLY
     ) << "Error get multiply token";
+    memory_free(token);
+
+    token = lexer_next_token(lexer);
+    EXPECT_EQ(
+            token->type,
+            TOKEN_DIVIDE
+    ) << "Error get divide token";
     memory_free(token);
 
 
@@ -294,34 +329,6 @@ End Scope
         ) << "Error token in complex test";
         memory_free(token);
     }
-
-
-}
-
-TEST_F(LexerTokenizerTestFixture, Keywords) {
-    provider->setString("AS + sCOpE");
-    char_stack_empty(lexer->lexer_fsm->stack);
-
-    token = lexer_next_token(lexer);
-    EXPECT_EQ(
-            token->type,
-            TOKEN_AS
-    ) << "Error AS token";
-    memory_free(token);
-
-    token = lexer_next_token(lexer);
-    EXPECT_EQ(
-            token->type,
-            TOKEN_ADD
-    ) << "Error ADD token";
-    memory_free(token);
-
-    token = lexer_next_token(lexer);
-    EXPECT_EQ(
-            token->type,
-            TOKEN_SCOPE
-    ) << "Error SCOPE token";
-    memory_free(token);
 
 
 }

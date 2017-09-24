@@ -6,7 +6,7 @@
 #include "dynamic_string.h"
 
 #define REWIND_CHAR(c) char_stack_push(lexer_fsm->stack, (char) (c))
-#define STORE_CHAR(c) string_append_c(&(lexer_fsm->stream_buffer), (char) (c));
+#define STORE_CHAR(c) string_append_c(lexer_fsm->stream_buffer, (char) (c));
 
 
 LexerFSM* lexer_fsm_init(lexer_input_stream_f input_stream) {
@@ -27,7 +27,7 @@ void lexer_fsm_free(LexerFSM** lexer_fsm) {
     NULL_POINTER_CHECK(*lexer_fsm,);
 
     char_stack_free(&(*lexer_fsm)->stack);
-    string_free(&(*lexer_fsm)->stream_buffer);
+    string_free((*lexer_fsm)->stream_buffer);
     memory_free(*lexer_fsm);
     *lexer_fsm = NULL;
 }
@@ -128,16 +128,16 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
 
             switch(c) {
                 case '\"':
-                    string_append_c(&(lexer_fsm->stream_buffer), '"');
+                    STORE_CHAR('"');
                     return LEX_FSM__STRING_LOAD;
                 case '\\':
-                    string_append_c(&(lexer_fsm->stream_buffer), '\\');
+                    STORE_CHAR('\\');
                     return LEX_FSM__STRING_LOAD;
                 case 'n':
-                    string_append_c(&(lexer_fsm->stream_buffer), '\n');
+                    STORE_CHAR('\n');
                     return LEX_FSM__STRING_LOAD;
                 case 't':
-                    string_append_c(&(lexer_fsm->stream_buffer), '\t');
+                    STORE_CHAR('\t');
                     return LEX_FSM__STRING_LOAD;
                 default:
                     return LEX_FSM__ERROR;
@@ -156,7 +156,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
                     int numeric_char_value = atoi(lexer_fsm->numeric_char_value);
 
                     if(numeric_char_value >= 0 && numeric_char_value <= 255) {
-                        string_append_c(&(lexer_fsm->stream_buffer), (char) numeric_char_value);
+                        string_append_c(lexer_fsm->stream_buffer, (char) numeric_char_value);
                         return LEX_FSM__STRING_LOAD;
                     }
 
@@ -249,7 +249,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
                 return LEX_FSM__IDENTIFIER_UNFINISHED;
             } else {
                 REWIND_CHAR(tolower(c));
-                LexerFSMState return_state = lexer_fsm_get_identifier_type(string_content(&(lexer_fsm->stream_buffer)));
+                LexerFSMState return_state = lexer_fsm_get_identifier_type(string_content(lexer_fsm->stream_buffer));
                 return return_state;
             }
 

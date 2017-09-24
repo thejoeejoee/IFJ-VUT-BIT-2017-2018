@@ -11,7 +11,7 @@ typedef int (* lexer_input_stream_f)();
 
 typedef struct lexer_fsm_t {
     CharStack* stack;
-    String stream_buffer;
+    String* stream_buffer;
     lexer_input_stream_f input_stream;
 
     char numeric_char_value[4];

@@ -26,7 +26,7 @@ typedef struct string_t {
 * @param size_t* initial_capacity Initial capacity of dynamic string - should be power of 2
 * @return String New empty dynamic string
 */
-String string_init_with_capacity(size_t initial_capacity);
+String* string_init_with_capacity(size_t initial_capacity);
 
 /**
 * @brief Deletes dynamic string and frees up it's allocated memory

@@ -41,7 +41,7 @@ Token* lexer_next_token(Lexer* lexer) {
 
     token->type = (TokenType) actual_state;
 
-    string_clear(&(lexer->lexer_fsm->stream_buffer));
+    string_clear(lexer->lexer_fsm->stream_buffer);
 
     return token;
 

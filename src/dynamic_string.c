@@ -4,13 +4,13 @@
 #include <string.h>
 
 
-String string_init_with_capacity(size_t initial_capacity) {
+String* string_init_with_capacity(size_t initial_capacity) {
     ASSERT(initial_capacity > 1); //smaller capacity than 2 makes no sense
-    String string;
-    string.content = (char*) memory_alloc(sizeof(char) * initial_capacity);
-    string.content[0] = 0; //c-string terminator
-    string.size = 1;
-    string.capacity = initial_capacity;
+    String* string = (String*) memory_alloc(sizeof(String));
+    string->content = (char*) memory_alloc(sizeof(char) * initial_capacity);
+    string->content[0] = 0; //c-string terminator
+    string->size = 1;
+    string->capacity = initial_capacity;
     return string;
 }
 
@@ -71,5 +71,7 @@ void string_append(String* string, const String* b) {
 
 // force creation of external symbol
 extern inline void string_clear(String* string);
+
 extern inline char* string_content(String* string);
+
 extern inline size_t string_length(String* string);

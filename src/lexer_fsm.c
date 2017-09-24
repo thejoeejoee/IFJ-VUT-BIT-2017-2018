@@ -122,10 +122,10 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
                 case '\\':
                     string_append_c(&(lexer_fsm->stream_buffer), '\\');
                     return LEX_FSM__STRING_LOAD;
-                case '\n':
+                case 'n':
                     string_append_c(&(lexer_fsm->stream_buffer), '\n');
                     return LEX_FSM__STRING_LOAD;
-                case '\t':
+                case 't':
                     string_append_c(&(lexer_fsm->stream_buffer), '\t');
                     return LEX_FSM__STRING_LOAD;
                 default:

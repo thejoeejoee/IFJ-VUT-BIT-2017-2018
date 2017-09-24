@@ -104,7 +104,7 @@ typedef enum {
     LEX_FSM__TRUE,
 
     // Error state
-    LEX_FSM__LEG_SHOT
+    LEX_FSM__LEG_SHOT,
 
 } LexerFSMState;
 

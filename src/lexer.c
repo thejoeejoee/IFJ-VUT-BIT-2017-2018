@@ -37,10 +37,10 @@ Token* lexer_next_token(Lexer* lexer) {
     do {
         // loop from init state to one of final state
         actual_state = lexer_fsm_next_state(actual_state, lexer->lexer_fsm);
-    } while(!lexer_fsm_is_final_state(actual_state) || actual_state == LEX_FSM__LEG_SHOT);
+    } while(!lexer_fsm_is_final_state(actual_state));
 
     token->type = (TokenType) actual_state;
-    
+
     string_clear(&(lexer->lexer_fsm->stream_buffer));
 
     return token;

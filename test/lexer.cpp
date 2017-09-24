@@ -96,6 +96,66 @@ TEST_F(LexerTokenizerTestFixture, MathTokens) {
 
 }
 
+TEST_F(LexerTokenizerTestFixture, Strings) {
+    provider->setString(R"RAW(
+!"Simple string"
+!"\\n _hudkghj6878ýí"
+!"\\t _hud"
+!"Chuck norris \\" \\""
+!"\\\\ \\\\"
+)RAW");
+    char_stack_empty(lexer->lexer_fsm->stack);
+
+    std::vector<TokenType> expectedTokens = {
+            TOKEN_STRING_VALUE,
+            TOKEN_STRING_VALUE,
+            TOKEN_STRING_VALUE,
+            TOKEN_STRING_VALUE,
+    };
+
+
+
+    for (const TokenType expectedToken: expectedTokens) {
+        token = lexer_next_token(lexer);
+        EXPECT_EQ(
+                token->type,
+                expectedToken
+        ) << "Error string token";
+        memory_free(token);
+    }
+
+
+}
+
+TEST_F(LexerTokenizerTestFixture, IntegersAndDoubles) {
+    provider->setString(R"RAW(
+124667257
+1221342.54654
+234346.4646e465
+)RAW");
+    char_stack_empty(lexer->lexer_fsm->stack);
+
+    std::vector<TokenType> expectedTokens = {
+            TOKEN_INTEGER_LITERAL,
+            TOKEN_DOUBLE_LITERAL,
+            TOKEN_DOUBLE_LITERAL
+
+    };
+
+
+
+    for (const TokenType expectedToken: expectedTokens) {
+        token = lexer_next_token(lexer);
+        EXPECT_EQ(
+                token->type,
+                expectedToken
+        ) << "Error string token";
+        memory_free(token);
+    }
+
+
+}
+
 TEST_F(LexerTokenizerTestFixture, Identifiers) {
     provider->setString("ahoj _9h7___ a_9");
 
@@ -157,6 +217,34 @@ TEST_F(LexerTokenizerTestFixture, RelationOperators) {
 
 
 }
+
+TEST_F(LexerTokenizerTestFixture, ErrorTokens) {
+
+    provider->setString("@");
+    token = lexer_next_token(lexer);
+    EXPECT_EQ(
+            token->type,
+            TOKEN_ERROR
+    ) << "Error ERROR token";
+    memory_free(token);
+
+    provider->setString("AHOJ  @");
+    token = lexer_next_token(lexer);
+    EXPECT_EQ(
+            token->type,
+            TOKEN_IDENTIFIER
+    ) << "Error IDENTIFIER token";
+    memory_free(token);
+
+    token = lexer_next_token(lexer);
+    EXPECT_EQ(
+            token->type,
+            TOKEN_ERROR
+    ) << "Error ERROR token";
+    memory_free(token);
+
+}
+
 
 TEST_F(LexerTokenizerTestFixture, ComplexTest) {
     provider->setString("+ <= >= ahoj _8wtf *");

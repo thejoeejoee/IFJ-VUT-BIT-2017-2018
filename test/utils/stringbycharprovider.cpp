@@ -14,6 +14,11 @@ void StringByCharProvider::setString(std::string str) {
     counter = 0;
 }
 
+void StringByCharProvider::reset() {
+    string = "";
+    counter = 0;
+}
+
 
 int token_stream() {
     StringByCharProvider* instance = StringByCharProvider::instance();

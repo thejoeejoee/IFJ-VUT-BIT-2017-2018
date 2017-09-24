@@ -23,6 +23,7 @@ void lexer_fsm_free(LexerFSM** lexer_fsm) {
     NULL_POINTER_CHECK(*lexer_fsm,);
 
     char_stack_free(&(*lexer_fsm)->stack);
+    string_free(&(*lexer_fsm)->stream_buffer);
     memory_free(*lexer_fsm);
     *lexer_fsm = NULL;
 }
@@ -90,13 +91,12 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
             }
             break;
 
-        // String states
+            // String states
 
         case LEX_FSM__STRING_EXC:
             if(c == '"') {
                 return LEX_FSM__STRING_LOAD;
-            }
-            else {
+            } else {
                 return LEX_FSM__LEG_SHOT;
             }
 
@@ -132,7 +132,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
                     return LEX_FSM__LEG_SHOT;
             }
 
-        // Integer literal
+            // Integer literal
 
         case LEX_FSM__INTEGER_LITERAL_UNFINISHED:
             if(isdigit(c)) {
@@ -146,7 +146,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
                 return LEX_FSM__INTEGER_LITERAL_FINISHED;
             }
 
-        // Double literal
+            // Double literal
 
         case LEX_FSM__DOUBLE_DOT:
             if(isdigit(c)) {
@@ -159,14 +159,10 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
             if(isdigit(c)) {
                 string_append_c(&(lexer_fsm->stream_buffer), c);
                 return LEX_FSM__DOUBLE_UNFINISHED;
-            }
-
-            else if(tolower(c) == 'e') {
+            } else if(tolower(c) == 'e') {
                 string_append_c(&(lexer_fsm->stream_buffer), c);
                 return LEX_FSM__DOUBLE_E;
-            }
-
-            else {
+            } else {
                 char_stack_push(lexer_fsm->stack, c);
                 return LEX_FSM__DOUBLE_FINISHED;
             }
@@ -175,8 +171,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
             if(isdigit(c)) {
                 string_append_c(&(lexer_fsm->stream_buffer), c);
                 return LEX_FSM__DOUBLE_E_UNFINISHED;
-            }
-            else{
+            } else {
                 return LEX_FSM__LEG_SHOT;
             }
 
@@ -184,14 +179,13 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
             if(isdigit(c)) {
                 string_append_c(&(lexer_fsm->stream_buffer), c);
                 return LEX_FSM__DOUBLE_E_UNFINISHED;
-            }
-            else{
+            } else {
                 char_stack_push(lexer_fsm->stack, c);
                 return LEX_FSM__DOUBLE_FINISHED;
 
             }
 
-        // Relation operators
+            // Relation operators
 
         case LEX_FSM__LEFT_SHARP_BRACKET:
             switch(c) {
@@ -213,7 +207,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
                 return LEX_FSM__BIGGER;
             }
 
-        // Identifiers
+            // Identifiers
 
         case LEX_FSM__IDENTIFIER_UNFINISHED:
             if(c == '_' || isdigit(c) || isalpha(c)) {
@@ -225,7 +219,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
                 return return_state;
             }
 
-        // Comments
+            // Comments
 
         case LEX_FSM__SLASH:
             if(c == '\'')

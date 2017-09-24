@@ -10,9 +10,11 @@ extern "C" {
 class LexerFSMTestFixture : public ::testing::Test {
     protected:
         LexerFSM* lexer_fsm;
+        StringByCharProvider* provider = StringByCharProvider::instance();
 
         virtual void SetUp() {
             lexer_fsm = lexer_fsm_init(token_stream);
+            provider->reset();
         }
 
         virtual void TearDown() {
@@ -23,7 +25,6 @@ class LexerFSMTestFixture : public ::testing::Test {
 
 
 TEST_F(LexerFSMTestFixture, UnknownCharacter) {
-    StringByCharProvider* provider = StringByCharProvider::instance();
     char_stack_empty(lexer_fsm->stack);
 
     provider->setString("@");
@@ -35,8 +36,6 @@ TEST_F(LexerFSMTestFixture, UnknownCharacter) {
 }
 
 TEST_F(LexerFSMTestFixture, LineComment) {
-    StringByCharProvider* provider = StringByCharProvider::instance();
-
     provider->setString("'");
     EXPECT_EQ(
             lexer_fsm_next_state(LEX_FSM__INIT, lexer_fsm),
@@ -63,8 +62,6 @@ TEST_F(LexerFSMTestFixture, LineComment) {
 }
 
 TEST_F(LexerFSMTestFixture, BlockComment) {
-    StringByCharProvider* provider = StringByCharProvider::instance();
-
     provider->setString("/'");
     EXPECT_EQ(
             lexer_fsm_next_state(LEX_FSM__INIT, lexer_fsm),
@@ -102,8 +99,6 @@ TEST_F(LexerFSMTestFixture, BlockComment) {
 }
 
 TEST_F(LexerFSMTestFixture, MathematicOperations) {
-    StringByCharProvider* provider = StringByCharProvider::instance();
-
     provider->setString("+-*/");
 
     EXPECT_EQ(
@@ -121,8 +116,6 @@ TEST_F(LexerFSMTestFixture, MathematicOperations) {
 }
 
 TEST_F(LexerFSMTestFixture, Identifier) {
-    StringByCharProvider* provider = StringByCharProvider::instance();
-
     provider->setString("a");
     EXPECT_EQ(
             lexer_fsm_next_state(LEX_FSM__INIT, lexer_fsm),

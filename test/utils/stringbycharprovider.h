@@ -18,6 +18,8 @@ class StringByCharProvider {
         void setString(std::string str);
 
         int nextChar();
+
+        void reset();
 };
 
 

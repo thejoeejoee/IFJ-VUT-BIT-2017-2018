@@ -1,9 +1,12 @@
 #include "memory.h"
-#include "debug.h"
+#include "error.h"
+
+#ifndef NDEBUG
 
 MemoryManager memory_manager;
 
-#ifndef NDEBUG
+#define INFO_MAX_LENGTH 64
+#define INFO_FORMAT "%s:%d:%s()"
 
 void* memory_manager_malloc(
         size_t size,
@@ -26,12 +29,12 @@ void* memory_manager_malloc(
     new_page->size = size;
     new_page->allocated = true;
     new_page->info = (char*) malloc(INFO_MAX_LENGTH + 1);
-    NULL_POINTER_CHECK(new_page->info, NULL);
+    MALLOC_CHECK(new_page->info);
     new_page->address = malloc(new_page->size);
     if (new_page->address == NULL) {
         // at first free allocated info
         free(new_page->info);
-        NULL_POINTER_CHECK(new_page->address, NULL);
+        MALLOC_CHECK(new_page->address);
     }
 
     snprintf(new_page->info, INFO_MAX_LENGTH, INFO_FORMAT, file, line, func);
@@ -122,60 +125,6 @@ void memory_manager_log_stats(MemoryManager* manager) {
             "Allocated %d bytes in %d pages. Total memory usage %d bytes.",
             allocated_size, allocated_pages_count, total_size
     );
-}
-
-#else
-
-void* memory_manager_malloc(
-        size_t size,
-        const char* file,
-        unsigned line,
-        const char* func,
-        MemoryManager* manager
-) {
-    if (!size) {
-        LOG_WARNING("Invalid size %zd .", size);
-        return NULL;
-    }
-    if (manager == NULL)
-        manager = &memory_manager;
-
-    size_t total_size = sizeof(MemoryManagerPage) + size;
-
-    MemoryManagerPage* page = (MemoryManagerPage*) malloc(total_size);
-    NULL_POINTER_CHECK(page, NULL);
-
-    page->next = manager->head;
-    manager->head = page;
-
-    return _OFFSET_PAGE_TO_ADDRESS(page);
-}
-
-void memory_manager_free(void* address,
-                         MemoryManager* manager) {
-    NULL_POINTER_CHECK(address,);
-    if (manager == NULL)
-        manager = &memory_manager;
-
-    MemoryManagerPage* page = manager->head;
-    MemoryManagerPage* page_before = NULL;
-    while (page != NULL) {
-        if (page == _OFFSET_ADDRESS_TO_PAGE(address))
-            break;
-
-        page_before = page;
-        page = page->next;
-    }
-    if (page == NULL) {
-        LOG_WARNING("Allocated memory with address %p to free not found.", address);
-        return;
-    }
-    if (page_before == NULL)
-        manager->head = page->next;
-    else
-        page_before->next = page->next;
-
-    free(page);
 }
 
 #endif

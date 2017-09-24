@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include "debug.h"
 #include "common.h"
+#include "error.h"
 
 /**
  * PUBLIC API FOR MEMORY MANAGER:
@@ -27,15 +28,11 @@
 #define memory_free_2(address, manager) memory_manager_free(address, manager)
 #define memory_free(...) GET_OVERLOADED_MACRO12(__VA_ARGS__, memory_free_2, memory_free_1)(__VA_ARGS__)
 
-#ifdef NDEBUG
-#define _OFFSET_PAGE_TO_ADDRESS(page) ((void *) (((size_t) (page)) + sizeof(MemoryManagerPage)))
-#define _OFFSET_ADDRESS_TO_PAGE(address) ((MemoryManagerPage *) (((size_t) (address)) - sizeof(MemoryManagerPage)))
-#define memory_manager_enter(...)
-#define memory_manager_exit(...)
-#else
-#define INFO_MAX_LENGTH 64
-#define INFO_FORMAT "%s:%d:%s()"
-#endif
+#define MALLOC_CHECK(address) do {\
+        if ((address) == NULL) {\
+            exit_with_code(ERROR_MEMORY);\
+        }\
+    } while (0)
 
 /**
  * @brief Memory page as one unit of allocated memory. Stored also info about place of allocation, size and
@@ -61,6 +58,7 @@ typedef struct memory_manager_t {
 extern MemoryManager memory_manager;
 
 #ifndef NDEBUG
+
 /**
  * Enters memory manager session for given manager.
  * @param manager optional specified memory manager
@@ -73,6 +71,7 @@ void memory_manager_enter(MemoryManager* manager);
  * @param manager optional specified memory manager
  */
 void memory_manager_exit(MemoryManager* manager);
+
 #endif
 
 /**

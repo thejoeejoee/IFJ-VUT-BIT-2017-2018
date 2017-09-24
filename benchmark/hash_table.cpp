@@ -1,9 +1,10 @@
 #include <benchmark/benchmark.h>
 #include <cmath>
+
 extern "C" {
 #include "../src/ial.h"
 }
-
+/**
 class HashTableFixture : public benchmark::Fixture {
     protected:
         HashTable* table;
@@ -20,10 +21,9 @@ BENCHMARK_DEFINE_F(HashTableFixture, Foreach)(benchmark::State &st) {
     }
 
     while (st.KeepRunning()) {
-        hash_table_foreach(table, _none_callback);
     }
 }
 
 // Register the function as a benchmark
-BENCHMARK_REGISTER_F(HashTableFixture, Foreach)->RangeMultiplier(2)->Ranges({{1, 4},
-                                                                             {8, 32}});
+BENCHMARK_REGISTER_F(HashTableFixture, Foreach)->Ranges({});
+*/

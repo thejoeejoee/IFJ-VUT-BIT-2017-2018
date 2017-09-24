@@ -96,7 +96,7 @@ def get_transformed_benchmark_data(filename, build_nr, commit_hash):
     return [
         dict(
             name=benchmark["name"],
-            x=GITHUB_COMMIT_LINK.format(commit_hash, build_nr),
+            x=build_nr,
             y=resolve_time_by_unit(benchmark["real_time"], benchmark["time_unit"])
         ) for benchmark in benchmark_data['benchmarks']
     ]

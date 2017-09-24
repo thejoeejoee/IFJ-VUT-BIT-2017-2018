@@ -13,7 +13,6 @@ class LexerTokenizerTestFixture : public ::testing::Test {
     protected:
         Lexer* lexer;
         StringByCharProvider* provider;
-        Token *token;
 
         virtual void SetUp() {
             lexer = lexer_init(token_stream);
@@ -24,75 +23,62 @@ class LexerTokenizerTestFixture : public ::testing::Test {
             lexer_free(&lexer);
         }
 
+        TokenType getNextTokenType() {
+            Token* token = lexer_next_token(lexer);
+            const TokenType tokenType = token->type;
+            memory_free(token);
+
+            return tokenType;
+        }
 };
 
 TEST_F(LexerTokenizerTestFixture, Keywords) {
     provider->setString("AS + sCOpE");
     char_stack_empty(lexer->lexer_fsm->stack);
 
-    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            token->type,
+            this->getNextTokenType(),
             TOKEN_AS
     ) << "Error AS token";
-    memory_free(token);
 
-    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            token->type,
+            this->getNextTokenType(),
             TOKEN_ADD
     ) << "Error ADD token";
-    memory_free(token);
 
-    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            token->type,
+            this->getNextTokenType(),
             TOKEN_SCOPE
     ) << "Error SCOPE token";
-    memory_free(token);
-
-
 }
 
 TEST_F(LexerTokenizerTestFixture, MathTokens) {
     provider->setString("+ \n -     + \t * /");
 
-    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            token->type,
+            this->getNextTokenType(),
             TOKEN_ADD
     ) << "Error get add token";
-    memory_free(token);
 
-    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            token->type,
+            this->getNextTokenType(),
             TOKEN_SUBTRACT
     ) << "Error get subtract token";
-    memory_free(token);
 
-    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            token->type,
+            this->getNextTokenType(),
             TOKEN_ADD
     ) << "Error get add token";
-    memory_free(token);
 
-    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            token->type,
+            this->getNextTokenType(),
             TOKEN_MULTIPLY
     ) << "Error get multiply token";
-    memory_free(token);
 
-    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            token->type,
+            this->getNextTokenType(),
             TOKEN_DIVIDE
     ) << "Error get divide token";
-    memory_free(token);
-
-
 }
 
 TEST_F(LexerTokenizerTestFixture, Strings) {
@@ -108,7 +94,7 @@ TEST_F(LexerTokenizerTestFixture, Strings) {
 )RAW");
     char_stack_empty(lexer->lexer_fsm->stack);
 
-    std::vector<TokenType> expectedTokens = {
+    const std::vector<TokenType> expectedTokens = {
             TOKEN_STRING_VALUE,
             TOKEN_STRING_VALUE,
             TOKEN_STRING_VALUE,
@@ -118,15 +104,11 @@ TEST_F(LexerTokenizerTestFixture, Strings) {
             TOKEN_EOF
     };
 
-
-
     for (const TokenType expectedToken: expectedTokens) {
-        token = lexer_next_token(lexer);
         EXPECT_EQ(
-                token->type,
+                this->getNextTokenType(),
                 expectedToken
         ) << "Error string token";
-        memory_free(token);
     }
 
 
@@ -142,7 +124,7 @@ TEST_F(LexerTokenizerTestFixture, IntegersAndDoubles) {
 )RAW");
     char_stack_empty(lexer->lexer_fsm->stack);
 
-    std::vector<TokenType> expectedTokens = {
+    const std::vector<TokenType> expectedTokens = {
             TOKEN_INTEGER_LITERAL,
             TOKEN_DOUBLE_LITERAL,
             TOKEN_DOUBLE_LITERAL,
@@ -152,175 +134,126 @@ TEST_F(LexerTokenizerTestFixture, IntegersAndDoubles) {
 
     };
 
-
-
     for (const TokenType expectedToken: expectedTokens) {
-        token = lexer_next_token(lexer);
         EXPECT_EQ(
-                token->type,
+                this->getNextTokenType(),
                 expectedToken
         ) << "Error string token";
-        memory_free(token);
     }
-
-
 }
 
 TEST_F(LexerTokenizerTestFixture, Identifiers) {
     provider->setString("ahoj _9h7___ a_9");
 
-    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            token->type,
+            this->getNextTokenType(),
             TOKEN_IDENTIFIER
     ) << "Error IDENTIFIER add token";
-    memory_free(token);
 
-    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            token->type,
+            this->getNextTokenType(),
             TOKEN_IDENTIFIER
     ) << "Error IDENTIFIER subtract token";
-    memory_free(token);
 
-    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            token->type,
+            this->getNextTokenType(),
             TOKEN_IDENTIFIER
     ) << "Error IDENTIFIER  add token";
-    memory_free(token);
-
-
 }
 
 TEST_F(LexerTokenizerTestFixture, EOFToken) {
     provider->setString("");
 
-    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            token->type,
+            this->getNextTokenType(),
             TOKEN_EOF
     ) << "Error EOF token";
-    memory_free(token);
 
     provider->setString("ahoj ");
 
-    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            token->type,
+            this->getNextTokenType(),
             TOKEN_IDENTIFIER
     ) << "Error IDENTIFIER token";
-    memory_free(token);
 
-    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            token->type,
+            this->getNextTokenType(),
             TOKEN_EOF
     ) << "Error EOF token";
-    memory_free(token);
-
-
 }
 
 TEST_F(LexerTokenizerTestFixture, RelationOperators) {
     provider->setString("< > <= >= <>");
     char_stack_empty(lexer->lexer_fsm->stack);
 
-    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            token->type,
+            this->getNextTokenType(),
             TOKEN_SMALLER
     ) << "Error SMALLER add token";
-    memory_free(token);
 
-    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            token->type,
+            this->getNextTokenType(),
             TOKEN_BIGGER
     ) << "Error BIGGER subtract token";
-    memory_free(token);
 
-    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            token->type,
+            this->getNextTokenType(),
             TOKEN_SMALLER_EQUAL
     ) << "Error SMALLER_EQUAL token";
-    memory_free(token);
 
-    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            token->type,
+            this->getNextTokenType(),
             TOKEN_BIGGER_EQUAL
     ) << "Error BIGGER_EQUAL token";
-    memory_free(token);
 
-    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            token->type,
+            this->getNextTokenType(),
             TOKEN_SMALLER_BIGGER
     ) << "Error SMALLER_BIGGER token";
-    memory_free(token);
-
-
 }
 
 TEST_F(LexerTokenizerTestFixture, ErrorTokens) {
 
     provider->setString("@");
-    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            token->type,
+            this->getNextTokenType(),
             TOKEN_ERROR
     ) << "Error ERROR token";
-    memory_free(token);
 
     provider->setString("AHOJ  @");
-    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            token->type,
+            this->getNextTokenType(),
             TOKEN_IDENTIFIER
     ) << "Error IDENTIFIER token";
-    memory_free(token);
 
-    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            token->type,
+            this->getNextTokenType(),
             TOKEN_ERROR
     ) << "Error ERROR token";
-    memory_free(token);
 
     provider->setString("!\"\\%\"");
-    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            token->type,
+            this->getNextTokenType(),
             TOKEN_ERROR
     ) << "Error ERROR token";
-    memory_free(token);
 
     provider->setString("!\"\n\"");
-    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            token->type,
+            this->getNextTokenType(),
             TOKEN_ERROR
     ) << "Error ERROR token";
-    memory_free(token);
 
     provider->setString("\\256");
-    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            token->type,
+            this->getNextTokenType(),
             TOKEN_ERROR
     ) << "Error ERROR token";
-    memory_free(token);
 
     provider->setString("\\-1");
-    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            token->type,
+            this->getNextTokenType(),
             TOKEN_ERROR
     ) << "Error ERROR token";
-    memory_free(token);
-
 }
 
 
@@ -328,56 +261,40 @@ TEST_F(LexerTokenizerTestFixture, ComplexTest) {
     provider->setString("+ <= >= ahoj _8wtf *");
     char_stack_empty(lexer->lexer_fsm->stack);
 
-    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            token->type,
+            this->getNextTokenType(),
             TOKEN_ADD
     ) << "Error SMALLER add token";
-    memory_free(token);
 
-    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            token->type,
+            this->getNextTokenType(),
             TOKEN_SMALLER_EQUAL
     ) << "Error SMALLER_EQUAL token";
-    memory_free(token);
 
-    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            token->type,
+            this->getNextTokenType(),
             TOKEN_BIGGER_EQUAL
     ) << "Error BIGGER_EQUAL token";
-    memory_free(token);
 
-    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            token->type,
+            this->getNextTokenType(),
             TOKEN_IDENTIFIER
     ) << "Error IDENTIFIER token";
-    memory_free(token);
 
-    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            token->type,
+            this->getNextTokenType(),
             TOKEN_IDENTIFIER
     ) << "Error MULTIPLY token";
-    memory_free(token);
 
-    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            token->type,
+            this->getNextTokenType(),
             TOKEN_MULTIPLY
     ) << "Error MULTIPLY token";
-    memory_free(token);
 
-    token = lexer_next_token(lexer);
     EXPECT_EQ(
-            token->type,
+            this->getNextTokenType(),
             TOKEN_EOF
     ) << "Error EOF token";
-    memory_free(token);
-
-
 }
 
 TEST_F(LexerTokenizerTestFixture, SecondComplexTest) {
@@ -400,7 +317,7 @@ End Function
 )RAW");
     char_stack_empty(lexer->lexer_fsm->stack);
 
-    std::vector<TokenType> expectedTokens = {
+    const std::vector<TokenType> expectedTokens = {
             TOKEN_DECLARE, TOKEN_FUNCTION, TOKEN_IDENTIFIER,
             TOKEN_LEFT_BRACKET, TOKEN_IDENTIFIER, TOKEN_AS,
             TOKEN_INTEGER, TOKEN_RIGHT_BRACKET, TOKEN_AS,
@@ -424,18 +341,12 @@ End Function
             TOKEN_END, TOKEN_FUNCTION, TOKEN_EOF
     };
 
-
-
     for (const TokenType expectedToken: expectedTokens) {
-        token = lexer_next_token(lexer);
         EXPECT_EQ(
-                token->type,
+                this->getNextTokenType(),
                 expectedToken
         ) << "Error token in complex test";
-        memory_free(token);
     }
-
-
 }
 
 TEST_F(LexerTokenizerTestFixture, ThirdComplexTest) {
@@ -467,7 +378,7 @@ End Scope
 )RAW");
     char_stack_empty(lexer->lexer_fsm->stack);
 
-    std::vector<TokenType> expectedTokens = {
+    const std::vector<TokenType> expectedTokens = {
             TOKEN_SCOPE, TOKEN_DIM, TOKEN_IDENTIFIER,
             TOKEN_AS, TOKEN_STRING, TOKEN_DIM,
             TOKEN_IDENTIFIER, TOKEN_AS, TOKEN_STRING,
@@ -507,13 +418,9 @@ End Scope
 
 
     for (const TokenType expectedToken: expectedTokens) {
-        token = lexer_next_token(lexer);
         EXPECT_EQ(
-                token->type,
+                this->getNextTokenType(),
                 expectedToken
         ) << "Error token in complex test";
-        memory_free(token);
     }
-
-
 }

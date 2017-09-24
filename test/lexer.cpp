@@ -14,12 +14,12 @@ class LexerTokenizerTestFixture : public ::testing::Test {
         Lexer* lexer;
         StringByCharProvider* provider;
 
-        virtual void SetUp() {
+        void SetUp() override {
             lexer = lexer_init(token_stream);
             provider = StringByCharProvider::instance();
         }
 
-        virtual void TearDown() {
+        void TearDown() override {
             lexer_free(&lexer);
         }
 
@@ -107,7 +107,7 @@ TEST_F(LexerTokenizerTestFixture, Strings) {
             TOKEN_EOF
     };
 
-    for (const TokenType expectedToken: expectedTokens) {
+    for(const TokenType expectedToken: expectedTokens) {
         EXPECT_EQ(
                 this->getNextTokenType(),
                 expectedToken
@@ -137,7 +137,7 @@ TEST_F(LexerTokenizerTestFixture, IntegersAndDoubles) {
 
     };
 
-    for (const TokenType expectedToken: expectedTokens) {
+    for(const TokenType expectedToken: expectedTokens) {
         EXPECT_EQ(
                 this->getNextTokenType(),
                 expectedToken
@@ -362,7 +362,7 @@ End Function
             TOKEN_END, TOKEN_FUNCTION, TOKEN_EOF
     };
 
-    for (const TokenType expectedToken: expectedTokens) {
+    for(const TokenType expectedToken: expectedTokens) {
         EXPECT_EQ(
                 this->getNextTokenType(),
                 expectedToken
@@ -437,8 +437,7 @@ End Scope
     };
 
 
-
-    for (const TokenType expectedToken: expectedTokens) {
+    for(const TokenType expectedToken: expectedTokens) {
         EXPECT_EQ(
                 this->getNextTokenType(),
                 expectedToken

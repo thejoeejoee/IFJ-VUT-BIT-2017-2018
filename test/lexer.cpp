@@ -54,7 +54,6 @@ TEST_F(LexerTokenizerTestFixture, Keywords) {
 
 }
 
-
 TEST_F(LexerTokenizerTestFixture, MathTokens) {
     provider->setString("+ \n -     + \t * /");
 
@@ -184,7 +183,7 @@ TEST_F(LexerTokenizerTestFixture, Identifiers) {
 }
 
 TEST_F(LexerTokenizerTestFixture, RelationOperators) {
-    provider->setString("< > <= >=");
+    provider->setString("< > <= >= <>");
     char_stack_empty(lexer->lexer_fsm->stack);
 
     token = lexer_next_token(lexer);
@@ -213,6 +212,13 @@ TEST_F(LexerTokenizerTestFixture, RelationOperators) {
             token->type,
             TOKEN_BIGGER_EQUAL
     ) << "Error BIGGER_EQUAL token";
+    memory_free(token);
+
+    token = lexer_next_token(lexer);
+    EXPECT_EQ(
+            token->type,
+            TOKEN_SMALLER_BIGGER
+    ) << "Error SMALLER_BIGGER token";
     memory_free(token);
 
 
@@ -340,7 +346,19 @@ End Function
             TOKEN_INTEGER, TOKEN_RIGHT_BRACKET, TOKEN_AS,
             TOKEN_INTEGER, TOKEN_DIM, TOKEN_IDENTIFIER,
             TOKEN_AS, TOKEN_INTEGER, TOKEN_DIM,
-            TOKEN_IDENTIFIER, TOKEN_AS, TOKEN_INTEGER
+            TOKEN_IDENTIFIER, TOKEN_AS, TOKEN_INTEGER,
+            TOKEN_DIM, TOKEN_IDENTIFIER, TOKEN_AS,
+            TOKEN_INTEGER, TOKEN_IF, TOKEN_IDENTIFIER,
+            TOKEN_SMALLER, TOKEN_INTEGER_LITERAL, TOKEN_THEN,
+            TOKEN_IDENTIFIER, TOKEN_EQUAL, TOKEN_INTEGER_LITERAL,
+            TOKEN_ELSE, TOKEN_IDENTIFIER, TOKEN_EQUAL,
+            TOKEN_IDENTIFIER, TOKEN_SUBTRACT, TOKEN_INTEGER_LITERAL,
+            TOKEN_IDENTIFIER, TOKEN_EQUAL, TOKEN_IDENTIFIER,
+            TOKEN_LEFT_BRACKET, TOKEN_IDENTIFIER, TOKEN_RIGHT_BRACKET,
+            TOKEN_IDENTIFIER, TOKEN_EQUAL, TOKEN_IDENTIFIER,
+            TOKEN_MULTIPLY, TOKEN_IDENTIFIER, TOKEN_END,
+            TOKEN_IF, TOKEN_RETURN, TOKEN_IDENTIFIER,
+            TOKEN_END, TOKEN_FUNCTION
     };
 
 

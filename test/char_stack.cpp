@@ -52,3 +52,20 @@ TEST_F(CharStackTestFixture, AddItem) {
             EOF
     ) << "Error error popping item";
 }
+
+TEST_F(CharStackTestFixture, ClearStack){
+    char_stack_empty(stack);
+    EXPECT_EQ(
+        stack->stack_head,
+        -1
+    ) << "Error clearing char stack";
+
+    for(int i = 0; i < 10; i++) {
+        char_stack_push(stack, 'a');
+    }
+    char_stack_empty(stack);
+    EXPECT_EQ(
+        stack->stack_head,
+        -1
+    ) << "Error clearing char stack";
+}

@@ -42,6 +42,7 @@ typedef enum {
     // String unfinished states
     LEX_FSM__STRING_EXC,
     LEX_FSM__STRING_LOAD,
+    LEX_FSM__STRING_SLASH,
 
     // FINAL STATES
     LEX_FSM__ADD,

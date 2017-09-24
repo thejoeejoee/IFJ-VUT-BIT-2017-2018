@@ -37,6 +37,9 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
         c = lexer_fsm->input_stream();
 
     switch(prev_state) {
+
+        // Starting state
+
         case LEX_FSM__INIT:
 
             // If it is a white space, we ignore it
@@ -81,6 +84,8 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
             }
             break;
 
+        // String states
+
         case LEX_FSM__STRING_EXC:
             if(c == '"') {
                 return LEX_FSM__STRING_LOAD;
@@ -90,16 +95,38 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
             }
 
         case LEX_FSM__STRING_LOAD:
-            if(c == '"') {
-                return LEX_FSM__STRING_VALUE;
+
+            switch(c) {
+                case '"':
+                    return LEX_FSM__STRING_VALUE;
+                case '\n':
+                    return LEX_FSM__LEG_SHOT;
+                case '\\':
+                    return LEX_FSM__STRING_SLASH;
+                default:
+                    string_append_c(&(lexer_fsm->stream_buffer), c);
+                    return LEX_FSM__STRING_LOAD;
             }
-            else if(c == '\n') {
-                return LEX_FSM__LEG_SHOT;
+
+        case LEX_FSM__STRING_SLASH:
+            switch(c) {
+                case '\"':
+                    string_append_c(&(lexer_fsm->stream_buffer), '"');
+                    return LEX_FSM__STRING_LOAD;
+                case '\\':
+                    string_append_c(&(lexer_fsm->stream_buffer), '\\');
+                    return LEX_FSM__STRING_LOAD;
+                case '\n':
+                    string_append_c(&(lexer_fsm->stream_buffer), '\n');
+                    return LEX_FSM__STRING_LOAD;
+                case '\t':
+                    string_append_c(&(lexer_fsm->stream_buffer), '\t');
+                    return LEX_FSM__STRING_LOAD;
+                default:
+                    return LEX_FSM__LEG_SHOT;
             }
-            else {
-                string_append_c(&(lexer_fsm->stream_buffer), c);
-                return LEX_FSM__STRING_LOAD;
-            }
+
+        // Integer literal
 
         case LEX_FSM__INTEGER_LITERAL_UNFINISHED:
             if(isdigit(c)) {
@@ -112,6 +139,8 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
                 char_stack_push(lexer_fsm->stack, c);
                 return LEX_FSM__INTEGER_LITERAL_FINISHED;
             }
+
+        // Double literal
 
         case LEX_FSM__DOUBLE_DOT:
             if(isdigit(c)) {
@@ -156,6 +185,8 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
 
             }
 
+        // Relation operators
+
         case LEX_FSM__LEFT_SHARP_BRACKET:
             if(c == '=')
                 return LEX_FSM__SMALLER_EQUAL;
@@ -172,6 +203,8 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
                 return LEX_FSM__BIGGER;
             }
 
+        // Identifiers
+
         case LEX_FSM__IDENTIFIER_UNFINISHED:
             if(c == '_' || isdigit(c) || isalpha(c)) {
                 string_append_c(&(lexer_fsm->stream_buffer), tolower(c));
@@ -182,6 +215,8 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
                 return return_state;
             }
 
+        // Comments
+
         case LEX_FSM__SLASH:
             if(c == '\'')
                 return LEX_FSM__COMMENT_BLOCK;
@@ -189,6 +224,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
                 char_stack_push(lexer_fsm->stack, c);
                 return LEX_FSM__DIVIDE;
             }
+
 
         case LEX_FSM__COMMENT_LINE:
             if(c != '\n')

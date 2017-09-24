@@ -30,8 +30,6 @@ class HashTableTestFixture : public ::testing::Test {
         }
 
         void static FreeData(void* data) {
-            if (data != nullptr)
-                free(data);
         }
 };
 
@@ -63,8 +61,6 @@ class HashTableWithDataTestFixture : public ::testing::Test {
         }
 
         void static FreeData(void* data) {
-            if (data != nullptr)
-                free(data);
         }
 };
 

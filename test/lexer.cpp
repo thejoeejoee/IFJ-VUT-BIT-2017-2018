@@ -99,8 +99,8 @@ TEST_F(LexerTokenizerTestFixture, MathTokens) {
 TEST_F(LexerTokenizerTestFixture, Strings) {
     provider->setString(R"RAW(
 !"Simple string"
-!"\\n _hudkghj6878ýí"
-!"\\t _hud"
+!"\\\n _hudkghj6878ýí"
+!"\\\t _hud"
 !"Chuck norris \\" \\""
 !"\\\\ \\\\"
 )RAW");
@@ -236,6 +236,22 @@ TEST_F(LexerTokenizerTestFixture, ErrorTokens) {
     ) << "Error IDENTIFIER token";
     memory_free(token);
 
+    token = lexer_next_token(lexer);
+    EXPECT_EQ(
+            token->type,
+            TOKEN_ERROR
+    ) << "Error ERROR token";
+    memory_free(token);
+
+    provider->setString("!\"\\%\"");
+    token = lexer_next_token(lexer);
+    EXPECT_EQ(
+            token->type,
+            TOKEN_ERROR
+    ) << "Error ERROR token";
+    memory_free(token);
+
+    provider->setString("!\"\n\"");
     token = lexer_next_token(lexer);
     EXPECT_EQ(
             token->type,

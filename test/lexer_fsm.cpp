@@ -142,6 +142,57 @@ TEST_F(LexerFSMTestFixture, LineComment) {
     ) << "End of line resets line comment to init state.";
 }
 
+TEST_F(LexerFSMTestFixture, StringNumericChar) {
+    provider->setString("!\"\\114\"");
+    lexer_fsm->numeric_char_position = -1;
+    EXPECT_EQ(
+            lexer_fsm_next_state(LEX_FSM__INIT, lexer_fsm),
+            LEX_FSM__STRING_EXC
+    ) << "Error transition";
+
+    EXPECT_EQ(
+            lexer_fsm_next_state(LEX_FSM__STRING_EXC, lexer_fsm),
+            LEX_FSM__STRING_LOAD
+    ) << "Error transition";
+
+    EXPECT_EQ(
+            lexer_fsm_next_state(LEX_FSM__STRING_LOAD, lexer_fsm),
+            LEX_FSM__STRING_SLASH
+    ) << "Error transition";
+
+    EXPECT_EQ(
+            lexer_fsm_next_state(LEX_FSM__STRING_SLASH, lexer_fsm),
+            LEX_FSM__STRING_NUMERIC_CHAR
+    ) << "Error transition";
+
+    EXPECT_EQ(
+            lexer_fsm->numeric_char_position,
+            0
+    ) << "Error transition";
+
+    EXPECT_EQ(
+            lexer_fsm_next_state(LEX_FSM__STRING_NUMERIC_CHAR, lexer_fsm),
+            LEX_FSM__STRING_NUMERIC_CHAR
+    ) << "Error transition";
+
+    EXPECT_EQ(
+            lexer_fsm->numeric_char_position,
+            1
+    ) << "Error transition";
+
+
+    EXPECT_EQ(
+            lexer_fsm_next_state(LEX_FSM__STRING_NUMERIC_CHAR, lexer_fsm),
+            LEX_FSM__STRING_LOAD
+    ) << "Error transition";
+
+    EXPECT_EQ(
+            lexer_fsm_next_state(LEX_FSM__STRING_LOAD, lexer_fsm),
+            LEX_FSM__STRING_VALUE
+    ) << "Error transition";
+
+}
+
 TEST_F(LexerFSMTestFixture, BlockComment) {
     provider->setString("/'");
     EXPECT_EQ(

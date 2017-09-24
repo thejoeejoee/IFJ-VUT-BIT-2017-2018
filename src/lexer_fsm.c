@@ -161,6 +161,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
                     }
 
                 }
+                return LEX_FSM__STRING_NUMERIC_CHAR;
 
             }
             return LEX_FSM__ERROR;

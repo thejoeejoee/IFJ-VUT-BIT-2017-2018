@@ -90,11 +90,14 @@ TEST_F(LexerTokenizerTestFixture, Strings) {
 !"Chuck \\123 norris \\\" \\\""
 !"Chuck \\056 norris \\\" \\\""
 
+!"Chuck \\056 \\222 norris \\\" \\\""
+
 
 )RAW");
     char_stack_empty(lexer->lexer_fsm->stack);
 
     const std::vector<TokenType> expectedTokens = {
+            TOKEN_STRING_VALUE,
             TOKEN_STRING_VALUE,
             TOKEN_STRING_VALUE,
             TOKEN_STRING_VALUE,
@@ -243,6 +246,18 @@ TEST_F(LexerTokenizerTestFixture, ErrorTokens) {
             TOKEN_ERROR
     ) << "Error ERROR token";
 
+    provider->setString("123.");
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_ERROR
+    ) << "Error ERROR token";
+
+    provider->setString("127.12321edf");
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_ERROR
+    ) << "Error ERROR token";
+
     provider->setString("\\256");
     EXPECT_EQ(
             this->getNextTokenType(),
@@ -250,6 +265,12 @@ TEST_F(LexerTokenizerTestFixture, ErrorTokens) {
     ) << "Error ERROR token";
 
     provider->setString("\\-1");
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_ERROR
+    ) << "Error ERROR token";
+
+    provider->setString("!\\256");
     EXPECT_EQ(
             this->getNextTokenType(),
             TOKEN_ERROR

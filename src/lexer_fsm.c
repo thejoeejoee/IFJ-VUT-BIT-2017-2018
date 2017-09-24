@@ -172,7 +172,12 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
             if(isdigit(c)) {
                 string_append_c(&(lexer_fsm->stream_buffer), c);
                 return LEX_FSM__DOUBLE_E_UNFINISHED;
-            } else {
+            }
+            else if(c == '-' || c == '+') {
+                string_append_c(&(lexer_fsm->stream_buffer), c);
+                return LEX_FSM__DOUBLE_E_UNFINISHED;
+            }
+            else {
                 return LEX_FSM__LEG_SHOT;
             }
 

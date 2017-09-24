@@ -3,7 +3,7 @@
 extern "C" {
 #include "../src/memory.h"
 #include "../src/debug.h"
-#include "../src/ial.h"
+#include "../src/symtable.h"
 }
 
 #include "utils/functioncallcounter.h"
@@ -22,7 +22,7 @@ class HashTableTestFixture : public ::testing::Test {
 
         virtual void SetUp() {
             callCounter->resetCounter();
-            hash_table = hash_table_init(8);
+            hash_table = hash_table_init(2);
         }
 
         virtual void TearDown() {
@@ -36,7 +36,7 @@ class HashTableTestFixture : public ::testing::Test {
 class HashTableWithDataTestFixture : public ::testing::Test {
     protected:
         HashTable* hash_table = nullptr;
-        std::vector<const char*> keys = {"test1", "test2", "test3", "test4", "test5"};
+        std::vector<const char*> keys = {"test1", "test2", "test3", "test4", "test5", "test6", "test7", "test8"};
         FunctionCallCounter<void, const char*, void*>* callCounter;
 
         HashTableWithDataTestFixture() : testing::Test() {
@@ -63,6 +63,10 @@ class HashTableWithDataTestFixture : public ::testing::Test {
 
 TEST_F(HashTableTestFixture, Initialization) {
     EXPECT_NE(hash_table, nullptr) << "Initialized hash table is not null";
+}
+
+TEST_F(HashTableTestFixture, BucketCound) {
+    EXPECT_EQ(hash_table_bucket_count(hash_table), 2) << "Initialized hash table with 2 buckets.";
 }
 
 TEST_F(HashTableTestFixture, SizeEmpty) {

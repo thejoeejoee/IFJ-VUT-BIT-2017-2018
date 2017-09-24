@@ -1,4 +1,4 @@
-#include "ial.h"
+#include "symtable.h"
 #include "debug.h"
 #include "memory.h"
 

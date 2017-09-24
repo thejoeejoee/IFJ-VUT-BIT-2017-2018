@@ -27,12 +27,12 @@ void lexer_fsm_free(LexerFSM** lexer_fsm) {
     NULL_POINTER_CHECK(*lexer_fsm,);
 
     char_stack_free(&(*lexer_fsm)->stack);
-    string_free((*lexer_fsm)->stream_buffer);
+    string_free(&(*lexer_fsm)->stream_buffer);
     memory_free(*lexer_fsm);
     *lexer_fsm = NULL;
 }
 
-LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm) {
+LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state) {
     NULL_POINTER_CHECK(lexer_fsm, LEX_FSM__ERROR);
 
     // stored chars in stack from before loops have priority
@@ -249,7 +249,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
                 return LEX_FSM__IDENTIFIER_UNFINISHED;
             } else {
                 REWIND_CHAR(tolower(c));
-                LexerFSMState return_state = lexer_fsm_get_identifier_type(string_content(lexer_fsm->stream_buffer));
+                LexerFSMState return_state = lexer_fsm_get_identifier_state(string_content(lexer_fsm->stream_buffer));
                 return return_state;
             }
 
@@ -289,7 +289,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
     return LEX_FSM__ERROR;
 }
 
-LexerFSMState lexer_fsm_get_identifier_type(const char* name) {
+LexerFSMState lexer_fsm_get_identifier_state(const char* name) {
     // TODO: Macro is faster....
 
     static const int number_of_keywords = 35;

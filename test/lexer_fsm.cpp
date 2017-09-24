@@ -94,12 +94,12 @@ TEST_F(LexerFSMTestFixture, IsFinalStateTest) {
 TEST_F(LexerFSMTestFixture, GettingIdentifierTypeTest) {
 
     EXPECT_EQ(
-        lexer_fsm_get_identifier_type("and"),
-        LEX_FSM__AND
+            lexer_fsm_get_identifier_state("and"),
+            LEX_FSM__AND
     ) << "Error getting identifier type";
 
     EXPECT_EQ(
-            lexer_fsm_get_identifier_type("__8zx__87"),
+            lexer_fsm_get_identifier_state("__8zx__87"),
             LEX_FSM__IDENTIFIER_FINISHED
     ) << "Error getting identifier type";
 
@@ -110,7 +110,7 @@ TEST_F(LexerFSMTestFixture, UnknownCharacter) {
 
     provider->setString("@");
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__INIT, lexer_fsm),
+            lexer_fsm_next_state(lexer_fsm, LEX_FSM__INIT),
             LEX_FSM__ERROR
     ) << "Unknown character for lexer.";
 
@@ -119,49 +119,49 @@ TEST_F(LexerFSMTestFixture, UnknownCharacter) {
 TEST_F(LexerFSMTestFixture, LineComment) {
     provider->setString("'");
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__INIT, lexer_fsm),
+            lexer_fsm_next_state(lexer_fsm, LEX_FSM__INIT),
             LEX_FSM__COMMENT_LINE
     ) << "Quote select line comment from init state.";
 
     provider->setString("a");
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__COMMENT_LINE, lexer_fsm),
+            lexer_fsm_next_state(lexer_fsm, LEX_FSM__COMMENT_LINE),
             LEX_FSM__COMMENT_LINE
     ) << "All content is ignored in comment line.";
 
     provider->setString("'");
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__COMMENT_LINE, lexer_fsm),
+            lexer_fsm_next_state(lexer_fsm, LEX_FSM__COMMENT_LINE),
             LEX_FSM__COMMENT_LINE
     ) << "Also quote is ignored in line comment.";
 
     provider->setString("\n");
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__COMMENT_LINE, lexer_fsm),
+            lexer_fsm_next_state(lexer_fsm, LEX_FSM__COMMENT_LINE),
             LEX_FSM__INIT
     ) << "End of line resets line comment to init state.";
 }
 
 TEST_F(LexerFSMTestFixture, StringNumericChar) {
-    provider->setString("!\"\\114\"");
+    provider->setString(R"(!"\114")");
     lexer_fsm->numeric_char_position = -1;
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__INIT, lexer_fsm),
+            lexer_fsm_next_state(lexer_fsm, LEX_FSM__INIT),
             LEX_FSM__STRING_EXC
     ) << "Error transition";
 
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__STRING_EXC, lexer_fsm),
+            lexer_fsm_next_state(lexer_fsm, LEX_FSM__STRING_EXC),
             LEX_FSM__STRING_LOAD
     ) << "Error transition";
 
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__STRING_LOAD, lexer_fsm),
+            lexer_fsm_next_state(lexer_fsm, LEX_FSM__STRING_LOAD),
             LEX_FSM__STRING_SLASH
     ) << "Error transition";
 
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__STRING_SLASH, lexer_fsm),
+            lexer_fsm_next_state(lexer_fsm, LEX_FSM__STRING_SLASH),
             LEX_FSM__STRING_NUMERIC_CHAR
     ) << "Error transition";
 
@@ -171,7 +171,7 @@ TEST_F(LexerFSMTestFixture, StringNumericChar) {
     ) << "Error transition";
 
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__STRING_NUMERIC_CHAR, lexer_fsm),
+            lexer_fsm_next_state(lexer_fsm, LEX_FSM__STRING_NUMERIC_CHAR),
             LEX_FSM__STRING_NUMERIC_CHAR
     ) << "Error transition";
 
@@ -182,12 +182,12 @@ TEST_F(LexerFSMTestFixture, StringNumericChar) {
 
 
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__STRING_NUMERIC_CHAR, lexer_fsm),
+            lexer_fsm_next_state(lexer_fsm, LEX_FSM__STRING_NUMERIC_CHAR),
             LEX_FSM__STRING_LOAD
     ) << "Error transition";
 
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__STRING_LOAD, lexer_fsm),
+            lexer_fsm_next_state(lexer_fsm, LEX_FSM__STRING_LOAD),
             LEX_FSM__STRING_VALUE
     ) << "Error transition";
 
@@ -196,36 +196,36 @@ TEST_F(LexerFSMTestFixture, StringNumericChar) {
 TEST_F(LexerFSMTestFixture, BlockComment) {
     provider->setString("/'");
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__INIT, lexer_fsm),
+            lexer_fsm_next_state(lexer_fsm, LEX_FSM__INIT),
             LEX_FSM__SLASH
     ) << "Slash is start character for comment or dividing.";
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__SLASH, lexer_fsm),
+            lexer_fsm_next_state(lexer_fsm, LEX_FSM__SLASH),
             LEX_FSM__COMMENT_BLOCK
     ) << "Quote in slash state turns state into block comment.";
 
     provider->setString("f/");
     for(int i = 0; i < 2; ++i) {
         EXPECT_EQ(
-                lexer_fsm_next_state(LEX_FSM__COMMENT_BLOCK, lexer_fsm),
+                lexer_fsm_next_state(lexer_fsm, LEX_FSM__COMMENT_BLOCK),
                 LEX_FSM__COMMENT_BLOCK
         ) << "All in block comment is ignored.";
     }
     provider->setString("'X'/");
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__COMMENT_BLOCK, lexer_fsm),
+            lexer_fsm_next_state(lexer_fsm, LEX_FSM__COMMENT_BLOCK),
             LEX_FSM__COMMENT_BLOCK_END
     ) << "Prepare for end of comment.";
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__COMMENT_BLOCK_END, lexer_fsm),
+            lexer_fsm_next_state(lexer_fsm, LEX_FSM__COMMENT_BLOCK_END),
             LEX_FSM__COMMENT_BLOCK
     ) << "Prepared for end of comment, but broke.";
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__COMMENT_BLOCK, lexer_fsm),
+            lexer_fsm_next_state(lexer_fsm, LEX_FSM__COMMENT_BLOCK),
             LEX_FSM__COMMENT_BLOCK_END
     ) << "Prepared for end of comment.";
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__COMMENT_BLOCK_END, lexer_fsm),
+            lexer_fsm_next_state(lexer_fsm, LEX_FSM__COMMENT_BLOCK_END),
             LEX_FSM__INIT
     ) << "End of comment.";
 }
@@ -234,15 +234,15 @@ TEST_F(LexerFSMTestFixture, MathematicOperations) {
     provider->setString("+-*/");
 
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__INIT, lexer_fsm),
+            lexer_fsm_next_state(lexer_fsm, LEX_FSM__INIT),
             LEX_FSM__ADD
     ) << "Math add.";
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__INIT, lexer_fsm),
+            lexer_fsm_next_state(lexer_fsm, LEX_FSM__INIT),
             LEX_FSM__SUBTRACT
     ) << "Math subtract.";
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__INIT, lexer_fsm),
+            lexer_fsm_next_state(lexer_fsm, LEX_FSM__INIT),
             LEX_FSM__MULTIPLY
     ) << "Math multiply.";
 }
@@ -250,25 +250,25 @@ TEST_F(LexerFSMTestFixture, MathematicOperations) {
 TEST_F(LexerFSMTestFixture, Identifier) {
     provider->setString("a");
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__INIT, lexer_fsm),
+            lexer_fsm_next_state(lexer_fsm, LEX_FSM__INIT),
             LEX_FSM__IDENTIFIER_UNFINISHED
     ) << "Quote select line comment from init state.";
 
     provider->setString("a");
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__IDENTIFIER_UNFINISHED, lexer_fsm),
+            lexer_fsm_next_state(lexer_fsm, LEX_FSM__IDENTIFIER_UNFINISHED),
             LEX_FSM__IDENTIFIER_UNFINISHED
     ) << "Quote select line comment from init state.";
 
     provider->setString("a");
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__IDENTIFIER_UNFINISHED, lexer_fsm),
+            lexer_fsm_next_state(lexer_fsm, LEX_FSM__IDENTIFIER_UNFINISHED),
             LEX_FSM__IDENTIFIER_UNFINISHED
     ) << "Quote select line comment from init state.";
 
     provider->setString(" ");
     EXPECT_EQ(
-            lexer_fsm_next_state(LEX_FSM__IDENTIFIER_UNFINISHED, lexer_fsm),
+            lexer_fsm_next_state(lexer_fsm, LEX_FSM__IDENTIFIER_UNFINISHED),
             LEX_FSM__IDENTIFIER_FINISHED
     ) << "Quote select line comment from init state.";
 

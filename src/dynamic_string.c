@@ -14,11 +14,14 @@ String* string_init_with_capacity(size_t initial_capacity) {
     return string;
 }
 
-void string_free(String* string) {
-    NULL_POINTER_CHECK(string,)
-    NULL_POINTER_CHECK(string->content,)
+void string_free(String** string) {
+    NULL_POINTER_CHECK(string,);
+    NULL_POINTER_CHECK(*string,);
+    NULL_POINTER_CHECK((*string)->content,);
 
-    memory_free(string->content);
+    memory_free((*string)->content);
+    memory_free(*string);
+    *string = NULL;
 }
 
 // helper function for allocating more space if needed

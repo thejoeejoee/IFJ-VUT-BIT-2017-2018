@@ -33,7 +33,7 @@ String* string_init_with_capacity(size_t initial_capacity);
 *
 * @param String* string Dynamic string to be deleted
 */
-void string_free(String* string); //TODO: another function with custom capacity
+void string_free(String** string); //TODO: another function with custom capacity
 
 /**
 * @brief Append character to dynamic string

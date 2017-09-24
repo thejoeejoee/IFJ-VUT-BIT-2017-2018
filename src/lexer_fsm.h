@@ -13,6 +13,9 @@ typedef struct lexer_fsm_t {
     CharStack* stack;
     String stream_buffer;
     lexer_input_stream_f input_stream;
+
+    char numeric_char_value[4];
+    short numeric_char_position;
 } LexerFSM;
 
 typedef enum {
@@ -43,6 +46,7 @@ typedef enum {
     LEX_FSM__STRING_EXC,
     LEX_FSM__STRING_LOAD,
     LEX_FSM__STRING_SLASH,
+    LEX_FSM__STRING_NUMERIC_CHAR,
 
     // FINAL STATES
     LEX_FSM__ADD,

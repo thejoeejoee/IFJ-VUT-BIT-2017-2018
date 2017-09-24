@@ -8,14 +8,15 @@
 
 LexerFSM* lexer_fsm_init(lexer_input_stream_f input_stream) {
     NULL_POINTER_CHECK(input_stream, NULL);
-    LexerFSM* lexer = (LexerFSM*) memory_alloc(sizeof(LexerFSM));
-    NULL_POINTER_CHECK(lexer, NULL);
+    LexerFSM* lexer_fsm = (LexerFSM*) memory_alloc(sizeof(LexerFSM));
+    NULL_POINTER_CHECK(lexer_fsm, NULL);
     CharStack* stack = char_stack_init();
-    lexer->stream_buffer = string_init_with_capacity(LEXER_FSM_STREAM_BUFFER_DEFAULT_LENGHT);
-    lexer->stack = stack;
-    lexer->input_stream = input_stream;
+    lexer_fsm->stream_buffer = string_init_with_capacity(LEXER_FSM_STREAM_BUFFER_DEFAULT_LENGHT);
+    lexer_fsm->stack = stack;
+    lexer_fsm->input_stream = input_stream;
+    lexer_fsm->numeric_char_position = -1;
 
-    return lexer;
+    return lexer_fsm;
 }
 
 void lexer_fsm_free(LexerFSM** lexer_fsm) {
@@ -116,6 +117,12 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
             }
 
         case LEX_FSM__STRING_SLASH:
+
+            if(isdigit(c)) {
+                lexer_fsm->numeric_char_value[++(lexer_fsm->numeric_char_position)] = c;
+                return LEX_FSM__STRING_NUMERIC_CHAR;
+            }
+
             switch(c) {
                 case '\"':
                     string_append_c(&(lexer_fsm->stream_buffer), '"');
@@ -134,6 +141,26 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
             }
 
             // Integer literal
+
+        case LEX_FSM__STRING_NUMERIC_CHAR:
+            if(isdigit(c)) {
+
+                lexer_fsm->numeric_char_value[++(lexer_fsm->numeric_char_position)] = c;
+                if(lexer_fsm->numeric_char_position == 2) {
+
+                    lexer_fsm->numeric_char_value[++(lexer_fsm->numeric_char_position)] = '\0';
+                    lexer_fsm->numeric_char_position = -1;
+                    int numeric_char_value = atoi(lexer_fsm->numeric_char_value);
+
+                    if(numeric_char_value >= 0 && numeric_char_value <= 255) {
+                        string_append_c(&(lexer_fsm->stream_buffer), (char)numeric_char_value);
+                        return LEX_FSM__STRING_LOAD;
+                    }
+
+                }
+
+            }
+            return LEX_FSM__LEG_SHOT;
 
         case LEX_FSM__INTEGER_LITERAL_UNFINISHED:
             if(isdigit(c)) {

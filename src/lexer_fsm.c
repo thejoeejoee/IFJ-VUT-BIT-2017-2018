@@ -78,6 +78,13 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
                     return LEX_FSM__LEFT_SHARP_BRACKET;
                 case '>':
                     return LEX_FSM__RIGHT_SHARP_BRACKET;
+                case '=':
+                    return LEX_FSM__EQUAL;
+                case ';':
+                    return LEX_FSM__SEMICOLON;
+                case ',':
+                    return LEX_FSM__COMMA;
+
 
                 default:
                     break;
@@ -188,12 +195,16 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
         // Relation operators
 
         case LEX_FSM__LEFT_SHARP_BRACKET:
-            if(c == '=')
-                return LEX_FSM__SMALLER_EQUAL;
-            else {
-                char_stack_push(lexer_fsm->stack, c);
-                return LEX_FSM__SMALLER;
+            switch(c) {
+                case '=':
+                    return LEX_FSM__SMALLER_EQUAL;
+                case '>':
+                    return LEX_FSM__SMALLER_BIGGER;
+                default:
+                    char_stack_push(lexer_fsm->stack, c);
+                    return LEX_FSM__SMALLER;
             }
+
         case LEX_FSM__RIGHT_SHARP_BRACKET:
 
             if(c == '=')

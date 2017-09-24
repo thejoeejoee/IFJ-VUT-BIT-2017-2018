@@ -54,6 +54,7 @@ typedef enum {
     LEX_FSM__INTEGER_LITERAL_FINISHED,
     LEX_FSM__DOUBLE_FINISHED,
     LEX_FSM__STRING_VALUE,
+    LEX_FSM__SMALLER_BIGGER,
 
     // Relation operators
     LEX_FSM__SMALLER,
@@ -61,6 +62,9 @@ typedef enum {
     LEX_FSM__SMALLER_EQUAL,
     LEX_FSM__BIGGER_EQUAL,
     LEX_FSM__IDENTIFIER_FINISHED,
+    LEX_FSM__EQUAL,
+    LEX_FSM__SEMICOLON,
+    LEX_FSM__COMMA,
 
     // Reserve words
     LEX_FSM__AS,

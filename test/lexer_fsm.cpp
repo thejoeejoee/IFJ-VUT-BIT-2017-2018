@@ -52,7 +52,7 @@ TEST_F(LexerFSMTestFixture, IsFinalStateTest) {
             LEX_FSM__STATIC, LEX_FSM__TRUE,
 
             // Error state
-            LEX_FSM__LEG_SHOT,
+            LEX_FSM__ERROR,
     };
 
     std::vector<LexerFSMState> non_final_states = {

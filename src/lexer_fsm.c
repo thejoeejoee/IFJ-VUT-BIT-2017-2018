@@ -160,7 +160,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
                 }
 
             }
-            return LEX_FSM__LEG_SHOT;
+            return LEX_FSM__ERROR;
 
         case LEX_FSM__INTEGER_LITERAL_UNFINISHED:
             if(isdigit(c)) {
@@ -288,7 +288,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSMState prev_state, LexerFSM* lexer_fsm
     return LEX_FSM__ERROR;
 }
 
-LexerFSMState lexer_fsm_get_identifier_type(char* name) {
+LexerFSMState lexer_fsm_get_identifier_type(const char* name) {
     // TODO: Macro is faster....
 
     static const int number_of_keywords = 35;

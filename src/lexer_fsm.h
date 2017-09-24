@@ -134,7 +134,7 @@ void lexer_fsm_free(LexerFSM** lexer_fsm);
  * @param char* name
  * @return LexerFSMState
  */
-LexerFSMState lexer_fsm_get_identifier_type(char *name);
+LexerFSMState lexer_fsm_get_identifier_type(const char* name);
 
 /**
  * @brief Get next state from prev state and next symbol

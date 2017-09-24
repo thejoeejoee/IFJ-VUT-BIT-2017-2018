@@ -1,5 +1,6 @@
 language: c
 dist: trusty
+sudo: required
 
 compiler:
   - clang
@@ -10,6 +11,9 @@ addons:
     packages:
       - cmake
       - lcov
+      - python3
+      - python3-pip
+      - python3.4-venv
       # doc
       # - inkscape
       # - texlive-latex-base
@@ -20,6 +24,13 @@ addons:
       # - texlive-science
       # - texlive-full
 
+before_install:
+  - cd utils/plotly
+  - pyvenv-3.4 .venv
+  - source .venv/bin/activate
+  - pip install --upgrade requests[security] && pip install -r ./requirements.txt || true
+  - cd ../..
+
 script:
   - mkdir build && cd build
   - cmake .. -DENABLE_COVERAGE=On && make && CTEST_OUTPUT_ON_FAILURE=1 GTEST_COLOR=1 make test
@@ -29,6 +40,7 @@ script:
 
 after_success:
   - bash ./utils/codecov.sh -X coveragepy -X gcov
+  - ./utils/benchmark.sh
 
 after_script:
   # - (cd doc && make || true)

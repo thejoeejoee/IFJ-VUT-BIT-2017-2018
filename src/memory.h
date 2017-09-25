@@ -34,6 +34,9 @@
         }\
     } while (0)
 
+#define MEMORY_MANAGER_INFO_MAX_LENGTH 128
+#define MEMORY_MANAGER_INFO_FORMAT "%s:%d:%s()"
+
 /**
  * @brief Memory page as one unit of allocated memory. Stored also info about place of allocation, size and
  * flag for state of freeing. Works as linked list, with next linked pages.

@@ -28,7 +28,7 @@ void* memory_manager_malloc(
     new_page->next = NULL;
     new_page->size = size;
     new_page->allocated = true;
-    new_page->info = (char*) malloc(INFO_MAX_LENGTH + 1);
+    new_page->info = (char*) malloc(MEMORY_MANAGER_INFO_MAX_LENGTH + 1);
     MALLOC_CHECK(new_page->info);
     new_page->address = malloc(new_page->size);
     if (new_page->address == NULL) {
@@ -37,7 +37,7 @@ void* memory_manager_malloc(
         MALLOC_CHECK(new_page->address);
     }
 
-    snprintf(new_page->info, INFO_MAX_LENGTH, INFO_FORMAT, file, line, func);
+    snprintf(new_page->info, MEMORY_MANAGER_INFO_MAX_LENGTH, MEMORY_MANAGER_INFO_FORMAT, file, line, func);
 
     new_page->next = manager->head;
     manager->head = new_page;

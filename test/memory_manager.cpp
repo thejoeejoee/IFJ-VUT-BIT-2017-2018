@@ -1,4 +1,5 @@
 #include "gtest/gtest.h"
+
 extern "C" {
 #include "../src/memory.h"
 #include "../src/debug.h"
@@ -10,6 +11,10 @@ class MemoryManagerTestFixture : public ::testing::Test {
     protected:
         MemoryManager memory_manager;
 
+        MemoryManagerTestFixture() : ::testing::Test() {
+            memory_manager.head = nullptr;
+        };
+
         void SetUp() override {
             memory_manager_enter(&memory_manager);
         }
@@ -17,7 +22,6 @@ class MemoryManagerTestFixture : public ::testing::Test {
         void TearDown() override {
             memory_manager_exit(&memory_manager);
         }
-
 };
 
 TEST_F(MemoryManagerTestFixture, Initialization) {
@@ -31,15 +35,15 @@ TEST_F(MemoryManagerTestFixture, Destruction) {
 
 TEST_F(MemoryManagerTestFixture, InvalidMemoryAllocation) {
     DISABLE_LOG({
-        EXPECT_EQ(memory_alloc(0, &memory_manager), nullptr) << "Invalid size.";
-    });
+                    EXPECT_EQ(memory_alloc(0, &memory_manager), nullptr) << "Invalid size.";
+                });
 }
 
 TEST_F(MemoryManagerTestFixture, InvalidMemoryDealocation) {
     DISABLE_LOG({
-        // TODO: free does return void.. so no method to check valid address
-        memory_free(&memory_manager, &memory_manager);
-    });
+                    // TODO: free does return void.. so no method to check valid address
+                    memory_free(&memory_manager, &memory_manager);
+                });
 }
 
 TEST_F(MemoryManagerTestFixture, SingleMemoryAllocation) {
@@ -93,6 +97,16 @@ TEST_F(MemoryManagerTestFixture, MultipleMemoryAllocation) {
 
     EXPECT_FALSE(second_page->allocated) << "Allocation flag for freed memory.";
     EXPECT_EQ(second_page->address, nullptr) << "Nulled address of freed page.";
+}
+
+
+TEST_F(MemoryManagerTestFixture, Stats) {
+    // Empty test case to have stats coverage, only prints stats values.
+    void* first_memory = memory_manager_malloc(8, "bar", 1, "foo", &memory_manager);
+    void* second_memory = memory_manager_malloc(16, "file", 1, "function", &memory_manager);
+    memory_manager_log_stats(&memory_manager);
+    memory_manager_free(first_memory, &memory_manager);
+    memory_manager_free(second_memory, &memory_manager);
 }
 
 #endif

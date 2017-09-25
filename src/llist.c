@@ -54,7 +54,7 @@ void llist_remove_one(LList* list, int value) {
     } while ((current_item = current_item->next) != NULL);
 }
 
-void llist_delete(LList** list) {
+void llist_free(LList** list) {
     NULL_POINTER_CHECK(list,);
     NULL_POINTER_CHECK(*list,);
 

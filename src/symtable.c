@@ -1,4 +1,4 @@
-#include "ial.h"
+#include "symtable.h"
 #include "debug.h"
 #include "memory.h"
 
@@ -193,7 +193,7 @@ HashTable* hash_table_move(size_t new_size, HashTable* source) {
     return destination;
 }
 
-bool hash_table_delete(HashTable* table, const char* key,
+bool hash_table_remove(HashTable* table, const char* key,
                        free_data_callback_f free_data_callback) {
     NULL_POINTER_CHECK(table, false);
     NULL_POINTER_CHECK(key, false);

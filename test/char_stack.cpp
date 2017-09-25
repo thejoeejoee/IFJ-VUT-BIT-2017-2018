@@ -11,9 +11,10 @@ class CharStackTestFixture : public ::testing::Test {
         virtual void SetUp() {
             stack = char_stack_init();
         }
-		virtual void TearDown() {
-			char_stack_free(&stack);
-		}
+
+        virtual void TearDown() {
+            char_stack_free(&stack);
+        }
 };
 
 TEST_F(CharStackTestFixture, AddItem) {
@@ -34,13 +35,13 @@ TEST_F(CharStackTestFixture, AddItem) {
 
     ) << "Error error popping item";
 
-    for(int i = 0; i < 10; i++) {
+    for(int i = 0; i < CHAR_STACK_MAX_LENGTH; i++) {
         EXPECT_TRUE(
                 char_stack_push(stack, 'a')
         ) << "Error pushing item";
     }
 
-    for(int i = 0; i < 10; i++) {
+    for(int i = 0; i < CHAR_STACK_MAX_LENGTH; i++) {
         EXPECT_EQ(
                 char_stack_pop(stack),
                 'a'
@@ -53,19 +54,19 @@ TEST_F(CharStackTestFixture, AddItem) {
     ) << "Error error popping item";
 }
 
-TEST_F(CharStackTestFixture, ClearStack){
+TEST_F(CharStackTestFixture, ClearStack) {
     char_stack_empty(stack);
     EXPECT_EQ(
-        stack->stack_head,
-        -1
+            char_stack_pop(stack),
+            EOF
     ) << "Error clearing char stack";
 
-    for(int i = 0; i < 10; i++) {
+    for(int i = 0; i < CHAR_STACK_MAX_LENGTH; i++) {
         char_stack_push(stack, 'a');
     }
     char_stack_empty(stack);
     EXPECT_EQ(
-        stack->stack_head,
-        -1
+            char_stack_pop(stack),
+            EOF
     ) << "Error clearing char stack";
 }

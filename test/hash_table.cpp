@@ -30,8 +30,6 @@ class HashTableTestFixture : public ::testing::Test {
         }
 
         void static FreeData(void* data) {
-            if (data != nullptr)
-                free(data);
         }
 };
 
@@ -101,7 +99,7 @@ TEST_F(HashTableTestFixture, InsertItems) {
     EXPECT_EQ(
             hash_table_size(hash_table),
             n_samples
-    ) << "Hash table should have " << n_samples << " items";
+    ) << "Hash table should have 3 items";
 }
 
 TEST_F(HashTableTestFixture, MemoryDeallocation) {
@@ -239,7 +237,7 @@ TEST_F(HashTableWithDataTestFixture, Foreach) {
 //    size_t n_samples = 5;
 
     EXPECT_EQ(
-            callCounter->callCount(),
-            n_samples
-    ) << "Callback function should be called " << n_samples << " times";
+        callCounter->callCount(),
+        n_samples
+    ) << "Callback function should be called 5 times";
 }

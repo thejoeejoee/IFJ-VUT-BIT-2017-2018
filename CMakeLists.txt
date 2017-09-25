@@ -5,6 +5,9 @@ project(ifj2017)
 #init
 IF (CMAKE_COMPILER_IS_GNUCC)
     SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -pedantic -std=c99 -Wno-variadic-macros -D__USE_MINGW_ANSI_STDIO")
+ELSEIF (MSVC)
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /D_CRT_SECURE_NO_WARNINGS /wd4200")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_CRT_SECURE_NO_WARNINGS /wd4200")
 ENDIF ()
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_C_STANDARD 99)
@@ -36,8 +39,11 @@ list(REMOVE_ITEM ifj2017_SRC_no_main "src/ifj2017.c")
 # ifj2017_test
 include(test/CMakeLists.txt)
 
+# ifj2017_benchmark
+include(benchmark/CMakeLists.txt)
+
 # automatic source groups by folder structure
-set(_all_sources ${ifj2017_test_SRC} ${ifj2017_SRC} ${VS_debug_visualizers})
+set(_all_sources ${ifj2017_test_SRC} ${ifj2017_benchmark_SRC} ${ifj2017_SRC} ${VS_debug_visualizers})
 foreach (_source IN ITEMS ${_all_sources})
     get_filename_component(_source_path "${_source}" PATH)
     IF (MSVC)

@@ -98,7 +98,11 @@ TEST_F(MemoryManagerTestFixture, MultipleMemoryAllocation) {
 
 TEST_F(MemoryManagerTestFixture, Stats) {
     // Empty test case to have stats coverage, only prints stats values.
+    void* first_memory = memory_manager_malloc(8, "bar", 1, "foo", &memory_manager);
+    void* second_memory = memory_manager_malloc(16, "file", 1, "function", &memory_manager);
     memory_manager_log_stats(&memory_manager);
+    memory_manager_free(first_memory, &memory_manager);
+    memory_manager_free(second_memory, &memory_manager);
 }
 
 #endif

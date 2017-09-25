@@ -1,0 +1,59 @@
+<prog> -> <body> EOF
+<body> -> <definitions> SCOPE <statements> END SCOPE 
+
+<return> -> RETURN <expression>	
+<return> -> E	
+
+<definitions> -> E
+<definitions> -> <definition> <definitions>
+
+<definition> -> <variable_declaration>
+<definition> -> <variable_declaration> = <expression>
+
+<definition> -> <function_declaration>
+<definition> -> <function_definition>
+
+
+<function_header> -> FUNCTION <id> (<function_params>) AS <type>
+<function_declaration> -> DECLARE <function_header> EOL
+<function_params> -> E
+<function_params> -> <function_param> <function_n_param>
+<function_n_param> -> E
+<function_n_param> -> , <function_params> 
+<function_param> -> <id> AS <type> 
+<function_definition> -> <function_header> EOL <statements> END FUNCTION
+
+<variable_declaration> -> DIM <id> AS <type>
+
+<f_statements> -> E
+<f_statements> -> <return> EOL <f_statements>
+<f_statements> -> <statement_single> EOL <f_statements>
+
+<statements> -> E
+<statements> -> <statement_single> EOL <statements>
+<statement_single> -> <id> EQUAL <expression> // přiřazení
+<statement_single> -> INPUT <id> // načtení ze vstupu	
+<statement_single> -> PRINT <print_expression> <print_expressions> // tisk na výstup, alespoň jeden příkaz, každý se středníkem
+<print_expression> -> <expression> SEMICOLON
+<print_expressions> -> E
+<print_expressions> -> <print_expression> SEMICOLON <print_expressions>
+
+<condition> -> IF <expression> THEN EOL <statements> <else_section> END IF
+<else_section> -> E
+<else_section> -> ELSE EOL <statements> 	
+
+<do_while> -> DO WHILE <expression> EOL <statements> LOOP	
+
+// Bonusové zadání, for
+<for> -> FOR <id> EQUAL <expression> TO <expression> <step>.....?
+
+
+<id> -> IDENTIFIER
+<type> ->
+<eols> -> E
+<eols> -> EOL <eols>
+
+
+Dim x as
+integer
+

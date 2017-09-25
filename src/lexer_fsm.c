@@ -48,6 +48,10 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
         case LEX_FSM__INIT:
 
             // If it is a white space, we ignore it
+
+            if(c == '\n')
+                return LEX_FSM__EOL;
+
             if(isspace(c))
                 return LEX_FSM__INIT;
 

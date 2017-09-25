@@ -64,6 +64,7 @@ typedef enum {
     LEX_FSM__DOUBLE_FINISHED,
     LEX_FSM__STRING_VALUE,
     LEX_FSM__SMALLER_BIGGER,
+    LEX_FSM__EOL,
 
     // Relation operators
 

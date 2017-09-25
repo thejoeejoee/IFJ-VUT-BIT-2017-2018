@@ -91,6 +91,7 @@ TEST_F(LexerFSMTestFixture, IsFinalStateTest) {
 
 }
 
+
 TEST_F(LexerFSMTestFixture, GettingIdentifierTypeTest) {
 
     EXPECT_EQ(
@@ -140,6 +141,16 @@ TEST_F(LexerFSMTestFixture, LineComment) {
             lexer_fsm_next_state(lexer_fsm, LEX_FSM__COMMENT_LINE),
             LEX_FSM__INIT
     ) << "End of line resets line comment to init state.";
+}
+
+TEST_F(LexerFSMTestFixture, EOLTest) {
+
+    provider->setString("\n");
+    EXPECT_EQ(
+            lexer_fsm_next_state(lexer_fsm, LEX_FSM__INIT),
+            LEX_FSM__EOL
+    ) << "Also quote is ignored in line comment.";
+
 }
 
 TEST_F(LexerFSMTestFixture, StringNumericChar) {

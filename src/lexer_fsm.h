@@ -21,21 +21,24 @@ typedef struct lexer_fsm_t {
 typedef enum {
 
     // Start state
-            LEX_FSM__INIT,
+
+    LEX_FSM__INIT,
 
     // Comments
-            LEX_FSM__COMMENT_LINE,
+
+    LEX_FSM__COMMENT_LINE,
     LEX_FSM__SLASH,
     LEX_FSM__COMMENT_BLOCK,
     LEX_FSM__COMMENT_BLOCK_END,
 
-
     // Sharp brackets
-            LEX_FSM__LEFT_SHARP_BRACKET,
+
+    LEX_FSM__LEFT_SHARP_BRACKET,
     LEX_FSM__RIGHT_SHARP_BRACKET,
 
     // Other unfinished states
-            LEX_FSM__IDENTIFIER_UNFINISHED,
+
+    LEX_FSM__IDENTIFIER_UNFINISHED,
     LEX_FSM__INTEGER_LITERAL_UNFINISHED,
     LEX_FSM__DOUBLE_DOT,
     LEX_FSM__DOUBLE_UNFINISHED,
@@ -43,13 +46,15 @@ typedef enum {
     LEX_FSM__DOUBLE_E_UNFINISHED,
 
     // String unfinished states
-            LEX_FSM__STRING_EXC,
+
+    LEX_FSM__STRING_EXC,
     LEX_FSM__STRING_LOAD,
     LEX_FSM__STRING_SLASH,
     LEX_FSM__STRING_NUMERIC_CHAR,
 
     // FINAL STATES
-            LEX_FSM__ADD,
+
+    LEX_FSM__ADD,
     LEX_FSM__SUBTRACT,
     LEX_FSM__DIVIDE,
     LEX_FSM__MULTIPLY,
@@ -61,7 +66,8 @@ typedef enum {
     LEX_FSM__SMALLER_BIGGER,
 
     // Relation operators
-            LEX_FSM__SMALLER,
+
+    LEX_FSM__SMALLER,
     LEX_FSM__BIGGER,
     LEX_FSM__SMALLER_EQUAL,
     LEX_FSM__BIGGER_EQUAL,
@@ -71,7 +77,8 @@ typedef enum {
     LEX_FSM__COMMA,
 
     // Reserve words
-            LEX_FSM__AS,
+
+    LEX_FSM__AS,
     LEX_FSM__ASC,
     LEX_FSM__DECLARE,
     LEX_FSM__DIM,

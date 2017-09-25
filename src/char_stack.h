@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include "memory.h"
 
-#define CHAR_STACK_MAX_LENGTH 8
+#define CHAR_STACK_MAX_LENGTH 16
 
 /**
  * @brief Data structure representing the char stack

@@ -36,7 +36,10 @@ class HashTableTestFixture : public ::testing::Test {
 class HashTableWithDataTestFixture : public ::testing::Test {
     protected:
         HashTable* hash_table = nullptr;
-        std::vector<const char*> keys = {"test1", "test2", "test3", "test4", "test5", "test6", "test7", "test8"};
+        std::vector<const char*> keys = {
+                "test1", "test2", "test3", "test4", "test5",
+                "test6", "test7", "test8", "test9", "test10"
+        };
         FunctionCallCounter<void, const char*, void*>* callCounter;
 
         HashTableWithDataTestFixture() : testing::Test() {
@@ -45,7 +48,7 @@ class HashTableWithDataTestFixture : public ::testing::Test {
 
         virtual void SetUp() {
             callCounter->resetCounter();
-            hash_table = hash_table_init(keys.size());
+            hash_table = hash_table_init(2);
 
             // Insert items
             for(auto &key : keys) {
@@ -65,7 +68,7 @@ TEST_F(HashTableTestFixture, Initialization) {
     EXPECT_NE(hash_table, nullptr) << "Initialized hash table is not null";
 }
 
-TEST_F(HashTableTestFixture, BucketCound) {
+TEST_F(HashTableTestFixture, BucketCount) {
     EXPECT_EQ(hash_table_bucket_count(hash_table), 2) << "Initialized hash table with 2 buckets.";
 }
 
@@ -144,12 +147,20 @@ TEST_F(HashTableWithDataTestFixture, GetValidItem) {
     ) << "The items key should be equal to searched key";
 }
 
+TEST_F(HashTableWithDataTestFixture, GetOrCreateWithData) {
+    EXPECT_NE(
+            hash_table_get_or_create(hash_table, keys.at(keys.size() / 2)),
+            nullptr
+    ) << "Valid search on hash table with data.";
+}
+
 TEST_F(HashTableWithDataTestFixture, DeleteInvalidItem) {
     EXPECT_FALSE(hash_table_remove(hash_table, "invalid", FreeData)) << "Invalid key should return false";
 }
 
 TEST_F(HashTableWithDataTestFixture, DeleteValidItem) {
-    EXPECT_TRUE(hash_table_remove(hash_table, keys[2], FreeData)) << "Deleting valid key should return true";
+    EXPECT_TRUE(hash_table_remove(hash_table, keys.at(keys.size() / 2), FreeData))
+                        << "Deleting valid key should return true";
 }
 
 TEST_F(HashTableTestFixture, DeleteOnEmptyTable) {
@@ -238,7 +249,7 @@ TEST_F(HashTableWithDataTestFixture, Foreach) {
     hash_table_foreach(hash_table, callCounter->wrapper());
 
     EXPECT_EQ(
-        callCounter->callCount(),
-        keys.size()
+            callCounter->callCount(),
+            keys.size()
     ) << "Callback function should be called 5 times";
 }

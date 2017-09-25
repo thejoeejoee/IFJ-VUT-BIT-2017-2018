@@ -7,17 +7,27 @@
 
 #define LEXER_FSM_STREAM_BUFFER_DEFAULT_LENGHT 16
 
+/**
+ * @brief Pointer to function, which streams the characters
+ */
 typedef int (* lexer_input_stream_f)();
 
+/**
+ * @brief Representation of the FSM that is part of the lexical analyzer
+ */
 typedef struct lexer_fsm_t {
-    CharStack* stack;
-    String* stream_buffer;
-    lexer_input_stream_f input_stream;
 
-    char numeric_char_value[4];
-    short numeric_char_position;
+    CharStack* stack; // Instance of stack for returning symbols back
+    String* stream_buffer; // Dynamic string for progressive compilation value
+    lexer_input_stream_f input_stream; // Pointer to function which stream chars
+
+    char numeric_char_value[4]; // Stack for numeric value of char
+    short numeric_char_position; // Head of stack for numeric value of char
 } LexerFSM;
 
+/**
+ * @brief List of FSM states
+ */
 typedef enum {
 
     // Start state
@@ -65,9 +75,6 @@ typedef enum {
     LEX_FSM__STRING_VALUE,
     LEX_FSM__SMALLER_BIGGER,
     LEX_FSM__EOL,
-
-    // Relation operators
-
     LEX_FSM__SMALLER,
     LEX_FSM__BIGGER,
     LEX_FSM__SMALLER_EQUAL,
@@ -150,7 +157,7 @@ LexerFSMState lexer_fsm_get_identifier_state(const char* name);
  *
  * @param LexerFSMState prev_state
  * @param lexer_input_stream_f input_stream
- * @return LexerFSMState
+ * @return LexerFSMState Next state
  */
 LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state);
 

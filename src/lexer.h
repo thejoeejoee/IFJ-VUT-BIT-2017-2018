@@ -5,18 +5,18 @@
 #include "lexer_fsm.h"
 
 /**
- * @brief Represents lexer
+ * @brief Representation of lexical analyzer
  */
 typedef struct lexer_t {
-    lexer_input_stream_f input_stream;
-    LexerFSM *lexer_fsm;
+    lexer_input_stream_f input_stream; // Pointer to function which stream chars
+    LexerFSM *lexer_fsm; // Instance of final state machine
 } Lexer;
 
 
 /**
  * @brief Constructor for lexer
  *
- * @return Pointer to lexer
+ * @return *lexer_fsm Pointer to lexer
  */
 Lexer* lexer_init(lexer_input_stream_f);
 

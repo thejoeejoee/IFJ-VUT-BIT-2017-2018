@@ -4,15 +4,18 @@
 #include <stdlib.h>
 #include "memory.h"
 
-#define CHAR_STACK_MAX_LENGTH 256
+#define CHAR_STACK_MAX_LENGTH 8
 
+/**
+ * @brief Data structure representing the char stack
+ */
 typedef struct char_stack_t {
-    short stack_head;
-    char stack[CHAR_STACK_MAX_LENGTH];
+    short stack_head; // Index of head
+    char stack[CHAR_STACK_MAX_LENGTH]; // Content of stack
 } CharStack;
 
 /**
- * Initialization for char stack structure.
+ * @brief Initialization for char stack structure.
  * @return ptr to initialized
  */
 CharStack* char_stack_init();

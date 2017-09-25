@@ -1,11 +1,13 @@
 #include "gtest/gtest.h"
+
 extern "C" {
 #include "../src/memory.h"
 #include "../src/debug.h"
-#include "../src/ial.h"
+#include "../src/symtable.h"
 }
 
 #include "utils/functioncallcounter.h"
+
 void ForeachCount(const char* key, void* data) {}
 
 
@@ -20,13 +22,11 @@ class HashTableTestFixture : public ::testing::Test {
 
         virtual void SetUp() {
             callCounter->resetCounter();
-            memory_manager_enter(NULL);
-            hash_table = hash_table_init(8);
+            hash_table = hash_table_init(2);
         }
 
         virtual void TearDown() {
             EXPECT_NO_FATAL_FAILURE(hash_table_free(hash_table, FreeData));
-            memory_manager_exit(NULL);
         }
 
         void static FreeData(void* data) {
@@ -36,8 +36,10 @@ class HashTableTestFixture : public ::testing::Test {
 class HashTableWithDataTestFixture : public ::testing::Test {
     protected:
         HashTable* hash_table = nullptr;
-        static const size_t n_samples = 5;
-        const char* keys[n_samples] = {"test1", "test2", "test3", "test4", "test5"};
+        std::vector<const char*> keys = {
+                "test1", "test2", "test3", "test4", "test5",
+                "test6", "test7", "test8", "test9", "test10"
+        };
         FunctionCallCounter<void, const char*, void*>* callCounter;
 
         HashTableWithDataTestFixture() : testing::Test() {
@@ -45,29 +47,29 @@ class HashTableWithDataTestFixture : public ::testing::Test {
         }
 
         virtual void SetUp() {
-            memory_manager_enter(NULL);
             callCounter->resetCounter();
-            hash_table = hash_table_init(n_samples);
+            hash_table = hash_table_init(2);
 
             // Insert items
-            for (auto &key : keys) {
+            for(auto &key : keys) {
                 hash_table_get_or_create(hash_table, key);
             }
         }
 
         virtual void TearDown() {
             EXPECT_NO_FATAL_FAILURE(hash_table_free(hash_table, FreeData));
-            memory_manager_exit(NULL);
         }
 
         void static FreeData(void* data) {
         }
 };
 
-const size_t HashTableWithDataTestFixture::n_samples;
-
 TEST_F(HashTableTestFixture, Initialization) {
     EXPECT_NE(hash_table, nullptr) << "Initialized hash table is not null";
+}
+
+TEST_F(HashTableTestFixture, BucketCount) {
+    EXPECT_EQ(hash_table_bucket_count(hash_table), 2) << "Initialized hash table with 2 buckets.";
 }
 
 TEST_F(HashTableTestFixture, SizeEmpty) {
@@ -78,8 +80,7 @@ TEST_F(HashTableTestFixture, SizeEmpty) {
 }
 
 TEST_F(HashTableTestFixture, InsertItems) {
-    constexpr size_t n_samples = 3;
-    const char* keys[n_samples] = {"test1", "test2", "test3"};
+    std::vector<const char*> keys = {"test1", "test2", "test3"};
 
     // Test function
     DISABLE_LOG({
@@ -90,7 +91,7 @@ TEST_F(HashTableTestFixture, InsertItems) {
                 });
 
     // Insert items
-    for (auto &key : keys) {
+    for(auto &key : keys) {
         EXPECT_NE(
                 hash_table_get_or_create(hash_table, key),
                 nullptr
@@ -100,7 +101,7 @@ TEST_F(HashTableTestFixture, InsertItems) {
     // Check size
     EXPECT_EQ(
             hash_table_size(hash_table),
-            n_samples
+            keys.size()
     ) << "Hash table should have 3 items";
 }
 
@@ -146,24 +147,32 @@ TEST_F(HashTableWithDataTestFixture, GetValidItem) {
     ) << "The items key should be equal to searched key";
 }
 
+TEST_F(HashTableWithDataTestFixture, GetOrCreateWithData) {
+    EXPECT_NE(
+            hash_table_get_or_create(hash_table, keys.at(keys.size() / 2)),
+            nullptr
+    ) << "Valid search on hash table with data.";
+}
+
 TEST_F(HashTableWithDataTestFixture, DeleteInvalidItem) {
-    EXPECT_FALSE(hash_table_delete(hash_table, "invalid", FreeData)) << "Invalid key should return false";
+    EXPECT_FALSE(hash_table_remove(hash_table, "invalid", FreeData)) << "Invalid key should return false";
 }
 
 TEST_F(HashTableWithDataTestFixture, DeleteValidItem) {
-    EXPECT_TRUE(hash_table_delete(hash_table, keys[2], FreeData)) << "Deleting valid key should return true";
+    EXPECT_TRUE(hash_table_remove(hash_table, keys.at(keys.size() / 2), FreeData))
+                        << "Deleting valid key should return true";
 }
 
 TEST_F(HashTableTestFixture, DeleteOnEmptyTable) {
-    ASSERT_FALSE(hash_table_delete(hash_table, "nokey", FreeData)) << "Empty table should return false";
+    ASSERT_FALSE(hash_table_remove(hash_table, "nokey", FreeData)) << "Empty table should return false";
 }
 
 
 TEST_F(HashTableTestFixture, InvalidDelete) {
     DISABLE_LOG({
-                    ASSERT_FALSE(hash_table_delete(nullptr, "nokey", FreeData)) << "Null table should return false";
+                    ASSERT_FALSE(hash_table_remove(nullptr, "nokey", FreeData)) << "Null table should return false";
                     ASSERT_FALSE(
-                            hash_table_delete(hash_table, nullptr, FreeData)) << "Null key should return false";
+                            hash_table_remove(hash_table, nullptr, FreeData)) << "Null key should return false";
                 });
 }
 
@@ -179,7 +188,7 @@ TEST_F(HashTableTestFixture, MoveEmptyTable) {
 
 TEST_F(HashTableWithDataTestFixture, MoveTableWithItems) {
     size_t items = hash_table_size(hash_table);
-    HashTable* new_table = hash_table_move(n_samples * 2, hash_table);
+    HashTable* new_table = hash_table_move(keys.size() * 2, hash_table);
 
     ASSERT_NE(
             new_table,
@@ -196,10 +205,10 @@ TEST_F(HashTableWithDataTestFixture, MoveTableWithItems) {
             0
     ) << "Source table should have no items.";
 
-    for (auto key : keys) {
+    for(auto key : keys) {
         EXPECT_NE(
-            hash_table_get(new_table, key),
-            nullptr
+                hash_table_get(new_table, key),
+                nullptr
         ) << "All items were copied.";
     }
 
@@ -215,17 +224,19 @@ TEST_F(HashTableTestFixture, MoveTableInvalid) {
                 });
 }
 
-// TODO: Fix foreach tests
-TEST_F(HashTableTestFixture, ForeachInvalid) {
-    hash_table_foreach(nullptr, callCounter->wrapper());
+TEST_F(HashTableTestFixture, Foreach) {
+    DISABLE_LOG({
+
+                    hash_table_foreach(nullptr, callCounter->wrapper());
+                });
 
     EXPECT_EQ(
             callCounter->callCount(),
             0
     ) << "Callback function should not be called";
-}
 
-TEST_F(HashTableTestFixture, ForeachOnEmptyTable) {
+    callCounter->resetCounter();
+
     hash_table_foreach(hash_table, callCounter->wrapper());
 
     EXPECT_EQ(
@@ -236,10 +247,9 @@ TEST_F(HashTableTestFixture, ForeachOnEmptyTable) {
 
 TEST_F(HashTableWithDataTestFixture, Foreach) {
     hash_table_foreach(hash_table, callCounter->wrapper());
-//    size_t n_samples = 5;
 
     EXPECT_EQ(
-        callCounter->callCount(),
-        n_samples
+            callCounter->callCount(),
+            keys.size()
     ) << "Callback function should be called 5 times";
 }

@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "debug.h"
 #include "common.h"
 
 /**
@@ -28,8 +29,8 @@
 #define memory_free(...) MSVC_EXPAND(GET_OVERLOADED_MACRO12(__VA_ARGS__, memory_free_2, memory_free_1)(__VA_ARGS__))
 
 
-#define INFO_MAX_LENGTH 64
-#define INFO_FORMAT "%s:%d:%s()"
+#define MEMORY_MANAGER_INFO_MAX_LENGTH 128
+#define MEMORY_MANAGER_INFO_FORMAT "%s:%d:%s()"
 
 /**
  * @brief Memory page as one unit of allocated memory. Stored also info about place of allocation, size and
@@ -103,8 +104,8 @@ void memory_manager_log_stats(MemoryManager* manager);
 /**
 * Stdlib callbacks for memory management functions.
 */
-#define memory_alloc(size, ...) malloc(size)
-#define memory_free(addr, ...) free(addr)
+#define memory_alloc(...) malloc(GET_FIRST_ARG(__VA_ARGS__, 0))
+#define memory_free(...) free(GET_FIRST_ARG(__VA_ARGS__, 0))
 #define memory_manager_enter(...)
 #define memory_manager_exit(...)
 #define memory_manager_log_stats(...)

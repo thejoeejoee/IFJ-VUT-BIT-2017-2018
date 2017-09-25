@@ -32,7 +32,7 @@ file(
         GLOB_RECURSE ifj2017_benchmark_SRC
         LIST_DIRECTORIES false
         RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}"
-        "benchmark/*.cpp" "benchmark/*.hpp"
+        "benchmark/*.cpp" "benchmark/*.hpp" "test/utils/*.cpp"
 )
 
 add_executable(ifj2017_benchmark ${ifj2017_SRC_no_main} ${ifj2017_benchmark_SRC} ${VS_debug_visualizers})

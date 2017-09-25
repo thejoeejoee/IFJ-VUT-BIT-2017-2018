@@ -4,8 +4,6 @@
 
 MemoryManager memory_manager;
 
-#define _OFFSET_PAGE_TO_ADDRESS(page) ((void *) (((size_t) (page)) + sizeof(MemoryManagerPage)))
-#define _OFFSET_ADDRESS_TO_PAGE(address) ((MemoryManagerPage *) (((size_t) (address)) - sizeof(MemoryManagerPage)))
 #define memory_manager_log_stats(...)
 
 void* memory_manager_malloc(
@@ -32,7 +30,7 @@ void* memory_manager_malloc(
     page->next = manager->head;
     manager->head = page;
 
-    return _OFFSET_PAGE_TO_ADDRESS(page);
+    return (void*) (page + 1);
 }
 
 void memory_manager_free(void* address,
@@ -43,8 +41,9 @@ void memory_manager_free(void* address,
 
     MemoryManagerPage* page = manager->head;
     MemoryManagerPage* page_before = NULL;
+    MemoryManagerPage* target_page = ((MemoryManagerPage*) address) - 1;
     while (page != NULL) {
-        if (page == _OFFSET_ADDRESS_TO_PAGE(address))
+        if (page == target_page)
             break;
 
         page_before = page;
@@ -66,6 +65,10 @@ void memory_manager_free(void* address,
 void memory_manager_enter(MemoryManager* manager) {
     if (manager == NULL)
         manager = &memory_manager;
+    if (manager->head != NULL) {
+        LOG_WARNING("Try to enter already entered memory manager session.")
+        return;
+    }
     manager->head = NULL;
 }
 

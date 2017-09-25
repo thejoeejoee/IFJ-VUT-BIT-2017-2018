@@ -5,7 +5,7 @@
 
 MemoryManager memory_manager;
 
-#define INFO_MAX_LENGTH 64
+#define INFO_MAX_LENGTH 128
 #define INFO_FORMAT "%s:%d:%s()"
 
 void* memory_manager_malloc(
@@ -69,6 +69,10 @@ void memory_manager_enter(MemoryManager* manager) {
     LOG_DEBUG("Memory manager started.");
     if (manager == NULL)
         manager = &memory_manager;
+    if (manager->head != NULL) {
+        LOG_WARNING("Try to enter already entered memory manager session.");
+        return;
+    }
     manager->head = NULL;
 }
 

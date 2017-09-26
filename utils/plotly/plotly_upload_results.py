@@ -76,7 +76,14 @@ def get_upload_metadata():
 def get_new_benchmark_data(filename):
     # get benchmark results
     with open(filename) as data_file:
-        return json.load(data_file)
+        data = json.load(data_file)
+
+    reference_benchmark = filter(lambda bench: bench.get('name') == 'Reference', data.get('benchmarks'))
+    reference_time = 100  # default reference time in ns
+    if reference_benchmark:
+        reference_time = resolve_time_by_unit(reference_benchmark[0]["real_time"], reference_benchmark[0]["time_unit"])
+
+    return data, reference_time
 
 
 def resolve_time_by_unit(real_time, unit):
@@ -88,7 +95,7 @@ def resolve_time_by_unit(real_time, unit):
 
 def get_transformed_benchmark_data(filename, build_nr, commit_hash):
     try:
-        benchmark_data = get_new_benchmark_data(filename)
+        benchmark_data, reference_time = get_new_benchmark_data(filename)
     except (FileNotFoundError, ValueError):
         print('Benchmark data file not found or is not valid JSON.')
         return []
@@ -97,7 +104,7 @@ def get_transformed_benchmark_data(filename, build_nr, commit_hash):
         dict(
             name=benchmark["name"],
             x=build_nr,
-            y=resolve_time_by_unit(benchmark["real_time"], benchmark["time_unit"])
+            y=resolve_time_by_unit(benchmark["real_time"], benchmark["time_unit"]) / reference_time
         ) for benchmark in benchmark_data['benchmarks']
     ]
 
@@ -133,7 +140,7 @@ def send_data(new_data, filename):
                 autorange=True
             ),
             yaxis=dict(
-                title='time [ns]',
+                title='reference',
                 ticksuffix='ns',
                 titlefont=dict(size=20),
                 showticklabels=True,

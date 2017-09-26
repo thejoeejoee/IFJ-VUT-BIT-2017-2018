@@ -31,7 +31,7 @@ file(
         RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}"
         "src/*.c" "src/*.h"
 )
-add_executable(ifj2017 ${ifj2017_SRC} ${VS_debug_visualizers})
+add_executable(ifj2017 ${ifj2017_SRC} ${VS_debug_visualizers} src/parser.c src/parser.h)
 
 set(ifj2017_SRC_no_main ${ifj2017_SRC})
 list(REMOVE_ITEM ifj2017_SRC_no_main "src/ifj2017.c")

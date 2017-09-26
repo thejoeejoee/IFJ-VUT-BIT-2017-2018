@@ -28,11 +28,10 @@
 #define memory_free_2(address, manager) memory_manager_free(address, manager)
 #define memory_free(...) MSVC_EXPAND(GET_OVERLOADED_MACRO12(__VA_ARGS__, memory_free_2, memory_free_1)(__VA_ARGS__))
 
-#define MALLOC_CHECK(address) do {\
-        if ((address) == NULL) {\
-            exit_with_code(ERROR_MEMORY);\
-        }\
-    } while (0)
+#define MALLOC_CHECK(address) \
+    if ((address) == NULL) {\
+        exit_with_code(ERROR_MEMORY);\
+    }\
 
 #define MEMORY_MANAGER_INFO_MAX_LENGTH 128
 #define MEMORY_MANAGER_INFO_FORMAT "%s:%d:%s()"

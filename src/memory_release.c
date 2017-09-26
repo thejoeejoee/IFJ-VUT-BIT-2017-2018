@@ -13,20 +13,23 @@ void* memory_manager_malloc(
         const char* func,
         MemoryManager* manager
 ) {
-    if (!size) {
+    if(!size) {
         LOG_WARNING("Invalid size %zd .", size);
         return NULL;
     }
-    if (manager == NULL)
+    if(manager == NULL)
         manager = &memory_manager;
 
 
     size_t total_size = sizeof(MemoryManagerPage) + size;
 
     MemoryManagerPage* page = (MemoryManagerPage*) malloc(total_size);
-
     MALLOC_CHECK(page);
 
+    if(manager->head != NULL)
+        manager->head->prev = page;
+
+    page->prev = NULL;
     page->next = manager->head;
     manager->head = page;
 
@@ -36,49 +39,40 @@ void* memory_manager_malloc(
 void memory_manager_free(void* address,
                          MemoryManager* manager) {
     NULL_POINTER_CHECK(address,);
-    if (manager == NULL)
+    if(manager == NULL)
         manager = &memory_manager;
 
-    MemoryManagerPage* page = manager->head;
-    MemoryManagerPage* page_before = NULL;
     MemoryManagerPage* target_page = ((MemoryManagerPage*) address) - 1;
-    while (page != NULL) {
-        if (page == target_page)
-            break;
 
-        page_before = page;
-        page = page->next;
+    if(target_page->prev == NULL) {
+        manager->head = target_page->next;
+    } else {
+        target_page->prev->next = target_page->next;
+    }
+    if(target_page->next != NULL) {
+        target_page->next->prev = target_page->prev;
     }
 
-    if (page == NULL) {
-        LOG_WARNING("Allocated memory with address %p to free not found.", address);
-        return;
-    }
-    if (page_before == NULL)
-        manager->head = page->next;
-    else
-        page_before->next = page->next;
-
-    free(page);
+    free(target_page);
 }
 
 void memory_manager_enter(MemoryManager* manager) {
-    if (manager == NULL)
+    if(manager == NULL)
         manager = &memory_manager;
-    if (manager->head != NULL) {
-        LOG_WARNING("Try to enter already entered memory manager session.")
+    if(manager->head != NULL) {
+        LOG_WARNING("Try to enter already entered memory manager session.");
         return;
     }
     manager->head = NULL;
 }
 
 void memory_manager_exit(MemoryManager* manager) {
-    if (manager == NULL)
+    if(manager == NULL)
         manager = &memory_manager;
     MemoryManagerPage* page = manager->head;
     MemoryManagerPage* next = NULL;
 
-    while (page != NULL) {
+    while(page != NULL) {
         next = page->next;
         free(page);
         page = next;

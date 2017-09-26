@@ -43,7 +43,9 @@
  */
 typedef struct memory_manager_page_t {
     struct memory_manager_page_t* next;
-#ifndef NDEBUG
+#ifdef NDEBUG
+    struct memory_manager_page_t* prev;
+#else
     void* address;
     bool allocated;
     size_t size;

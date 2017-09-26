@@ -13,15 +13,10 @@ class MemoryManagerBenchmark : public benchmark::Fixture {
 
         void SetUp(benchmark::State &st) override {
             memory_manager_enter(manager);
-
-            for(int i = 0; i < st.range(0); ++i) {
-                addresses.push_front(memory_manager_malloc(1, "", 0, "", manager));
-            }
         }
 
         void TearDown(benchmark::State &st) override {
             memory_manager_exit(manager);
-            addresses.clear();
         }
 };
 
@@ -33,10 +28,17 @@ BENCHMARK_DEFINE_F(MemoryManagerBenchmark, Alloc)(benchmark::State &st) {
 
 BENCHMARK_DEFINE_F(MemoryManagerBenchmark, Free)(benchmark::State &st) {
     while(st.KeepRunning()) {
+        for(int i = 0; i < st.range(0); ++i) {
+            addresses.push_front(memory_manager_malloc(1, "", 0, "", manager));
+        }
+
         for(auto address: addresses)
             memory_manager_free(address, manager);
+
+        addresses.clear();
     }
+
 }
 
-BENCHMARK_REGISTER_F(MemoryManagerBenchmark, Alloc)->Ranges({{4, 16}});
-BENCHMARK_REGISTER_F(MemoryManagerBenchmark, Free)->Ranges({{4, 16}});
+BENCHMARK_REGISTER_F(MemoryManagerBenchmark, Alloc)->Ranges({{8, 32}});
+BENCHMARK_REGISTER_F(MemoryManagerBenchmark, Free)->Ranges({{4, 64}});

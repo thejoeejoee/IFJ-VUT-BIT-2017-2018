@@ -141,7 +141,7 @@ def send_data(new_data, filename):
             ),
             yaxis=dict(
                 title='reference',
-                ticksuffix='ns',
+                ticksuffix='x',
                 titlefont=dict(size=20),
                 showticklabels=True,
                 autorange=True

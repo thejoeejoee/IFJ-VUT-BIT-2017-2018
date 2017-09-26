@@ -72,9 +72,17 @@ void string_append(String* string, const String* b) {
     string->size = new_size;
 }
 
-// force creation of external symbol
-extern inline void string_clear(String* string);
+void string_clear(String* string) {
+    ASSERT(string->capacity >= 1);
+    string->size = 1;
+    string->content[0] = 0;
+}
 
-extern inline char* string_content(String* string);
+char* string_content(String* string) { 
+    return string->content;
+}
 
-extern inline size_t string_length(String* string);
+size_t string_length(String* string) { //excluding null terminator 
+    ASSERT(string->size >= 1);
+    return string->size - 1;
+}

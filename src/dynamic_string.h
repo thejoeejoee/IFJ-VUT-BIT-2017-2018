@@ -64,7 +64,7 @@ void string_append(String* string, const String* b);
 *
 * @param String* string Dynamic string to be cleared.
 */
-inline void string_clear(String* string) {
+static inline void string_clear(String* string) {
     ASSERT(string->capacity >= 1);
     string->size = 1;
     string->content[0] = 0;
@@ -76,7 +76,7 @@ inline void string_clear(String* string) {
 * @param String* string Dynamic string whose content we need.
 * @return char* Content of dynamic string 'string' represented as c string.
 */
-inline char* string_content(String* string) { return string->content; }
+static inline char* string_content(String* string) { return string->content; }
 
 /**
 * @brief Get dynamic string length
@@ -84,7 +84,7 @@ inline char* string_content(String* string) { return string->content; }
 * @param String* string Dynamic string whose length we need.
 * @return size_t Length of dynamic string 'string'.
 */
-inline size_t string_length(String* string) { //excluding null terminator
+static inline size_t string_length(String* string) { //excluding null terminator
     ASSERT(string->size >= 1);
     return string->size - 1;
 }

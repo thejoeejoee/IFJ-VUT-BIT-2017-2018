@@ -1,4 +1,5 @@
 #include "gtest/gtest.h"
+
 extern "C" {
 #include "../src/llist.h"
 }
@@ -8,15 +9,13 @@ class LlistTestFixture : public ::testing::Test {
         LList* llist;
 
         virtual void SetUp() {
-            memory_manager_enter(nullptr);
             llist_init(&llist);
         }
 
         virtual void TearDown() {
-            if (llist != nullptr) {
-                llist_delete(&llist);
+            if(llist != nullptr) {
+                llist_free(&llist);
             }
-            memory_manager_exit(nullptr);
         }
 };
 
@@ -48,8 +47,8 @@ TEST_F(LlistTestFixture, Initialization) {
             nullptr
     ) << "Error tail pointer";
 
-    // Clean memory
-    memory_free(llist);
+    // Free memory
+	llist_free(&llist);
 }
 
 TEST_F(LlistTestFixture, Destruction) {
@@ -61,34 +60,34 @@ TEST_F(LlistTestFixture, Destruction) {
     llist_append(llist, 42);
 
     // Remove all elements from list
-    llist_delete(&llist);
+    llist_free(&llist);
 
     // Test when list is free
     EXPECT_EQ(
             llist,
             nullptr
-    ) << "Error destruct list with one item";
+    ) << "Error free list with one item";
 
 }
 
 TEST_F(LlistTestFixture, DestructionWithMultipleItems) {
 
     /*
-     * Test destruct for list with more than one item
+     * Test free for list with more than one item
      */
 
     // Add ten elements to the list
-    for (int i = 0; i < 2; i++) {
+    for(int i = 0; i < 2; i++) {
         llist_append(llist, i);
     }
 
-    // clean list
-    llist_delete(&llist);
+    // free list
+    llist_free(&llist);
 
     EXPECT_EQ(
             llist,
             nullptr
-    ) << "Error destruct list with more than one item";
+    ) << "Error free list with more than one item";
 }
 
 TEST_F(LlistTestFixture, SimpleAppend) {
@@ -173,7 +172,7 @@ TEST_F(LlistTestFixture, MultipleRemove) {
      */
 
     // Add testing data to the list
-    for (int i = 0; i <= 2; i++) {
+    for(int i = 0; i <= 2; i++) {
         llist_append(llist, i);
     }
 

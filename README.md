@@ -11,6 +11,5 @@ Authors
 ------------ 
 * Tomáš Pazdiora
 * Son Hai Nguyen
-* Martin Omacht
 * Josef Kolář
 * Martin Kobelka

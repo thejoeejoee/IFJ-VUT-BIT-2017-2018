@@ -49,9 +49,9 @@ void llist_append(struct LList* list, int value);
 void llist_remove_one(struct LList* list, int value);
 
 /**
- * @brief llist_delete Delete all items and list and set pointer to null.
- * @param list List which will be deleted.
+ * @brief llist_free  all items and list and set pointer to null.
+ * @param list List which will be d.
  */
-void llist_delete(struct LList** list);
+void llist_free(struct LList** list);
 
 #endif //_LLIST_H

@@ -13,6 +13,16 @@
 typedef int (* lexer_input_stream_f)();
 
 /**
+ * @brief List of lexer errors
+ */
+typedef enum {
+    LEXER_ERROR__NO_ERROR,
+    LEXER_ERROR__STRING_FORMAT,
+    LEXER_ERROR__DOUBLE_FORMAT,
+    LEXER_ERROR__ERROR_LEXEM,
+}LexerError;
+
+/**
  * @brief Representation of the FSM that is part of the lexical analyzer
  */
 typedef struct lexer_fsm_t {
@@ -23,6 +33,8 @@ typedef struct lexer_fsm_t {
 
     char numeric_char_value[4]; // Stack for numeric value of char
     short numeric_char_position; // Head of stack for numeric value of char
+
+    LexerError lexer_error; // Error code
 } LexerFSM;
 
 /**

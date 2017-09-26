@@ -23,7 +23,7 @@ void* memory_manager_malloc(
         manager = &memory_manager;
 
     MemoryManagerPage* new_page = (MemoryManagerPage*) malloc(sizeof(MemoryManagerPage));
-    NULL_POINTER_CHECK(new_page, NULL);
+    MALLOC_CHECK(new_page);
 
     new_page->size = size;
     new_page->allocated = true;

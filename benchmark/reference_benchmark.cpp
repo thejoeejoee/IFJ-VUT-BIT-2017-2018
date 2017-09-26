@@ -1,7 +1,7 @@
 #include <benchmark/benchmark.h>
 
 static void ref() {
-    const int cnt = 1000;
+    const int cnt = 100;
     for(int i = 0; i < cnt; i++) {
 #ifdef _MSC_VER
         __asm { nop };

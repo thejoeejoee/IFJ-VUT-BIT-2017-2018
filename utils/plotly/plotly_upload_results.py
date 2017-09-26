@@ -78,7 +78,7 @@ def get_new_benchmark_data(filename):
     with open(filename) as data_file:
         data = json.load(data_file)
 
-    reference_benchmark = filter(lambda bench: bench.get('name') == 'Reference', data.get('benchmarks'))
+    reference_benchmark = tuple(filter(lambda bench: bench.get('name') == 'Reference', data.get('benchmarks')))
     reference_time = 100  # default reference time in ns
     if reference_benchmark:
         reference_time = resolve_time_by_unit(reference_benchmark[0]["real_time"], reference_benchmark[0]["time_unit"])

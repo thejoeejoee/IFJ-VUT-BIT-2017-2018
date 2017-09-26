@@ -7,12 +7,12 @@ extern "C" {
 
 #include "../test/utils/stringbycharprovider.h"
 
-class Lexer : public benchmark::Fixture {
+class LexerBenchmark : public benchmark::Fixture {
     protected:
         Lexer* lexer;
         StringByCharProvider* provider = StringByCharProvider::instance();
 
-        Lexer() {
+        LexerBenchmark() {
             lexer = lexer_init(token_stream);
         }
 
@@ -26,7 +26,7 @@ class Lexer : public benchmark::Fixture {
         }
 };
 
-BENCHMARK_DEFINE_F(Lexer, Factorial)(benchmark::State &st) {
+BENCHMARK_DEFINE_F(LexerBenchmark, Factorial)(benchmark::State &st) {
     provider->setString(R"RAW(
 /'Program 2: Vypocet faktorialu (rekurzivne)'/
 Declare Function factorial (n As Integer) As Integer
@@ -47,7 +47,7 @@ End Function
     tokenize(st);
 }
 
-BENCHMARK_DEFINE_F(Lexer, StringsManipulation)(benchmark::State &st) {
+BENCHMARK_DEFINE_F(LexerBenchmark, StringsManipulation)(benchmark::State &st) {
     provider->setString(R"RAW(
 /' Program 3: Prace s retezci a vestavenymi funkcemi '/
 Scope
@@ -77,5 +77,5 @@ End Scope
     tokenize(st);
 }
 
-BENCHMARK_REGISTER_F(Lexer, Factorial);
-BENCHMARK_REGISTER_F(Lexer, StringsManipulation);
+BENCHMARK_REGISTER_F(LexerBenchmark, Factorial);
+BENCHMARK_REGISTER_F(LexerBenchmark, StringsManipulation);

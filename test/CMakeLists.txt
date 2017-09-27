@@ -6,8 +6,8 @@ endif ()
 
 include(utils/DownloadProject.cmake)
 
-set(BUILD_GTEST ON CACHE BOOL "Builds the googletest subproject")
-set(BUILD_GMOCK OFF CACHE BOOL "Builds the googlemock subproject")
+set(BUILD_GTEST ON CACHE INTERNAL "Builds the googletest subproject")
+set(BUILD_GMOCK OFF CACHE INTERNAL "Builds the googlemock subproject")
 
 download_project(
         PROJ googletest

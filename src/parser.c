@@ -4,13 +4,13 @@
 #include "token.h"
 
 
-#define GET_NEXT_TOKEN_TYPE() token = lexer_next_token(parser->lexer); token_type = token->type; memory_free(token); ;
+#define GET_NEXT_TOKEN_TYPE() token = lexer_next_token(parser->lexer); token_type = token->type; memory_free(token);
 
-#define INIT_LOCAL_TOKEN_VARS() Token *token; TokenType token_type; ;
+#define INIT_LOCAL_TOKEN_VARS() Token *token; TokenType token_type;
 
-#define CALL_RULE(Rule) if (!parser_parse_##Rule(parser)) return false; ;
+#define CALL_RULE(Rule) if (!parser_parse_##Rule(parser)) return false;
 
-#define TEST_TOKEN_TYPE(Type) if(token_type != Type) return false; ;
+#define TEST_TOKEN_TYPE(Type) if(token_type != Type) return false;
 
 
 Parser *parser_init(lexer_input_stream_f input_stream) {

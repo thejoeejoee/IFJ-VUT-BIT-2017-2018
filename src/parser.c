@@ -3,6 +3,7 @@
 #include "lexer_fsm.h"
 #include "token.h"
 
+//Todo: we need to invent better macros
 
 #define GET_NEXT_TOKEN_TYPE() token = lexer_next_token(parser->lexer); token_type = token->type; memory_free(token);
 
@@ -148,11 +149,87 @@ bool parser_parse_function_header(Parser* parser) {
 
 bool parser_parse_function_params(Parser* parser) {
 
-    // Todo: It is epsilon, it will be implemented in the future
+    INIT_LOCAL_TOKEN_VARS()
+
+    /**
+     * RULE
+     * E
+     * <function_param> <function_n_param>
+     */
+
+    token = lexer_next_token(parser->lexer);
+    token_type = token->type;
+    lexer_return_token(parser->lexer, token);
+    if(token_type == TOKEN_RIGHT_BRACKET) {
+        // It is EPSILON
+
+        return true;
+    }
+    else {
+        CALL_RULE(function_param)
+        CALL_RULE(function_n_param)
+    }
+
+
     return true;
 }
 
+bool parser_parse_function_n_param(Parser* parser) {
+
+    INIT_LOCAL_TOKEN_VARS()
+
+    /**
+     * RULE
+     * E
+     * <function_param> <function_n_param>
+     */
+
+    token = lexer_next_token(parser->lexer);
+    token_type = token->type;
+
+    if(token_type == TOKEN_RIGHT_BRACKET) {
+        // It is EPSILON
+        lexer_return_token(parser->lexer, token);
+        return true;
+    }
+    else {
+        CALL_RULE(function_param)
+        CALL_RULE(function_n_param)
+    }
+
+
+    return true;
+}
+
+bool parser_parse_function_param(Parser* parser) {
+
+    INIT_LOCAL_TOKEN_VARS()
+
+    /**
+     * RULE
+     * <function_param> -> IDENTIFIER AS TYPE
+     */
+
+    // Expect IDENTIFIER token
+    GET_NEXT_TOKEN_TYPE();
+    TEST_TOKEN_TYPE(TOKEN_IDENTIFIER);
+
+    // Expect AS token
+    GET_NEXT_TOKEN_TYPE();
+    TEST_TOKEN_TYPE(TOKEN_AS);
+
+    // Expect TYPE token
+    GET_NEXT_TOKEN_TYPE();
+    TEST_TOKEN_IS_DATA_TYPE()
+
+    return true;
+
+}
+
+
 bool parser_parse_eols(Parser* parser) {
+
+    //Todo: comment rules
 
     INIT_LOCAL_TOKEN_VARS()
 
@@ -178,29 +255,5 @@ bool parser_parse_statements(Parser* parser) {
     return true;
 }
 
-bool parser_function_param(Parser* parser) {
-
-    INIT_LOCAL_TOKEN_VARS()
-
-    /**
-     * RULE
-     * <function_param> -> IDENTIFIER AS TYPE
-     */
-
-    // Expect IDENTIFIER token
-    GET_NEXT_TOKEN_TYPE();
-    TEST_TOKEN_TYPE(TOKEN_IDENTIFIER);
-
-    // Expect AS token
-    GET_NEXT_TOKEN_TYPE();
-    TEST_TOKEN_TYPE(TOKEN_AS);
-
-    // Expect TYPE token
-    GET_NEXT_TOKEN_TYPE();
-    TEST_TOKEN_IS_DATA_TYPE()
-
-    return true;
-
-}
 
 

@@ -15,7 +15,7 @@
 <function_params> -> E
 <function_params> -> <function_param> <function_n_param>
 <function_n_param> -> E
-<function_n_param> -> , <function_params> 
+<function_n_param> -> , <function_param> <function_n_param>
 <function_param> -> <id> AS <type>
 
 

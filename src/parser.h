@@ -73,7 +73,7 @@ bool parser_parse_statements(Parser* parser);
  *
  * <function_param> -> <id> AS <type>
  */
-bool parser_function_param(Parser* parser);
+bool parser_parse_function_param(Parser* parser);
 
 /**
  * @brief Performs <fucntion_declaration> rule
@@ -86,6 +86,9 @@ bool parser_function_param(Parser* parser);
  */
 bool parser_parse_function_declaration(Parser* parser);
 
+
+//Todo: comments
+
 bool parser_parse_function_header(Parser* parser);
 
 bool parser_parse_eols(Parser* parser);
@@ -93,6 +96,8 @@ bool parser_parse_eols(Parser* parser);
 bool parser_parse_definitions(Parser* parser);
 
 bool parser_parse_function_params(Parser* parser);
+
+bool parser_parse_function_n_param(Parser* parser);
 
 
 #endif //IFJ2017_PARSER_H

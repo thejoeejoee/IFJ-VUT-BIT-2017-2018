@@ -59,7 +59,7 @@ TEST_F(ParserTestFixture, FuntionParama) {
     provider->setString("ahoj as string");
 
     EXPECT_TRUE(
-            parser_function_param(parser)
+            parser_parse_function_param(parser)
     ) << "Error parsing <funtion_param> rule";
 }
 
@@ -76,12 +76,43 @@ TEST_F(ParserTestFixture, FunctionHeader) {
             parser_parse_function_header(parser)
     ) << "Error parsing <funtion_header> rule";
 
-    provider->setString("FUNCTION WELLCOME () ASC string");
+    provider->setString("FUNCTION hello () AS integer");
+
+    EXPECT_TRUE(
+            parser_parse_function_header(parser)
+    ) << "Error parsing <funtion_header> rule";
+
+    provider->setString("FUNCTION hello (ahoj as string) AS integer");
+
+    EXPECT_TRUE(
+            parser_parse_function_header(parser)
+    ) << "Error parsing <funtion_header> rule";
+
+    provider->setString("FUNCTION hello (ahoj as string, neboj as integer) AS integer");
+
+    EXPECT_TRUE(
+            parser_parse_function_header(parser)
+    ) << "Error parsing <funtion_header> rule";
+
+    provider->setString("FUNCTION hello (ahoj as string, neboj as integer, martin as double) AS integer");
+
+    EXPECT_TRUE(
+            parser_parse_function_header(parser)
+    ) << "Error parsing <funtion_header> rule";
+
+    provider->setString("FUNCTION WELLCOME () ASC integer");
+
+    EXPECT_FALSE(
+            parser_parse_function_header(parser)
+    ) << "Error parsing <funtion_header> rule";
+
+    provider->setString("FUNCTION WELLCOME (ahoj as string) ASC string");
 
     EXPECT_FALSE(
             parser_parse_function_header(parser)
     ) << "Error parsing <funtion_header> rule";
 }
+
 
 TEST_F(ParserTestFixture, FunctionDeclaration) {
 

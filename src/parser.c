@@ -8,6 +8,10 @@
 
 #define INIT_LOCAL_TOKEN_VARS() Token *token; TokenType token_type; ;
 
+#define CALL_RULE(Rule) if (!parser_parse_##Rule(parser)) return false; ;
+
+#define TEST_TOKEN_TYPE(Type) if(token_type != Type) return false; ;
+
 
 Parser *parser_init(lexer_input_stream_f input_stream) {
     Parser* parser = (Parser*) memory_alloc(sizeof(Parser));
@@ -34,12 +38,11 @@ bool parser_parse_program(Parser* parser) {
      */
 
     // Call rule <body>. If <body> return false => return false
-    if (!parser_parse_body(parser))
-        return false;
+    CALL_RULE(body);
 
-    GET_NEXT_TOKEN_TYPE();
 
     // Expect EOF token If return true, program is syntactically correct
+    GET_NEXT_TOKEN_TYPE();
     return (token_type == TOKEN_EOF);
 
 }
@@ -54,22 +57,18 @@ bool parser_parse_body(Parser* parser) {
      */
 
     // Call <definitions> rule
-    if(!parser_parse_definitions(parser))
-        return false;
+    CALL_RULE(definitions);
 
     // Expect SCOPE token
     GET_NEXT_TOKEN_TYPE();
-    if (token_type != TOKEN_SCOPE)
-        return false;
+    TEST_TOKEN_TYPE(TOKEN_SCOPE);
 
     // Call <statements> rule
-    if(!parser_parse_statements(parser))
-        return false;
+    CALL_RULE(statements);
 
     // Expect END token
     GET_NEXT_TOKEN_TYPE();
-    if(token_type != TOKEN_END)
-        return false;
+    TEST_TOKEN_TYPE(TOKEN_END);
 
     // Expect SCOPE token
     GET_NEXT_TOKEN_TYPE();
@@ -99,13 +98,11 @@ bool parser_function_param(Parser* parser) {
 
     // Expect IDENTIFIER token
     GET_NEXT_TOKEN_TYPE();
-    if (token_type != TOKEN_IDENTIFIER)
-        return false;
+    TEST_TOKEN_TYPE(TOKEN_IDENTIFIER);
 
     // Expect AS token
     GET_NEXT_TOKEN_TYPE();
-    if (token_type != TOKEN_AS)
-        return false;
+    TEST_TOKEN_TYPE(TOKEN_AS);
 
     // Expect TYPE token
     GET_NEXT_TOKEN_TYPE();

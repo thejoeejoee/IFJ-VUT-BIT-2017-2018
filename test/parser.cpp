@@ -26,6 +26,32 @@ class ParserTestFixture : public ::testing::Test {
 };
 
 
+TEST_F(ParserTestFixture, BodyRule) {
+    provider->setString("SCOPE END SCOPE");
+    EXPECT_TRUE(
+            parser_parse_body(parser)
+    ) << "Body parse";
+
+    provider->setString("SCOPE ENDD SCOPE");
+    EXPECT_FALSE(
+            parser_parse_body(parser)
+    ) << "Error body parse";
+
+    provider->setString("END SCOPE");
+    EXPECT_FALSE(
+            parser_parse_body(parser)
+    ) << "Error body parse";
+
+    provider->setString("SCOPE END");
+    EXPECT_FALSE(
+            parser_parse_body(parser)
+    ) << "Error body parse";
+
+    provider->setString("SCOPE SCOPE END SCOPE");
+    EXPECT_FALSE(
+            parser_parse_body(parser)
+    ) << "Error body parse";
+}
 
 TEST_F(ParserTestFixture, FuntionParama) {
 

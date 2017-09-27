@@ -75,5 +75,24 @@ bool parser_parse_statements(Parser* parser);
  */
 bool parser_function_param(Parser* parser);
 
+/**
+ * @brief Performs <fucntion_declaration> rule
+ * @return bool true If the parsing performed successfully, false if not
+ * @param parser Parser* Pointer to instance of parser
+ *
+ * Persorms rule with shape
+ *
+ * <function_declaration> -> DECLARE <function_header> EOL <eols>
+ */
+bool parser_parse_function_declaration(Parser* parser);
+
+bool parser_parse_function_header(Parser* parser);
+
+bool parser_parse_eols(Parser* parser);
+
+bool parser_parse_definitions(Parser* parser);
+
+bool parser_parse_function_params(Parser* parser);
+
 
 #endif //IFJ2017_PARSER_H

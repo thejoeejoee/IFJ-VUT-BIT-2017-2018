@@ -11,6 +11,7 @@ Lexer* lexer_init(lexer_input_stream_f input_stream) {
     NULL_POINTER_CHECK(input_stream, NULL);
 
     lexer->lexer_fsm = lexer_fsm;
+    lexer->stack_token = NULL;
 
     return lexer;
 }
@@ -24,8 +25,18 @@ void lexer_free(Lexer** lexer) {
     *lexer = NULL;
 }
 
+void lexer_return_token(Lexer* lexer, Token* token) {
+    lexer->stack_token = token;
+}
+
 Token* lexer_next_token(Lexer* lexer) {
     NULL_POINTER_CHECK(lexer, NULL);
+
+    if (lexer->stack_token != NULL) {
+        Token* return_token = lexer->stack_token;
+        lexer->stack_token = NULL;
+        return return_token;
+    }
 
     // TODO: mem leak, processor should free loaded tokens
     Token* token = memory_alloc(sizeof(Token));

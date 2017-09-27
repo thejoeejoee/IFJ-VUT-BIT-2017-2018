@@ -55,16 +55,56 @@ TEST_F(ParserTestFixture, BodyRule) {
 
 TEST_F(ParserTestFixture, FuntionParama) {
 
-    /**
-     * At first, we have to test rules that are the lowest in the tree
-     */
-
     // Rule is Epsilon, it is just demonstration, it will be implemented in future
     provider->setString("ahoj as string");
 
     EXPECT_TRUE(
             parser_function_param(parser)
     ) << "Error parsing <funtion_param> rule";
+}
+
+TEST_F(ParserTestFixture, FunctionHeader) {
+
+    /**
+     * RULE
+     * FUNCTION IDENTIFIER (<function_params>) AS <type>
+     */
+
+    provider->setString("FUNCTION hello () AS string");
+
+    EXPECT_TRUE(
+            parser_parse_function_header(parser)
+    ) << "Error parsing <funtion_header> rule";
+
+    provider->setString("FUNCTION WELLCOME () ASC string");
+
+    EXPECT_FALSE(
+            parser_parse_function_header(parser)
+    ) << "Error parsing <funtion_header> rule";
+}
+
+TEST_F(ParserTestFixture, FunctionDeclaration) {
+
+    /**
+     * RULE
+     * <function_declaration> -> DECLARE <function_header> EOL <eols>
+     */
+
+    provider->setString("DECLARE FUNCTION hello () AS string \n");
+
+    EXPECT_TRUE(
+            parser_parse_function_declaration(parser)
+    ) << "Error parsing <funtion_header> rule";
+
+    char_stack_empty(parser->lexer->lexer_fsm->stack);
+
+    parser->lexer->stack_token = NULL;
+
+    provider->setString("DECLARE FUNCTION hello () AS string \n \n \n");
+
+    EXPECT_TRUE(
+            parser_parse_function_declaration(parser)
+    ) << "Error parsing <funtion_header> rule";
 }
 
 TEST_F(ParserTestFixture, Definitions) {

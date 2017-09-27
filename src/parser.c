@@ -12,6 +12,8 @@
 
 #define TEST_TOKEN_TYPE(Type) if(token_type != Type) return false;
 
+#define TEST_TOKEN_IS_DATA_TYPE() if(token_type != TOKEN_INTEGER && token_type != TOKEN_STRING && token_type != TOKEN_DOUBLE) return false;
+
 
 Parser *parser_init(lexer_input_stream_f input_stream) {
     Parser* parser = (Parser*) memory_alloc(sizeof(Parser));
@@ -43,7 +45,9 @@ bool parser_parse_program(Parser* parser) {
 
     // Expect EOF token If return true, program is syntactically correct
     GET_NEXT_TOKEN_TYPE();
-    return (token_type == TOKEN_EOF);
+    TEST_TOKEN_TYPE(TOKEN_EOF);
+
+    return true;
 
 }
 
@@ -72,7 +76,94 @@ bool parser_parse_body(Parser* parser) {
 
     // Expect SCOPE token
     GET_NEXT_TOKEN_TYPE();
-    return (token_type == TOKEN_SCOPE);
+    TEST_TOKEN_TYPE(TOKEN_SCOPE);
+
+    return true;
+}
+
+bool parser_parse_function_declaration(Parser* parser) {
+
+    INIT_LOCAL_TOKEN_VARS()
+
+    /**
+     * RULE
+     * <function_declaration> -> DECLARE <function_header> EOL <eols>
+     */
+
+    // Expect SCOPE token
+    GET_NEXT_TOKEN_TYPE();
+    TEST_TOKEN_TYPE(TOKEN_DECLARE);
+
+    // Call <statements> rule
+    CALL_RULE(function_header)
+
+    // Expect EOL token
+    GET_NEXT_TOKEN_TYPE();
+    TEST_TOKEN_TYPE(TOKEN_EOL);
+
+    // Call <eols> rule
+    CALL_RULE(eols)
+
+    return true;
+}
+
+bool parser_parse_function_header(Parser* parser) {
+
+    INIT_LOCAL_TOKEN_VARS()
+
+    /**
+     * RULE
+     * FUNCTION IDENTIFIER (<function_params>) AS <type>
+     */
+
+    // Expect FUNCTION token
+    GET_NEXT_TOKEN_TYPE();
+    TEST_TOKEN_TYPE(TOKEN_FUNCTION);
+
+    // Expect IDENTIFIER token
+    GET_NEXT_TOKEN_TYPE();
+    TEST_TOKEN_TYPE(TOKEN_IDENTIFIER);
+
+    // Expect LEFT_BRACKET token
+    GET_NEXT_TOKEN_TYPE();
+    TEST_TOKEN_TYPE(TOKEN_LEFT_BRACKET);
+
+    // Call <function_params> rule
+    CALL_RULE(function_params)
+
+    // Expect RIGHT_BRACKET token
+    GET_NEXT_TOKEN_TYPE();
+    TEST_TOKEN_TYPE(TOKEN_RIGHT_BRACKET);
+
+    // Expect AS token
+    GET_NEXT_TOKEN_TYPE();
+    TEST_TOKEN_TYPE(TOKEN_AS);
+
+    // Expect <type>
+    GET_NEXT_TOKEN_TYPE();
+    TEST_TOKEN_IS_DATA_TYPE()
+
+    return true;
+}
+
+bool parser_parse_function_params(Parser* parser) {
+
+    // Todo: It is epsilon, it will be implemented in the future
+    return true;
+}
+
+bool parser_parse_eols(Parser* parser) {
+
+    INIT_LOCAL_TOKEN_VARS()
+
+    GET_NEXT_TOKEN_TYPE();
+    if (token_type == TOKEN_EOL) {
+        CALL_RULE(eols)
+    }
+    else
+        lexer_return_token(parser->lexer, token);
+
+    return true;
 }
 
 bool parser_parse_definitions(Parser* parser) {
@@ -106,7 +197,9 @@ bool parser_function_param(Parser* parser) {
 
     // Expect TYPE token
     GET_NEXT_TOKEN_TYPE();
-    return (token_type == TOKEN_INTEGER || token_type == TOKEN_STRING || token_type == TOKEN_DOUBLE);
+    TEST_TOKEN_IS_DATA_TYPE()
+
+    return true;
 
 }
 

@@ -25,7 +25,7 @@ void parser_free(Parser **parser) {
     *parser = NULL;
 }
 
-bool parser_parse_program(Parser *parser) {
+bool parser_parse_program(Parser* parser) {
 
     INIT_LOCAL_TOKEN_VARS();
     /*
@@ -44,7 +44,7 @@ bool parser_parse_program(Parser *parser) {
 
 }
 
-bool parser_parse_body(Parser *parser) {
+bool parser_parse_body(Parser* parser) {
 
     INIT_LOCAL_TOKEN_VARS()
 
@@ -76,19 +76,19 @@ bool parser_parse_body(Parser *parser) {
     return (token_type == TOKEN_SCOPE);
 }
 
-bool parser_parse_definitions(Parser *parser) {
+bool parser_parse_definitions(Parser* parser) {
 
     // Todo: It is epsilon, it will be implemented in the future
     return true;
 }
 
-bool parser_parse_statements(Parser *parser) {
+bool parser_parse_statements(Parser* parser) {
 
     // Todo: It is epsilon, it will be implemented in the future
     return true;
 }
 
-bool parser_function_param(Parser *parser) {
+bool parser_function_param(Parser* parser) {
 
     INIT_LOCAL_TOKEN_VARS()
 

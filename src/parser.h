@@ -29,7 +29,7 @@ Parser *parser_init(lexer_input_stream_f input_stream);
  * @param Parser** parser Pointer to pointer to instance of Parser
  * @return Parser* Pointer to parser
  */
-void parser_free(Parser **parser);
+void parser_free(Parser** parser);
 
 /**
  * @brief Performs <prog> of the program
@@ -41,7 +41,7 @@ void parser_free(Parser **parser);
  * <prog> -> <program> EOF
  */
 
-bool parser_parse_program(Parser *parser);
+bool parser_parse_program(Parser* parser);
 
 /**
  * @brief Performs <body> rule
@@ -52,17 +52,17 @@ bool parser_parse_program(Parser *parser);
  *
  * <body> -> <definitions> SCOPE <statements> END SCOPE
  */
-bool parser_parse_body(Parser *parser);
+bool parser_parse_body(Parser* parser);
 
 /**
  * @brief <definitions> is EPSIOLON, it will be implemented in the future
  */
-bool parser_parse_definitions(Parser *parser);
+bool parser_parse_definitions(Parser* parser);
 
 /**
  * @brief <statements> is EPSIOLON, it will be implemented in the future
  */
-bool parser_parse_statements(Parser *parser);
+bool parser_parse_statements(Parser* parser);
 
 /**
  * @brief Performs <fucntion_param> rule
@@ -73,7 +73,7 @@ bool parser_parse_statements(Parser *parser);
  *
  * <function_param> -> <id> AS <type>
  */
-bool parser_function_param(Parser *parser);
+bool parser_function_param(Parser* parser);
 
 
 #endif //IFJ2017_PARSER_H

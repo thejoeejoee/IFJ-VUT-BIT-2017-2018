@@ -134,12 +134,21 @@ TEST_F(LexerTokenizerTestFixture, IntegersAndDoubles) {
 234346.4646e465
 1221342.54654e-245
 1221342.54654e+245
+234346e465
+1221342e-245
+1221342e+245
 )RAW");
     char_stack_empty(lexer->lexer_fsm->stack);
 
     const std::vector<TokenType> expectedTokens = {
             TOKEN_EOL,
             TOKEN_INTEGER_LITERAL,
+            TOKEN_EOL,
+            TOKEN_DOUBLE_LITERAL,
+            TOKEN_EOL,
+            TOKEN_DOUBLE_LITERAL,
+            TOKEN_EOL,
+            TOKEN_DOUBLE_LITERAL,
             TOKEN_EOL,
             TOKEN_DOUBLE_LITERAL,
             TOKEN_EOL,

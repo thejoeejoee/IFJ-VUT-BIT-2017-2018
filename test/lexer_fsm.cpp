@@ -155,7 +155,6 @@ TEST_F(LexerFSMTestFixture, EOLTest) {
 
 TEST_F(LexerFSMTestFixture, StringNumericChar) {
     provider->setString(R"(!"\114")");
-    lexer_fsm->numeric_char_position = -1;
     EXPECT_EQ(
             lexer_fsm_next_state(lexer_fsm, LEX_FSM__INIT),
             LEX_FSM__STRING_EXC
@@ -177,20 +176,9 @@ TEST_F(LexerFSMTestFixture, StringNumericChar) {
     ) << "Error transition";
 
     EXPECT_EQ(
-            lexer_fsm->numeric_char_position,
-            0
-    ) << "Error transition";
-
-    EXPECT_EQ(
             lexer_fsm_next_state(lexer_fsm, LEX_FSM__STRING_NUMERIC_CHAR),
             LEX_FSM__STRING_NUMERIC_CHAR
     ) << "Error transition";
-
-    EXPECT_EQ(
-            lexer_fsm->numeric_char_position,
-            1
-    ) << "Error transition";
-
 
     EXPECT_EQ(
             lexer_fsm_next_state(lexer_fsm, LEX_FSM__STRING_NUMERIC_CHAR),
@@ -201,6 +189,11 @@ TEST_F(LexerFSMTestFixture, StringNumericChar) {
             lexer_fsm_next_state(lexer_fsm, LEX_FSM__STRING_LOAD),
             LEX_FSM__STRING_VALUE
     ) << "Error transition";
+
+    EXPECT_EQ(
+        lexer_fsm->stream_buffer->content[0],
+        114
+    ) << "Error result";
 
 }
 

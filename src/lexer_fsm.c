@@ -111,11 +111,12 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
 
         case LEX_FSM__STRING_LOAD:
 
+            if (c < 32) {
+                return LEX_FSM__ERROR;
+            }
             switch(c) {
                 case '"':
                     return LEX_FSM__STRING_VALUE;
-                case '\n':
-                    return LEX_FSM__ERROR;
                 case '\\':
                     return LEX_FSM__STRING_SLASH;
                 default:
@@ -126,7 +127,8 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
         case LEX_FSM__STRING_SLASH:
 
             if(isdigit(c)) {
-                lexer_fsm->numeric_char_value[++(lexer_fsm->numeric_char_position)] = c;
+                lexer_fsm->numeric_char_position = 0;
+                lexer_fsm->numeric_char_value[0] = c;
                 return LEX_FSM__STRING_NUMERIC_CHAR;
             }
 
@@ -151,12 +153,11 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
 
         case LEX_FSM__STRING_NUMERIC_CHAR:
             if(isdigit(c)) {
-
-                lexer_fsm->numeric_char_value[++(lexer_fsm->numeric_char_position)] = c;
+                lexer_fsm->numeric_char_position++;
+                lexer_fsm->numeric_char_value[lexer_fsm->numeric_char_position] = c;
                 if(lexer_fsm->numeric_char_position == 2) {
 
-                    lexer_fsm->numeric_char_value[++(lexer_fsm->numeric_char_position)] = '\0';
-                    lexer_fsm->numeric_char_position = -1;
+                    lexer_fsm->numeric_char_value[3] = '\0';
                     int numeric_char_value = atoi(lexer_fsm->numeric_char_value);
 
                     if(numeric_char_value >= 0 && numeric_char_value <= 255) {
@@ -177,6 +178,9 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
             } else if(c == '.') {
                 STORE_CHAR(c);
                 return LEX_FSM__DOUBLE_DOT;
+            } else if (tolower(c) == 'e') {
+                STORE_CHAR(c);
+                return LEX_FSM__DOUBLE_E;
             } else {
                 REWIND_CHAR(c);
                 return LEX_FSM__INTEGER_LITERAL_FINISHED;

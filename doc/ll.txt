@@ -26,15 +26,16 @@
 <statement_single> -> INPUT IDENTIFIER // načtení ze vstupu
 <statement_single> -> PRINT <print_expression> <print_expressions> // tisk na výstup, alespoň jeden příkaz, každý se středníkem
 
+<print_expression> -> <expression> SEMICOLON
+<print_expressions> -> E
+<print_expressions> -> <print_expression> SEMICOLON <print_expressions>
+
 <variable_declaration> -> DIM <id> AS <type>
 
 <f_statements> -> E
 <f_statements> -> <return> EOL <eols> <f_statements>
 <f_statements> -> <statement_single> EOL <eols> <f_statements>
 
-<print_expression> -> <expression> SEMICOLON
-<print_expressions> -> E
-<print_expressions> -> <print_expression> SEMICOLON <print_expressions>
 
 <condition> -> IF <expression> THEN EOL <eols> <statements> <else_section> END IF
 <else_section> -> E
@@ -48,8 +49,6 @@
 // Bonusové zadání, for
 <for> -> FOR <id> EQUAL <expression> TO <expression> <step>.....?
 
-
-<id> -> IDENTIFIER
 <type> ->
 <eols> -> E
 <eols> -> EOL <eols>

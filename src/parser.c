@@ -35,6 +35,7 @@ void parser_free(Parser **parser) {
 bool parser_parse_program(Parser* parser) {
 
     INIT_LOCAL_TOKEN_VARS();
+
     /*
      * RULE
      * <prog> -> <body> EOF
@@ -43,13 +44,11 @@ bool parser_parse_program(Parser* parser) {
     // Call rule <body>. If <body> return false => return false
     CALL_RULE(body);
 
-
     // Expect EOF token If return true, program is syntactically correct
     GET_NEXT_TOKEN_TYPE();
     TEST_TOKEN_TYPE(TOKEN_EOF);
 
     return true;
-
 }
 
 bool parser_parse_body(Parser* parser) {
@@ -88,6 +87,7 @@ bool parser_parse_definitions(Parser* parser) {
 
     /**
      * RULES
+     *
      * <definitions> -> <eols> <definition> <definitions>
      * <definitions> -> <eols> E
      */
@@ -288,6 +288,7 @@ bool parser_parse_function_params(Parser* parser) {
     token = lexer_next_token(parser->lexer);
     token_type = token->type;
     lexer_return_token(parser->lexer, token);
+
     if(token_type == TOKEN_RIGHT_BRACKET) {
         // It is EPSILON
 
@@ -297,7 +298,6 @@ bool parser_parse_function_params(Parser* parser) {
         CALL_RULE(function_param)
         CALL_RULE(function_n_param)
     }
-
 
     return true;
 }
@@ -324,7 +324,6 @@ bool parser_parse_function_n_param(Parser* parser) {
         CALL_RULE(function_param)
         CALL_RULE(function_n_param)
     }
-
 
     return true;
 }
@@ -354,10 +353,13 @@ bool parser_parse_function_param(Parser* parser) {
 
 }
 
-
 bool parser_parse_eols(Parser* parser) {
 
-    //Todo: comment rules
+    /**
+     * RULES
+     * <eols> -> E
+     * <eols> -> EOL <eols>
+     */
 
     INIT_LOCAL_TOKEN_VARS()
 
@@ -371,7 +373,3 @@ bool parser_parse_eols(Parser* parser) {
 
     return true;
 }
-
-
-
-

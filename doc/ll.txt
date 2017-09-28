@@ -11,7 +11,7 @@
 <function_declaration> -> DECLARE <function_header> EOL <eols>
 <function_definition> -> <function_header> EOL <eols> <statements> END FUNCTION
 
-<function_header> -> FUNCTION <id> (<function_params>) AS <type>
+<function_header> -> FUNCTION IDENTIFIER (<function_params>) AS TYPE
 <function_params> -> E
 <function_params> -> <function_param> <function_n_param>
 <function_n_param> -> E
@@ -22,6 +22,9 @@
 <statements> -> E
 <statements> -> <statement_single> EOL <eols> <statements>
 
+<statement_single> -> <id> EQUAL <expression> // přiřazení
+<statement_single> -> INPUT IDENTIFIER // načtení ze vstupu
+<statement_single> -> PRINT <print_expression> <print_expressions> // tisk na výstup, alespoň jeden příkaz, každý se středníkem
 
 <variable_declaration> -> DIM <id> AS <type>
 
@@ -29,9 +32,6 @@
 <f_statements> -> <return> EOL <eols> <f_statements>
 <f_statements> -> <statement_single> EOL <eols> <f_statements>
 
-<statement_single> -> <id> EQUAL <expression> // přiřazení
-<statement_single> -> INPUT <id> // načtení ze vstupu	
-<statement_single> -> PRINT <print_expression> <print_expressions> // tisk na výstup, alespoň jeden příkaz, každý se středníkem
 <print_expression> -> <expression> SEMICOLON
 <print_expressions> -> E
 <print_expressions> -> <print_expression> SEMICOLON <print_expressions>

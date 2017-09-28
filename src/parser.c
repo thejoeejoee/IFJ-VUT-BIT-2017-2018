@@ -96,7 +96,7 @@ bool parser_parse_definitions(Parser* parser) {
 
     token = lexer_next_token(parser->lexer);
     token_type = token->type;
-    if(token_type != TOKEN_DECLARE)
+    if(token_type != TOKEN_DECLARE && token_type != TOKEN_FUNCTION)
         // Epsilon
         lexer_return_token(parser->lexer,token);
     else {
@@ -124,11 +124,91 @@ bool parser_parse_definition(Parser* parser) {
         lexer_return_token(parser->lexer, token);
         CALL_RULE(function_declaration)
     }
+    else if(token_type == TOKEN_FUNCTION) {
+        lexer_return_token(parser->lexer, token);
+        CALL_RULE(function_definition)
+    }
     else
         // Zatím Epsilon
         lexer_return_token(parser->lexer, token);
     return true;
 }
+
+bool parser_parse_function_definition(Parser* parser) {
+
+    INIT_LOCAL_TOKEN_VARS()
+
+    /**
+     * RULE
+     * <function_definition> -> <function_header> EOL <eols> <statements> END FUNCTION
+     */
+    CALL_RULE(function_header)
+    GET_NEXT_TOKEN_TYPE()
+    TEST_TOKEN_TYPE(TOKEN_EOL)
+    CALL_RULE(eols)
+
+    CALL_RULE(statements)
+
+    GET_NEXT_TOKEN_TYPE()
+    TEST_TOKEN_TYPE(TOKEN_END)
+    GET_NEXT_TOKEN_TYPE()
+    TEST_TOKEN_TYPE(TOKEN_FUNCTION)
+    return true;
+}
+
+bool parser_parse_statements(Parser* parser) {
+
+    INIT_LOCAL_TOKEN_VARS()
+
+    /**
+     * RULES
+     * <statements> -> E
+     * <statements> -> <statement_single> EOL <eols> <statements>
+     */
+
+    token = lexer_next_token(parser->lexer);
+    token_type = token->type;
+    lexer_return_token(parser->lexer, token);
+
+    if(token_type != TOKEN_INPUT) {
+
+        // It is EPSILON
+        return true;
+    }
+    else {
+        CALL_RULE(statement_single)
+        GET_NEXT_TOKEN_TYPE()
+        TEST_TOKEN_TYPE(TOKEN_EOL)
+        CALL_RULE(eols)
+        CALL_RULE(statements)
+    }
+
+    return true;
+}
+
+bool parser_parse_statement_single(Parser* parser) {
+
+    INIT_LOCAL_TOKEN_VARS()
+
+    /**
+     * RULE
+     * <statement_single> -> INPUT <id>
+     */
+
+    token = lexer_next_token(parser->lexer);
+    token_type = token->type;
+
+    if(token_type == TOKEN_INPUT) {
+
+        GET_NEXT_TOKEN_TYPE()
+        TEST_TOKEN_TYPE(TOKEN_IDENTIFIER)
+
+        return true;
+    }
+
+    return false;
+}
+
 
 bool parser_parse_function_declaration(Parser* parser) {
 
@@ -292,11 +372,6 @@ bool parser_parse_eols(Parser* parser) {
     return true;
 }
 
-bool parser_parse_statements(Parser* parser) {
-
-    // Todo: It is epsilon, it will be implemented in the future
-    return true;
-}
 
 
 

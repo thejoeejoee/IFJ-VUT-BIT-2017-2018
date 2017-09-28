@@ -48,6 +48,16 @@ TEST_F(ParserTestFixture, BodyRule) {
             parser_parse_body(parser)
     ) << "Body parse";
 
+    provider->setString("DECLARE FUNCTION hello () AS string \n "
+                                "\n FUNCTION hello () AS string \n"
+                                " input id \n"
+                                " input id \n"
+                                " END FUNCTION \n"
+                                "\n SCOPE END SCOPE");
+    EXPECT_TRUE(
+            parser_parse_body(parser)
+    ) << "Body parse";
+
 
     provider->setString("SCOPE ENDD SCOPE");
     EXPECT_FALSE(
@@ -168,7 +178,6 @@ TEST_F(ParserTestFixture, FunctionDeclaration) {
 
 TEST_F(ParserTestFixture, Definitions) {
 
-    // Rule is Epsilon, it is just demonstration, it will be implemented in future
     provider->setString("");
 
     EXPECT_TRUE(
@@ -189,12 +198,53 @@ TEST_F(ParserTestFixture, Definitions) {
 
 }
 
+TEST_F(ParserTestFixture, FunctionDefinition) {
+
+    provider->setString("FUNCTION hello () AS string \n END FUNCTION");
+
+    EXPECT_TRUE(
+            parser_parse_definitions(parser)
+    ) << "Error parsing <definitions> rule";
+
+    provider->setString("FUNCTION hello () AS string \n "
+                                "input id \n"
+                                "input id \n"
+                                "\n END FUNCTION");
+
+    EXPECT_TRUE(
+            parser_parse_definitions(parser)
+    ) << "Error parsing <definitions> rule";
+
+}
+
 TEST_F(ParserTestFixture, Statements) {
 
-    // Rule is Epsilon, it is just demonstration, it will be implemented in future
     provider->setString("");
 
     EXPECT_TRUE(
             parser_parse_statements(parser)
     ) << "Error parsing <statements> rule";
+
+    provider->setString("input id \n");
+
+    EXPECT_TRUE(
+            parser_parse_statements(parser)
+    ) << "Error parsing <statements> rule";
+
+    provider->setString("input id \n input id \n input id \n");
+
+    EXPECT_TRUE(
+            parser_parse_statements(parser)
+    ) << "Error parsing <statements> rule";
+}
+
+TEST_F(ParserTestFixture, StatementSingle) {
+
+    // Rule is Epsilon, it is just demonstration, it will be implemented in future
+    provider->setString("input ahoj");
+
+    EXPECT_TRUE(
+            parser_parse_statement_single(parser)
+    ) << "Error parsing <definitions> rule";
+
 }

@@ -82,6 +82,54 @@ bool parser_parse_body(Parser* parser) {
     return true;
 }
 
+bool parser_parse_definitions(Parser* parser) {
+
+    INIT_LOCAL_TOKEN_VARS()
+
+    /**
+     * RULES
+     * <definitions> -> <eols> <definition> <definitions>
+     * <definitions> -> <eols> E
+     */
+
+    CALL_RULE(eols)
+
+    token = lexer_next_token(parser->lexer);
+    token_type = token->type;
+    if(token_type != TOKEN_DECLARE)
+        // Epsilon
+        lexer_return_token(parser->lexer,token);
+    else {
+        lexer_return_token(parser->lexer,token);
+        CALL_RULE(definition)
+        CALL_RULE(definitions)
+    }
+
+    return true;
+}
+
+bool parser_parse_definition(Parser* parser) {
+
+    INIT_LOCAL_TOKEN_VARS()
+
+    /**
+     * RULES
+     * <definition> -> <function_declaration>
+     * <definition> -> <function_definition>
+     */
+
+    token = lexer_next_token(parser->lexer);
+    token_type = token->type;
+    if(token_type == TOKEN_DECLARE) {
+        lexer_return_token(parser->lexer, token);
+        CALL_RULE(function_declaration)
+    }
+    else
+        // Zatím Epsilon
+        lexer_return_token(parser->lexer, token);
+    return true;
+}
+
 bool parser_parse_function_declaration(Parser* parser) {
 
     INIT_LOCAL_TOKEN_VARS()
@@ -233,19 +281,14 @@ bool parser_parse_eols(Parser* parser) {
 
     INIT_LOCAL_TOKEN_VARS()
 
-    GET_NEXT_TOKEN_TYPE();
+    token = lexer_next_token(parser->lexer);
+    token_type = token->type;
     if (token_type == TOKEN_EOL) {
         CALL_RULE(eols)
     }
     else
         lexer_return_token(parser->lexer, token);
 
-    return true;
-}
-
-bool parser_parse_definitions(Parser* parser) {
-
-    // Todo: It is epsilon, it will be implemented in the future
     return true;
 }
 

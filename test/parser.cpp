@@ -32,6 +32,23 @@ TEST_F(ParserTestFixture, BodyRule) {
             parser_parse_body(parser)
     ) << "Body parse";
 
+    provider->setString("DECLARE FUNCTION hello () AS string \n SCOPE END SCOPE");
+    EXPECT_TRUE(
+            parser_parse_body(parser)
+    ) << "Body parse";
+
+    provider->setString("DECLARE FUNCTION hello () AS string \n \n \n SCOPE END SCOPE");
+    EXPECT_TRUE(
+            parser_parse_body(parser)
+    ) << "Body parse";
+
+    provider->setString("DECLARE FUNCTION hello () AS string \n "
+                                "DECLARE FUNCTION ahoj () AS integer\n \n SCOPE END SCOPE");
+    EXPECT_TRUE(
+            parser_parse_body(parser)
+    ) << "Body parse";
+
+
     provider->setString("SCOPE ENDD SCOPE");
     EXPECT_FALSE(
             parser_parse_body(parser)
@@ -136,6 +153,17 @@ TEST_F(ParserTestFixture, FunctionDeclaration) {
     EXPECT_TRUE(
             parser_parse_function_declaration(parser)
     ) << "Error parsing <funtion_header> rule";
+
+    parser->lexer->stack_token = NULL;
+
+    provider->setString("DECLARE FUNCTION hello () AS string \n \n \n"
+                                "DECLARE FUNCTION hello () AS string \n \n \n");
+
+    EXPECT_TRUE(
+            parser_parse_function_declaration(parser)
+    ) << "Error parsing <funtion_header> rule";
+
+    parser->lexer->stack_token = NULL;
 }
 
 TEST_F(ParserTestFixture, Definitions) {
@@ -146,6 +174,19 @@ TEST_F(ParserTestFixture, Definitions) {
     EXPECT_TRUE(
             parser_parse_definitions(parser)
     ) << "Error parsing <definitions> rule";
+
+    provider->setString("");
+
+    EXPECT_TRUE(
+            parser_parse_definitions(parser)
+    ) << "Error parsing <definitions> rule";
+
+    provider->setString("DECLARE FUNCTION hello () AS string");
+
+    EXPECT_TRUE(
+            parser_parse_definitions(parser)
+    ) << "Error parsing <definitions> rule";
+
 }
 
 TEST_F(ParserTestFixture, Statements) {

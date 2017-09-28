@@ -2,8 +2,8 @@
 
 <body> -> <definitions> SCOPE <statements> END SCOPE
 
-<definitions> -> <definition> <definitions>
-<definitions> -> E
+<definitions> -> <eols> <definition> EOL <eols> <definitions>
+<definitions> -> <eols> E
 
 <definition> -> <function_declaration>
 <definition> -> <function_definition>

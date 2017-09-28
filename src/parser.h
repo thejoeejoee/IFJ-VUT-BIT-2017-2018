@@ -99,5 +99,7 @@ bool parser_parse_function_params(Parser* parser);
 
 bool parser_parse_function_n_param(Parser* parser);
 
+bool parser_parse_definition(Parser* parser);
+
 
 #endif //IFJ2017_PARSER_H

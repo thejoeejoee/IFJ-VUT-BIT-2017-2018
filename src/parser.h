@@ -60,11 +60,6 @@ bool parser_parse_body(Parser* parser);
 bool parser_parse_definitions(Parser* parser);
 
 /**
- * @brief <statements> is EPSIOLON, it will be implemented in the future
- */
-bool parser_parse_statements(Parser* parser);
-
-/**
  * @brief Performs <fucntion_param> rule
  * @return bool true If the parsing performed successfully, false if not
  * @param parser Parser* Pointer to instance of parser
@@ -89,6 +84,10 @@ bool parser_parse_function_declaration(Parser* parser);
 
 //Todo: comments
 
+bool parser_parse_function_statements(Parser* parser);
+
+bool parser_parse_body_statements(Parser* parser);
+
 bool parser_parse_function_header(Parser* parser);
 
 bool parser_parse_eols(Parser* parser);
@@ -103,7 +102,9 @@ bool parser_parse_definition(Parser* parser);
 
 bool parser_parse_function_definition(Parser* parser);
 
-bool parser_parse_statement_single(Parser* parser);
+bool parser_parse_function_statement_single(Parser* parser);
+
+bool parser_parse_body_statement_single(Parser* parser);
 
 
 #endif //IFJ2017_PARSER_H

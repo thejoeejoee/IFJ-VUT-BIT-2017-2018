@@ -27,23 +27,23 @@ class ParserTestFixture : public ::testing::Test {
 
 
 TEST_F(ParserTestFixture, BodyRule) {
-    provider->setString("SCOPE END SCOPE");
+    provider->setString("SCOPE \n END SCOPE");
     EXPECT_TRUE(
             parser_parse_program(parser)
     ) << "Body parse";
 
-    provider->setString("DECLARE FUNCTION hello () AS string \n SCOPE END SCOPE");
+    provider->setString("DECLARE FUNCTION hello () AS string \n SCOPE \n END SCOPE");
     EXPECT_TRUE(
             parser_parse_program(parser)
     ) << "Body parse";
 
-    provider->setString("DECLARE FUNCTION hello () AS string \n \n \n SCOPE END SCOPE");
+    provider->setString("DECLARE FUNCTION hello () AS string \n \n \n SCOPE \n END SCOPE");
     EXPECT_TRUE(
             parser_parse_program(parser)
     ) << "Body parse";
 
     provider->setString("DECLARE FUNCTION hello () AS string \n "
-                                "DECLARE FUNCTION ahoj () AS integer\n \n SCOPE END SCOPE");
+                                "DECLARE FUNCTION ahoj () AS integer\n \n SCOPE \n END SCOPE");
     EXPECT_TRUE(
             parser_parse_program(parser)
     ) << "Body parse";
@@ -53,13 +53,27 @@ TEST_F(ParserTestFixture, BodyRule) {
                                 " input id \n"
                                 " input id \n"
                                 " END FUNCTION \n"
-                                "\n SCOPE END SCOPE");
+                                "\n SCOPE \n END SCOPE");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    ) << "Body parse";
+
+    provider->setString("DECLARE FUNCTION hello () AS string \n "
+                                "\n FUNCTION hello () AS string \n"
+                                " input id \n"
+                                " input id \n"
+                                " END FUNCTION \n"
+                                "\n SCOPE \n "
+                                "input identif \n"
+                                "input identif \n"
+                                "input identif \n"
+                                "END SCOPE");
     EXPECT_TRUE(
             parser_parse_program(parser)
     ) << "Body parse";
 
 
-    provider->setString("SCOPE ENDD SCOPE");
+    provider->setString("SCOPE \n ENDD SCOPE");
     EXPECT_FALSE(
             parser_parse_program(parser)
     ) << "Error body parse";
@@ -217,34 +231,45 @@ TEST_F(ParserTestFixture, FunctionDefinition) {
 
 }
 
-TEST_F(ParserTestFixture, Statements) {
+TEST_F(ParserTestFixture, FunctionStatements) {
 
     provider->setString("");
 
     EXPECT_TRUE(
-            parser_parse_statements(parser)
-    ) << "Error parsing <statements> rule";
+            parser_parse_function_statements(parser)
+    ) << "Error parsing <function_statements> rule";
 
     provider->setString("input id \n");
 
     EXPECT_TRUE(
-            parser_parse_statements(parser)
-    ) << "Error parsing <statements> rule";
+            parser_parse_function_statements(parser)
+    ) << "Error parsing <function_statements> rule";
 
     provider->setString("input id \n input id \n input id \n");
 
     EXPECT_TRUE(
-            parser_parse_statements(parser)
-    ) << "Error parsing <statements> rule";
+            parser_parse_function_statements(parser)
+    ) << "Error parsing <function_statements> rule";
 }
 
-TEST_F(ParserTestFixture, StatementSingle) {
+TEST_F(ParserTestFixture, FunctionStatementSingle) {
 
     // Rule is Epsilon, it is just demonstration, it will be implemented in future
     provider->setString("input ahoj");
 
     EXPECT_TRUE(
-            parser_parse_statement_single(parser)
+            parser_parse_function_statement_single(parser)
+    ) << "Error parsing <definitions> rule";
+
+}
+
+TEST_F(ParserTestFixture, BodyStatementSingle) {
+
+    // Rule is Epsilon, it is just demonstration, it will be implemented in future
+    provider->setString("input ahoj");
+
+    EXPECT_TRUE(
+            parser_parse_body_statement_single(parser)
     ) << "Error parsing <definitions> rule";
 
 }

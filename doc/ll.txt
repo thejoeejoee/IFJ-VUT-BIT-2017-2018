@@ -1,6 +1,6 @@
 // Celý program
 <prog> -> <body> EOF
-<body> -> <definitions> SCOPE <body_statements> END SCOPE
+<body> -> <definitions> SCOPE EOL <body_statements> END SCOPE
 
 // Definiční část
 <definitions> -> <eols> <definition> EOL <eols> <definitions>

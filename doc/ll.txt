@@ -1,15 +1,17 @@
+// Celý program
 <prog> -> <body> EOF
+<body> -> <definitions> SCOPE <body_statements> END SCOPE
 
-<body> -> <definitions> SCOPE <statements> END SCOPE
-
+// Definiční část
 <definitions> -> <eols> <definition> EOL <eols> <definitions>
 <definitions> -> <eols> E
 
 <definition> -> <function_declaration>
 <definition> -> <function_definition>
 
+// Deklarace a definice funcí
 <function_declaration> -> DECLARE <function_header> EOL <eols>
-<function_definition> -> <function_header> EOL <eols> <statements> END FUNCTION
+<function_definition> -> <function_header> EOL <eols> <function_statements> END FUNCTION
 
 <function_header> -> FUNCTION IDENTIFIER (<function_params>) AS TYPE
 <function_params> -> E
@@ -18,35 +20,46 @@
 <function_n_param> -> , <function_param> <function_n_param>
 <function_param> -> <id> AS <type>
 
+// Příkazy ve funkcí
+<function_statements> -> E
+<function_statements> -> <function_statement_single> EOL <eols> <statements>
 
-<statements> -> E
-<statements> -> <statement_single> EOL <eols> <statements>
+// Příkazy ve scope
+<body_statements> -> E
+<body_statements> -> <body_statement_single> EOL <eols> <statements>
 
-<statement_single> -> <id> EQUAL <expression> // přiřazení
-<statement_single> -> INPUT IDENTIFIER // načtení ze vstupu
-<statement_single> -> PRINT <print_expression> <print_expressions> // tisk na výstup, alespoň jeden příkaz, každý se středníkem
+// Použitelné v těle funkce
+<function_statement_single> -> <statement_1>
+<function_statement_single> -> <statement_2>
+<function_statement_single> -> <statement_3>
 
+// Použitelné ve scope
+<body_statement_single> -> <statement_1>
+<body_statement_single> -> <statement_2>
+<body_statement_single> -> <statement_3>
+<body_statement_single> -> <statement_4>
+
+<statement_1> -> <id> EQUAL <expression> // přiřazení
+<statement_2> -> INPUT IDENTIFIER // načtení ze vstupu
+<statement_3> -> PRINT <print_expression> <print_expressions> // tisk na výstup, alespoň jeden příkaz, každý se středníkem
+<statement_4> -> RETURN <expression>
+<statement_5> -> <print_expression>
+
+// Tisk řetězce
 <print_expression> -> <expression> SEMICOLON
 <print_expressions> -> E
 <print_expressions> -> <print_expression> SEMICOLON <print_expressions>
 
+// Deklarace proměnné
 <variable_declaration> -> DIM <id> AS <type>
 
-<f_statements> -> E
-<f_statements> -> <return> EOL <eols> <f_statements>
-<f_statements> -> <statement_single> EOL <eols> <f_statements>
-
-
+// podmínky
 <condition> -> IF <expression> THEN EOL <eols> <statements> <else_section> END IF
 <else_section> -> E
 <else_section> -> ELSE EOL <eols> <statements>
-
-<return> -> RETURN <expression>
-<return> -> E
-
 <do_while> -> DO WHILE <expression> EOL <eols> <statements> LOOP
 
-// Bonusové zadání, for
+// Todo: Bonusové zadání, for
 <for> -> FOR <id> EQUAL <expression> TO <expression> <step>.....?
 
 <type> ->

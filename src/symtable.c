@@ -52,8 +52,7 @@ HashTableListItem* hash_table_new_item(const char* key) {
     HashTableListItem* new_item = NULL;
     char* copied_key = NULL;
 
-    if (NULL == (new_item = (HashTableListItem*) memory_alloc(sizeof(HashTableListItem))))
-        return NULL;
+    new_item = (HashTableListItem*) memory_alloc(sizeof(HashTableListItem));
 
     if (NULL == (copied_key = (char*) memory_alloc(sizeof(char) * (strlen(key) + 1)))) {
         memory_free(new_item);

@@ -9,9 +9,9 @@
  */
 typedef struct lexer_t {
     lexer_input_stream_f input_stream; // Pointer to function which stream chars
-    LexerFSM *lexer_fsm; // Instance of final state machine
+    LexerFSM* lexer_fsm; // Instance of final state machine
 
-    Token* stack_token; // Stack for token
+    Token* token_buffer; // buffered token
 } Lexer;
 
 
@@ -41,6 +41,6 @@ Token* lexer_next_token(Lexer* lexer);
  * @param Lexer* lexer Pointer to instance of lexer
  * @param Token* token Pointer to token
  */
-void lexer_return_token(Lexer* lexer, Token* token);
+void lexer_rewind_token(Lexer* lexer, Token* token);
 
 #endif //_LEXER_H

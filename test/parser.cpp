@@ -170,7 +170,7 @@ TEST_F(ParserTestFixture, FunctionDeclaration) {
 
     char_stack_empty(parser->lexer->lexer_fsm->stack);
 
-    parser->lexer->stack_token = NULL;
+    parser->lexer->token_buffer = NULL;
 
     provider->setString("DECLARE FUNCTION hello () AS string \n \n \n");
 
@@ -178,7 +178,7 @@ TEST_F(ParserTestFixture, FunctionDeclaration) {
             parser_parse_function_declaration(parser)
     ) << "Error parsing <funtion_header> rule";
 
-    parser->lexer->stack_token = NULL;
+    parser->lexer->token_buffer = NULL;
 
     provider->setString("DECLARE FUNCTION hello () AS string \n \n \n"
                                 "DECLARE FUNCTION hello () AS string \n \n \n");
@@ -187,7 +187,7 @@ TEST_F(ParserTestFixture, FunctionDeclaration) {
             parser_parse_function_declaration(parser)
     ) << "Error parsing <funtion_header> rule";
 
-    parser->lexer->stack_token = NULL;
+    parser->lexer->token_buffer = NULL;
 }
 
 TEST_F(ParserTestFixture, Definitions) {

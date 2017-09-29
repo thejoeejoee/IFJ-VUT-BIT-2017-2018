@@ -11,21 +11,19 @@
 
 #define CALL_RULE(Rule) if (!parser_parse_##Rule(parser)) return false;
 
-#define TEST_TOKEN_TYPE(Type) if(token_type != Type) return false;
+#define TEST_TOKEN_TYPE(Type) if(token_type != (Type)) return false;
 
 #define TEST_TOKEN_IS_DATA_TYPE() if(token_type != TOKEN_INTEGER && token_type != TOKEN_STRING && token_type != TOKEN_DOUBLE) return false;
 
 
-Parser *parser_init(lexer_input_stream_f input_stream) {
+Parser* parser_init(lexer_input_stream_f input_stream) {
     Parser* parser = (Parser*) memory_alloc(sizeof(Parser));
-
-    NULL_POINTER_CHECK(parser, NULL);
 
     parser->lexer = lexer_init(input_stream);
     return parser;
 }
 
-void parser_free(Parser **parser) {
+void parser_free(Parser** parser) {
 
     lexer_free(&((*parser)->lexer));
     memory_free(*parser);
@@ -102,9 +100,9 @@ bool parser_parse_definitions(Parser* parser) {
     token_type = token->type;
     if(token_type != TOKEN_DECLARE && token_type != TOKEN_FUNCTION)
         // Epsilon
-        lexer_return_token(parser->lexer,token);
+        lexer_rewind_token(parser->lexer, token);
     else {
-        lexer_return_token(parser->lexer,token);
+        lexer_rewind_token(parser->lexer, token);
         CALL_RULE(definition)
         CALL_RULE(definitions)
     }
@@ -125,16 +123,14 @@ bool parser_parse_definition(Parser* parser) {
     token = lexer_next_token(parser->lexer);
     token_type = token->type;
     if(token_type == TOKEN_DECLARE) {
-        lexer_return_token(parser->lexer, token);
+        lexer_rewind_token(parser->lexer, token);
         CALL_RULE(function_declaration)
-    }
-    else if(token_type == TOKEN_FUNCTION) {
-        lexer_return_token(parser->lexer, token);
+    } else if(token_type == TOKEN_FUNCTION) {
+        lexer_rewind_token(parser->lexer, token);
         CALL_RULE(function_definition)
-    }
-    else
+    } else
         // Zatím Epsilon
-        lexer_return_token(parser->lexer, token);
+        lexer_rewind_token(parser->lexer, token);
     return true;
 }
 
@@ -172,14 +168,13 @@ bool parser_parse_function_statements(Parser* parser) {
 
     token = lexer_next_token(parser->lexer);
     token_type = token->type;
-    lexer_return_token(parser->lexer, token);
+    lexer_rewind_token(parser->lexer, token);
 
     if(token_type != TOKEN_INPUT) {
 
         // It is EPSILON
         return true;
-    }
-    else {
+    } else {
         CALL_RULE(function_statement_single)
         GET_NEXT_TOKEN_TYPE()
         TEST_TOKEN_TYPE(TOKEN_EOL)
@@ -202,14 +197,13 @@ bool parser_parse_body_statements(Parser* parser) {
 
     token = lexer_next_token(parser->lexer);
     token_type = token->type;
-    lexer_return_token(parser->lexer, token);
+    lexer_rewind_token(parser->lexer, token);
 
     if(token_type != TOKEN_INPUT) {
 
         // It is EPSILON
         return true;
-    }
-    else {
+    } else {
         CALL_RULE(body_statement_single)
         GET_NEXT_TOKEN_TYPE()
         TEST_TOKEN_TYPE(TOKEN_EOL)
@@ -344,14 +338,13 @@ bool parser_parse_function_params(Parser* parser) {
 
     token = lexer_next_token(parser->lexer);
     token_type = token->type;
-    lexer_return_token(parser->lexer, token);
+    lexer_rewind_token(parser->lexer, token);
 
     if(token_type == TOKEN_RIGHT_BRACKET) {
         // It is EPSILON
 
         return true;
-    }
-    else {
+    } else {
         CALL_RULE(function_param)
         CALL_RULE(function_n_param)
     }
@@ -374,10 +367,9 @@ bool parser_parse_function_n_param(Parser* parser) {
 
     if(token_type == TOKEN_RIGHT_BRACKET) {
         // It is EPSILON
-        lexer_return_token(parser->lexer, token);
+        lexer_rewind_token(parser->lexer, token);
         return true;
-    }
-    else {
+    } else {
         CALL_RULE(function_param)
         CALL_RULE(function_n_param)
     }
@@ -422,11 +414,10 @@ bool parser_parse_eols(Parser* parser) {
 
     token = lexer_next_token(parser->lexer);
     token_type = token->type;
-    if (token_type == TOKEN_EOL) {
+    if(token_type == TOKEN_EOL) {
         CALL_RULE(eols)
-    }
-    else
-        lexer_return_token(parser->lexer, token);
+    } else
+        lexer_rewind_token(parser->lexer, token);
 
     return true;
 }

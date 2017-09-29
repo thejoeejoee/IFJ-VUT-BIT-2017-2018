@@ -1,5 +1,4 @@
+#ifndef _PARSER_EXPR_H
+#define _PARSER_EXPR_H
 
-#ifndef IFJ2017_PARSER_EXPR_H
-#define IFJ2017_PARSER_EXPR_H
-
-#endif //IFJ2017_PARSER_EXPR_H
+#endif //_PARSER_EXPR_H

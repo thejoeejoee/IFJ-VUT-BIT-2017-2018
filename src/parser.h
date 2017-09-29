@@ -1,6 +1,5 @@
-
-#ifndef IFJ2017_PARSER_H
-#define IFJ2017_PARSER_H
+#ifndef _PARSER_H
+#define _PARSER_H
 
 #include <stdbool.h>
 #include "lexer.h"
@@ -12,7 +11,7 @@
  * @brief Representation of Parser
  */
 typedef struct parser_t {
-    Lexer *lexer;
+    Lexer* lexer;
 } Parser;
 
 /**
@@ -21,7 +20,7 @@ typedef struct parser_t {
  * @param input_stream lexer_input_stream_f Strem of input chars
  * @return Parser* Pointer to parser
  */
-Parser *parser_init(lexer_input_stream_f input_stream);
+Parser* parser_init(lexer_input_stream_f input_stream);
 
 /**
  * @brief Constructor for parser
@@ -92,8 +91,6 @@ bool parser_parse_function_header(Parser* parser);
 
 bool parser_parse_eols(Parser* parser);
 
-bool parser_parse_definitions(Parser* parser);
-
 bool parser_parse_function_params(Parser* parser);
 
 bool parser_parse_function_n_param(Parser* parser);
@@ -107,4 +104,4 @@ bool parser_parse_function_statement_single(Parser* parser);
 bool parser_parse_body_statement_single(Parser* parser);
 
 
-#endif //IFJ2017_PARSER_H
+#endif //_PARSER_H

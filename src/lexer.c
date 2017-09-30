@@ -26,6 +26,9 @@ void lexer_free(Lexer** lexer) {
 }
 
 void lexer_rewind_token(Lexer* lexer, Token* token) {
+    NULL_POINTER_CHECK(lexer,);
+    NULL_POINTER_CHECK(token,);
+
     lexer->token_buffer = token;
 }
 

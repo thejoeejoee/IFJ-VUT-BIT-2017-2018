@@ -300,8 +300,6 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
 LexerFSMState lexer_fsm_get_identifier_state(const char* name) {
     // TODO: Macro is faster....
 
-    static const int number_of_keywords = 35;
-
     static const char* keywords[] = {
             // keywords
             "as", "asc", "declare", "dim", "do",
@@ -315,7 +313,7 @@ LexerFSMState lexer_fsm_get_identifier_state(const char* name) {
             "or", "shared", "static", "true"
     };
 
-    ASSERT(sizeof(keywords) / sizeof(*keywords) == number_of_keywords);
+    static const int number_of_keywords = sizeof(keywords) / sizeof(*keywords);
 
     for(int i = 0; i < number_of_keywords; i++) {
         if(strcmp(keywords[i], name) == 0) {
@@ -328,7 +326,5 @@ LexerFSMState lexer_fsm_get_identifier_state(const char* name) {
 
 bool lexer_fsm_is_final_state(LexerFSMState state) {
     // TODO: inline of macro to better performance
-    if(state >= LEX_FSM__ADD && state <= LEX_FSM__ERROR)
-        return true;
-    return false;
+    return state >= LEX_FSM__ADD && state <= LEX_FSM__ERROR;
 }

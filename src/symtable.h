@@ -95,16 +95,19 @@ typedef struct symbol_variable_t {
     short data_type;
 } SymbolVariable;
 
-SYMBOL_TABLE_TYPED_HEADERS(SymbolVariable, variable)
+SYMBOL_TABLE_TYPED_ITEM(SymbolVariable, variable);
+
+SYMBOL_TABLE_TYPED_TABLE(SymbolVariable, variable, struct symbol_table_variable_t* parent;);
+
+SYMBOL_TABLE_TYPED_METHOD_HEADERS(SymbolVariable, variable);
 
 typedef struct symbol_function_t {
     // TODO: define all needed members
     bool declared;
     bool defined;
     short return_data_type;
-    SymbolTableSymbolVariable* variables;
 } SymbolFunction;
 
-SYMBOL_TABLE_TYPED_HEADERS(SymbolFunction, function)
+SYMBOL_TABLE_TYPED_HEADERS(SymbolFunction, function);
 
 #endif //_SYMTABLE_H

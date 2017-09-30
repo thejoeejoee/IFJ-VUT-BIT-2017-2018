@@ -32,6 +32,7 @@ SymbolTable##Type* symbol_table_##type##_init(size_t size) {\
     return (SymbolTable##Type*) symbol_table_init(size, symbol_table_##type##_free_callback);\
 }\
 void symbol_table_##type##_free_callback(void* data) {\
+    /** Auto free of allocated data blocks. */\
     memory_free(data);\
 }\
 void symbol_table_##type##_free(SymbolTable##Type* table) {\
@@ -40,7 +41,7 @@ void symbol_table_##type##_free(SymbolTable##Type* table) {\
 SymbolTableListItem##Type* symbol_table_##type##_get_or_create(SymbolTable##Type* table, const char* key) {\
     SymbolTableListItem##Type* item = (SymbolTableListItem##Type*) symbol_table_get_or_create((SymbolTable*) table, key);\
     if (item->data == NULL)\
-        /** auto alloc */\
+        /** Auto alloc for used data block. */\
         item->data = (Type*) memory_alloc(sizeof(Type));\
     return item;\
 }\

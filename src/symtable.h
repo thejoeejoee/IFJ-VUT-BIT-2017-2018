@@ -1,5 +1,5 @@
-#ifndef _IAL_H
-#define _IAL_H
+#ifndef _SYMTABLE_H
+#define _SYMTABLE_H
 
 #include <stdlib.h>
 #include <stdbool.h>
@@ -12,13 +12,15 @@ typedef struct hash_table_list_item_t {
     struct hash_table_list_item_t* next;
 } HashTableListItem;
 
-
 typedef struct hash_table_t {
     size_t bucket_count;
     size_t item_count;
     HashTableListItem* items[];
 } HashTable;
 
+/**
+ * Callback, which frees data pointer from hash table item.
+ */
 typedef void(* free_data_callback_f)(void*);
 
 /**
@@ -28,10 +30,10 @@ typedef void(* free_data_callback_f)(void*);
 HashTable* hash_table_init(size_t size);
 
 /**
- * Construct new hash table and copy items from given table into it.
- * @return Ptr to allocated hash table, NULL in case of error.
+ * Dealloc table from memory.
+ * @param HTable
  */
-HashTable* hash_table_move(size_t new_size, HashTable* table);
+void hash_table_free(HashTable* table, free_data_callback_f free_data);
 
 /**
  * Getter for actual hash table size.
@@ -44,6 +46,12 @@ size_t hash_table_size(HashTable* table);
  * @return Count of buckets in table.
  */
 size_t hash_table_bucket_count(HashTable* table);
+
+/**
+ * Construct new hash table and copy items from given table into it.
+ * @return Ptr to allocated hash table, NULL in case of error.
+ */
+HashTable* hash_table_move(size_t new_size, HashTable* table);
 
 /**
  * Try to find item in hash table by given key. If is item not found,
@@ -74,10 +82,4 @@ bool hash_table_remove(HashTable* table, const char* key, free_data_callback_f f
  */
 void hash_table_clear_buckets(HashTable* table, free_data_callback_f free_data);
 
-/**
- * Dealloc table from memory.
- * @param HTable
- */
-void hash_table_free(HashTable* table, free_data_callback_f free_data);
-
-#endif //_IAL_H
+#endif //_SYMTABLE_H

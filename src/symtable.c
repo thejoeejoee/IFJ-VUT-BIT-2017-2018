@@ -4,24 +4,36 @@
 
 size_t hash(const char* str);
 
-void hash_table_append_item(HashTable* table,
-                            HashTableListItem* new_item) {
+HashTable* hash_table_init(size_t size) {
+    HashTable* table;
+    size_t need_memory = sizeof(HashTable) +
+                         sizeof(HashTableListItem*) * size;
+
+    if(NULL == (table = (HashTable*) memory_alloc(need_memory))) return NULL;
+
+    table->bucket_count = size;
+    table->item_count = 0;
+    for(size_t i = 0; i < size; ++i)
+        table->items[i] = NULL;
+
+    return table;
+}
+
+void hash_table_free(HashTable* table, free_data_callback_f free_data) {
     NULL_POINTER_CHECK(table,);
-    NULL_POINTER_CHECK(new_item,);
+    hash_table_clear_buckets(table, free_data);
 
-    size_t index = hash(new_item->key) % table->bucket_count;
-    HashTableListItem* target = table->items[index];
+    memory_free(table);
+}
 
-    new_item->next = NULL;
-    if (target == NULL) {
-        table->items[index] = new_item;
+size_t hash_table_size(HashTable* table) {
+    NULL_POINTER_CHECK(table, 0);
+    return table->item_count;
+}
 
-    } else {
-        while (target->next != NULL) {
-            target = target->next;
-        };
-        target->next = new_item;
-    }
+size_t hash_table_bucket_count(HashTable* table) {
+    NULL_POINTER_CHECK(table, 0);
+    return table->bucket_count;
 }
 
 void hash_table_clear_buckets(HashTable* table,
@@ -32,16 +44,16 @@ void hash_table_clear_buckets(HashTable* table,
     HashTableListItem* item_to_free = NULL;
     HashTableListItem* tmp_item = NULL;
 
-    for (size_t i = 0; i < table->bucket_count; ++i) {
+    for(size_t i = 0; i < table->bucket_count; ++i) {
         item_to_free = table->items[i];
-        if (item_to_free == NULL) continue;
+        if(item_to_free == NULL) continue;
         do {
             tmp_item = item_to_free;
             item_to_free = item_to_free->next;
             memory_free(tmp_item->key);
             free_data(tmp_item->data);
             memory_free(tmp_item);
-        } while (item_to_free != NULL);
+        } while(item_to_free != NULL);
         table->items[i] = NULL;
     }
     table->item_count = 0;
@@ -55,12 +67,12 @@ HashTableListItem* hash_table_new_item(const char* key) {
     if (NULL == (new_item = (HashTableListItem*) memory_alloc(sizeof(HashTableListItem))))
         return NULL;
 
-    if (NULL == (copied_key = (char*) memory_alloc(sizeof(char) * (strlen(key) + 1)))) {
+    if(NULL == (copied_key = (char*) memory_alloc(sizeof(char) * (strlen(key) + 1)))) {
         memory_free(new_item);
         return NULL;
     }
 
-    if (NULL == strcpy(copied_key, key)) {
+    if(NULL == strcpy(copied_key, key)) {
         memory_free(new_item);
         memory_free(copied_key);
         return NULL;
@@ -72,6 +84,27 @@ HashTableListItem* hash_table_new_item(const char* key) {
     return new_item;
 }
 
+void hash_table_append_item(HashTable* table,
+                            HashTableListItem* new_item) {
+    NULL_POINTER_CHECK(table,);
+    NULL_POINTER_CHECK(new_item,);
+
+    size_t index = hash(new_item->key) % table->bucket_count;
+    HashTableListItem* target = table->items[index];
+
+    new_item->next = NULL;
+    if(target == NULL) {
+        table->items[index] = new_item;
+
+    } else {
+        while(target->next != NULL) {
+            target = target->next;
+        };
+        target->next = new_item;
+    }
+}
+
+
 HashTableListItem* hash_table_get(HashTable* table, const char* key) {
     NULL_POINTER_CHECK(table, NULL);
     NULL_POINTER_CHECK(key, NULL);
@@ -79,12 +112,12 @@ HashTableListItem* hash_table_get(HashTable* table, const char* key) {
     size_t index = hash(key) % table->bucket_count;
     HashTableListItem* item = table->items[index];
 
-	while (item != NULL) {
-		if (0 == strcmp(key, item->key))
-			return item;
-		item = item->next;
-	}
-	return item;
+    while(item != NULL) {
+        if(0 == strcmp(key, item->key))
+            return item;
+        item = item->next;
+    }
+    return item;
 }
 
 void hash_table_foreach(HashTable* table,
@@ -93,45 +126,13 @@ void hash_table_foreach(HashTable* table,
     NULL_POINTER_CHECK(callback,);
 
     HashTableListItem* item;
-    for (size_t i = 0; i < table->bucket_count; ++i) {
+    for(size_t i = 0; i < table->bucket_count; ++i) {
         item = table->items[i];
-        while (item != NULL) {
+        while(item != NULL) {
             callback(item->key, &item->data);
             item = item->next;
         }
     }
-}
-
-HashTable* hash_table_init(size_t size) {
-    HashTable* table;
-    size_t need_memory = sizeof(HashTable) +
-                         sizeof(HashTableListItem*) * size;
-
-    if (NULL == (table = (HashTable*) memory_alloc(need_memory))) return NULL;
-
-    table->bucket_count = size;
-    table->item_count = 0;
-    for (size_t i = 0; i < size; ++i)
-        table->items[i] = NULL;
-
-    return table;
-}
-
-size_t hash_table_size(HashTable* table) {
-    NULL_POINTER_CHECK(table, 0);
-    return table->item_count;
-}
-
-size_t hash_table_bucket_count(HashTable* table) {
-    NULL_POINTER_CHECK(table, 0);
-    return table->bucket_count;
-}
-
-void hash_table_free(HashTable* table, free_data_callback_f free_data) {
-    NULL_POINTER_CHECK(table,);
-    hash_table_clear_buckets(table, free_data);
-
-    memory_free(table);
 }
 
 HashTableListItem* hash_table_get_or_create(HashTable* table, const char* key) {
@@ -141,21 +142,21 @@ HashTableListItem* hash_table_get_or_create(HashTable* table, const char* key) {
     size_t index = hash(key) % table->bucket_count;
     HashTableListItem* item = table->items[index];
 
-    if (item != NULL)
-        while (42) {
-            if (0 == strcmp(key, item->key))
+    if(item != NULL)
+        while(42) {
+            if(0 == strcmp(key, item->key))
                 return item;
 
-            if (item->next == NULL) break;
+            if(item->next == NULL) break;
 
             item = item->next;
         };
 
     // key not found, we need to allocate new item
     HashTableListItem* new_item = hash_table_new_item(key);
-    if (new_item == NULL) return NULL;
+    if(new_item == NULL) return NULL;
 
-    if (item == NULL) {
+    if(item == NULL) {
         // not items not found at index
         table->items[index] = new_item;
     } else {
@@ -170,17 +171,17 @@ HashTableListItem* hash_table_get_or_create(HashTable* table, const char* key) {
 HashTable* hash_table_move(size_t new_size, HashTable* source) {
     NULL_POINTER_CHECK(source, NULL);
     HashTable* destination = hash_table_init(new_size);
-    if (destination == NULL) return NULL;
+    if(destination == NULL) return NULL;
 
     destination->bucket_count = new_size;
 
     HashTableListItem* item = NULL;
     HashTableListItem* next = NULL;
 
-    for (size_t source_bucket_i = 0; source_bucket_i < source->bucket_count; ++source_bucket_i) {
+    for(size_t source_bucket_i = 0; source_bucket_i < source->bucket_count; ++source_bucket_i) {
         item = source->items[source_bucket_i];
         source->items[source_bucket_i] = NULL;
-        while (item != NULL) {
+        while(item != NULL) {
             next = item->next;
             hash_table_append_item(destination, item);
             item = next;
@@ -203,11 +204,11 @@ bool hash_table_remove(HashTable* table, const char* key,
     HashTableListItem* item = table->items[index];
     HashTableListItem* prev = NULL;
 
-    if (item == NULL) return false;
+    if(item == NULL) return false;
 
-    while (42) {
-        if (0 == strcmp(key, item->key)) {
-            if (prev == NULL)
+    while(42) {
+        if(0 == strcmp(key, item->key)) {
+            if(prev == NULL)
                 table->items[index] = item->next;
             else
                 prev->next = item->next;
@@ -218,7 +219,7 @@ bool hash_table_remove(HashTable* table, const char* key,
             return true;
         }
 
-        if (item->next == NULL) break;
+        if(item->next == NULL) break;
 
         prev = item;
         item = item->next;
@@ -230,7 +231,7 @@ size_t hash(const char* str) {
     unsigned hash = 5381;
     int c;
 
-    while ((c = *str++))
+    while((c = *str++))
         hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
 
     return hash;

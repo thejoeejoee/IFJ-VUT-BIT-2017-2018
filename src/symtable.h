@@ -8,6 +8,7 @@
 
 #include "symtable_typed.h"
 
+// GENERIC DEFINITION FOR HASH TABLE
 /**
  * Callback, which frees data pointer from hash table item.
  */
@@ -25,13 +26,6 @@ typedef struct hash_table_t {
     free_data_callback_f free_data_callback;
     HashTableListItem* items[];
 } HashTable;
-
-typedef struct symbol_variable_t {
-    // TODO: define all needed members
-    bool declared;
-    bool defined;
-    short data_type;
-} SymbolVariable;
 
 /**
  * Construct new hash table with given size.
@@ -92,6 +86,25 @@ bool hash_table_remove(HashTable* table, const char* key);
  */
 void hash_table_clear_buckets(HashTable* table);
 
+// SPECIFIC DEFINITIONS FOR SYMBOL TABLE IMPLEMENTATIONS
+
+typedef struct symbol_variable_t {
+    // TODO: define all needed members
+    bool declared;
+    bool defined;
+    short data_type;
+} SymbolVariable;
+
 HASH_TABLE_TYPED_HEADERS(SymbolVariable, symbol_variable)
+
+typedef struct symbol_function_t {
+    // TODO: define all needed members
+    bool declared;
+    bool defined;
+    short return_data_type;
+    HashTableSymbolVariable* variables;
+} SymbolFunction;
+
+HASH_TABLE_TYPED_HEADERS(SymbolFunction, symbol_function)
 
 #endif //_SYMTABLE_H

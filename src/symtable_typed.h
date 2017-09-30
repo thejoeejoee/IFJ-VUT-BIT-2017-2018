@@ -8,12 +8,13 @@ typedef struct hash_table_list_item_## type ##_t {\
     struct hash_table_list_item_## type ##_t* next;\
 } HashTableListItem##Type
 
-#define HASH_TABLE_TYPED_TABLE(Type, type) \
+#define HASH_TABLE_TYPED_TABLE(Type, type, extra_members) \
 typedef void(* free_data_callback_##type##_f)(Type*);\
 typedef struct hash_table_## type ##_t {\
     size_t bucket_count;\
     size_t item_count;\
     free_data_callback_##type##_f free_data_callback;\
+    extra_members\
     HashTableListItem##Type* items[];\
 } HashTable##Type
 
@@ -39,7 +40,7 @@ HashTableListItem##Type* hash_table_##type##_get(HashTable##Type* table, const c
 
 #define HASH_TABLE_TYPED_HEADERS(Type, type)\
     HASH_TABLE_TYPED_ITEM(Type, type);\
-    HASH_TABLE_TYPED_TABLE(Type, type);\
+    HASH_TABLE_TYPED_TABLE(Type, type, );\
     HASH_TABLE_TYPED_METHOD_HEADERS(Type, type)
 
 #endif //_SYMTABLE_TYPED_H

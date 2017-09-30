@@ -16,6 +16,7 @@ cmake-build-debug
 # doc ignores
 doc/build
 !doc/Makefile
+!src/Makefile
 
 # IDEA specific ignores
 .idea/**/workspace.xml

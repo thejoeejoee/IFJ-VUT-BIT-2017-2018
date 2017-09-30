@@ -11,6 +11,10 @@ class MemoryManagerTestFixture : public ::testing::Test {
     protected:
         MemoryManager memory_manager;
 
+        MemoryManagerTestFixture() : ::testing::Test() {
+            memory_manager.head = nullptr;
+        };
+
         void SetUp() override {
             memory_manager_enter(&memory_manager);
         }

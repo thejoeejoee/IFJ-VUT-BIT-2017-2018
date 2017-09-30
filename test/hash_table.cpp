@@ -57,7 +57,7 @@ class HashTableWithDataTestFixture : public ::testing::Test {
         }
 
         virtual void TearDown() {
-            EXPECT_NO_FATAL_FAILURE(hash_table_free(hash_table));
+            hash_table_free(hash_table);
         }
 
         void static FreeData(void* data) {

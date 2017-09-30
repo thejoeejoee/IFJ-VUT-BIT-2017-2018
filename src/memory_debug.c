@@ -1,8 +1,12 @@
 #include "memory.h"
-#include "debug.h"
+#include "error.h"
 
 #ifndef NDEBUG
+
 MemoryManager memory_manager;
+
+#define INFO_MAX_LENGTH 128
+#define INFO_FORMAT "%s:%d:%s()"
 
 void* memory_manager_malloc(
         size_t size,
@@ -11,26 +15,25 @@ void* memory_manager_malloc(
         const char* func,
         MemoryManager* manager
 ) {
-    if (!size) {
-        LOG_WARNING("Invalid size %zd .", size);
+    if(!size) {
+        LOG_WARNING("Invalid size %zd.", size);
         return NULL;
     }
-    if (manager == NULL)
+    if(manager == NULL)
         manager = &memory_manager;
 
     MemoryManagerPage* new_page = (MemoryManagerPage*) malloc(sizeof(MemoryManagerPage));
-    NULL_POINTER_CHECK(new_page, NULL);
+    MALLOC_CHECK(new_page);
 
-    new_page->next = NULL;
     new_page->size = size;
     new_page->allocated = true;
     new_page->info = (char*) malloc(MEMORY_MANAGER_INFO_MAX_LENGTH + 1);
-    NULL_POINTER_CHECK(new_page->info, NULL);
+    MALLOC_CHECK(new_page->info);
     new_page->address = malloc(new_page->size);
-    if (new_page->address == NULL) {
+    if(new_page->address == NULL) {
         // at first free allocated info
         free(new_page->info);
-        NULL_POINTER_CHECK(new_page->address, NULL);
+        MALLOC_CHECK(new_page->address);
     }
 
     snprintf(new_page->info, MEMORY_MANAGER_INFO_MAX_LENGTH, MEMORY_MANAGER_INFO_FORMAT, file, line, func);
@@ -44,43 +47,48 @@ void* memory_manager_malloc(
 void memory_manager_free(void* address,
                          MemoryManager* manager) {
     NULL_POINTER_CHECK(address,);
-    if (manager == NULL)
+    if(manager == NULL)
         manager = &memory_manager;
 
     MemoryManagerPage* page = manager->head;
-    while ((page != NULL) && (page->address != address)) {
+    while((page != NULL) && (page->address != address)) {
         page = page->next;
     }
-    if (page == NULL) {
+    if(page == NULL) {
         LOG_WARNING("Allocated memory with address %p to free not found.", address);
         return;
     }
     page->allocated = false;
     free(page->address);
     page->address = NULL;
+
 }
 
 void memory_manager_enter(MemoryManager* manager) {
     LOG_DEBUG("Memory manager started.");
-    if (manager == NULL)
+    if(manager == NULL)
         manager = &memory_manager;
+    if(manager->head != NULL) {
+        LOG_WARNING("Try to enter already entered memory manager session.");
+        return;
+    }
     manager->head = NULL;
 }
 
 void memory_manager_exit(MemoryManager* manager) {
-    if (manager == NULL)
+    if(manager == NULL)
         manager = &memory_manager;
     MemoryManagerPage* page = manager->head;
     MemoryManagerPage* next = NULL;
     int pages_count = 0;
     int size_sum = 0;
 
-    while (page != NULL) {
+    while(page != NULL) {
         next = page->next;
         pages_count++;
         size_sum += page->size;
 
-        if (page->allocated) {
+        if(page->allocated) {
             LOG_WARNING("Memory leak of %zu bytes from %s.", page->size, page->info);
             free(page->address);
         }
@@ -98,7 +106,7 @@ void memory_manager_exit(MemoryManager* manager) {
 }
 
 void memory_manager_log_stats(MemoryManager* manager) {
-    if (manager == NULL)
+    if(manager == NULL)
         manager = &memory_manager;
 
     MemoryManagerPage* page = manager->head;
@@ -107,7 +115,7 @@ void memory_manager_log_stats(MemoryManager* manager) {
     int allocated_size = 0;
     int total_size = 0;
 
-    while (page != NULL) {
+    while(page != NULL) {
         next = page->next;
 
         allocated_size += page->size * page->allocated;

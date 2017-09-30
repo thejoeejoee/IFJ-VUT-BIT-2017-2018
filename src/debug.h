@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+
 #ifndef NDEBUG
 
 #define LOG_VERBOSITY_DEBUG 2
@@ -13,8 +15,6 @@
 #define LOG_VERBOSITY_NONE (-1)
 
 extern short log_verbosity;
-
-#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 
 #define _MESSAGE(verbosity, level_name, ...) if (log_verbosity >= verbosity) \
 do {\

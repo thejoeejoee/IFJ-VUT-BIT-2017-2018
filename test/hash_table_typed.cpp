@@ -12,7 +12,9 @@ typedef struct test_structure_t {
     bool foo;
 } TestStructure;
 
-HASH_TABLE_TYPED(TestStructure, test_structure);
+HASH_TABLE_TYPED_HEADERS(TestStructure, test_structure);
+
+HASH_TABLE_TYPED_IMPLEMENTATION(TestStructure, test_structure);
 
 class HashTableTypedTestFixture : public ::testing::Test {
     protected:
@@ -26,7 +28,7 @@ class HashTableTypedTestFixture : public ::testing::Test {
             hash_table_test_structure_free(hash_table);
         }
 
-        void static FreeData(void* data) {
+        void static FreeData(TestStructure* data) {
         }
 };
 

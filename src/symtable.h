@@ -26,6 +26,13 @@ typedef struct hash_table_t {
     HashTableListItem* items[];
 } HashTable;
 
+typedef struct symbol_variable_t {
+    // TODO: define all needed members
+    bool declared;
+    bool defined;
+    short data_type;
+} SymbolVariable;
+
 /**
  * Construct new hash table with given size.
  * @return Ptr to allocated hash table, NULL in case of error.
@@ -84,5 +91,7 @@ bool hash_table_remove(HashTable* table, const char* key);
  * Dealloc all items with key from given hash table.
  */
 void hash_table_clear_buckets(HashTable* table);
+
+HASH_TABLE_TYPED_HEADERS(SymbolVariable, symbol_variable)
 
 #endif //_SYMTABLE_H

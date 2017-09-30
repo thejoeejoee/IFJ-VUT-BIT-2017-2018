@@ -19,14 +19,11 @@ class SymbolTableTypedTestFixture : public ::testing::Test {
         SymbolTableTestStructure* symbol_table = nullptr;
 
         virtual void SetUp() {
-            symbol_table = symbol_table_test_structure_init(2, FreeData);
+            symbol_table = symbol_table_test_structure_init(2);
         }
 
         virtual void TearDown() {
             symbol_table_test_structure_free(symbol_table);
-        }
-
-        void static FreeData(TestStructure* data) {
         }
 };
 
@@ -43,8 +40,6 @@ TEST_F(SymbolTableTypedTestFixture, Finding) {
             item,
             nullptr
     ) << "Get on empty typed table.";
-    TestStructure* data;
-    data = item->data = (TestStructure*) memory_alloc(sizeof(TestStructure));
     item->data->foo = true;
 
     found_item = symbol_table_test_structure_get(symbol_table, "unknown");
@@ -59,6 +54,4 @@ TEST_F(SymbolTableTypedTestFixture, Finding) {
             found_item->data->foo,
             item->data->foo
     ) << "Same data on found and previous created item";
-
-    memory_free(data);
 }

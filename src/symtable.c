@@ -226,4 +226,4 @@ size_t hash(const char* str) {
     return hash;
 }
 
-SYMBOL_TABLE_TYPED_IMPLEMENTATION(SymbolVariable, symbol_variable)
+SYMBOL_TABLE_TYPED_IMPLEMENTATION(SymbolVariable, variable)

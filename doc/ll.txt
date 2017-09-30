@@ -1,6 +1,6 @@
 // Celý program
 <prog> -> <body> EOF
-<body> -> <definitions> SCOPE EOL <body_statements> END SCOPE
+<body> -> <definitions> <statement_6>
 
 // Definiční část
 <definitions> -> <eols> <definition> EOL <eols> <definitions>
@@ -38,12 +38,15 @@
 <body_statement_single> -> <statement_2>
 <body_statement_single> -> <statement_3>
 <body_statement_single> -> <statement_4>
+<body_statement_single> -> <statement_5>
+<body_statement_single> -> <statement_6>
 
 <statement_1> -> <id> EQUAL <expression> // přiřazení
 <statement_2> -> INPUT IDENTIFIER // načtení ze vstupu
 <statement_3> -> PRINT <print_expression> <print_expressions> // tisk na výstup, alespoň jeden příkaz, každý se středníkem
 <statement_4> -> RETURN <expression>
 <statement_5> -> <print_expression>
+<statement_6> -> SCOPE EOL <body_statements> END SCOPE
 
 // Tisk řetězce
 <print_expression> -> <expression> SEMICOLON

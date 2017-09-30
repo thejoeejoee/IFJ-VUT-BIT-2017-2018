@@ -6,40 +6,38 @@ extern "C" {
 #include "../src/symtable.h"
 }
 
-#include "utils/functioncallcounter.h"
-
 typedef struct test_structure_t {
     bool foo;
 } TestStructure;
 
-HASH_TABLE_TYPED_HEADERS(TestStructure, test_structure);
+SYMBOL_TABLE_TYPED_HEADERS(TestStructure, test_structure);
 
-HASH_TABLE_TYPED_IMPLEMENTATION(TestStructure, test_structure);
+SYMBOL_TABLE_TYPED_IMPLEMENTATION(TestStructure, test_structure);
 
-class HashTableTypedTestFixture : public ::testing::Test {
+class SymbolTableTypedTestFixture : public ::testing::Test {
     protected:
-        HashTableTestStructure* hash_table = nullptr;
+        SymbolTableTestStructure* symbol_table = nullptr;
 
         virtual void SetUp() {
-            hash_table = hash_table_test_structure_init(2, FreeData);
+            symbol_table = symbol_table_test_structure_init(2, FreeData);
         }
 
         virtual void TearDown() {
-            hash_table_test_structure_free(hash_table);
+            symbol_table_test_structure_free(symbol_table);
         }
 
         void static FreeData(TestStructure* data) {
         }
 };
 
-TEST_F(HashTableTypedTestFixture, Finding) {
+TEST_F(SymbolTableTypedTestFixture, Finding) {
     EXPECT_EQ(
-            hash_table_test_structure_get(hash_table, "unknown"),
+            symbol_table_test_structure_get(symbol_table, "unknown"),
             nullptr
     ) << "Get on empty typed table.";
 
-    HashTableListItemTestStructure* item = hash_table_test_structure_get_or_create(hash_table, "unknown");
-    HashTableListItemTestStructure* found_item;
+    SymbolTableListItemTestStructure* item = symbol_table_test_structure_get_or_create(symbol_table, "unknown");
+    SymbolTableListItemTestStructure* found_item;
 
     EXPECT_NE(
             item,
@@ -49,7 +47,7 @@ TEST_F(HashTableTypedTestFixture, Finding) {
     data = item->data = (TestStructure*) memory_alloc(sizeof(TestStructure));
     item->data->foo = true;
 
-    found_item = hash_table_test_structure_get(hash_table, "unknown");
+    found_item = symbol_table_test_structure_get(symbol_table, "unknown");
     EXPECT_NE(
             found_item,
             nullptr

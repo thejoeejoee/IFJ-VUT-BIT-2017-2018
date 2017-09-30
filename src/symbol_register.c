@@ -24,7 +24,7 @@ void symbol_register_push_variables_table(SymbolRegister* register_) {
     NULL_POINTER_CHECK(register_,);
 
     SymbolTableSymbolVariable* table = symbol_table_variable_init(16);
-    table->parent = register_->variables;
+    // table->parent = register_->variables;
     register_->variables = table;
 }
 
@@ -33,9 +33,9 @@ void symbol_register_pop_variables_table(SymbolRegister* register_) {
     NULL_POINTER_CHECK(register_->variables,);
 
     SymbolTableSymbolVariable* to_free = register_->variables;
-    if(to_free->parent != NULL) {
-        register_->variables = to_free->parent;
-    }
+    // if(to_free->parent != NULL) {
+    //     register_->variables = to_free->parent;
+    // }
     memory_free(to_free);
 }
 
@@ -61,7 +61,7 @@ SymbolVariable* symbol_register_find_variable_recursive(SymbolRegister* register
         if(item != NULL)
             return item->data;
 
-        variables = variables->parent;
+        // variables = variables->parent;
     }
     return NULL;
 }

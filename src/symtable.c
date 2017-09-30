@@ -226,22 +226,8 @@ size_t hash(const char* str) {
     return hash;
 }
 
-SymbolTableSymbolVariable* symbol_table_variable_init(size_t size) {
-    // custom implementation to initialize parent
-    SymbolTableSymbolVariable* table = (SymbolTableSymbolVariable*) symbol_table_init(
-            size,
-            symbol_table_variable_free_callback
-    );
-    table->parent = NULL;
-    return table;
-}
-
-SYMBOL_TABLE_TYPED_FREE_CALLBACK(SymbolVariable, variable)
-
-SYMBOL_TABLE_TYPED_FREE(SymbolVariable, variable)
-
-SYMBOL_TABLE_TYPED_GET_OR_CREATE(SymbolVariable, variable)
-
-SYMBOL_TABLE_TYPED_GET(SymbolVariable, variable)
+/** SPECIFIC SYMBOL TABLE IMPLEMENTATIONS */
 
 SYMBOL_TABLE_TYPED_IMPLEMENTATION(SymbolFunction, function)
+
+SYMBOL_TABLE_TYPED_IMPLEMENTATION(SymbolVariable, variable)

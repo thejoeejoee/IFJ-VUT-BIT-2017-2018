@@ -60,16 +60,8 @@ void hash_table_clear_buckets(HashTable* table) {
 
 HashTableListItem* hash_table_new_item(const char* key) {
     NULL_POINTER_CHECK(key, NULL);
-    HashTableListItem* new_item = NULL;
-    char* copied_key = NULL;
-
-    if (NULL == (new_item = (HashTableListItem*) memory_alloc(sizeof(HashTableListItem))))
-        return NULL;
-
-    if(NULL == (copied_key = (char*) memory_alloc(sizeof(char) * (strlen(key) + 1)))) {
-        memory_free(new_item);
-        return NULL;
-    }
+    HashTableListItem* new_item = (HashTableListItem*) memory_alloc(sizeof(HashTableListItem));
+    char* copied_key = (char*) memory_alloc(sizeof(char) * (strlen(key) + 1));
 
     if(NULL == strcpy(copied_key, key)) {
         memory_free(new_item);

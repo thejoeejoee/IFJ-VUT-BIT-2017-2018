@@ -6,6 +6,8 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "symtable_typed.h"
+
 /**
  * Callback, which frees data pointer from hash table item.
  */

@@ -4,24 +4,25 @@
 
 size_t hash(const char* str);
 
-HashTable* hash_table_init(size_t size) {
-    HashTable* table;
+HashTable* hash_table_init(size_t size, free_data_callback_f free_data_callback) {
+    NULL_POINTER_CHECK(free_data_callback, NULL);
     size_t need_memory = sizeof(HashTable) +
                          sizeof(HashTableListItem*) * size;
 
-    if(NULL == (table = (HashTable*) memory_alloc(need_memory))) return NULL;
+    HashTable* table = (HashTable*) memory_alloc(need_memory);
 
     table->bucket_count = size;
     table->item_count = 0;
+    table->free_data_callback = free_data_callback;
     for(size_t i = 0; i < size; ++i)
         table->items[i] = NULL;
 
     return table;
 }
 
-void hash_table_free(HashTable* table, free_data_callback_f free_data) {
+void hash_table_free(HashTable* table) {
     NULL_POINTER_CHECK(table,);
-    hash_table_clear_buckets(table, free_data);
+    hash_table_clear_buckets(table);
 
     memory_free(table);
 }
@@ -36,10 +37,8 @@ size_t hash_table_bucket_count(HashTable* table) {
     return table->bucket_count;
 }
 
-void hash_table_clear_buckets(HashTable* table,
-                              free_data_callback_f free_data) {
+void hash_table_clear_buckets(HashTable* table) {
     NULL_POINTER_CHECK(table,);
-    NULL_POINTER_CHECK(free_data,);
 
     HashTableListItem* item_to_free = NULL;
     HashTableListItem* tmp_item = NULL;
@@ -51,7 +50,7 @@ void hash_table_clear_buckets(HashTable* table,
             tmp_item = item_to_free;
             item_to_free = item_to_free->next;
             memory_free(tmp_item->key);
-            free_data(tmp_item->data);
+            table->free_data_callback(tmp_item->data);
             memory_free(tmp_item);
         } while(item_to_free != NULL);
         table->items[i] = NULL;
@@ -170,7 +169,7 @@ HashTableListItem* hash_table_get_or_create(HashTable* table, const char* key) {
 
 HashTable* hash_table_move(size_t new_size, HashTable* source) {
     NULL_POINTER_CHECK(source, NULL);
-    HashTable* destination = hash_table_init(new_size);
+    HashTable* destination = hash_table_init(new_size, source->free_data_callback);
     if(destination == NULL) return NULL;
 
     destination->bucket_count = new_size;
@@ -194,11 +193,9 @@ HashTable* hash_table_move(size_t new_size, HashTable* source) {
     return destination;
 }
 
-bool hash_table_remove(HashTable* table, const char* key,
-                       free_data_callback_f free_data_callback) {
+bool hash_table_remove(HashTable* table, const char* key) {
     NULL_POINTER_CHECK(table, false);
     NULL_POINTER_CHECK(key, false);
-    NULL_POINTER_CHECK(free_data_callback, false);
 
     size_t index = hash(key) % table->bucket_count;
     HashTableListItem* item = table->items[index];
@@ -214,7 +211,7 @@ bool hash_table_remove(HashTable* table, const char* key,
                 prev->next = item->next;
 
             memory_free(item->key);
-            free_data_callback(item->data);
+            table->free_data_callback(item->data);
             memory_free(item);
             return true;
         }

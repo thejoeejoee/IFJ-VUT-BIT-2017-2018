@@ -22,11 +22,11 @@ class HashTableTestFixture : public ::testing::Test {
 
         virtual void SetUp() {
             callCounter->resetCounter();
-            hash_table = hash_table_init(2);
+            hash_table = hash_table_init(2, FreeData);
         }
 
         virtual void TearDown() {
-            EXPECT_NO_FATAL_FAILURE(hash_table_free(hash_table, FreeData));
+            EXPECT_NO_FATAL_FAILURE(hash_table_free(hash_table));
         }
 
         void static FreeData(void* data) {
@@ -48,7 +48,7 @@ class HashTableWithDataTestFixture : public ::testing::Test {
 
         virtual void SetUp() {
             callCounter->resetCounter();
-            hash_table = hash_table_init(2);
+            hash_table = hash_table_init(2, FreeData);
 
             // Insert items
             for(auto &key : keys) {
@@ -57,7 +57,7 @@ class HashTableWithDataTestFixture : public ::testing::Test {
         }
 
         virtual void TearDown() {
-            EXPECT_NO_FATAL_FAILURE(hash_table_free(hash_table, FreeData));
+            EXPECT_NO_FATAL_FAILURE(hash_table_free(hash_table));
         }
 
         void static FreeData(void* data) {
@@ -155,24 +155,24 @@ TEST_F(HashTableWithDataTestFixture, GetOrCreateWithData) {
 }
 
 TEST_F(HashTableWithDataTestFixture, DeleteInvalidItem) {
-    EXPECT_FALSE(hash_table_remove(hash_table, "invalid", FreeData)) << "Invalid key should return false";
+    EXPECT_FALSE(hash_table_remove(hash_table, "invalid")) << "Invalid key should return false";
 }
 
 TEST_F(HashTableWithDataTestFixture, DeleteValidItem) {
-    EXPECT_TRUE(hash_table_remove(hash_table, keys.at(keys.size() / 2), FreeData))
+    EXPECT_TRUE(hash_table_remove(hash_table, keys.at(keys.size() / 2)))
                         << "Deleting valid key should return true";
 }
 
 TEST_F(HashTableTestFixture, DeleteOnEmptyTable) {
-    ASSERT_FALSE(hash_table_remove(hash_table, "nokey", FreeData)) << "Empty table should return false";
+    ASSERT_FALSE(hash_table_remove(hash_table, "nokey")) << "Empty table should return false";
 }
 
 
 TEST_F(HashTableTestFixture, InvalidDelete) {
     DISABLE_LOG({
-                    ASSERT_FALSE(hash_table_remove(nullptr, "nokey", FreeData)) << "Null table should return false";
+                    ASSERT_FALSE(hash_table_remove(nullptr, "nokey")) << "Null table should return false";
                     ASSERT_FALSE(
-                            hash_table_remove(hash_table, nullptr, FreeData)) << "Null key should return false";
+                            hash_table_remove(hash_table, nullptr)) << "Null key should return false";
                 });
 }
 
@@ -183,7 +183,7 @@ TEST_F(HashTableTestFixture, MoveEmptyTable) {
             nullptr
     ) << "New table should not be nullptr";
 
-    hash_table_free(table, FreeData);
+    hash_table_free(table);
 }
 
 TEST_F(HashTableWithDataTestFixture, MoveTableWithItems) {
@@ -212,7 +212,7 @@ TEST_F(HashTableWithDataTestFixture, MoveTableWithItems) {
         ) << "All items were copied.";
     }
 
-    hash_table_free(new_table, FreeData);
+    hash_table_free(new_table);
 }
 
 TEST_F(HashTableTestFixture, MoveTableInvalid) {

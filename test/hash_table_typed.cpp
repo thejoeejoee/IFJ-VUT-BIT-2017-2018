@@ -19,11 +19,11 @@ class HashTableTypedTestFixture : public ::testing::Test {
         HashTableTestStructure* hash_table = nullptr;
 
         virtual void SetUp() {
-            hash_table = (HashTableTestStructure*) hash_table_init(2, FreeData);
+            hash_table = hash_table_test_structure_init(2, FreeData);
         }
 
         virtual void TearDown() {
-            hash_table_free((HashTable*) hash_table);
+            hash_table_test_structure_free(hash_table);
         }
 
         void static FreeData(void* data) {

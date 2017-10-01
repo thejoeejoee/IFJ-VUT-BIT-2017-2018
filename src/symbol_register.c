@@ -31,19 +31,19 @@ void symbol_register_push_variables_table(SymbolRegister* register_) {
 void symbol_register_pop_variables_table(SymbolRegister* register_) {
     NULL_POINTER_CHECK(register_,);
     NULL_POINTER_CHECK(register_->variables,);
-
-    SymbolTableSymbolVariable* to_free = register_->variables;
+    // TODO: add mechanism to stack variables
+    // SymbolTableSymbolVariable* to_free = register_->variables;
     // if(to_free->parent != NULL) {
     //     register_->variables = to_free->parent;
     // }
-    memory_free(to_free);
+    // memory_free(to_free);
 }
 
 SymbolVariable* symbol_register_find_variable(SymbolRegister* register_, const char* key) {
     NULL_POINTER_CHECK(register_, NULL);
     NULL_POINTER_CHECK(key, NULL);
 
-    SymbolTableListItemSymbolVariable* item = symbol_table_variable_get_or_create(register_->variables, key);
+    SymbolTableListItemSymbolVariable* item = symbol_table_variable_get(register_->variables, key);
     if(item == NULL)
         return NULL;
     return item->data;
@@ -57,11 +57,12 @@ SymbolVariable* symbol_register_find_variable_recursive(SymbolRegister* register
     SymbolTableSymbolVariable* variables = register_->variables;
 
     while(variables != NULL) {
-        item = symbol_table_variable_get_or_create(variables, key);
+        item = symbol_table_variable_get(variables, key);
         if(item != NULL)
             return item->data;
 
         // variables = variables->parent;
+        break;
     }
     return NULL;
 }

@@ -3,6 +3,7 @@
 
 #include "symtable.h"
 #include "symtable_variable.h"
+#include "symtable_function.h"
 
 /**
  * @brief Helper structure for stacking variable symbol tables.

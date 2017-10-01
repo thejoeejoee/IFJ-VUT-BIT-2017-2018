@@ -13,3 +13,7 @@ SymbolFunction* symbol_table_function_get(SymbolTable* table, const char* key)
 void symbol_function_free_data(SymbolTableBaseItem* item) {
     (void)item;
 }
+
+void symbol_function_init_data(SymbolTableBaseItem *item) {
+    (void)item;
+}

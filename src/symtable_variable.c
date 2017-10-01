@@ -13,3 +13,8 @@ SymbolVariable* symbol_table_variable_get(SymbolTable* table, const char* key)
 void symbol_variable_free_data(SymbolTableBaseItem* item) {
     (void)item;
 }
+
+void symbol_variable_init_data(SymbolTableBaseItem* item)
+{
+    (void)item;
+}

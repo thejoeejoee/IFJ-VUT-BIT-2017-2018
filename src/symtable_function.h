@@ -14,12 +14,13 @@ typedef struct symbol_function_t {
 SymbolFunction* symbol_table_function_get_or_create(SymbolTable* table, const char* key);
 SymbolFunction* symbol_table_function_get(SymbolTable* table, const char* key);
 
+void symbol_function_init_data(SymbolTableBaseItem* item);
 void symbol_function_free_data(SymbolTableBaseItem* item);
 
 #define symbol_table_function_init(bucket_count) symbol_table_init( \
     bucket_count, \
     sizeof(SymbolFunction), \
-    NULL, \
+    symbol_function_init_data, \
     symbol_function_free_data)
 
 #endif // SYMTABLE_FUNCTION_H

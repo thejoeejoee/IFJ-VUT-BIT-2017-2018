@@ -20,10 +20,10 @@ SymbolFunction* symbol_table_function_get(SymbolTable* table, const char* key)
     return (SymbolFunction*)symbol_table_get(table, key);
 }
 
-void symbol_variable_free_data(SymbolTableBaseListItem* item) {
+void symbol_variable_free_data(SymbolTableBaseItem* item) {
     (void)item;
 }
 
-void symbol_function_free_data(SymbolTableBaseListItem* item) {
+void symbol_function_free_data(SymbolTableBaseItem* item) {
     (void)item;
 }

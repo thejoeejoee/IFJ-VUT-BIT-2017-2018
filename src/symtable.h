@@ -13,13 +13,13 @@
 typedef struct symbol_table_base_list_item_t {
     char* key;
     struct symbol_table_base_list_item_t* next;
-} SymbolTableBaseListItem;
+} SymbolTableBaseItem;
 
 /**
  * Callback, which frees data pointer from hash table item.
  */
-typedef void(* free_data_callback_f)(SymbolTableBaseListItem*);
-typedef void(* init_data_callback_f)(SymbolTableBaseListItem*);
+typedef void(* free_data_callback_f)(SymbolTableBaseItem*);
+typedef void(* init_data_callback_f)(SymbolTableBaseItem*);
 
 typedef struct symbol_table_t {
     size_t item_size;
@@ -27,7 +27,7 @@ typedef struct symbol_table_t {
     size_t item_count;
     free_data_callback_f free_data_callback;
     init_data_callback_f init_data_callback;
-    SymbolTableBaseListItem* items[];
+    SymbolTableBaseItem* items[];
 } SymbolTable;
 
 /**
@@ -67,13 +67,13 @@ SymbolTable* symbol_table_move(size_t new_size, SymbolTable* table);
  * new item is created and inserted to hash table.
  * @return Ptr to created/found item in hash table.
  */
-SymbolTableBaseListItem* symbol_table_get_or_create(SymbolTable* table, const char* key);
+SymbolTableBaseItem* symbol_table_get_or_create(SymbolTable* table, const char* key);
 
 /**
  * Try to find item in hast table by given key.
  * @return Ptr to found item or NULL.
  */
-SymbolTableBaseListItem* symbol_table_get(SymbolTable* table, const char* key);
+SymbolTableBaseItem* symbol_table_get(SymbolTable* table, const char* key);
 
 /**
  * Call given function on all items in hash table.

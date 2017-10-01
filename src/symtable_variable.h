@@ -5,7 +5,7 @@
 
 
 typedef struct symbol_variable_t {
-    SymbolTableBaseListItem base;
+    SymbolTableBaseItem base;
     // TODO: define all needed members
     bool declared;
     bool defined;
@@ -13,7 +13,7 @@ typedef struct symbol_variable_t {
 } SymbolVariable;
 
 typedef struct symbol_function_t {
-    SymbolTableBaseListItem base;
+    SymbolTableBaseItem base;
     // TODO: define all needed members
     bool declared;
     bool defined;
@@ -26,8 +26,8 @@ SymbolVariable* symbol_table_variable_get(SymbolTable* table, const char* key);
 SymbolFunction* symbol_table_function_get_or_create(SymbolTable* table, const char* key);
 SymbolFunction* symbol_table_function_get(SymbolTable* table, const char* key);
 
-void symbol_variable_free_data(SymbolTableBaseListItem* item);
-void symbol_function_free_data(SymbolTableBaseListItem* item);
+void symbol_variable_free_data(SymbolTableBaseItem* item);
+void symbol_function_free_data(SymbolTableBaseItem* item);
 
 #define symbol_table_variable_init(bucket_count) symbol_table_init( \
     bucket_count, \

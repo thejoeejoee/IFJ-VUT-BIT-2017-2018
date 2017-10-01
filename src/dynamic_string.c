@@ -78,7 +78,7 @@ void string_clear(String* string) {
     string->content[0] = 0;
 }
 
-char* string_content(String* string) { 
+char* string_content(String* string) {
     return string->content;
 }
 

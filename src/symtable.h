@@ -5,10 +5,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
-
-#include "symtable_typed.h"
-
-// GENERIC DEFINITION FOR HASH TABLE
+#include "memory.h"
 
 typedef struct symbol_table_base_list_item_t {
     char* key;
@@ -90,12 +87,5 @@ bool symbol_table_remove(SymbolTable* table, const char* key);
  * Dealloc all items with key from given hash table.
  */
 void symbol_table_clear_buckets(SymbolTable* table);
-
-// SPECIFIC DEFINITIONS FOR SYMBOL TABLE IMPLEMENTATIONS
-
-
-//SYMBOL_TABLE_TYPED_HEADERS(SymbolVariable, variable);
-
-//SYMBOL_TABLE_TYPED_HEADERS(SymbolFunction, function);
 
 #endif //_SYMTABLE_H

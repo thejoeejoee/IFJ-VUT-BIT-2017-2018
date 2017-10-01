@@ -22,7 +22,7 @@ class SymbolTableTestFixture : public ::testing::Test {
 
         virtual void SetUp() {
             callCounter->resetCounter();
-            symbol_table = symbol_table_init(2, sizeof(SymbolTableBaseListItem),
+            symbol_table = symbol_table_init(2, sizeof(SymbolTableBaseItem),
                                              InitData,FreeData);
         }
 
@@ -30,8 +30,8 @@ class SymbolTableTestFixture : public ::testing::Test {
             symbol_table_free(symbol_table);
         }
 
-        void static InitData(SymbolTableBaseListItem*) {}
-        void static FreeData(SymbolTableBaseListItem*) {}
+        void static InitData(SymbolTableBaseItem*) {}
+        void static FreeData(SymbolTableBaseItem*) {}
 };
 
 class SymbolTableWithDataTestFixture : public ::testing::Test {
@@ -49,7 +49,7 @@ class SymbolTableWithDataTestFixture : public ::testing::Test {
 
         virtual void SetUp() {
             callCounter->resetCounter();
-            symbol_table = symbol_table_init(2, sizeof(SymbolTableBaseListItem),
+            symbol_table = symbol_table_init(2, sizeof(SymbolTableBaseItem),
                                              InitData, FreeData);
 
             // Insert items
@@ -62,8 +62,8 @@ class SymbolTableWithDataTestFixture : public ::testing::Test {
             symbol_table_free(symbol_table);
         }
 
-        void static InitData(SymbolTableBaseListItem*) {}
-        void static FreeData(SymbolTableBaseListItem*) {}
+        void static InitData(SymbolTableBaseItem*) {}
+        void static FreeData(SymbolTableBaseItem*) {}
 };
 
 TEST_F(SymbolTableTestFixture, Initialization) {
@@ -126,7 +126,7 @@ TEST_F(SymbolTableTestFixture, GetOnEmptyTable) {
 }
 
 TEST_F(SymbolTableWithDataTestFixture, GetInvalidItem) {
-    SymbolTableBaseListItem* item = symbol_table_get(symbol_table, "invalid");
+    SymbolTableBaseItem* item = symbol_table_get(symbol_table, "invalid");
 
     ASSERT_EQ(
             item,
@@ -136,7 +136,7 @@ TEST_F(SymbolTableWithDataTestFixture, GetInvalidItem) {
 
 TEST_F(SymbolTableWithDataTestFixture, GetValidItem) {
 
-    SymbolTableBaseListItem* item = symbol_table_get(symbol_table, keys[1]);
+    SymbolTableBaseItem* item = symbol_table_get(symbol_table, keys[1]);
 
     ASSERT_NE(
             item,

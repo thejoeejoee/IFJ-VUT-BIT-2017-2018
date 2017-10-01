@@ -117,7 +117,7 @@ void symbol_table_foreach(SymbolTable* table,
     NULL_POINTER_CHECK(callback,);
 
     for(size_t i = 0; i < table->bucket_count; ++i) {
-        SymbolTableBaseItem* item = (SymbolTableBaseItem*)table->items[i];
+        SymbolTableBaseItem* item = table->items[i];
         while(item != NULL) {
             callback(item->key, item);
             item = item->next;
@@ -225,9 +225,3 @@ size_t hash(const char* str) {
 
     return hash;
 }
-
-/** SPECIFIC SYMBOL TABLE IMPLEMENTATIONS */
-
-//SYMBOL_TABLE_TYPED_IMPLEMENTATION(SymbolFunction, function)
-
-//SYMBOL_TABLE_TYPED_IMPLEMENTATION(SymbolVariable, variable)

@@ -25,18 +25,18 @@ SymbolVariable* symbol_table_variable_get(SymbolTable* table, const char* key);
 SymbolFunction* symbol_table_function_get_or_create(SymbolTable* table, const char* key);
 SymbolFunction* symbol_table_function_get(SymbolTable* table, const char* key);
 
-void symbol_variable_free_data(SymbolTableBaseListItem* item) {}
-void symbol_function_free_data(SymbolTableBaseListItem* item) {}
+void symbol_variable_free_data(SymbolTableBaseListItem* item);
+void symbol_function_free_data(SymbolTableBaseListItem* item);
 
 #define symbol_table_variable_init(bucket_count) symbol_table_init( \
     bucket_count, \
-    sizeof(symbol_variable_t), \
+    sizeof(SymbolVariable), \
     NULL, \
     symbol_variable_free_data)
 
 #define symbol_table_function_init(bucket_count) symbol_table_init( \
     bucket_count, \
-    sizeof(symbol_function_t), \
+    sizeof(SymbolFunction), \
     NULL, \
     symbol_function_free_data)
 

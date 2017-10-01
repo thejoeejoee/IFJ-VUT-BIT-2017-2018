@@ -9,7 +9,7 @@
  */
 typedef struct lexer_t {
     lexer_input_stream_f input_stream; // Pointer to function which stream chars
-    LexerFSM *lexer_fsm; // Instance of final state machine
+    LexerFSM* lexer_fsm; // Instance of final state machine
 } Lexer;
 
 

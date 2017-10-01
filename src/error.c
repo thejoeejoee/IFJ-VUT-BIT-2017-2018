@@ -3,7 +3,7 @@
 #include "memory.h"
 
 void exit_with_code(ErrorCode code) {
-    switch (code) {
+    switch(code) {
         case ERROR_LEXER:
             fprintf(stderr, "Error during lexical analyse.\n");
             break;

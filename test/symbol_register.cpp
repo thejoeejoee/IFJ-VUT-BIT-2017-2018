@@ -10,92 +10,116 @@ extern "C" {
 #include "utils/functioncallcounter.h"
 
 
-//class SymbolRegisterTestFixture : public ::testing::Test {
-//    protected:
-//        SymbolRegister* symbol_register;
+class SymbolRegisterTestFixture : public ::testing::Test {
+    protected:
+        SymbolRegister* symbol_register;
 
-//        virtual void SetUp() {
-//            symbol_register = symbol_register_init();
-//        }
+        virtual void SetUp() {
+            symbol_register = symbol_register_init();
+        }
 
-//        virtual void TearDown() {
-//            symbol_register_free(&symbol_register);
-//        }
+        virtual void TearDown() {
+            symbol_register_free(&symbol_register);
+        }
 
-//};
+};
 
-//TEST_F(SymbolRegisterTestFixture, PushAndGetFunctions) {
-//    SymbolTableListItemSymbolFunction* item = symbol_table_function_get_or_create(symbol_register->functions, "printf");
-//    SymbolTableListItemSymbolFunction* find_item = symbol_table_function_get(symbol_register->functions, "printf");
+TEST_F(SymbolRegisterTestFixture, PushAndGetFunctions) {
+    SymbolFunction* item = symbol_table_function_get_or_create(symbol_register->functions, "printf");
+    SymbolFunction* find_item = symbol_table_function_get(symbol_register->functions, "printf");
 
-//    EXPECT_EQ(
-//            item,
-//            find_item
-//    ) << "Error finding item";
+    EXPECT_EQ(
+            item,
+            find_item
+    ) << "Error finding item";
 
-//    SymbolTableListItemSymbolFunction* error_item = symbol_table_function_get(
-//            symbol_register->functions,
-//            "neexistujici"
-//    );
+    SymbolFunction* error_item = symbol_table_function_get(
+            symbol_register->functions,
+            "neexistujici"
+    );
 
-//    EXPECT_EQ(
-//            error_item,
-//            nullptr
-//    ) << "Find unknown function";
+    EXPECT_EQ(
+            error_item,
+            nullptr
+    ) << "Find unknown function";
 
-//}
+}
 
-//TEST_F(SymbolRegisterTestFixture, VariablesFinding) {
-//    SymbolTableListItemSymbolVariable* symbol_variable = symbol_table_variable_get_or_create(symbol_register->variables,
-//                                                                                             "foo");
+TEST_F(SymbolRegisterTestFixture, FindingVariablesInStack) {
+    SymbolVariable* symbol_variable = symbol_table_variable_get_or_create(
+            symbol_register->variables->symbol_table,
+            "foo"
+    );
 
-//    EXPECT_NE(
-//            symbol_variable,
-//            nullptr
-//    ) << "Created variable.";
+    EXPECT_NE(
+            symbol_variable,
+            nullptr
+    ) << "Created variable.";
 
-//    EXPECT_NE(
-//            symbol_variable->data,
-//            nullptr
-//    ) << "Auto allocated data ptr.";
+    EXPECT_NE(
+            symbol_variable,
+            nullptr
+    ) << "Auto allocated data ptr.";
 
-//    symbol_variable->data->data_type = 42;
+    symbol_variable->data_type = 42;
 
-//    symbol_register_push_variables_table(symbol_register);
+    symbol_register_push_variables_table(symbol_register);
 
-//    SymbolVariable* found_variable = symbol_register_find_variable(symbol_register, "foo");
+    SymbolVariable* found_variable = symbol_register_find_variable(symbol_register, "foo");
 
-//    EXPECT_EQ(
-//            found_variable,
-//            nullptr
-//    ) << "Not found variable after stack push";
+    EXPECT_EQ(
+            found_variable,
+            nullptr
+    ) << "Not found variable after stack push";
 
-//    found_variable = symbol_register_find_variable_recursive(symbol_register, "foo");
+    found_variable = symbol_register_find_variable_recursive(symbol_register, "foo");
 
-//    EXPECT_EQ(
-//            found_variable,
-//            symbol_variable->data
-//    ) << "Recursively found variable.";
+    EXPECT_EQ(
+            found_variable,
+            symbol_variable
+    ) << "Recursively found variable.";
 
-//    SymbolTableListItemSymbolVariable* new_variable = symbol_table_variable_get_or_create(symbol_register->variables,
-//                                                                                          "bar");
+    SymbolVariable* new_variable = symbol_table_variable_get_or_create(
+            symbol_register->variables->symbol_table,
+            "bar"
+    );
 
-//    EXPECT_EQ(
-//            symbol_register_find_variable(symbol_register, "bar"),
-//            new_variable->data
-//    ) << "Found variable in new frame.";
+    EXPECT_EQ(
+            symbol_register_find_variable(symbol_register, "bar"),
+            new_variable
+    ) << "Found variable in new frame.";
 
-//    symbol_register_pop_variables_table(symbol_register);
+    symbol_register_pop_variables_table(symbol_register);
 
-//    EXPECT_EQ(
-//            symbol_register_find_variable(symbol_register, "bar"),
-//            nullptr
-//    ) << "Pooped frame with variable.";
+    EXPECT_EQ(
+            symbol_register_find_variable(symbol_register, "bar"),
+            nullptr
+    ) << "Pooped frame with variable.";
 
-//    EXPECT_EQ(
-//            symbol_register_find_variable(symbol_register, "foo"),
-//            found_variable
-//    ) << "Found variable after stack changes.";
+    EXPECT_EQ(
+            symbol_register_find_variable(symbol_register, "foo"),
+            found_variable
+    ) << "Found variable after stack changes.";
+}
 
 
-//}
+TEST_F(SymbolRegisterTestFixture, InvalidStackAccess) {
+    SymbolVariable* found_item;
+    SymbolVariable* symbol_variable = symbol_table_variable_get_or_create(
+            symbol_register->variables->symbol_table,
+            "foo"
+    );
+    EXPECT_NE(
+            symbol_variable,
+            nullptr
+    ) << "Found variable";
+    symbol_register_pop_variables_table(symbol_register);
+    found_item = symbol_table_variable_get(
+            symbol_register->variables->symbol_table,
+            "foo"
+    );
+    EXPECT_EQ(
+            found_item,
+            nullptr
+    ) << "Not found variable in reset stack.";
+}

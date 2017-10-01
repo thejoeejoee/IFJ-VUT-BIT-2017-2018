@@ -27,7 +27,7 @@ void char_stack_empty(CharStack* stack) {
 
 bool char_stack_push(CharStack* stack, char c) {
     NULL_POINTER_CHECK(stack, false);
-    if (stack->stack_head + 1 >= CHAR_STACK_MAX_LENGTH) return false;
+    if(stack->stack_head + 1 >= CHAR_STACK_MAX_LENGTH) return false;
 
     stack->stack[++stack->stack_head] = c;
     return true;

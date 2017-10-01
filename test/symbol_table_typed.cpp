@@ -23,7 +23,7 @@ extern "C" {
 //        }
 
 //        virtual void TearDown() {
-//            symbol_table_test_structure_free(symbol_table);
+//            symbol_table_free(reinterpret_cast<SymbolTable*>(symbol_table));
 //        }
 //};
 

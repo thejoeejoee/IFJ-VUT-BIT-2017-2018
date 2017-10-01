@@ -20,7 +20,7 @@ typedef enum {
     LEXER_ERROR__STRING_FORMAT,
     LEXER_ERROR__DOUBLE_FORMAT,
     LEXER_ERROR__ERROR_LEXEM,
-}LexerError;
+} LexerError;
 
 /**
  * @brief Representation of the FSM that is part of the lexical analyzer

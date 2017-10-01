@@ -13,6 +13,7 @@ typedef struct symbol_variable_t {
 } SymbolVariable;
 
 typedef struct symbol_function_t {
+    SymbolTableBaseListItem base;
     // TODO: define all needed members
     bool declared;
     bool defined;

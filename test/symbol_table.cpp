@@ -22,15 +22,16 @@ class SymbolTableTestFixture : public ::testing::Test {
 
         virtual void SetUp() {
             callCounter->resetCounter();
-            symbol_table = symbol_table_init(2, FreeData);
+            symbol_table = symbol_table_init(2, sizeof(SymbolTableBaseListItem),
+                                             InitData,FreeData);
         }
 
         virtual void TearDown() {
             symbol_table_free(symbol_table);
         }
 
-        void static FreeData(void* data) {
-        }
+        void static InitData(SymbolTableBaseListItem*) {}
+        void static FreeData(SymbolTableBaseListItem*) {}
 };
 
 class SymbolTableWithDataTestFixture : public ::testing::Test {
@@ -48,7 +49,8 @@ class SymbolTableWithDataTestFixture : public ::testing::Test {
 
         virtual void SetUp() {
             callCounter->resetCounter();
-            symbol_table = symbol_table_init(2, FreeData);
+            symbol_table = symbol_table_init(2, sizeof(SymbolTableBaseListItem),
+                                             InitData, FreeData);
 
             // Insert items
             for(auto &key : keys) {
@@ -60,8 +62,8 @@ class SymbolTableWithDataTestFixture : public ::testing::Test {
             symbol_table_free(symbol_table);
         }
 
-        void static FreeData(void* data) {
-        }
+        void static InitData(SymbolTableBaseListItem*) {}
+        void static FreeData(SymbolTableBaseListItem*) {}
 };
 
 TEST_F(SymbolTableTestFixture, Initialization) {
@@ -124,7 +126,7 @@ TEST_F(SymbolTableTestFixture, GetOnEmptyTable) {
 }
 
 TEST_F(SymbolTableWithDataTestFixture, GetInvalidItem) {
-    SymbolTableListItem* item = symbol_table_get(symbol_table, "invalid");
+    SymbolTableBaseListItem* item = symbol_table_get(symbol_table, "invalid");
 
     ASSERT_EQ(
             item,
@@ -134,7 +136,7 @@ TEST_F(SymbolTableWithDataTestFixture, GetInvalidItem) {
 
 TEST_F(SymbolTableWithDataTestFixture, GetValidItem) {
 
-    SymbolTableListItem* item = symbol_table_get(symbol_table, keys[1]);
+    SymbolTableBaseListItem* item = symbol_table_get(symbol_table, keys[1]);
 
     ASSERT_NE(
             item,

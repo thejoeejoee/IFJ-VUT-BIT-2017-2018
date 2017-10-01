@@ -3,7 +3,7 @@
 
 #include "memory.h"
 
-#define SYMBOL_TABLE_TYPED_ITEM(Type, type) \
+/*#define SYMBOL_TABLE_TYPED_ITEM(Type, type) \
 typedef struct symbol_table_list_item_## type ##_t {\
     char* key;\
     Type* data;\
@@ -39,7 +39,6 @@ SymbolTable## Type* symbol_table_## type ##_init(size_t size) {\
 }
 #define SYMBOL_TABLE_TYPED_FREE_CALLBACK(Type, type) \
 void symbol_table_## type ##_free_callback(void* data) {\
-    /** Auto free of allocated data blocks. */\
     memory_free(data);\
 }
 #define SYMBOL_TABLE_TYPED_FREE(Type, type) \
@@ -50,7 +49,6 @@ void symbol_table_## type ##_free(SymbolTable## Type* table) {\
 SymbolTableListItem## Type* symbol_table_## type ##_get_or_create(SymbolTable## Type* table, const char* key) {\
     SymbolTableListItem## Type* item = (SymbolTableListItem## Type*) symbol_table_get_or_create((SymbolTable*) table, key);\
     if (item->data == NULL)\
-        /** Auto alloc for used data block. */\
         item->data = (Type*) memory_alloc(sizeof(Type));\
     return item;\
 }
@@ -62,6 +60,6 @@ SymbolTableListItem## Type* symbol_table_## type ##_get(SymbolTable## Type* tabl
 #define SYMBOL_TABLE_TYPED_HEADERS(Type, type)\
     SYMBOL_TABLE_TYPED_ITEM(Type, type);\
     SYMBOL_TABLE_TYPED_TABLE(Type, type);\
-    SYMBOL_TABLE_TYPED_METHOD_HEADERS(Type, type)
+    SYMBOL_TABLE_TYPED_METHOD_HEADERS(Type, type)*/
 
 #endif //_SYMTABLE_TYPED_H

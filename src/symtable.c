@@ -4,16 +4,17 @@
 
 size_t hash(const char* str);
 
-SymbolTable* symbol_table_init(size_t size, free_data_callback_f free_data_callback) {
+SymbolTable* symbol_table_init(size_t size, size_t item_size, init_data_callback_f init_data_callback, free_data_callback_f free_data_callback) {
     NULL_POINTER_CHECK(free_data_callback, NULL);
-    size_t need_memory = sizeof(SymbolTable) +
-                         sizeof(SymbolTableListItem*) * size;
+    size_t need_memory = sizeof(SymbolTable) + item_size * size;
 
-    SymbolTable* table = (SymbolTable*) memory_alloc(need_memory);
+    SymbolTable* table = memory_alloc(need_memory);
 
+    table->item_size = item_size;
     table->bucket_count = size;
     table->item_count = 0;
     table->free_data_callback = free_data_callback;
+    table->init_data_callback = init_data_callback;
     for(size_t i = 0; i < size; ++i)
         table->items[i] = NULL;
 
@@ -40,8 +41,8 @@ size_t symbol_table_bucket_count(SymbolTable* table) {
 void symbol_table_clear_buckets(SymbolTable* table) {
     NULL_POINTER_CHECK(table,);
 
-    SymbolTableListItem* item_to_free = NULL;
-    SymbolTableListItem* tmp_item = NULL;
+    SymbolTableBaseListItem* item_to_free = NULL;
+    SymbolTableBaseListItem* tmp_item = NULL;
 
     for(size_t i = 0; i < table->bucket_count; ++i) {
         item_to_free = table->items[i];
@@ -50,7 +51,6 @@ void symbol_table_clear_buckets(SymbolTable* table) {
             tmp_item = item_to_free;
             item_to_free = item_to_free->next;
             memory_free(tmp_item->key);
-            table->free_data_callback(tmp_item->data);
             memory_free(tmp_item);
         } while(item_to_free != NULL);
         table->items[i] = NULL;
@@ -58,9 +58,9 @@ void symbol_table_clear_buckets(SymbolTable* table) {
     table->item_count = 0;
 }
 
-SymbolTableListItem* symbol_table_new_item(const char* key) {
+SymbolTableBaseListItem* symbol_table_new_item(const char* key, size_t item_size) {
     NULL_POINTER_CHECK(key, NULL);
-    SymbolTableListItem* new_item = (SymbolTableListItem*) memory_alloc(sizeof(SymbolTableListItem));
+    SymbolTableBaseListItem* new_item = memory_alloc(item_size);
     char* copied_key = (char*) memory_alloc(sizeof(char) * (strlen(key) + 1));
 
     if(NULL == strcpy(copied_key, key)) {
@@ -70,18 +70,18 @@ SymbolTableListItem* symbol_table_new_item(const char* key) {
     }
 
     new_item->key = copied_key;
-    new_item->data = NULL;
     new_item->next = NULL;
+
     return new_item;
 }
 
 void symbol_table_append_item(SymbolTable* table,
-                              SymbolTableListItem* new_item) {
+                              SymbolTableBaseListItem* new_item) {
     NULL_POINTER_CHECK(table,);
     NULL_POINTER_CHECK(new_item,);
 
     size_t index = hash(new_item->key) % table->bucket_count;
-    SymbolTableListItem* target = table->items[index];
+    SymbolTableBaseListItem* target = table->items[index];
 
     new_item->next = NULL;
     if(target == NULL) {
@@ -96,12 +96,12 @@ void symbol_table_append_item(SymbolTable* table,
 }
 
 
-SymbolTableListItem* symbol_table_get(SymbolTable* table, const char* key) {
+SymbolTableBaseListItem* symbol_table_get(SymbolTable* table, const char* key) {
     NULL_POINTER_CHECK(table, NULL);
     NULL_POINTER_CHECK(key, NULL);
 
     size_t index = hash(key) % table->bucket_count;
-    SymbolTableListItem* item = table->items[index];
+    SymbolTableBaseListItem* item = table->items[index];
 
     while(item != NULL) {
         if(0 == strcmp(key, item->key))
@@ -116,43 +116,44 @@ void symbol_table_foreach(SymbolTable* table,
     NULL_POINTER_CHECK(table,);
     NULL_POINTER_CHECK(callback,);
 
-    SymbolTableListItem* item;
     for(size_t i = 0; i < table->bucket_count; ++i) {
-        item = table->items[i];
+        SymbolTableBaseListItem* item = (SymbolTableBaseListItem*)table->items[i];
         while(item != NULL) {
-            callback(item->key, &item->data);
+            callback(item->key, item);
             item = item->next;
         }
     }
 }
 
-SymbolTableListItem* symbol_table_get_or_create(SymbolTable* table, const char* key) {
+SymbolTableBaseListItem* symbol_table_get_or_create(SymbolTable* table, const char* key) {
     NULL_POINTER_CHECK(table, NULL);
     NULL_POINTER_CHECK(key, NULL);
 
     size_t index = hash(key) % table->bucket_count;
-    SymbolTableListItem* item = table->items[index];
+    SymbolTableBaseListItem* item = table->items[index];
+    SymbolTableBaseListItem* last_item = NULL;
 
-    if(item != NULL)
-        while(42) {
-            if(0 == strcmp(key, item->key))
-                return item;
+    while(item != NULL) {
+        if(0 == strcmp(key, item->key))
+            return item;
 
-            if(item->next == NULL) break;
-
-            item = item->next;
-        };
+        last_item = item;
+        item = item->next;
+    };
 
     // key not found, we need to allocate new item
-    SymbolTableListItem* new_item = symbol_table_new_item(key);
+    SymbolTableBaseListItem* new_item = symbol_table_new_item(key, table->item_size);
+    if(table->init_data_callback != NULL)
+        table->init_data_callback(new_item);
+
     if(new_item == NULL) return NULL;
 
-    if(item == NULL) {
+    if(last_item == NULL) {
         // not items not found at index
         table->items[index] = new_item;
     } else {
         // link to next
-        item->next = new_item;
+        last_item->next = new_item;
     }
     table->item_count++;
 
@@ -161,13 +162,15 @@ SymbolTableListItem* symbol_table_get_or_create(SymbolTable* table, const char* 
 
 SymbolTable* symbol_table_move(size_t new_size, SymbolTable* source) {
     NULL_POINTER_CHECK(source, NULL);
-    SymbolTable* destination = symbol_table_init(new_size, source->free_data_callback);
+    SymbolTable* destination = symbol_table_init(new_size, source->item_size,
+                                                 source->init_data_callback,
+                                                 source->free_data_callback);
     if(destination == NULL) return NULL;
 
     destination->bucket_count = new_size;
 
-    SymbolTableListItem* item = NULL;
-    SymbolTableListItem* next = NULL;
+    SymbolTableBaseListItem* item = NULL;
+    SymbolTableBaseListItem* next = NULL;
 
     for(size_t source_bucket_i = 0; source_bucket_i < source->bucket_count; ++source_bucket_i) {
         item = source->items[source_bucket_i];
@@ -190,12 +193,10 @@ bool symbol_table_remove(SymbolTable* table, const char* key) {
     NULL_POINTER_CHECK(key, false);
 
     size_t index = hash(key) % table->bucket_count;
-    SymbolTableListItem* item = table->items[index];
-    SymbolTableListItem* prev = NULL;
+    SymbolTableBaseListItem* item = table->items[index];
+    SymbolTableBaseListItem* prev = NULL;
 
-    if(item == NULL) return false;
-
-    while(42) {
+    while(item != NULL) {
         if(0 == strcmp(key, item->key)) {
             if(prev == NULL)
                 table->items[index] = item->next;
@@ -203,16 +204,15 @@ bool symbol_table_remove(SymbolTable* table, const char* key) {
                 prev->next = item->next;
 
             memory_free(item->key);
-            table->free_data_callback(item->data);
+            table->free_data_callback(item);
             memory_free(item);
             return true;
         }
 
-        if(item->next == NULL) break;
-
         prev = item;
         item = item->next;
     };
+
     return false;
 }
 
@@ -228,6 +228,6 @@ size_t hash(const char* str) {
 
 /** SPECIFIC SYMBOL TABLE IMPLEMENTATIONS */
 
-SYMBOL_TABLE_TYPED_IMPLEMENTATION(SymbolFunction, function)
+//SYMBOL_TABLE_TYPED_IMPLEMENTATION(SymbolFunction, function)
 
-SYMBOL_TABLE_TYPED_IMPLEMENTATION(SymbolVariable, variable)
+//SYMBOL_TABLE_TYPED_IMPLEMENTATION(SymbolVariable, variable)

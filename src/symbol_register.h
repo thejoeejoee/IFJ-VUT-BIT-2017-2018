@@ -4,11 +4,19 @@
 #include "symtable.h"
 
 /**
+ * @brief Helper structure for stacking variable symbol tables.
+ */
+typedef struct symbol_table_symbol_variable_stack_item_t {
+    SymbolTableSymbolVariable* symbol_table;
+    struct symbol_table_symbol_variable_stack_item_t* parent;
+} SymbolTableSymbolVariableStackItem;
+
+/**
  * @brief Register of used functions/variables.
  */
 typedef struct symbol_register_t {
     SymbolTableSymbolFunction* functions;
-    SymbolTableSymbolVariable* variables;
+    SymbolTableSymbolVariableStackItem* variables;
 } SymbolRegister;
 
 /**

@@ -45,9 +45,11 @@ TEST_F(SymbolRegisterTestFixture, PushAndGetFunctions) {
 
 }
 
-TEST_F(SymbolRegisterTestFixture, VariablesFinding) {
-    SymbolTableListItemSymbolVariable* symbol_variable = symbol_table_variable_get_or_create(symbol_register->variables,
-                                                                                             "foo");
+TEST_F(SymbolRegisterTestFixture, FindingVariablesInStack) {
+    SymbolTableListItemSymbolVariable* symbol_variable = symbol_table_variable_get_or_create(
+            symbol_register->variables->symbol_table,
+            "foo"
+    );
 
     EXPECT_NE(
             symbol_variable,
@@ -77,8 +79,10 @@ TEST_F(SymbolRegisterTestFixture, VariablesFinding) {
             symbol_variable->data
     ) << "Recursively found variable.";
 
-    SymbolTableListItemSymbolVariable* new_variable = symbol_table_variable_get_or_create(symbol_register->variables,
-                                                                                          "bar");
+    SymbolTableListItemSymbolVariable* new_variable = symbol_table_variable_get_or_create(
+            symbol_register->variables->symbol_table,
+            "bar"
+    );
 
     EXPECT_EQ(
             symbol_register_find_variable(symbol_register, "bar"),
@@ -96,6 +100,26 @@ TEST_F(SymbolRegisterTestFixture, VariablesFinding) {
             symbol_register_find_variable(symbol_register, "foo"),
             found_variable
     ) << "Found variable after stack changes.";
+}
 
 
+TEST_F(SymbolRegisterTestFixture, InvalidStackAccess) {
+    SymbolTableListItemSymbolVariable* found_item;
+    SymbolTableListItemSymbolVariable* symbol_variable = symbol_table_variable_get_or_create(
+            symbol_register->variables->symbol_table,
+            "foo"
+    );
+    EXPECT_NE(
+            symbol_variable,
+            nullptr
+    ) << "Found variable";
+    symbol_register_pop_variables_table(symbol_register);
+    found_item = symbol_table_variable_get(
+            symbol_register->variables->symbol_table,
+            "foo"
+    );
+    EXPECT_EQ(
+            found_item,
+            nullptr
+    ) << "Not found variable in reset stack.";
 }

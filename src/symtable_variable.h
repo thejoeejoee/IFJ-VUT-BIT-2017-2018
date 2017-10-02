@@ -12,9 +12,11 @@ typedef struct symbol_variable_t {
 } SymbolVariable;
 
 SymbolVariable* symbol_table_variable_get_or_create(SymbolTable* table, const char* key);
+
 SymbolVariable* symbol_table_variable_get(SymbolTable* table, const char* key);
 
 void symbol_variable_init_data(SymbolTableBaseItem* item);
+
 void symbol_variable_free_data(SymbolTableBaseItem* item);
 
 #define symbol_table_variable_init(bucket_count) symbol_table_init( \

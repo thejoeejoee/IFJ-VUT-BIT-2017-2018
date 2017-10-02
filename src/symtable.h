@@ -16,6 +16,7 @@ typedef struct symbol_table_base_list_item_t {
  * Callback, which frees data pointer from hash table item.
  */
 typedef void(* free_data_callback_f)(SymbolTableBaseItem*);
+
 typedef void(* init_data_callback_f)(SymbolTableBaseItem*);
 
 typedef struct symbol_table_t {

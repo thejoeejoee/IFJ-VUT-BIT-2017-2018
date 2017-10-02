@@ -67,8 +67,8 @@ SymbolVariable* symbol_register_find_variable(SymbolRegister* register_, const c
     NULL_POINTER_CHECK(key, NULL);
 
     SymbolVariable* item = symbol_table_variable_get(
-                                                  register_->variables->symbol_table,
-                                                  key);
+            register_->variables->symbol_table,
+            key);
     if(item == NULL)
         return NULL;
     return item;

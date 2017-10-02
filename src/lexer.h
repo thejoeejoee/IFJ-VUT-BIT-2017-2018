@@ -37,6 +37,14 @@ void lexer_free(Lexer** lexer);
 Token lexer_next_token(Lexer* lexer);
 
 /**
+ * @brief Store token additional data from stream_buffer to .data ptr - only for identifiers and number, string and double literals.
+ * @param lexer lexer pointer
+ * @param token token to process
+ * @return pointer to data block with additional data
+ */
+char* lexer_store_token_data(const Lexer* lexer, Token token);
+
+/**
  * @brief Push token to the stack
  *
  * @param Lexer* lexer Pointer to instance of lexer

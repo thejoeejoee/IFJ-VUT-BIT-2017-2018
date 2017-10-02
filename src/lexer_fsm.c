@@ -116,7 +116,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
 
         case LEX_FSM__STRING_LOAD:
 
-            if (c < 32) {
+            if(c < 32) {
                 return LEX_FSM__ERROR;
             }
             switch(c) {
@@ -188,7 +188,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
             } else if(c == '.') {
                 STORE_CHAR(c);
                 return LEX_FSM__DOUBLE_DOT;
-            } else if (tolower(c) == 'e') {
+            } else if(tolower(c) == 'e') {
                 STORE_CHAR(c);
                 return LEX_FSM__DOUBLE_E;
             } else {

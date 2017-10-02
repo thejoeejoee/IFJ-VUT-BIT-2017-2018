@@ -54,17 +54,28 @@ Token lexer_next_token(Lexer* lexer) {
 
     token.type = (TokenType) actual_state;
 
-    size_t data_length = string_length(lexer->lexer_fsm->stream_buffer);
-    if(data_length > 0) {
-        token.data = memory_alloc(sizeof(char) * (data_length + 1));
+    token.data = lexer_store_token_data(lexer, token);
+    string_clear(lexer->lexer_fsm->stream_buffer);
+    return token;
+}
 
-        if(NULL == strcpy(token.data, string_content(lexer->lexer_fsm->stream_buffer))) {
-            exit_with_code(ERROR_INTERNAL);
-        }
+char* lexer_store_token_data(const Lexer* lexer, Token token) {
+    NULL_POINTER_CHECK(lexer, NULL);
+
+    size_t data_length = string_length(lexer->lexer_fsm->stream_buffer);
+    if(!data_length || !(
+            token.type == TOKEN_IDENTIFIER ||
+            token.type == TOKEN_STRING_VALUE ||
+            token.type == TOKEN_INTEGER_LITERAL ||
+            token.type == TOKEN_DOUBLE_LITERAL
+    )) {
+        return NULL;
     }
 
-    string_clear(lexer->lexer_fsm->stream_buffer);
+    char* data = memory_alloc(sizeof(char) * (data_length + 1));
 
-    return token;
-
+    if(NULL == strcpy(data, string_content(lexer->lexer_fsm->stream_buffer))) {
+        exit_with_code(ERROR_INTERNAL);
+    }
+    return data;
 }

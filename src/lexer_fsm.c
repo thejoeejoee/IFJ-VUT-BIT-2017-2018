@@ -20,6 +20,9 @@ LexerFSM* lexer_fsm_init(lexer_input_stream_f input_stream) {
     lexer_fsm->numeric_char_position = -1;
     lexer_fsm->lexer_error = LEXER_ERROR__NO_ERROR;
 
+    // Todo: Checking line
+    lexer_fsm->line = 0;
+
     return lexer_fsm;
 }
 

@@ -34,6 +34,8 @@ typedef struct lexer_fsm_t {
     char numeric_char_value[4]; // Stack for numeric value of char
     short numeric_char_position; // Head of stack for numeric value of char
 
+    int line; // Actual line
+
     LexerError lexer_error; // Error code
 } LexerFSM;
 

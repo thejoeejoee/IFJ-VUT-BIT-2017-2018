@@ -12,8 +12,11 @@
 #define GET_NEXT_TOKEN_TYPE()\
     token = lexer_next_token(parser->lexer);\
     token_type = token->type;\
-    if (token_type == TOKEN_ERROR) \
-        parser->error_report.error_code = ERROR_LEXER;
+    if (token_type == TOKEN_ERROR) {\
+        parser->error_report.error_code = ERROR_LEXER;\
+        parser->error_report.detail_information = (int )parser->lexer->lexer_fsm->lexer_error;\
+    }
+
 
 #define INIT_LOCAL_TOKEN_VARS() Token *token; TokenType token_type;
 

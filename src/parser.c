@@ -9,6 +9,7 @@ Parser* parser_init(lexer_input_stream_f input_stream) {
     Parser* parser = (Parser*) memory_alloc(sizeof(Parser));
 
     parser->lexer = lexer_init(input_stream);
+    parser->error_report.error_code = ERROR_NONE;
     parser->parser_semantic = parser_semantic_init();
     parser->enabled_code_generation = parser->enabled_semantic_analysis = true;
     return parser;
@@ -23,8 +24,12 @@ void parser_free(Parser** parser) {
 
 bool parser_parse(Parser* parser) {
 
-    if (!parser_parse_program(parser) && parser->error_report.error_code == ERROR_NONE) {
-        parser->error_report.error_code = ERROR_SYNTAX;
+    if (!parser_parse_program(parser)) {
+        parser->error_report.line = parser->lexer->lexer_fsm->line;
+
+        if (parser->error_report.error_code == ERROR_NONE)
+            parser->error_report.error_code = ERROR_SYNTAX;
+
         return false;
     }
 

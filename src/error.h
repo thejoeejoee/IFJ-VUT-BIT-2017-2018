@@ -14,9 +14,13 @@ typedef enum error_code_t {
 
 typedef struct error_report_t {
     ErrorCode error_code;
+    int line;
+    int detail_information;
     // TODO: Other information
 } ErrorReport;
 
 void exit_with_code(ErrorCode code);
+
+void exit_with_detail_information(ErrorReport error_report);
 
 #endif //_ERROR_H

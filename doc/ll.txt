@@ -1,6 +1,6 @@
 // Celý program
 <prog> -> <body> EOF
-<body> -> <definitions> <statement_6>
+<body> -> <definitions> <statement_scope>
 
 // Definiční část
 <definitions> -> <eols> <definition> EOL <eols> <definitions>
@@ -29,24 +29,25 @@
 <body_statements> -> <body_statement_single> EOL <eols> <statements>
 
 // Použitelné v těle funkce
-<function_statement_single> -> <statement_1>
-<function_statement_single> -> <statement_2>
-<function_statement_single> -> <statement_3>
+<function_statement_single> -> <statement_assigment>
+<function_statement_single> -> <statement_input>
+<function_statement_single> -> <statement_print>
+<function_statement_single> -> <statement_return>
+<function_statement_single> -> <statement_scope>
 
 // Použitelné ve scope
-<body_statement_single> -> <statement_1>
-<body_statement_single> -> <statement_2>
-<body_statement_single> -> <statement_3>
-<body_statement_single> -> <statement_4>
+<body_statement_single> -> <statement_assigment>
+<body_statement_single> -> <statement_input>
+<body_statement_single> -> <statement_print>
 <body_statement_single> -> <statement_5>
-<body_statement_single> -> <statement_6>
+<body_statement_single> -> <statement_scope>
 
-<statement_1> -> <id> EQUAL <expression> // přiřazení
-<statement_2> -> INPUT IDENTIFIER // načtení ze vstupu
-<statement_3> -> PRINT <print_expression> <print_expressions> // tisk na výstup, alespoň jeden příkaz, každý se středníkem
-<statement_4> -> RETURN <expression>
-<statement_5> -> <print_expression>
-<statement_6> -> SCOPE EOL <body_statements> END SCOPE
+<statement_assigment> -> <id> EQUAL <expression> // přiřazení
+<statement_input> -> INPUT IDENTIFIER // načtení ze vstupu
+<statement_print> -> PRINT <print_expression> <print_expressions> // tisk na výstup, alespoň jeden příkaz, každý se středníkem
+<statement_return> -> RETURN <expression>
+<statement_5> -> <print_expression> // TODO nevíme, spekulativní
+<statement_scope> -> SCOPE EOL <body_statements> END SCOPE
 
 // Tisk řetězce
 <print_expression> -> <expression> SEMICOLON
@@ -68,5 +69,3 @@
 <type> ->
 <eols> -> E
 <eols> -> EOL <eols>
-
-

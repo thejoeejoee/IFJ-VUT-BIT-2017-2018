@@ -1,5 +1,5 @@
 // Celý program
-<prog> -> <body> EOF
+<prog> -> <body> <eols> EOF
 <body> -> <definitions> <statement_scope>
 
 // Definiční část

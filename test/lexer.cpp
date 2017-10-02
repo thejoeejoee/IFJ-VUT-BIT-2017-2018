@@ -269,7 +269,7 @@ TEST_F(LexerTokenizerTestFixture, ErrorTokens) {
             LEXER_ERROR__ERROR_LEXEM
     ) << "Error getting error code";
 
-    provider->setString("!\"\\%\"");
+    provider->setString(R"(!"\%")");
     EXPECT_EQ(
             this->getNextTokenType(),
             TOKEN_ERROR
@@ -349,7 +349,6 @@ TEST_F(LexerTokenizerTestFixture, ErrorTokens) {
 
 TEST_F(LexerTokenizerTestFixture, ComplexTest) {
     provider->setString("+ <= >= ahoj _8wtf *");
-    char_stack_empty(lexer->lexer_fsm->stack);
 
     EXPECT_EQ(
             this->getNextTokenType(),
@@ -405,7 +404,6 @@ End If
 Return result
 End Function
 )RAW");
-    char_stack_empty(lexer->lexer_fsm->stack);
 
     const std::vector<TokenType> expectedTokens = {
             TOKEN_EOL, TOKEN_EOL, TOKEN_DECLARE, TOKEN_FUNCTION, TOKEN_IDENTIFIER,
@@ -466,7 +464,6 @@ Input s1
 Loop
 End Scope
 )RAW");
-    char_stack_empty(lexer->lexer_fsm->stack);
 
     const std::vector<TokenType> expectedTokens = {
             TOKEN_EOL, TOKEN_EOL, TOKEN_SCOPE,

@@ -43,11 +43,13 @@ bool parser_parse_program(Parser* parser) {
 
     /*
      * RULE
-     * <prog> -> <body> EOF
+     * <prog> -> <body> <eols> EOF
      */
 
     // Call rule <body>. If <body> return false => return false
     CALL_RULE(body);
+
+    CALL_RULE(eols);
 
     // Expect EOF token If return true, program is syntactically correct
     GET_NEXT_TOKEN_TYPE();

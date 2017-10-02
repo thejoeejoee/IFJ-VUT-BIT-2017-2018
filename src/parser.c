@@ -6,6 +6,7 @@
 
 
 Parser* parser_init(lexer_input_stream_f input_stream) {
+    NULL_POINTER_CHECK(input_stream, NULL);
     Parser* parser = (Parser*) memory_alloc(sizeof(Parser));
 
     parser->lexer = lexer_init(input_stream);
@@ -16,7 +17,8 @@ Parser* parser_init(lexer_input_stream_f input_stream) {
 }
 
 void parser_free(Parser** parser) {
-
+    NULL_POINTER_CHECK(parser,);
+    NULL_POINTER_CHECK(*parser,);
     lexer_free(&((*parser)->lexer));
     parser_semantic_free(&((*parser)->parser_semantic));
     memory_free(*parser);
@@ -24,10 +26,9 @@ void parser_free(Parser** parser) {
 }
 
 bool parser_parse(Parser* parser) {
-
+    NULL_POINTER_CHECK(parser, false);
     if(!parser_parse_program(parser)) {
         parser->error_report.line = parser->lexer->lexer_fsm->line;
-
         if(parser->error_report.error_code == ERROR_NONE)
             parser->error_report.error_code = ERROR_SYNTAX;
 
@@ -39,9 +40,7 @@ bool parser_parse(Parser* parser) {
 }
 
 bool parser_parse_program(Parser* parser) {
-
     INIT_LOCAL_TOKEN_VARS();
-
     /*
      * RULE
      * <prog> -> <body> <eols> EOF
@@ -49,7 +48,6 @@ bool parser_parse_program(Parser* parser) {
 
     // Call rule <body>. If <body> return false => return false
     CALL_RULE(body);
-
     CALL_RULE(eols);
 
     // Expect EOF token If return true, program is syntactically correct
@@ -60,14 +58,11 @@ bool parser_parse_program(Parser* parser) {
 }
 
 bool parser_parse_body(Parser* parser) {
-
     INIT_LOCAL_TOKEN_VARS()
-
     /**
      * RULE
      * <body> -> <definitions> SCOPE EOL <statements> END SCOPE
      */
-
     // Call <definitions> rule
     CALL_RULE(definitions);
 
@@ -94,9 +89,7 @@ bool parser_parse_body(Parser* parser) {
 }
 
 bool parser_parse_definitions(Parser* parser) {
-
     INIT_LOCAL_TOKEN_VARS()
-
     /**
      * RULES
      *
@@ -121,9 +114,7 @@ bool parser_parse_definitions(Parser* parser) {
 }
 
 bool parser_parse_definition(Parser* parser) {
-
     INIT_LOCAL_TOKEN_VARS()
-
     /**
      * RULES
      * <definition> -> <function_declaration>
@@ -145,9 +136,7 @@ bool parser_parse_definition(Parser* parser) {
 }
 
 bool parser_parse_function_definition(Parser* parser) {
-
     INIT_LOCAL_TOKEN_VARS()
-
     /**
      * RULE
      * <function_definition> -> <function_header> EOL <eols> <statements> END FUNCTION
@@ -167,21 +156,17 @@ bool parser_parse_function_definition(Parser* parser) {
 }
 
 bool parser_parse_function_statements(Parser* parser) {
-
     INIT_LOCAL_TOKEN_VARS()
-
     /**
      * RULES
      * <statements> -> E
      * <statements> -> <statement_single> EOL <eols> <statements>
      */
-
     token = lexer_next_token(parser->lexer);
     token_type = token.type;
     lexer_rewind_token(parser->lexer, token);
 
     if(token_type != TOKEN_INPUT) {
-
         // It is EPSILON
         return true;
     } else {
@@ -196,15 +181,12 @@ bool parser_parse_function_statements(Parser* parser) {
 }
 
 bool parser_parse_body_statements(Parser* parser) {
-
     INIT_LOCAL_TOKEN_VARS()
-
     /**
      * RULES
      * <statements> -> E
      * <statements> -> <statement_single> EOL <eols> <statements>
      */
-
     token = lexer_next_token(parser->lexer);
     token_type = token.type;
     lexer_rewind_token(parser->lexer, token);
@@ -225,9 +207,7 @@ bool parser_parse_body_statements(Parser* parser) {
 }
 
 bool parser_parse_function_statement_single(Parser* parser) {
-
     INIT_LOCAL_TOKEN_VARS()
-
     /**
      * RULE
      * <statement_single> -> INPUT <id>
@@ -237,7 +217,6 @@ bool parser_parse_function_statement_single(Parser* parser) {
     token_type = token.type;
 
     if(token_type == TOKEN_INPUT) {
-
         GET_NEXT_TOKEN_TYPE()
         TEST_TOKEN_TYPE(TOKEN_IDENTIFIER)
 
@@ -249,19 +228,15 @@ bool parser_parse_function_statement_single(Parser* parser) {
 }
 
 bool parser_parse_body_statement_single(Parser* parser) {
-
     INIT_LOCAL_TOKEN_VARS()
-
     /**
      * RULE
      * <statement_single> -> INPUT <id>
      */
-
     token = lexer_next_token(parser->lexer);
     token_type = token.type;
 
     if(token_type == TOKEN_INPUT) {
-
         GET_NEXT_TOKEN_TYPE()
         TEST_TOKEN_TYPE(TOKEN_IDENTIFIER)
         SEMANTIC_ANALYSIS(
@@ -274,23 +249,17 @@ bool parser_parse_body_statement_single(Parser* parser) {
         FREE_TOKEN_DATA();
         return true;
     }
-    // TODO: where to free token data?
-    if(token.data != NULL)
-        memory_free(token.data);
 
     return false;
 }
 
 
 bool parser_parse_function_declaration(Parser* parser) {
-
     INIT_LOCAL_TOKEN_VARS()
-
     /**
      * RULE
      * <function_declaration> -> DECLARE <function_header> EOL <eols>
      */
-
     // Expect SCOPE token
     GET_NEXT_TOKEN_TYPE();
     TEST_TOKEN_TYPE(TOKEN_DECLARE);
@@ -309,9 +278,7 @@ bool parser_parse_function_declaration(Parser* parser) {
 }
 
 bool parser_parse_function_header(Parser* parser) {
-
     INIT_LOCAL_TOKEN_VARS()
-
     /**
      * RULE
      * FUNCTION IDENTIFIER (<function_params>) AS <type>
@@ -349,9 +316,7 @@ bool parser_parse_function_header(Parser* parser) {
 }
 
 bool parser_parse_function_params(Parser* parser) {
-
     INIT_LOCAL_TOKEN_VARS()
-
     /**
      * RULE
      * E
@@ -375,9 +340,7 @@ bool parser_parse_function_params(Parser* parser) {
 }
 
 bool parser_parse_function_n_param(Parser* parser) {
-
     INIT_LOCAL_TOKEN_VARS()
-
     /**
      * RULE
      * E
@@ -400,9 +363,7 @@ bool parser_parse_function_n_param(Parser* parser) {
 }
 
 bool parser_parse_function_param(Parser* parser) {
-
     INIT_LOCAL_TOKEN_VARS()
-
     /**
      * RULE
      * <function_param> -> IDENTIFIER AS TYPE
@@ -426,13 +387,11 @@ bool parser_parse_function_param(Parser* parser) {
 }
 
 bool parser_parse_eols(Parser* parser) {
-
     /**
      * RULES
      * <eols> -> E
      * <eols> -> EOL <eols>
      */
-
     INIT_LOCAL_TOKEN_VARS()
 
     token = lexer_next_token(parser->lexer);

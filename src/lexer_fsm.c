@@ -46,13 +46,9 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
         c = lexer_fsm->input_stream();
 
     switch(prev_state) {
-
         // Starting state
-
         case LEX_FSM__INIT:
-
             // If it is a white space, we ignore it
-
             if(c == '\n')
                 return LEX_FSM__EOL;
 
@@ -63,7 +59,6 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
                 STORE_CHAR(tolower(c));
                 return LEX_FSM__IDENTIFIER_UNFINISHED;
             }
-
             if(isdigit(c)) {
                 STORE_CHAR(c);
                 return LEX_FSM__INTEGER_LITERAL_UNFINISHED;
@@ -103,7 +98,6 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
                     break;
             }
             break;
-
             // String states
 
         case LEX_FSM__STRING_EXC:
@@ -115,7 +109,6 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
             }
 
         case LEX_FSM__STRING_LOAD:
-
             if(c < 32) {
                 return LEX_FSM__ERROR;
             }
@@ -133,7 +126,6 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
             }
 
         case LEX_FSM__STRING_SLASH:
-
             if(isdigit(c)) {
                 lexer_fsm->numeric_char_position = 0;
                 lexer_fsm->numeric_char_value[0] = c;
@@ -159,7 +151,6 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
             }
 
             // Integer literal
-
         case LEX_FSM__STRING_NUMERIC_CHAR:
             if(isdigit(c)) {
                 lexer_fsm->numeric_char_position++;
@@ -195,7 +186,6 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
                 REWIND_CHAR(c);
                 return LEX_FSM__INTEGER_LITERAL_FINISHED;
             }
-
             // Double literal
 
         case LEX_FSM__DOUBLE_DOT:
@@ -241,7 +231,6 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
             }
 
             // Relation operators
-
         case LEX_FSM__LEFT_SHARP_BRACKET:
             switch(c) {
                 case '=':
@@ -263,7 +252,6 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
             }
 
             // Identifiers
-
         case LEX_FSM__IDENTIFIER_UNFINISHED:
             if(c == '_' || isdigit(c) || isalpha(c)) {
                 STORE_CHAR(tolower(c));
@@ -275,7 +263,6 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
             }
 
             // Comments
-
         case LEX_FSM__SLASH:
             if(c == '\'')
                 return LEX_FSM__COMMENT_BLOCK;
@@ -283,7 +270,6 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
                 REWIND_CHAR(c);
                 return LEX_FSM__DIVIDE;
             }
-
 
         case LEX_FSM__COMMENT_LINE:
             if(c != '\n')

@@ -18,7 +18,7 @@
     }
 
 
-#define INIT_LOCAL_TOKEN_VARS() Token token; TokenType token_type;
+#define INIT_LOCAL_TOKEN_VARS() NULL_POINTER_CHECK(parser, false); Token token; TokenType token_type;
 
 #define CALL_RULE(Rule) if (!parser_parse_##Rule(parser)) return false;
 

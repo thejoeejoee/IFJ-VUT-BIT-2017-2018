@@ -18,6 +18,7 @@ LexerFSM* lexer_fsm_init(lexer_input_stream_f input_stream) {
     lexer_fsm->stack = stack;
     lexer_fsm->input_stream = input_stream;
     lexer_fsm->numeric_char_position = -1;
+    lexer_fsm->lexer_error = LEXER_ERROR__NO_ERROR;
 
     return lexer_fsm;
 }
@@ -106,6 +107,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
             if(c == '"') {
                 return LEX_FSM__STRING_LOAD;
             } else {
+                lexer_fsm->lexer_error = LEXER_ERROR__STRING_FORMAT;
                 return LEX_FSM__ERROR;
             }
 
@@ -117,6 +119,9 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
             switch(c) {
                 case '"':
                     return LEX_FSM__STRING_VALUE;
+                case '\n':
+                    lexer_fsm->lexer_error = LEXER_ERROR__STRING_FORMAT;
+                    return LEX_FSM__ERROR;
                 case '\\':
                     return LEX_FSM__STRING_SLASH;
                 default:
@@ -146,6 +151,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
                     STORE_CHAR('\t');
                     return LEX_FSM__STRING_LOAD;
                 default:
+                    lexer_fsm->lexer_error = LEXER_ERROR__STRING_FORMAT;
                     return LEX_FSM__ERROR;
             }
 
@@ -169,6 +175,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
                 return LEX_FSM__STRING_NUMERIC_CHAR;
 
             }
+            lexer_fsm->lexer_error = LEXER_ERROR__STRING_FORMAT;
             return LEX_FSM__ERROR;
 
         case LEX_FSM__INTEGER_LITERAL_UNFINISHED:
@@ -192,8 +199,10 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
             if(isdigit(c)) {
                 STORE_CHAR(c);
                 return LEX_FSM__DOUBLE_UNFINISHED;
-            } else
+            } else {
+                lexer_fsm->lexer_error = LEXER_ERROR__DOUBLE_FORMAT;
                 return LEX_FSM__ERROR;
+            }
 
         case LEX_FSM__DOUBLE_UNFINISHED:
             if(isdigit(c)) {
@@ -215,6 +224,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
                 STORE_CHAR(c);
                 return LEX_FSM__DOUBLE_E_UNFINISHED;
             } else {
+                lexer_fsm->lexer_error = LEXER_ERROR__DOUBLE_FORMAT;
                 return LEX_FSM__ERROR;
             }
 
@@ -293,7 +303,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
             break;
     }
 
-    // TODO never happened, Chuck Norris state
+    lexer_fsm->lexer_error = LEXER_ERROR__ERROR_LEXEM;
     return LEX_FSM__ERROR;
 }
 
@@ -325,6 +335,7 @@ LexerFSMState lexer_fsm_get_identifier_state(const char* name) {
 }
 
 bool lexer_fsm_is_final_state(LexerFSMState state) {
+
+    return state >= LEX_FSM__ADD;
     // TODO: inline of macro to better performance
-    return state >= LEX_FSM__ADD && state <= LEX_FSM__ERROR;
 }

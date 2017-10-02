@@ -107,13 +107,24 @@ TEST_F(LexerFSMTestFixture, GettingIdentifierTypeTest) {
 }
 
 TEST_F(LexerFSMTestFixture, UnknownCharacter) {
-    char_stack_empty(lexer_fsm->stack);
-
     provider->setString("@");
     EXPECT_EQ(
             lexer_fsm_next_state(lexer_fsm, LEX_FSM__INIT),
             LEX_FSM__ERROR
     ) << "Unknown character for lexer.";
+}
+
+TEST_F(LexerFSMTestFixture, UnknownState) {
+    provider->setString("a");
+    EXPECT_EQ(
+            lexer_fsm_next_state(lexer_fsm, LEX_FSM__STRING_NUMERIC_CHAR),
+            LEX_FSM__ERROR
+    ) << "Unknown char in numeric character escape sequence.";
+
+    EXPECT_EQ(
+            lexer_fsm->lexer_error,
+            LEXER_ERROR__STRING_FORMAT
+    ) << "Stored string format error after invalid numeric escape sequence.";
 
 }
 

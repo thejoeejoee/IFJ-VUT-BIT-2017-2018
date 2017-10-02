@@ -4,184 +4,181 @@
 
 size_t hash(const char* str);
 
-void hash_table_append_item(HashTable* table,
-                            HashTableListItem* new_item) {
-    NULL_POINTER_CHECK(table,);
-    NULL_POINTER_CHECK(new_item,);
+SymbolTable* symbol_table_init(size_t size, size_t item_size, init_data_callback_f init_data_callback,
+                               free_data_callback_f free_data_callback) {
+    NULL_POINTER_CHECK(free_data_callback, NULL);
+    size_t need_memory = sizeof(SymbolTable) + item_size * size;
 
-    size_t index = hash(new_item->key) % table->bucket_count;
-    HashTableListItem* target = table->items[index];
+    SymbolTable* table = memory_alloc(need_memory);
 
-    new_item->next = NULL;
-    if (target == NULL) {
-        table->items[index] = new_item;
+    table->item_size = item_size;
+    table->bucket_count = size;
+    table->item_count = 0;
+    table->free_data_callback = free_data_callback;
+    table->init_data_callback = init_data_callback;
+    for(size_t i = 0; i < size; ++i)
+        table->items[i] = NULL;
 
-    } else {
-        while (target->next != NULL) {
-            target = target->next;
-        };
-        target->next = new_item;
-    }
+    return table;
 }
 
-void hash_table_clear_buckets(HashTable* table,
-                              free_data_callback_f free_data) {
+void symbol_table_free(SymbolTable* table) {
     NULL_POINTER_CHECK(table,);
-    NULL_POINTER_CHECK(free_data,);
+    symbol_table_clear_buckets(table);
 
-    HashTableListItem* item_to_free = NULL;
-    HashTableListItem* tmp_item = NULL;
+    memory_free(table);
+}
 
-    for (size_t i = 0; i < table->bucket_count; ++i) {
+size_t symbol_table_size(SymbolTable* table) {
+    NULL_POINTER_CHECK(table, 0);
+    return table->item_count;
+}
+
+size_t symbol_table_bucket_count(SymbolTable* table) {
+    NULL_POINTER_CHECK(table, 0);
+    return table->bucket_count;
+}
+
+void symbol_table_clear_buckets(SymbolTable* table) {
+    NULL_POINTER_CHECK(table,);
+
+    SymbolTableBaseItem* item_to_free = NULL;
+    SymbolTableBaseItem* tmp_item = NULL;
+
+    for(size_t i = 0; i < table->bucket_count; ++i) {
         item_to_free = table->items[i];
-        if (item_to_free == NULL) continue;
+        if(item_to_free == NULL) continue;
         do {
             tmp_item = item_to_free;
             item_to_free = item_to_free->next;
             memory_free(tmp_item->key);
-            free_data(tmp_item->data);
             memory_free(tmp_item);
-        } while (item_to_free != NULL);
+        } while(item_to_free != NULL);
         table->items[i] = NULL;
     }
     table->item_count = 0;
 }
 
-HashTableListItem* hash_table_new_item(const char* key) {
+SymbolTableBaseItem* symbol_table_new_item(const char* key, size_t item_size) {
     NULL_POINTER_CHECK(key, NULL);
-    HashTableListItem* new_item = NULL;
-    char* copied_key = NULL;
+    SymbolTableBaseItem* new_item = memory_alloc(item_size);
+    char* copied_key = (char*) memory_alloc(sizeof(char) * (strlen(key) + 1));
 
-    new_item = (HashTableListItem*) memory_alloc(sizeof(HashTableListItem));
-
-    if (NULL == (copied_key = (char*) memory_alloc(sizeof(char) * (strlen(key) + 1)))) {
-        memory_free(new_item);
-        return NULL;
-    }
-
-    if (NULL == strcpy(copied_key, key)) {
+    if(NULL == strcpy(copied_key, key)) {
         memory_free(new_item);
         memory_free(copied_key);
         return NULL;
     }
 
     new_item->key = copied_key;
-    new_item->data = NULL;
     new_item->next = NULL;
+
     return new_item;
 }
 
-HashTableListItem* hash_table_get(HashTable* table, const char* key) {
+void symbol_table_append_item(SymbolTable* table,
+                              SymbolTableBaseItem* new_item) {
+    NULL_POINTER_CHECK(table,);
+    NULL_POINTER_CHECK(new_item,);
+
+    size_t index = hash(new_item->key) % table->bucket_count;
+    SymbolTableBaseItem* target = table->items[index];
+
+    new_item->next = NULL;
+    if(target == NULL) {
+        table->items[index] = new_item;
+
+    } else {
+        while(target->next != NULL) {
+            target = target->next;
+        };
+        target->next = new_item;
+    }
+}
+
+
+SymbolTableBaseItem* symbol_table_get(SymbolTable* table, const char* key) {
     NULL_POINTER_CHECK(table, NULL);
     NULL_POINTER_CHECK(key, NULL);
 
     size_t index = hash(key) % table->bucket_count;
-    HashTableListItem* item = table->items[index];
+    SymbolTableBaseItem* item = table->items[index];
 
-	while (item != NULL) {
-		if (0 == strcmp(key, item->key))
-			return item;
-		item = item->next;
-	}
-	return item;
+    while(item != NULL) {
+        if(0 == strcmp(key, item->key))
+            return item;
+        item = item->next;
+    }
+    return item;
 }
 
-void hash_table_foreach(HashTable* table,
-                        void(* callback)(const char*, void*)) {
+void symbol_table_foreach(SymbolTable* table,
+                          void(* callback)(const char*, void*)) {
     NULL_POINTER_CHECK(table,);
     NULL_POINTER_CHECK(callback,);
 
-    HashTableListItem* item;
-    for (size_t i = 0; i < table->bucket_count; ++i) {
-        item = table->items[i];
-        while (item != NULL) {
-            callback(item->key, &item->data);
+    for(size_t i = 0; i < table->bucket_count; ++i) {
+        SymbolTableBaseItem* item = table->items[i];
+        while(item != NULL) {
+            callback(item->key, item);
             item = item->next;
         }
     }
 }
 
-HashTable* hash_table_init(size_t size) {
-    HashTable* table;
-    size_t need_memory = sizeof(HashTable) +
-                         sizeof(HashTableListItem*) * size;
-
-    if (NULL == (table = (HashTable*) memory_alloc(need_memory))) return NULL;
-
-    table->bucket_count = size;
-    table->item_count = 0;
-    for (size_t i = 0; i < size; ++i)
-        table->items[i] = NULL;
-
-    return table;
-}
-
-size_t hash_table_size(HashTable* table) {
-    NULL_POINTER_CHECK(table, 0);
-    return table->item_count;
-}
-
-size_t hash_table_bucket_count(HashTable* table) {
-    NULL_POINTER_CHECK(table, 0);
-    return table->bucket_count;
-}
-
-void hash_table_free(HashTable* table, free_data_callback_f free_data) {
-    NULL_POINTER_CHECK(table,);
-    hash_table_clear_buckets(table, free_data);
-
-    memory_free(table);
-}
-
-HashTableListItem* hash_table_get_or_create(HashTable* table, const char* key) {
+SymbolTableBaseItem* symbol_table_get_or_create(SymbolTable* table, const char* key) {
     NULL_POINTER_CHECK(table, NULL);
     NULL_POINTER_CHECK(key, NULL);
 
     size_t index = hash(key) % table->bucket_count;
-    HashTableListItem* item = table->items[index];
+    SymbolTableBaseItem* item = table->items[index];
+    SymbolTableBaseItem* last_item = NULL;
 
-    if (item != NULL)
-        while (42) {
-            if (0 == strcmp(key, item->key))
-                return item;
+    while(item != NULL) {
+        if(0 == strcmp(key, item->key))
+            return item;
 
-            if (item->next == NULL) break;
-
-            item = item->next;
-        };
+        last_item = item;
+        item = item->next;
+    };
 
     // key not found, we need to allocate new item
-    HashTableListItem* new_item = hash_table_new_item(key);
-    if (new_item == NULL) return NULL;
+    SymbolTableBaseItem* new_item = symbol_table_new_item(key, table->item_size);
+    if(table->init_data_callback != NULL)
+        table->init_data_callback(new_item);
 
-    if (item == NULL) {
+    if(new_item == NULL) return NULL;
+
+    if(last_item == NULL) {
         // not items not found at index
         table->items[index] = new_item;
     } else {
         // link to next
-        item->next = new_item;
+        last_item->next = new_item;
     }
     table->item_count++;
 
     return new_item;
 }
 
-HashTable* hash_table_move(size_t new_size, HashTable* source) {
+SymbolTable* symbol_table_move(size_t new_size, SymbolTable* source) {
     NULL_POINTER_CHECK(source, NULL);
-    HashTable* destination = hash_table_init(new_size);
-    if (destination == NULL) return NULL;
+    SymbolTable* destination = symbol_table_init(new_size, source->item_size,
+                                                 source->init_data_callback,
+                                                 source->free_data_callback);
+    if(destination == NULL) return NULL;
 
     destination->bucket_count = new_size;
 
-    HashTableListItem* item = NULL;
-    HashTableListItem* next = NULL;
+    SymbolTableBaseItem* item = NULL;
+    SymbolTableBaseItem* next = NULL;
 
-    for (size_t source_bucket_i = 0; source_bucket_i < source->bucket_count; ++source_bucket_i) {
+    for(size_t source_bucket_i = 0; source_bucket_i < source->bucket_count; ++source_bucket_i) {
         item = source->items[source_bucket_i];
         source->items[source_bucket_i] = NULL;
-        while (item != NULL) {
+        while(item != NULL) {
             next = item->next;
-            hash_table_append_item(destination, item);
+            symbol_table_append_item(destination, item);
             item = next;
         };
     }
@@ -192,36 +189,31 @@ HashTable* hash_table_move(size_t new_size, HashTable* source) {
     return destination;
 }
 
-bool hash_table_remove(HashTable* table, const char* key,
-                       free_data_callback_f free_data_callback) {
+bool symbol_table_remove(SymbolTable* table, const char* key) {
     NULL_POINTER_CHECK(table, false);
     NULL_POINTER_CHECK(key, false);
-    NULL_POINTER_CHECK(free_data_callback, false);
 
     size_t index = hash(key) % table->bucket_count;
-    HashTableListItem* item = table->items[index];
-    HashTableListItem* prev = NULL;
+    SymbolTableBaseItem* item = table->items[index];
+    SymbolTableBaseItem* prev = NULL;
 
-    if (item == NULL) return false;
-
-    while (42) {
-        if (0 == strcmp(key, item->key)) {
-            if (prev == NULL)
+    while(item != NULL) {
+        if(0 == strcmp(key, item->key)) {
+            if(prev == NULL)
                 table->items[index] = item->next;
             else
                 prev->next = item->next;
 
             memory_free(item->key);
-            free_data_callback(item->data);
+            table->free_data_callback(item);
             memory_free(item);
             return true;
         }
 
-        if (item->next == NULL) break;
-
         prev = item;
         item = item->next;
     };
+
     return false;
 }
 
@@ -229,7 +221,7 @@ size_t hash(const char* str) {
     unsigned hash = 5381;
     int c;
 
-    while ((c = *str++))
+    while((c = *str++))
         hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
 
     return hash;

@@ -248,6 +248,11 @@ TEST_F(LexerTokenizerTestFixture, ErrorTokens) {
             TOKEN_ERROR
     ) << "Error ERROR token";
 
+    EXPECT_EQ(
+            lexer->lexer_fsm->lexer_error,
+            LEXER_ERROR__ERROR_LEXEM
+    ) << "Error getting error code";
+
     provider->setString("AHOJ  @");
     EXPECT_EQ(
             this->getNextTokenType(),
@@ -259,11 +264,21 @@ TEST_F(LexerTokenizerTestFixture, ErrorTokens) {
             TOKEN_ERROR
     ) << "Error ERROR token";
 
+    EXPECT_EQ(
+            lexer->lexer_fsm->lexer_error,
+            LEXER_ERROR__ERROR_LEXEM
+    ) << "Error getting error code";
+
     provider->setString("!\"\\%\"");
     EXPECT_EQ(
             this->getNextTokenType(),
             TOKEN_ERROR
     ) << "Error ERROR token";
+
+    EXPECT_EQ(
+            lexer->lexer_fsm->lexer_error,
+            LEXER_ERROR__STRING_FORMAT
+    ) << "Error getting error code";
 
     provider->setString("!\"\n\"");
     EXPECT_EQ(
@@ -271,11 +286,21 @@ TEST_F(LexerTokenizerTestFixture, ErrorTokens) {
             TOKEN_ERROR
     ) << "Error ERROR token";
 
+    EXPECT_EQ(
+            lexer->lexer_fsm->lexer_error,
+            LEXER_ERROR__STRING_FORMAT
+    ) << "Error getting error code";
+
     provider->setString("123.");
     EXPECT_EQ(
             this->getNextTokenType(),
             TOKEN_ERROR
     ) << "Error ERROR token";
+
+    EXPECT_EQ(
+            lexer->lexer_fsm->lexer_error,
+            LEXER_ERROR__DOUBLE_FORMAT
+    ) << "Error getting error code";
 
     provider->setString("127.12321edf");
     EXPECT_EQ(
@@ -283,11 +308,21 @@ TEST_F(LexerTokenizerTestFixture, ErrorTokens) {
             TOKEN_ERROR
     ) << "Error ERROR token";
 
+    EXPECT_EQ(
+            lexer->lexer_fsm->lexer_error,
+            LEXER_ERROR__DOUBLE_FORMAT
+    ) << "Error getting error code";
+
     provider->setString("\\256");
     EXPECT_EQ(
             this->getNextTokenType(),
             TOKEN_ERROR
     ) << "Error ERROR token";
+
+    EXPECT_EQ(
+            lexer->lexer_fsm->lexer_error,
+            LEXER_ERROR__ERROR_LEXEM
+    ) << "Error getting error code";
 
     provider->setString("\\-1");
     EXPECT_EQ(
@@ -295,13 +330,22 @@ TEST_F(LexerTokenizerTestFixture, ErrorTokens) {
             TOKEN_ERROR
     ) << "Error ERROR token";
 
+    EXPECT_EQ(
+            lexer->lexer_fsm->lexer_error,
+            LEXER_ERROR__ERROR_LEXEM
+    ) << "Error getting error code";
+
     provider->setString("!\\256");
     EXPECT_EQ(
             this->getNextTokenType(),
             TOKEN_ERROR
     ) << "Error ERROR token";
-}
 
+    EXPECT_EQ(
+            lexer->lexer_fsm->lexer_error,
+            LEXER_ERROR__STRING_FORMAT
+    ) << "Error getting error code";
+}
 
 TEST_F(LexerTokenizerTestFixture, ComplexTest) {
     provider->setString("+ <= >= ahoj _8wtf *");
@@ -451,7 +495,7 @@ End Scope
             TOKEN_IDENTIFIER, TOKEN_SEMICOLON, TOKEN_STRING_VALUE,
             TOKEN_SEMICOLON, TOKEN_IDENTIFIER, TOKEN_SEMICOLON,
             TOKEN_STRING_VALUE, TOKEN_SEMICOLON, TOKEN_IDENTIFIER,
-            TOKEN_SEMICOLON,  TOKEN_STRING_VALUE, TOKEN_SEMICOLON, TOKEN_EOL,
+            TOKEN_SEMICOLON, TOKEN_STRING_VALUE, TOKEN_SEMICOLON, TOKEN_EOL,
             TOKEN_PRINT, TOKEN_STRING_VALUE, TOKEN_SEMICOLON, TOKEN_EOL,
             TOKEN_PRINT, TOKEN_STRING_VALUE, TOKEN_SEMICOLON, TOKEN_EOL,
             TOKEN_INPUT, TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_DO,

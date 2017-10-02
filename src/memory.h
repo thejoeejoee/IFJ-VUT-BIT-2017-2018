@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include "debug.h"
 #include "common.h"
+#include "error.h"
 
 /**
  * PUBLIC API FOR MEMORY MANAGER:
@@ -18,7 +19,6 @@
  * memory_manager_enter and memory_manager_exit starts and closes memory session.
  * Exit also frees all non-freed and warns about all memory leaks.
  */
-#ifndef NDEBUG
 
 #define memory_alloc_2(size, manager) memory_manager_malloc(size, __FILENAME__, __LINE__, __func__, manager)
 #define memory_alloc_1(size) memory_manager_malloc(size, __FILENAME__, __LINE__, __func__, NULL)
@@ -28,6 +28,10 @@
 #define memory_free_2(address, manager) memory_manager_free(address, manager)
 #define memory_free(...) MSVC_EXPAND(GET_OVERLOADED_MACRO12(__VA_ARGS__, memory_free_2, memory_free_1)(__VA_ARGS__))
 
+#define MALLOC_CHECK(address) \
+    if ((address) == NULL) {\
+        exit_with_code(ERROR_MEMORY);\
+    }\
 
 #define MEMORY_MANAGER_INFO_MAX_LENGTH 128
 #define MEMORY_MANAGER_INFO_FORMAT "%s:%d:%s()"
@@ -37,11 +41,15 @@
  * flag for state of freeing. Works as linked list, with next linked pages.
  */
 typedef struct memory_manager_page_t {
-    void* address;
-    size_t size;
-    bool allocated;
-    char* info;
     struct memory_manager_page_t* next;
+#ifdef NDEBUG
+    struct memory_manager_page_t* prev;
+#else
+    void* address;
+    bool allocated;
+    size_t size;
+    char* info;
+#endif
 } MemoryManagerPage;
 
 /**
@@ -52,6 +60,7 @@ typedef struct memory_manager_t {
 } MemoryManager;
 
 extern MemoryManager memory_manager;
+
 
 /**
  * Enters memory manager session for given manager.
@@ -98,18 +107,5 @@ void memory_manager_free(
  * @param manager optional memory manager
  */
 void memory_manager_log_stats(MemoryManager* manager);
-
-#else
-
-/**
-* Stdlib callbacks for memory management functions.
-*/
-#define memory_alloc(...) malloc(GET_FIRST_ARG(__VA_ARGS__, 0))
-#define memory_free(...) free(GET_FIRST_ARG(__VA_ARGS__, 0))
-#define memory_manager_enter(...)
-#define memory_manager_exit(...)
-#define memory_manager_log_stats(...)
-
-#endif
 
 #endif //_MEMORY_H

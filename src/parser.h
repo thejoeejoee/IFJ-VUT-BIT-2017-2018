@@ -6,9 +6,14 @@
 #include "lexer_fsm.h"
 #include "parser_semantic.h"
 #include "memory.h"
+#include "error.h"
 
 //Todo: we need to invent better macros
-#define GET_NEXT_TOKEN_TYPE() token = lexer_next_token(parser->lexer); token_type = token->type;
+#define GET_NEXT_TOKEN_TYPE()\
+    token = lexer_next_token(parser->lexer);\
+    token_type = token->type;\
+    if (token_type == TOKEN_ERROR) \
+        parser->error_report.error_code = ERROR_LEXER;
 
 #define INIT_LOCAL_TOKEN_VARS() Token *token; TokenType token_type;
 
@@ -35,6 +40,7 @@ if ((parser)->enabled_semantic_analysis) \
 typedef struct parser_t {
     Lexer* lexer;
     ParserSemantic* parser_semantic;
+    ErrorReport error_report;
 
     // TODO: refactor to bit flags
     bool enabled_semantic_analysis;
@@ -58,6 +64,14 @@ Parser* parser_init(lexer_input_stream_f input_stream);
 void parser_free(Parser** parser);
 
 /**
+ * @brief
+ *
+ * @param parser
+ * @return
+ */
+bool parser_parse(Parser* parser);
+
+/**
  * @brief Performs <prog> of the program
  * @return bool true If the parsing performed successfully, false if not
  * @param parser Parser* Pointer to instance of parser
@@ -66,7 +80,6 @@ void parser_free(Parser** parser);
  *
  * <prog> -> <program> EOF
  */
-
 bool parser_parse_program(Parser* parser);
 
 /**

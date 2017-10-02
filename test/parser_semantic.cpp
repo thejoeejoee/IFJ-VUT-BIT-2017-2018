@@ -28,6 +28,7 @@ class ParserSemanticTestFixture : public ::testing::Test {
 };
 
 TEST_F(ParserSemanticTestFixture, FunctionStatementSingle) {
+    symbol_register_push_variables_table(parser->parser_semantic->register_);
     symbol_table_get_or_create(parser->parser_semantic->register_->variables->symbol_table, "ahoj");
 
     provider->setString("input ahoj");

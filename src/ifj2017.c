@@ -16,6 +16,8 @@ int main(int argc, char* argv[]) {
 
     Parser* parser = parser_init(stdin_stream);
 
-    parser_parse_program(parser);
+    if (!parser_parse(parser))
+        exit_with_code(parser->error_report.error_code);
+
     return EXIT_SUCCESS;
 }

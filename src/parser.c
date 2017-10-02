@@ -21,6 +21,17 @@ void parser_free(Parser** parser) {
     *parser = NULL;
 }
 
+bool parser_parse(Parser* parser) {
+
+    if (!parser_parse_program(parser) && parser->error_report.error_code == ERROR_NONE) {
+        parser->error_report.error_code = ERROR_SYNTAX;
+        return false;
+    }
+
+    return true;
+
+}
+
 bool parser_parse_program(Parser* parser) {
 
     INIT_LOCAL_TOKEN_VARS();

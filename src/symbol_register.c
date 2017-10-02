@@ -5,6 +5,8 @@ SymbolRegister* symbol_register_init() {
 
     // TODO: sizes?
     register_->functions = symbol_table_function_init(8);
+
+    // TODO: Variable stack should be empty. First push should produce first table
     register_->variables = memory_alloc(sizeof(SymbolTable));
     register_->variables->symbol_table = symbol_table_variable_init(16);
     register_->variables->parent = NULL;

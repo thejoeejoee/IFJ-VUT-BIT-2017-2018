@@ -12,6 +12,11 @@ typedef enum error_code_t {
     ERROR_MEMORY = 99,
 } ErrorCode;
 
+typedef struct error_report_t {
+    ErrorCode error_code;
+    // TODO: Other information
+} ErrorReport;
+
 void exit_with_code(ErrorCode code);
 
 #endif //_ERROR_H

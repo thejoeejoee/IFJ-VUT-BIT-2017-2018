@@ -5,7 +5,7 @@ SymbolRegister* symbol_register_init() {
 
     // TODO: sizes?
     register_->functions = symbol_table_function_init(8);
-    register_->variables = memory_alloc(sizeof(SymbolTableSymbolVariableStackItem));
+    register_->variables = memory_alloc(sizeof(SymbolTable));
     register_->variables->symbol_table = symbol_table_variable_init(16);
     register_->variables->parent = NULL;
 
@@ -35,7 +35,8 @@ void symbol_register_free(SymbolRegister** register_) {
 void symbol_register_push_variables_table(SymbolRegister* register_) {
     NULL_POINTER_CHECK(register_,);
 
-    SymbolTableSymbolVariableStackItem* stack = memory_alloc(sizeof(SymbolTableSymbolVariableStackItem));
+    SymbolTableSymbolVariableStackItem* stack =
+            memory_alloc(sizeof(SymbolTableSymbolVariableStackItem));
     stack->symbol_table = symbol_table_variable_init(16);
     stack->parent = register_->variables;
     register_->variables = stack;
@@ -47,12 +48,13 @@ void symbol_register_pop_variables_table(SymbolRegister* register_) {
 
     SymbolTableSymbolVariableStackItem* stack_item_to_free = register_->variables;
     register_->variables = stack_item_to_free->parent;
-    symbol_table_free((SymbolTable*) stack_item_to_free->symbol_table);
+    symbol_table_free(stack_item_to_free->symbol_table);
     memory_free(stack_item_to_free);
 
     if(register_->variables == NULL) {
         // poped last stack item
-        register_->variables = memory_alloc(sizeof(SymbolTableSymbolVariableStackItem));
+        register_->variables =
+                memory_alloc(sizeof(SymbolTableSymbolVariableStackItem));
         register_->variables->symbol_table = symbol_table_variable_init(16);
         register_->variables->parent = NULL;
     }
@@ -64,10 +66,12 @@ SymbolVariable* symbol_register_find_variable(SymbolRegister* register_, const c
     NULL_POINTER_CHECK(register_->variables->symbol_table, NULL);
     NULL_POINTER_CHECK(key, NULL);
 
-    SymbolTableListItemSymbolVariable* item = symbol_table_variable_get(register_->variables->symbol_table, key);
+    SymbolVariable* item = symbol_table_variable_get(
+            register_->variables->symbol_table,
+            key);
     if(item == NULL)
         return NULL;
-    return item->data;
+    return item;
 }
 
 SymbolVariable* symbol_register_find_variable_recursive(SymbolRegister* register_, const char* key) {
@@ -76,13 +80,13 @@ SymbolVariable* symbol_register_find_variable_recursive(SymbolRegister* register
     NULL_POINTER_CHECK(register_->variables->symbol_table, NULL);
     NULL_POINTER_CHECK(key, NULL);
 
-    SymbolTableListItemSymbolVariable* item = NULL;
+    SymbolVariable* item = NULL;
     SymbolTableSymbolVariableStackItem* variables = register_->variables;
 
     while(variables != NULL) {
         item = symbol_table_variable_get(variables->symbol_table, key);
         if(item != NULL)
-            return item->data;
+            return item;
 
         variables = variables->parent;
     }

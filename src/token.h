@@ -77,6 +77,7 @@ typedef enum {
  */
 typedef struct token_t {
     TokenType type; // Type of token
+    char* data;
 } Token;
 
 

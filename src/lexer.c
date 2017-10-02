@@ -53,6 +53,15 @@ Token* lexer_next_token(Lexer* lexer) {
     } while(!lexer_fsm_is_final_state(actual_state));
 
     token->type = (TokenType) actual_state;
+    size_t data_length = string_length(lexer->lexer_fsm->stream_buffer);
+    if(data_length > 0) {
+        token->data = memory_alloc(sizeof(char) * (data_length + 1));
+
+        if(NULL == strcpy(token->data, string_content(lexer->lexer_fsm->stream_buffer))) {
+            exit_with_code(ERROR_INTERNAL);
+        }
+    } else
+        token->data = NULL;
 
     string_clear(lexer->lexer_fsm->stream_buffer);
 

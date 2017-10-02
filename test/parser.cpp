@@ -12,11 +12,12 @@ extern "C" {
 
 class ParserTestFixture : public ::testing::Test {
     protected:
-        Parser *parser;
+        Parser* parser;
         StringByCharProvider* provider;
 
         void SetUp() override {
             parser = parser_init(token_stream);
+            parser->enabled_semantic_analysis = parser->enabled_code_generation = false;
             provider = StringByCharProvider::instance();
         }
 

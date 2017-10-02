@@ -4,7 +4,29 @@
 #include <stdbool.h>
 #include "lexer.h"
 #include "lexer_fsm.h"
+#include "parser_semantic.h"
 #include "memory.h"
+
+//Todo: we need to invent better macros
+#define GET_NEXT_TOKEN_TYPE() token = lexer_next_token(parser->lexer); token_type = token->type;
+
+#define INIT_LOCAL_TOKEN_VARS() Token *token; TokenType token_type;
+
+#define CALL_RULE(Rule) if (!parser_parse_##Rule(parser)) return false;
+
+#define TEST_TOKEN_TYPE(Type) if(token_type != (Type)) return false;
+
+#define TEST_TOKEN_IS_DATA_TYPE() if(token_type != TOKEN_INTEGER && token_type != TOKEN_STRING && token_type != TOKEN_DOUBLE) return false;
+
+#define SEMANTIC_ANALYSIS(parser, code) do {\
+if ((parser)->enabled_semantic_analysis) \
+    code \
+} while (0)
+
+#define CODE_GENERATION(parser, code) do {\
+if ((parser)->enabled_semantic_analysis) \
+    code \
+} while (0)
 
 
 /**
@@ -12,6 +34,11 @@
  */
 typedef struct parser_t {
     Lexer* lexer;
+    ParserSemantic* parser_semantic;
+
+    // TODO: refactor to bit flags
+    bool enabled_semantic_analysis;
+    bool enabled_code_generation;
 } Parser;
 
 /**

@@ -1,25 +1,16 @@
 #include "parser.h"
+#include "parser_semantic.h"
 #include "lexer.h"
 #include "lexer_fsm.h"
 #include "token.h"
-
-//Todo: we need to invent better macros
-
-#define GET_NEXT_TOKEN_TYPE() token = lexer_next_token(parser->lexer); token_type = token->type; memory_free(token);
-
-#define INIT_LOCAL_TOKEN_VARS() Token *token; TokenType token_type;
-
-#define CALL_RULE(Rule) if (!parser_parse_##Rule(parser)) return false;
-
-#define TEST_TOKEN_TYPE(Type) if(token_type != (Type)) return false;
-
-#define TEST_TOKEN_IS_DATA_TYPE() if(token_type != TOKEN_INTEGER && token_type != TOKEN_STRING && token_type != TOKEN_DOUBLE) return false;
 
 
 Parser* parser_init(lexer_input_stream_f input_stream) {
     Parser* parser = (Parser*) memory_alloc(sizeof(Parser));
 
     parser->lexer = lexer_init(input_stream);
+    parser->parser_semantic = parser_semantic_init();
+    parser->enabled_code_generation = parser->enabled_semantic_analysis = true;
     return parser;
 }
 
@@ -231,6 +222,7 @@ bool parser_parse_function_statement_single(Parser* parser) {
         GET_NEXT_TOKEN_TYPE()
         TEST_TOKEN_TYPE(TOKEN_IDENTIFIER)
 
+
         return true;
     }
 
@@ -253,7 +245,12 @@ bool parser_parse_body_statement_single(Parser* parser) {
 
         GET_NEXT_TOKEN_TYPE()
         TEST_TOKEN_TYPE(TOKEN_IDENTIFIER)
-
+        SEMANTIC_ANALYSIS(
+                parser,
+                if(NULL == symbol_register_find_variable_recursive(parser->parser_semantic->register_, token->data)) {
+                    return false;
+                }
+        );
         return true;
     }
 

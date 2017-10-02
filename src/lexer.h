@@ -20,7 +20,7 @@ typedef struct lexer_t {
  *
  * @return *lexer_fsm Pointer to lexer
  */
-Lexer* lexer_init(lexer_input_stream_f);
+Lexer* lexer_init(lexer_input_stream_f input_stream);
 
 /**
  * @brief Free lexer also with stack from memory.

@@ -18,16 +18,17 @@ Parser* parser_init(lexer_input_stream_f input_stream) {
 void parser_free(Parser** parser) {
 
     lexer_free(&((*parser)->lexer));
+    parser_semantic_free(&((*parser)->parser_semantic));
     memory_free(*parser);
     *parser = NULL;
 }
 
 bool parser_parse(Parser* parser) {
 
-    if (!parser_parse_program(parser)) {
+    if(!parser_parse_program(parser)) {
         parser->error_report.line = parser->lexer->lexer_fsm->line;
 
-        if (parser->error_report.error_code == ERROR_NONE)
+        if(parser->error_report.error_code == ERROR_NONE)
             parser->error_report.error_code = ERROR_SYNTAX;
 
         return false;
@@ -106,7 +107,7 @@ bool parser_parse_definitions(Parser* parser) {
     CALL_RULE(eols)
 
     token = lexer_next_token(parser->lexer);
-    token_type = token->type;
+    token_type = token.type;
     if(token_type != TOKEN_DECLARE && token_type != TOKEN_FUNCTION)
         // Epsilon
         lexer_rewind_token(parser->lexer, token);
@@ -130,7 +131,7 @@ bool parser_parse_definition(Parser* parser) {
      */
 
     token = lexer_next_token(parser->lexer);
-    token_type = token->type;
+    token_type = token.type;
     if(token_type == TOKEN_DECLARE) {
         lexer_rewind_token(parser->lexer, token);
         CALL_RULE(function_declaration)
@@ -176,7 +177,7 @@ bool parser_parse_function_statements(Parser* parser) {
      */
 
     token = lexer_next_token(parser->lexer);
-    token_type = token->type;
+    token_type = token.type;
     lexer_rewind_token(parser->lexer, token);
 
     if(token_type != TOKEN_INPUT) {
@@ -205,7 +206,7 @@ bool parser_parse_body_statements(Parser* parser) {
      */
 
     token = lexer_next_token(parser->lexer);
-    token_type = token->type;
+    token_type = token.type;
     lexer_rewind_token(parser->lexer, token);
 
     if(token_type != TOKEN_INPUT) {
@@ -233,14 +234,14 @@ bool parser_parse_function_statement_single(Parser* parser) {
      */
 
     token = lexer_next_token(parser->lexer);
-    token_type = token->type;
+    token_type = token.type;
 
     if(token_type == TOKEN_INPUT) {
 
         GET_NEXT_TOKEN_TYPE()
         TEST_TOKEN_TYPE(TOKEN_IDENTIFIER)
 
-
+        FREE_TOKEN_DATA();
         return true;
     }
 
@@ -257,7 +258,7 @@ bool parser_parse_body_statement_single(Parser* parser) {
      */
 
     token = lexer_next_token(parser->lexer);
-    token_type = token->type;
+    token_type = token.type;
 
     if(token_type == TOKEN_INPUT) {
 
@@ -265,12 +266,17 @@ bool parser_parse_body_statement_single(Parser* parser) {
         TEST_TOKEN_TYPE(TOKEN_IDENTIFIER)
         SEMANTIC_ANALYSIS(
                 parser,
-                if(NULL == symbol_register_find_variable_recursive(parser->parser_semantic->register_, token->data)) {
+                if(NULL == symbol_register_find_variable_recursive(parser->parser_semantic->register_, token.data)) {
+                    FREE_TOKEN_DATA();
                     return false;
                 }
         );
+        FREE_TOKEN_DATA();
         return true;
     }
+    // TODO: where to free token data?
+    if(token.data != NULL)
+        memory_free(token.data);
 
     return false;
 }
@@ -318,6 +324,7 @@ bool parser_parse_function_header(Parser* parser) {
     // Expect IDENTIFIER token
     GET_NEXT_TOKEN_TYPE();
     TEST_TOKEN_TYPE(TOKEN_IDENTIFIER);
+    FREE_TOKEN_DATA();
 
     // Expect LEFT_BRACKET token
     GET_NEXT_TOKEN_TYPE();
@@ -352,7 +359,7 @@ bool parser_parse_function_params(Parser* parser) {
      */
 
     token = lexer_next_token(parser->lexer);
-    token_type = token->type;
+    token_type = token.type;
     lexer_rewind_token(parser->lexer, token);
 
     if(token_type == TOKEN_RIGHT_BRACKET) {
@@ -378,7 +385,7 @@ bool parser_parse_function_n_param(Parser* parser) {
      */
 
     token = lexer_next_token(parser->lexer);
-    token_type = token->type;
+    token_type = token.type;
 
     if(token_type == TOKEN_RIGHT_BRACKET) {
         // It is EPSILON
@@ -404,6 +411,7 @@ bool parser_parse_function_param(Parser* parser) {
     // Expect IDENTIFIER token
     GET_NEXT_TOKEN_TYPE();
     TEST_TOKEN_TYPE(TOKEN_IDENTIFIER);
+    FREE_TOKEN_DATA();
 
     // Expect AS token
     GET_NEXT_TOKEN_TYPE();
@@ -428,7 +436,7 @@ bool parser_parse_eols(Parser* parser) {
     INIT_LOCAL_TOKEN_VARS()
 
     token = lexer_next_token(parser->lexer);
-    token_type = token->type;
+    token_type = token.type;
     if(token_type == TOKEN_EOL) {
         CALL_RULE(eols)
     } else

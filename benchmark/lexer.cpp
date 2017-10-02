@@ -17,11 +17,11 @@ class LexerBenchmark : public benchmark::Fixture {
         }
 
         void tokenize(benchmark::State &st) {
-            Token* token;
+            Token token{};
             while(st.KeepRunning()) {
                 do {
                     token = lexer_next_token(lexer);
-                } while(!(token->type == TOKEN_ERROR || token->type == TOKEN_EOF));
+                } while(!(token.type == TOKEN_ERROR || token.type == TOKEN_EOF));
             }
         }
 };

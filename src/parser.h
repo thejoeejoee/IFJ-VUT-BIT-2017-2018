@@ -11,20 +11,22 @@
 //Todo: we need to invent better macros
 #define GET_NEXT_TOKEN_TYPE()\
     token = lexer_next_token(parser->lexer);\
-    token_type = token->type;\
+    token_type = token.type;\
     if (token_type == TOKEN_ERROR) {\
         parser->error_report.error_code = ERROR_LEXER;\
         parser->error_report.detail_information = (int )parser->lexer->lexer_fsm->lexer_error;\
     }
 
 
-#define INIT_LOCAL_TOKEN_VARS() Token *token; TokenType token_type;
+#define INIT_LOCAL_TOKEN_VARS() Token token; TokenType token_type;
 
 #define CALL_RULE(Rule) if (!parser_parse_##Rule(parser)) return false;
 
 #define TEST_TOKEN_TYPE(Type) if(token_type != (Type)) return false;
 
 #define TEST_TOKEN_IS_DATA_TYPE() if(token_type != TOKEN_INTEGER && token_type != TOKEN_STRING && token_type != TOKEN_DOUBLE) return false;
+
+#define FREE_TOKEN_DATA() if(token.data != NULL) memory_free(token.data)
 
 #define SEMANTIC_ANALYSIS(parser, code) do {\
 if ((parser)->enabled_semantic_analysis) \

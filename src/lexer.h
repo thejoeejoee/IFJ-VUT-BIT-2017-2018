@@ -11,7 +11,8 @@ typedef struct lexer_t {
     lexer_input_stream_f input_stream; // Pointer to function which stream chars
     LexerFSM* lexer_fsm; // Instance of final state machine
 
-    Token* token_buffer; // buffered token
+    bool is_token_rewind;
+    Token rewind_token; // buffered token
 } Lexer;
 
 
@@ -33,7 +34,7 @@ void lexer_free(Lexer** lexer);
  * @param Lexer* lexer Pointer to lexer
  * @return Token* Pointer to next token
  */
-Token* lexer_next_token(Lexer* lexer);
+Token lexer_next_token(Lexer* lexer);
 
 /**
  * @brief Push token to the stack
@@ -41,6 +42,6 @@ Token* lexer_next_token(Lexer* lexer);
  * @param Lexer* lexer Pointer to instance of lexer
  * @param Token* token Pointer to token
  */
-void lexer_rewind_token(Lexer* lexer, Token* token);
+void lexer_rewind_token(Lexer* lexer, Token token);
 
 #endif //_LEXER_H

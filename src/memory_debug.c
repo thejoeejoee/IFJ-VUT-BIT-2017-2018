@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include "memory.h"
 #include "error.h"
 
@@ -27,6 +28,7 @@ void* memory_manager_malloc(
 
     new_page->size = size;
     new_page->allocated = true;
+    new_page->lazy_free = false;
     new_page->info = (char*) malloc(MEMORY_MANAGER_INFO_MAX_LENGTH + 1);
     MALLOC_CHECK(new_page->info);
     new_page->address = malloc(new_page->size);
@@ -64,6 +66,23 @@ void memory_manager_free(void* address,
 
 }
 
+void memory_manager_free_lazy(void* address,
+                              MemoryManager* manager) {
+    NULL_POINTER_CHECK(address,);
+    if(manager == NULL)
+        manager = &memory_manager;
+
+    MemoryManagerPage* page = manager->head;
+    while((page != NULL) && (page->address != address)) {
+        page = page->next;
+    }
+    if(page == NULL) {
+        LOG_WARNING("Allocated memory with address %p to free not found.", address);
+        return;
+    }
+    page->lazy_free = true;
+}
+
 void memory_manager_enter(MemoryManager* manager) {
     LOG_DEBUG("Memory manager started.");
     if(manager == NULL)
@@ -88,11 +107,30 @@ void memory_manager_exit(MemoryManager* manager) {
         pages_count++;
         size_sum += page->size;
 
-        if(page->allocated) {
-            LOG_WARNING("Memory leak of %zu bytes from %s.", page->size, page->info);
+        if(page->allocated && !page->lazy_free) {
+            char* string = (char*) page->address;
+            bool is_string = true;
+            if(string[page->size - 1] == 0) {
+                for(int i = 0; i < page->size - 1; ++i) {
+                    if(!isprint(string[i])) {
+                        is_string = false;
+                        break;
+                    }
+                }
+            }
+            if(is_string) {
+                LOG_WARNING("Memory leak of %zu bytes from %s: %s.", page->size, page->info, string);
+            } else {
+                LOG_WARNING("Memory leak of %zu bytes from %s.", page->size, page->info);
+            }
             free(page->address);
+            page->address = NULL;
+        } else if(page->lazy_free) {
+            free(page->address);
+            page->address = NULL;
         }
         free(page->info);
+        page->info = NULL;
         free(page);
         page = next;
     }

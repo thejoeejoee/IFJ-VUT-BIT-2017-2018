@@ -66,13 +66,13 @@
                 conditions_buffer <<= 1; \
                 conditions_buffer |= 1; \
                 before_code \
-                if(!parser_parse_ ## rule_name(parser)) return false; \
+                _RAW_CHECK_RULE(rule_name); \
                 after_code \
             } \
         }   \
         else { \
             before_code \
-            if(!parser_parse_ ## rule_name(parser)) return false; \
+            _RAW_CHECK_RULE(rule_name); \
             after_code \
         } \
     } while(false)
@@ -81,13 +81,13 @@
     if(conditional_rules) { \
         if(conditions_buffer == 0) { \
             before_code \
-            if(!parser_parse_ ## rule_name(parser)) return false; \
+            _RAW_CHECK_RULE(rule_name); \
             after_code \
         } \
     }   \
     else { \
         before_code \
-        if(!parser_parse_ ## rule_name(parser)) return false; \
+        _RAW_CHECK_RULE(rule_name); \
         after_code \
     } \
 } while(false)
@@ -98,26 +98,34 @@
 #define CHECK_RULE(...) MSVC_EXPAND(GET_OVERLOADED_MACRO34( \
     __VA_ARGS__, CHECK_RULE_4, CHECK_RULE_3, CHECK_RULE_2, CHECK_RULE_1)(__VA_ARGS__))
 
-#define _RAW_CHECK_TOKEN(token_type_literal) \
+#define _RAW_CHECK_TOKEN(token_type_literal) do { \
     if(((token_type & (token_type_literal)) == 0 && (token_type_literal) >= TOKEN_CLASSES &&  \
-    (token_type_literal & 0xFF) == 0) || \
-    (token_type != (token_type_literal) && (token_type_literal) < TOKEN_CLASSES)) \
-        return false
+    ((token_type_literal) & 0xFF) == 0) || \
+    (token_type != (token_type_literal) && (token_type_literal) < TOKEN_CLASSES)) {\
+        token_free(&token); \
+        return false; \
+    }} while(0)
+
+#define _RAW_CHECK_RULE(rule_name) do { \
+    if(!parser_parse_ ## rule_name(parser)) {\
+        token_free(&token);\
+        return false;\
+    }} while(0)
 
 #define CHECK_TOKEN_4(condition, token_type_literal, before_code, after_code) do { \
         if(conditional_rules) { \
             if(condition) { \
-                before_code \
                 conditions_buffer <<= 1; \
                 conditions_buffer |= 1; \
                 GET_NEXT_TOKEN_TYPE(); \
+                before_code \
                 _RAW_CHECK_TOKEN(token_type_literal); \
                 after_code \
             } \
         } \
         else { \
-            before_code \
             GET_NEXT_TOKEN_TYPE(); \
+            before_code \
             _RAW_CHECK_TOKEN(token_type_literal); \
             after_code \
         }\
@@ -126,15 +134,15 @@
 #define CHECK_TOKEN_3(token_type_literal, before_code, after_code) do { \
     if(conditional_rules) { \
         if(conditions_buffer == 0) { \
-            before_code \
             GET_NEXT_TOKEN_TYPE(); \
+            before_code \
             _RAW_CHECK_TOKEN(token_type_literal); \
             after_code \
         } \
     } \
     else { \
-        before_code \
         GET_NEXT_TOKEN_TYPE(); \
+        before_code \
         _RAW_CHECK_TOKEN(token_type_literal); \
         after_code \
     }\

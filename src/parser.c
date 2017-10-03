@@ -170,7 +170,9 @@ bool parser_parse_body_statements(Parser* parser) {
     RULES(
         CONDITIONAL_RULES(
             lexer_rewind_token(parser->lexer, token);
-            CHECK_RULE(token_type != TOKEN_INPUT && token_type != TOKEN_DIM, epsilon, BEFORE(), AFTER(token_free(&token), return true;));
+            CHECK_RULE(token_type != TOKEN_INPUT && token_type != TOKEN_DIM, epsilon, BEFORE(),
+                       AFTER(token_free(&token);
+            return true;));
             CHECK_RULE(body_statement_single);
             CHECK_TOKEN(TOKEN_EOL);
             CHECK_RULE(eols);
@@ -190,6 +192,7 @@ bool parser_parse_function_statement_single(Parser* parser) {
     RULES(
         CONDITIONAL_RULES(
             CHECK_TOKEN(token_type == TOKEN_INPUT, TOKEN_IDENTIFIER, BEFORE(), AFTER(
+                    token_free(&token);
                 return true;
             ));
             CHECK_RULE(token_type == TOKEN_DIM, variable_declaration, BEFORE(
@@ -353,21 +356,20 @@ bool parser_parse_variable_declaration(Parser* parser) {
      */
 
     RULES(
-        char* name;
+            char* name = NULL;
         CHECK_TOKEN(TOKEN_DIM);
         CHECK_TOKEN(TOKEN_IDENTIFIER, BEFORE(
-                name = token.data;
-            token.data = NULL;
+                name = memory_alloc(sizeof(char) * (strlen(token.data) + 1));
+            memory_free_lazy(name);
+            strcpy(name, token.data);
         ));
         CHECK_TOKEN(TOKEN_AS);
         CHECK_TOKEN(TOKEN_DATA_TYPE_CLASS, BEFORE(), AFTER(
             SEMANTIC_ANALYSIS(parser,
             bool successful = parser_semantic_add_symbol_variable(parser->parser_semantic, name, (short) token_type);
-            memory_free(name);
             return successful;
             );
         ));
     );
-
     return true;
 }

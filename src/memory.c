@@ -13,6 +13,10 @@ void* memory_manager_malloc(
         const char* func,
         MemoryManager* manager
 ) {
+    UNUSED(file);
+    UNUSED(line);
+    UNUSED(func);
+
     if(!size) {
         LOG_WARNING("Invalid size %zd .", size);
         return NULL;

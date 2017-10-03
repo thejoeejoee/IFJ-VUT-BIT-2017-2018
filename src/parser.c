@@ -29,12 +29,13 @@ bool parser_parse(Parser* parser) {
     NULL_POINTER_CHECK(parser, false);
     if(!parser_parse_program(parser)) {
         parser->error_report.line = parser->lexer->lexer_fsm->line;
+        if(parser->parser_semantic->error_report.error_code != ERROR_NONE)
+            parser->error_report = parser->parser_semantic->error_report;
         if(parser->error_report.error_code == ERROR_NONE)
             parser->error_report.error_code = ERROR_SYNTAX;
 
         return false;
     }
-
     return true;
 
 }
@@ -241,8 +242,9 @@ bool parser_parse_body_statement_single(Parser* parser) {
         TEST_TOKEN_TYPE(TOKEN_IDENTIFIER)
         SEMANTIC_ANALYSIS(
                 parser,
-                if(NULL == symbol_register_find_variable_recursive(parser->parser_semantic->register_, token.data)) {
+                if(NULL == parser_semantic_expect_symbol_variable(parser->parser_semantic, token)) {
                     FREE_TOKEN_DATA();
+
                     return false;
                 }
         );

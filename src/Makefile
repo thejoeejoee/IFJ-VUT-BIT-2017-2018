@@ -1,13 +1,14 @@
 CC=gcc
 
-CFLAGS+=-std=c99 -Wall -Wextra -pedantic -O3
+CFLAGS+=-std=c99 -Wall -Wextra -pedantic -O3 -DNDEBUG
 
 # TODO check
 TARGETS=ifj2017
 
 RELEASE_ARCHIVE_NAME="xkobel05.tgz"
 RELEASE_TMP_DIR:=$(shell mktemp -d)
-
+SOURCES:=$(filter-out memory_debug.c, $(wildcard *.c))
+OBJECTS=${SOURCES:.c=.o}
 
 FILE_HEADER=/**\n\
 	@project IFJ-VUT-BIT-2017-2018\n\
@@ -17,6 +18,7 @@ FILE_HEADER=/**\n\
 
 all: $(TARGETS)
 
+$(TARGETS): $(OBJECTS)
 
 # DEV RULES
 .PHONY: clean pack
@@ -37,6 +39,6 @@ pack: *.c *.h Makefile
 
 # Makefile DEPS
 Makefile.deps: *.h *.c
-	$(CC) $(CFLAGS) -MM *.h $(FILES_FOR_HTAB) > Makefile.deps
+	$(CC) $(CFLAGS) -MM *.h $(SOURCES) > Makefile.deps
 
 -include Makefile.deps

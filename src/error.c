@@ -25,7 +25,7 @@ void exit_with_code(ErrorCode code) {
             break;
         default:;
     }
-    // free all allocated memory blocks
+    // free all allocated memory blocksor
     memory_manager_exit(&memory_manager);
     exit(code);
 }
@@ -33,7 +33,7 @@ void exit_with_code(ErrorCode code) {
 void exit_with_detail_information(ErrorReport error_report) {
     switch(error_report.error_code) {
         case ERROR_LEXER:
-            fprintf(stderr, "Error during lexical analyse. On the line %d,", error_report.line);
+            fprintf(stderr, "Error during lexical analyse. On the line %d, ", error_report.line);
 
             switch (error_report.detail_information) {
                 case LEXER_ERROR__STRING_FORMAT:
@@ -43,7 +43,7 @@ void exit_with_detail_information(ErrorReport error_report) {
                     fprintf(stderr, "error double format!");
                     break;
                 case LEXER_ERROR__ERROR_LEXEM:
-                    fprintf(stderr, "unexpected lexem!");
+                    fprintf(stderr, "unexpected lexical unit!");
                     break;
             }
 

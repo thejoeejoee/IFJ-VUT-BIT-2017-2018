@@ -37,3 +37,31 @@ TEST_F(ParserSemanticTestFixture, FunctionStatementSingle) {
     ) << "Error parsing <definitions> rule";
 
 }
+
+TEST_F(ParserSemanticTestFixture, FunctionDeclaration) {
+    parser_semantic_free(&(parser->parser_semantic));
+    parser->parser_semantic = parser_semantic_init();
+
+    provider->setString("dim promena as integer");
+
+    EXPECT_TRUE(
+            parser_parse_variable_declaration(parser)
+    ) << "Error parsing program";
+
+}
+
+TEST_F(ParserSemanticTestFixture, ComplexTest1) {
+    parser_semantic_free(&(parser->parser_semantic));
+    parser->parser_semantic = parser_semantic_init();
+
+    provider->setString(R"(scope
+dim promena as integer
+end scope
+    )");
+
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    ) << "Error parsing program";
+
+}
+

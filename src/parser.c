@@ -194,7 +194,7 @@ bool parser_parse_body_statements(Parser* parser) {
     token_type = token.type;
     lexer_rewind_token(parser->lexer, token);
 
-    if(token_type != TOKEN_INPUT) {
+    if(token_type != TOKEN_INPUT && token_type != TOKEN_DIM) {
 
         // It is EPSILON
         RULE_RETURN_OK();
@@ -254,8 +254,12 @@ bool parser_parse_body_statement_single(Parser* parser) {
         RULE_RETURN_OK();
     }
     else if(token_type == TOKEN_DIM) {
+
         lexer_rewind_token(parser->lexer, token);
         CALL_RULE(variable_declaration);
+
+        RULE_RETURN_OK();
+
     }
 
     RULE_RETURN_BAD();

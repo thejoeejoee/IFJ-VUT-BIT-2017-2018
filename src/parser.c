@@ -417,7 +417,6 @@ bool parser_parse_variable_declaration(Parser* parser) {
      */
     INIT_LOCAL_TOKEN_VARS();
 
-
     // Expect DIM token
     GET_NEXT_TOKEN_TYPE();
     TEST_TOKEN_TYPE(TOKEN_DIM);
@@ -435,7 +434,14 @@ bool parser_parse_variable_declaration(Parser* parser) {
 
     // Expect data type
     GET_NEXT_TOKEN_TYPE();
-    TEST_TOKEN_IS_DATA_TYPE()
+    TEST_TOKEN_IS_DATA_TYPE();
 
-    return parser_semantic_add_symbol_variable(parser->parser_semantic, name, (short)token_type);
+    SEMANTIC_ANALYSIS(
+            parser,
+            return parser_semantic_add_symbol_variable(parser->parser_semantic, name, (short) token_type);
+    );
+
+    return true;
+
+
 }

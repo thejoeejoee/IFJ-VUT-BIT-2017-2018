@@ -46,10 +46,9 @@ typedef enum {
 
     // Start state
 
-    LEX_FSM__INIT,
+    LEX_FSM__INIT = 0,
 
     // Comments
-
     LEX_FSM__COMMENT_LINE,
     LEX_FSM__SLASH,
     LEX_FSM__COMMENT_BLOCK,
@@ -77,13 +76,11 @@ typedef enum {
     LEX_FSM__STRING_NUMERIC_CHAR,
 
     // FINAL STATES
-
+    // 128 is operator class
     LEX_FSM__ADD,
     LEX_FSM__SUBTRACT,
     LEX_FSM__DIVIDE,
     LEX_FSM__MULTIPLY,
-    LEX_FSM__LEFT_BRACKET,
-    LEX_FSM__RIGHT_BRACKET,
     LEX_FSM__INTEGER_LITERAL_FINISHED,
     LEX_FSM__DOUBLE_FINISHED,
     LEX_FSM__STRING_VALUE,
@@ -98,6 +95,11 @@ typedef enum {
     LEX_FSM__SEMICOLON,
     LEX_FSM__COMMA,
 
+    // Brackets
+    // 256 is brackets class
+    LEX_FSM__LEFT_BRACKET,
+    LEX_FSM__RIGHT_BRACKET,
+
     // Reserve words
 
     LEX_FSM__AS,
@@ -105,25 +107,21 @@ typedef enum {
     LEX_FSM__DECLARE,
     LEX_FSM__DIM,
     LEX_FSM__DO,
-    LEX_FSM__DOUBLE,
     LEX_FSM__ELSE,
     LEX_FSM__END,
     LEX_FSM__CHR,
     LEX_FSM__FUNCTION,
     LEX_FSM__IF,
     LEX_FSM__INPUT,
-    LEX_FSM__INTEGER,
     LEX_FSM__LENGTH,
     LEX_FSM__LOOP,
     LEX_FSM__PRINT,
     LEX_FSM__RETURN,
     LEX_FSM__SCOPE,
-    LEX_FSM__STRING,
     LEX_FSM__SUBSTR,
     LEX_FSM__THEN,
     LEX_FSM__WHILE,
     LEX_FSM__AND,
-    LEX_FSM__BOOLEAN,
     LEX_FSM__CONTINUE,
     LEX_FSM__ELSEIF,
     LEX_FSM__EXIT,
@@ -136,10 +134,16 @@ typedef enum {
     LEX_FSM__STATIC,
     LEX_FSM__TRUE,
     LEX_FSM__EOF,
+    LEX_FSM__ERROR,
+
+    LEX_FSM__INTEGER = 256 | 1,
+    LEX_FSM__DOUBLE = 256 | 2,
+    LEX_FSM__BOOLEAN = 256 | 3,
+    LEX_FSM__STRING = 256 | 4,
+
 
     // Error state
 
-    LEX_FSM__ERROR,
 
 } LexerFSMState;
 

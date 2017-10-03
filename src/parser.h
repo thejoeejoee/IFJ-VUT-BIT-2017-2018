@@ -147,7 +147,7 @@
 
 #define SEMANTIC_ANALYSIS(parser, code) do {\
 if ((parser)->run_type & PARSER_RUN_TYPE_SEMANTIC_ANALYSIS) \
-    code \
+    {code} \
 } while (0)
 
 #define CODE_GENERATION(parser, code) do {\

@@ -351,10 +351,19 @@ bool parser_parse_variable_declaration(Parser* parser) {
      */
 
     RULES(
+        char* name;
         CHECK_TOKEN(TOKEN_DIM);
-        CHECK_TOKEN(TOKEN_IDENTIFIER);
+        CHECK_TOKEN(TOKEN_IDENTIFIER, BEFORE(
+            name = malloc(sizeof(token.data));
+            strcpy(name, token.data);
+        ));
         CHECK_TOKEN(TOKEN_AS);
-        CHECK_TOKEN(TOKEN_DATA_TYPE_CLASS);
+        CHECK_TOKEN(TOKEN_DATA_TYPE_CLASS, BEFORE(), AFTER(
+            SEMANTIC_ANALYSIS(
+                parser,
+                return parser_semantic_add_symbol_variable(parser->parser_semantic, name, (short) token_type);
+            );
+        ));
     );
 
     return true;

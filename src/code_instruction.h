@@ -2,6 +2,7 @@
 #define _INSTRUCTION_H
 
 #include <stdbool.h>
+#include "code_instruction_operand.h"
 
 typedef enum type_instruction_t {
     // frame + function instructions
@@ -97,35 +98,23 @@ typedef enum type_instruction_t {
     I_DEBUG_PRINT
 } TypeInstruction;
 
-typedef enum type_instruction_operand_t {
-    TYPE_INSTRUCTION_OPERAND_VARIABLE,
-    TYPE_INSTRUCTION_OPERAND_SYMBOL,
-    TYPE_INSTRUCTION_OPERAND_LABEL,
-} TypeInstructionOperand;
-
-typedef union code_instruction_operand_data_t {
-    int integer;
-    bool boolean;
-    double floating_point;
-    char* string;
-} CodeInstructionOperandData;
-
-typedef struct code_instruction_operand_t {
-    TypeInstructionOperand type;
-    // variable specific
-    char* identifier; // TODO: only identifier name? or ptr to symbol table?
-    // constant specific
-    short data_type; // TODO: add enum for data types
-    CodeInstructionOperandData data;
-    // label specific
-    char* label; // TODO: only label name? or standalone struct with additional info?
-} CodeInstructionOperand;
-
 typedef struct code_instruction_t {
     TypeInstruction type;
     CodeInstructionOperand* op0;
     CodeInstructionOperand* op1;
     CodeInstructionOperand* op2;
+
+    struct code_instruction_t* next;
+    struct code_instruction_t* prev;
 } CodeInstruction;
+
+CodeInstruction* code_instruction_init(
+        TypeInstruction type,
+        CodeInstructionOperand* op0,
+        CodeInstructionOperand* op1,
+        CodeInstructionOperand* op2
+);
+
+void code_instruction_free(CodeInstruction** instruction);
 
 #endif //_INSTRUCTION_H

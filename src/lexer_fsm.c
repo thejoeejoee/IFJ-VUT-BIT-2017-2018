@@ -20,8 +20,7 @@ LexerFSM* lexer_fsm_init(lexer_input_stream_f input_stream) {
     lexer_fsm->numeric_char_position = -1;
     lexer_fsm->lexer_error = LEXER_ERROR__NO_ERROR;
 
-    // Todo: Checking line
-    lexer_fsm->line = 0;
+    lexer_fsm->line = 1;
 
     return lexer_fsm;
 }
@@ -49,8 +48,10 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
         // Starting state
         case LEX_FSM__INIT:
             // If it is a white space, we ignore it
-            if(c == '\n')
+            if(c == '\n') {
+                lexer_fsm->line++;
                 return LEX_FSM__EOL;
+            }
 
             if(isspace(c))
                 return LEX_FSM__INIT;
@@ -324,7 +325,6 @@ LexerFSMState lexer_fsm_get_identifier_state(const char* name) {
 }
 
 bool lexer_fsm_is_final_state(LexerFSMState state) {
-
     return state >= LEX_FSM__ADD;
     // TODO: inline of macro to better performance
 }

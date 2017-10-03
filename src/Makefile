@@ -2,10 +2,9 @@ CC=gcc
 
 CFLAGS+=-std=c99 -Wall -Wextra -pedantic -O3 -DNDEBUG
 
-# TODO check
 TARGETS=ifj2017
 
-RELEASE_ARCHIVE_NAME="xkobel05.tgz"
+RELEASE_ARCHIVE_NAME="xkobel02.tgz"
 RELEASE_TMP_DIR:=$(shell mktemp -d)
 SOURCES:=$(filter-out memory_debug.c, $(wildcard *.c))
 OBJECTS=${SOURCES:.c=.o}

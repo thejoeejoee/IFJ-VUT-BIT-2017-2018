@@ -12,7 +12,7 @@ Parser* parser_init(lexer_input_stream_f input_stream) {
     parser->lexer = lexer_init(input_stream);
     parser->error_report.error_code = ERROR_NONE;
     parser->parser_semantic = parser_semantic_init();
-    parser->enabled_code_generation = parser->enabled_semantic_analysis = true;
+    parser->run_type = PARSER_RUN_TYPE_ALL;
     return parser;
 }
 

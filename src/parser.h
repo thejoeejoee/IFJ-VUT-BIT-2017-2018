@@ -36,6 +36,7 @@
         unsigned int conditions_buffer = 0; \
         bool token_rewinded = false; \
         rules \
+        return true; \
     } while(false)
 
 #define CONDITIONAL_RULES(rules) do { \

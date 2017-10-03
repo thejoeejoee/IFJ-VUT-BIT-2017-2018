@@ -156,5 +156,7 @@ bool parser_parse_function_statement_single(Parser* parser);
 
 bool parser_parse_body_statement_single(Parser* parser);
 
+bool parser_parse_variable_declaration(Parser* parser);
+
 
 #endif //_PARSER_H

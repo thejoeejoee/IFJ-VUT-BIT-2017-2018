@@ -241,3 +241,26 @@ TEST_F(ParserTestFixture, BodyStatementSingle) {
     ) << "Error parsing <definitions> rule";
 
 }
+
+TEST_F(ParserTestFixture, DimRule) {
+
+    provider->setString("dim id as string");
+
+    EXPECT_TRUE(
+            parser_parse_variable_declaration(parser)
+    ) << "Error parsing <variable_declaration> rule";
+
+    provider->setString("dim id as integer");
+
+    EXPECT_TRUE(
+            parser_parse_variable_declaration(parser)
+    ) << "Error parsing <variable_declaration> rule";
+
+    provider->setString("dim id asc string");
+
+    EXPECT_FALSE(
+            parser_parse_variable_declaration(parser)
+    ) << "Error parsing <variable_declaration> rule";
+
+
+}

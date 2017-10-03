@@ -192,6 +192,9 @@ bool parser_parse_function_statement_single(Parser* parser) {
             CHECK_TOKEN(token_type == TOKEN_INPUT, TOKEN_IDENTIFIER, BEFORE(), AFTER(
                 return true;
             ));
+            CHECK_RULE(token_type == TOKEN_DIM, variable_declaration, BEFORE(
+                lexer_rewind_token(parser->lexer, token);
+            ), AFTER());
         );
     );
 
@@ -211,11 +214,17 @@ bool parser_parse_body_statement_single(Parser* parser) {
                     if(NULL == symbol_register_find_variable_recursive(parser->parser_semantic->register_, token.data)) {
                       return false;
                     }
-                    return true;
                 );
+                return true;
             ));
         );
     );
+    return true;
+  
+    if(token_type == TOKEN_DIM) {
+        lexer_rewind_token(parser->lexer, token);
+        CALL_RULE(variable_declaration);
+    }
 
     return false;
 }
@@ -242,7 +251,7 @@ bool parser_parse_function_header(Parser* parser) {
      * RULE
      * FUNCTION IDENTIFIER (<function_params>) AS <type>
      */
-
+  
     RULES(
         CHECK_TOKEN(TOKEN_FUNCTION);
         CHECK_TOKEN(TOKEN_IDENTIFIER);
@@ -251,7 +260,6 @@ bool parser_parse_function_header(Parser* parser) {
         CHECK_TOKEN(TOKEN_RIGHT_BRACKET);
         CHECK_TOKEN(TOKEN_AS);
         CHECK_TOKEN(TOKEN_DATA_TYPE_CLASS);
-
     );
 
     return true;
@@ -326,7 +334,8 @@ bool parser_parse_eols(Parser* parser) {
             CHECK_RULE(token_type == TOKEN_EOL, eols, NO_CODE);
             CHECK_RULE(epsilon, BEFORE(), AFTER(
                            lexer_rewind_token(parser->lexer, token);));
-        ););
+        );
+    );
 
     return true;
 }
@@ -336,4 +345,30 @@ bool parser_parse_epsilon(Parser* parser)
     UNUSED(parser);
 
     return true;
+}
+
+bool parser_parse_variable_declaration(Parser* parser) {
+    /**
+     * RULES
+     * <variable_declaration> -> DIM IDENTIFIER AS <type>
+     */
+    INIT_LOCAL_TOKEN_VARS();
+
+    // Expect DIM token
+    GET_NEXT_TOKEN_TYPE();
+    TEST_TOKEN_TYPE(TOKEN_DIM);
+
+    // Expect IDENTIFIER token
+    GET_NEXT_TOKEN_TYPE();
+    TEST_TOKEN_TYPE(TOKEN_IDENTIFIER);
+
+    // Expect AS token
+    GET_NEXT_TOKEN_TYPE();
+    TEST_TOKEN_TYPE(TOKEN_AS);
+
+    // Expect data type
+    GET_NEXT_TOKEN_TYPE();
+    TEST_TOKEN_IS_DATA_TYPE()
+
+    RULE_RETURN_OK();
 }

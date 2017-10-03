@@ -59,6 +59,20 @@ TEST_F(ParserTestFixture, BodyRule) {
             parser_parse_program(parser)
     ) << "Body parse";
 
+    provider->setString("Scope \n "
+                                "input id \n"
+                                "END SCOPE \n");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    ) << "Body parse";
+
+    provider->setString("Scope \n "
+                                "DIM PROMENA AS INTEGER \n"
+                                "END SCOPE \n");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    ) << "Body parse";
+
     provider->setString(
             R"(DECLARE FUNCTION hello () AS string
                 FUNCTION hello () AS string
@@ -244,7 +258,7 @@ TEST_F(ParserTestFixture, BodyStatementSingle) {
 
 TEST_F(ParserTestFixture, DimRule) {
 
-    provider->setString("dim id as string");
+    provider->setString("dim promena as string");
 
     EXPECT_TRUE(
             parser_parse_variable_declaration(parser)

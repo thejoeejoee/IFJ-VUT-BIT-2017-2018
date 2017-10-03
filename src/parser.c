@@ -170,7 +170,7 @@ bool parser_parse_body_statements(Parser* parser) {
     RULES(
         CONDITIONAL_RULES(
             lexer_rewind_token(parser->lexer, token);
-            CHECK_RULE(token_type != TOKEN_INPUT, epsilon, NO_CODE);
+            CHECK_RULE(token_type != TOKEN_INPUT && token_type != TOKEN_DIM, epsilon, BEFORE(), AFTER(token_free(&token), return true;));
             CHECK_RULE(body_statement_single);
             CHECK_TOKEN(TOKEN_EOL);
             CHECK_RULE(eols);
@@ -216,12 +216,12 @@ bool parser_parse_body_statement_single(Parser* parser) {
                         return false;
                     }
                 );
-            token_free(&token);
+                token_free(&token);
                 return true;
             ));
             CHECK_RULE(token_type == TOKEN_DIM, variable_declaration, BEFORE(
                 lexer_rewind_token(parser->lexer, token);
-            ), AFTER());
+            ), AFTER(token_free(&token); return true;));
         );
     );
 

@@ -61,8 +61,6 @@ TEST_F(SymbolRegisterTestFixture, FindingVariablesInStack) {
             nullptr
     ) << "Auto allocated data ptr.";
 
-    symbol_variable->data->data_type = 42;
-
     symbol_register_push_variables_table(symbol_register);
 
     SymbolVariable* found_variable = symbol_register_find_variable(symbol_register, "foo");

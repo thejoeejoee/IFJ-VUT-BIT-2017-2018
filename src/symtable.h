@@ -7,6 +7,7 @@
 #include <stdio.h>
 
 #include "symtable_typed.h"
+#include "data_type.h"
 
 // GENERIC DEFINITION FOR HASH TABLE
 /**
@@ -92,7 +93,7 @@ typedef struct symbol_variable_t {
     // TODO: define all needed members
     bool declared;
     bool defined;
-    short data_type;
+    DataType data_type;
 } SymbolVariable;
 
 SYMBOL_TABLE_TYPED_HEADERS(SymbolVariable, variable);

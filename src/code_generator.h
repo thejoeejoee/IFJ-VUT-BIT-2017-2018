@@ -22,4 +22,7 @@ void code_generator_generate_instruction(
         CodeInstructionOperand* op2
 );
 
+void generate_WRITE(CodeGenerator* generator,
+                    CodeInstructionOperand* op0);
+
 #endif //_CODE_GENERATOR_H

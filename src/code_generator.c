@@ -41,11 +41,8 @@ void code_generator_generate_instruction(
     }
 }
 
-
-void generate_WRITE(CodeGenerator* generator,
-                    CodeInstructionOperand* op0) {
-
-    ASSERT(op0->type == TYPE_INSTRUCTION_OPERAND_SYMBOL);
+void generate_WRITE(CodeGenerator* generator, CodeInstructionOperand* op0) {
+    ASSERT(op0->type & TYPE_INSTRUCTION_OPERAND_SYMBOL);
 
     code_generator_generate_instruction(generator, I_WRITE, op0, NULL, NULL);
 }

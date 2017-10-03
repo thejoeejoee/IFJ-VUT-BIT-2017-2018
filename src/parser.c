@@ -217,14 +217,11 @@ bool parser_parse_body_statement_single(Parser* parser) {
                 );
                 return true;
             ));
+            CHECK_RULE(token_type == TOKEN_DIM, variable_declaration, BEFORE(
+                lexer_rewind_token(parser->lexer, token);
+            ), AFTER());
         );
     );
-    return true;
-  
-    if(token_type == TOKEN_DIM) {
-        lexer_rewind_token(parser->lexer, token);
-        CALL_RULE(variable_declaration);
-    }
 
     return false;
 }
@@ -352,23 +349,13 @@ bool parser_parse_variable_declaration(Parser* parser) {
      * RULES
      * <variable_declaration> -> DIM IDENTIFIER AS <type>
      */
-    INIT_LOCAL_TOKEN_VARS();
 
-    // Expect DIM token
-    GET_NEXT_TOKEN_TYPE();
-    TEST_TOKEN_TYPE(TOKEN_DIM);
+    RULES(
+        CHECK_TOKEN(TOKEN_DIM);
+        CHECK_TOKEN(TOKEN_IDENTIFIER);
+        CHECK_TOKEN(TOKEN_AS);
+        CHECK_TOKEN(TOKEN_DATA_TYPE_CLASS);
+    );
 
-    // Expect IDENTIFIER token
-    GET_NEXT_TOKEN_TYPE();
-    TEST_TOKEN_TYPE(TOKEN_IDENTIFIER);
-
-    // Expect AS token
-    GET_NEXT_TOKEN_TYPE();
-    TEST_TOKEN_TYPE(TOKEN_AS);
-
-    // Expect data type
-    GET_NEXT_TOKEN_TYPE();
-    TEST_TOKEN_IS_DATA_TYPE()
-
-    RULE_RETURN_OK();
+    return true;
 }

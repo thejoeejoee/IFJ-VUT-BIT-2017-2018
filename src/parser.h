@@ -27,6 +27,9 @@
 
 #define TEST_TOKEN_IS_DATA_TYPE() if(token_type != TOKEN_INTEGER && token_type != TOKEN_STRING && token_type != TOKEN_DOUBLE) return false;
 
+
+
+
 // NEW MACROS
 #define RULES(rules) \
     do { \
@@ -41,6 +44,7 @@
 
 #define CONDITIONAL_RULES(rules) do { \
         GET_NEXT_TOKEN_TYPE(); \
+        lexer_rewind_token(parser->lexer, token); \
         conditions_buffer = 0; \
         token_rewinded = false; \
         conditional_rules = true; \
@@ -48,14 +52,11 @@
         conditional_rules = false; \
     } while(false)
 
-//#define ELSE_RULES(rules) else { rules }
-
 #define CHECK_RULE_2(condition, rule_name) do { \
         if(conditional_rules) { \
             if(condition) { \
                 conditions_buffer <<= 1; \
                 conditions_buffer |= 1; \
-                lexer_rewind_token(parser->lexer, token); \
                 if(!parser_parse_ ## rule_name(parser)) return false; \
             } \
         }   \
@@ -82,9 +83,41 @@
 #define CHECK_RULE(...) MSVC_EXPAND(GET_OVERLOADED_MACRO12( \
     __VA_ARGS__, CHECK_RULE_2, CHECK_RULE_1)(__VA_ARGS__))
 
-#define CHECK_TOKEN(token_type_literal) \
+/*#define CHECK_TOKEN(token_type_literal) \
     GET_NEXT_TOKEN_TYPE(); \
-    if(token_type != (token_type_literal)) return false;
+    if(token_type != (token_type_literal)) return false;*/
+
+#define CHECK_TOKEN_2(condition, token_type_literal) do { \
+        if(conditional_rules) { \
+            if(condition) { \
+                conditions_buffer <<= 1; \
+                conditions_buffer |= 1; \
+                GET_NEXT_TOKEN_TYPE(); \
+                if(token_type != (token_type_literal)) return false; \
+            } \
+        } \
+        else {\
+            GET_NEXT_TOKEN_TYPE(); \
+            if(token_type != (token_type_literal)) return false; \
+        }\
+    } while(false)
+
+#define CHECK_TOKEN_1(token_type_literal) do { \
+    if(conditional_rules) { \
+        if(conditions_buffer == 0) { \
+            GET_NEXT_TOKEN_TYPE(); \
+            if(token_type != (token_type_literal)) return false; \
+        } \
+    } \
+    else {\
+        GET_NEXT_TOKEN_TYPE(); \
+        if(token_type != (token_type_literal)) return false; \
+    }\
+} while(false)
+
+
+#define CHECK_TOKEN(...) MSVC_EXPAND(GET_OVERLOADED_MACRO12(\
+    __VA_ARGS__, CHECK_TOKEN_2, CHECK_TOKEN_1)(__VA_ARGS__))
 
 #define SEMANTIC_ANALYSIS(parser, code) do {\
 if ((parser)->enabled_semantic_analysis) \

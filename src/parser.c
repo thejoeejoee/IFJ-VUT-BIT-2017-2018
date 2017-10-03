@@ -38,136 +38,159 @@ bool parser_parse(Parser* parser) {
 }
 
 bool parser_parse_program(Parser* parser) {
-
-    INIT_LOCAL_TOKEN_VARS();
-
     /*
      * RULE
      * <prog> -> <body> <eols> EOF
      */
 
     // Call rule <body>. If <body> return false => return false
-    CALL_RULE(body);
+//    CALL_RULE(body);
 
-    CALL_RULE(eols);
+//    CALL_RULE(eols);
 
-    // Expect EOF token If return true, program is syntactically correct
-    GET_NEXT_TOKEN_TYPE();
-    TEST_TOKEN_TYPE(TOKEN_EOF);
+//    // Expect EOF token If return true, program is syntactically correct
+//    GET_NEXT_TOKEN_TYPE();
+//    TEST_TOKEN_TYPE(TOKEN_EOF);
+//        // Call rule <body>. If <body> return false => return false
+    RULES(
+        CHECK_RULE(body);
+        CHECK_RULE(eols);
 
-    return true;
+        // Expect EOF token If return true, program is syntactically correct
+        CHECK_TOKEN(TOKEN_EOF);
+    );
 }
 
 bool parser_parse_body(Parser* parser) {
-
-    INIT_LOCAL_TOKEN_VARS()
-
-    /**
+    /*
      * RULE
      * <body> -> <definitions> SCOPE EOL <statements> END SCOPE
      */
 
     // Call <definitions> rule
-    CALL_RULE(definitions);
+//    INIT_LOCAL_TOKEN_VARS()
+//    CALL_RULE(definitions);
 
-    // Expect SCOPE token
-    GET_NEXT_TOKEN_TYPE();
-    TEST_TOKEN_TYPE(TOKEN_SCOPE);
+//    // Expect SCOPE token
+//    GET_NEXT_TOKEN_TYPE();
+//    TEST_TOKEN_TYPE(TOKEN_SCOPE);
 
-    // Expect EOL token
-    GET_NEXT_TOKEN_TYPE();
-    TEST_TOKEN_TYPE(TOKEN_EOL);
+//    // Expect EOL token
+//    GET_NEXT_TOKEN_TYPE();
+//    TEST_TOKEN_TYPE(TOKEN_EOL);
 
-    // Call <statements> rule
-    CALL_RULE(body_statements);
+//    // Call <statements> rule
+//    CALL_RULE(body_statements);
 
-    // Expect END token
-    GET_NEXT_TOKEN_TYPE();
-    TEST_TOKEN_TYPE(TOKEN_END);
+//    // Expect END token
+//    GET_NEXT_TOKEN_TYPE();
+//    TEST_TOKEN_TYPE(TOKEN_END);
 
-    // Expect SCOPE token
-    GET_NEXT_TOKEN_TYPE();
-    TEST_TOKEN_TYPE(TOKEN_SCOPE);
+//    // Expect SCOPE token
+//    GET_NEXT_TOKEN_TYPE();
+//    TEST_TOKEN_TYPE(TOKEN_SCOPE);
 
-    return true;
+//    return true;
+//    printf("fuck you\n");
+    RULES(
+        CHECK_RULE(definitions);
+        CHECK_TOKEN(TOKEN_SCOPE);
+        CHECK_TOKEN(TOKEN_EOL);
+        CHECK_RULE(body_statements);
+        CHECK_TOKEN(TOKEN_END);
+        CHECK_TOKEN(TOKEN_SCOPE);
+    );
 }
 
 bool parser_parse_definitions(Parser* parser) {
-
-    INIT_LOCAL_TOKEN_VARS()
-
-    /**
+    /*
      * RULES
      *
      * <definitions> -> <eols> <definition> <definitions>
      * <definitions> -> <eols> E
      */
+//INIT_LOCAL_TOKEN_VARS()
+//    CALL_RULE(eols)
 
-    CALL_RULE(eols)
+//    token = lexer_next_token(parser->lexer);
+//    token_type = token->type;
+//    if(token_type != TOKEN_DECLARE && token_type != TOKEN_FUNCTION)
+//        // Epsilon
+//        lexer_rewind_token(parser->lexer, token);
+//    else {
+//        lexer_rewind_token(parser->lexer, token);
+//        CALL_RULE(definition)
+//        CALL_RULE(definitions)
+//    }
 
-    token = lexer_next_token(parser->lexer);
-    token_type = token->type;
-    if(token_type != TOKEN_DECLARE && token_type != TOKEN_FUNCTION)
-        // Epsilon
-        lexer_rewind_token(parser->lexer, token);
-    else {
-        lexer_rewind_token(parser->lexer, token);
-        CALL_RULE(definition)
-        CALL_RULE(definitions)
-    }
-
-    return true;
+//    return true;
+    RULES(
+        CHECK_RULE(eols);
+        CONDITIONAL_RULES(
+            CHECK_RULE(token_type != TOKEN_DECLARE && token_type != TOKEN_FUNCTION, epsilon);
+            CHECK_RULE(definition);
+            CHECK_RULE(definitions);
+        );
+    );
 }
 
 bool parser_parse_definition(Parser* parser) {
-
-    INIT_LOCAL_TOKEN_VARS()
-
-    /**
+    /*
      * RULES
      * <definition> -> <function_declaration>
      * <definition> -> <function_definition>
      */
 
-    token = lexer_next_token(parser->lexer);
-    token_type = token->type;
-    if(token_type == TOKEN_DECLARE) {
-        lexer_rewind_token(parser->lexer, token);
-        CALL_RULE(function_declaration)
-    } else if(token_type == TOKEN_FUNCTION) {
-        lexer_rewind_token(parser->lexer, token);
-        CALL_RULE(function_definition)
-    } else
-        // Zatím Epsilon
-        lexer_rewind_token(parser->lexer, token);
-    return true;
+//    token = lexer_next_token(parser->lexer);
+//    token_type = token->type;
+//    if(token_type == TOKEN_DECLARE) {
+//        lexer_rewind_token(parser->lexer, token);
+//        CALL_RULE(function_declaration)
+//    } else if(token_type == TOKEN_FUNCTION) {
+//        lexer_rewind_token(parser->lexer, token);
+//        CALL_RULE(function_definition)
+//    } else
+//        // Zatím Epsilon
+//        lexer_rewind_token(parser->lexer, token);
+    RULES(
+        CONDITIONAL_RULES(
+            CHECK_RULE(token_type == TOKEN_DECLARE, function_declaration);
+            CHECK_RULE(token_type == TOKEN_FUNCTION, function_definition);
+            CHECK_RULE(epsilon);
+        );
+    );
 }
 
 bool parser_parse_function_definition(Parser* parser) {
-
-    INIT_LOCAL_TOKEN_VARS()
-
-    /**
+    /*
      * RULE
      * <function_definition> -> <function_header> EOL <eols> <statements> END FUNCTION
      */
-    CALL_RULE(function_header)
-    GET_NEXT_TOKEN_TYPE()
-    TEST_TOKEN_TYPE(TOKEN_EOL)
-    CALL_RULE(eols)
+//    CALL_RULE(function_header)
+//    GET_NEXT_TOKEN_TYPE()
+//    TEST_TOKEN_TYPE(TOKEN_EOL)
+//    CALL_RULE(eols)
 
-    CALL_RULE(function_statements)
+//    CALL_RULE(function_statements)
+    RULES(
+        CHECK_RULE(function_header);
+        CHECK_TOKEN(TOKEN_EOL);
+        CHECK_RULE(eols);
+        CHECK_RULE(function_statements);
+        CHECK_TOKEN(TOKEN_END);
+        CHECK_TOKEN(TOKEN_FUNCTION);
+    );
 
-    GET_NEXT_TOKEN_TYPE()
-    TEST_TOKEN_TYPE(TOKEN_END)
-    GET_NEXT_TOKEN_TYPE()
-    TEST_TOKEN_TYPE(TOKEN_FUNCTION)
+//    GET_NEXT_TOKEN_TYPE()
+//    TEST_TOKEN_TYPE(TOKEN_END)
+//    GET_NEXT_TOKEN_TYPE()
+//    TEST_TOKEN_TYPE(TOKEN_FUNCTION)
     return true;
 }
 
 bool parser_parse_function_statements(Parser* parser) {
 
-    INIT_LOCAL_TOKEN_VARS()
+//    INIT_LOCAL_TOKEN_VARS()
 
     /**
      * RULES
@@ -175,28 +198,38 @@ bool parser_parse_function_statements(Parser* parser) {
      * <statements> -> <statement_single> EOL <eols> <statements>
      */
 
-    token = lexer_next_token(parser->lexer);
-    token_type = token->type;
-    lexer_rewind_token(parser->lexer, token);
+//    token = lexer_next_token(parser->lexer);
+//    token_type = token->type;
+//    lexer_rewind_token(parser->lexer, token);
 
-    if(token_type != TOKEN_INPUT) {
+//    if(token_type != TOKEN_INPUT) {
 
-        // It is EPSILON
-        return true;
-    } else {
-        CALL_RULE(function_statement_single)
-        GET_NEXT_TOKEN_TYPE()
-        TEST_TOKEN_TYPE(TOKEN_EOL)
-        CALL_RULE(eols)
-        CALL_RULE(function_statements)
-    }
+//        // It is EPSILON
+//        return true;
+//    } else {
+//        CALL_RULE(function_statement_single)
+//        GET_NEXT_TOKEN_TYPE()
+//        TEST_TOKEN_TYPE(TOKEN_EOL)
+//        CALL_RULE(eols)
+//        CALL_RULE(function_statements)
+//    }
 
-    return true;
+//    return true;
+
+    RULES(
+        CONDITIONAL_RULES(
+            CHECK_RULE(token_type != TOKEN_INPUT, epsilon);
+            CHECK_RULE(function_statement_single);
+            CHECK_TOKEN(TOKEN_EOL);
+            CHECK_RULE(eols);
+            CHECK_RULE(function_statements);
+        );
+    );
 }
 
 bool parser_parse_body_statements(Parser* parser) {
 
-    INIT_LOCAL_TOKEN_VARS()
+//    INIT_LOCAL_TOKEN_VARS()
 
     /**
      * RULES
@@ -204,23 +237,33 @@ bool parser_parse_body_statements(Parser* parser) {
      * <statements> -> <statement_single> EOL <eols> <statements>
      */
 
-    token = lexer_next_token(parser->lexer);
-    token_type = token->type;
-    lexer_rewind_token(parser->lexer, token);
+//    token = lexer_next_token(parser->lexer);
+//    token_type = token->type;
+//    lexer_rewind_token(parser->lexer, token);
 
-    if(token_type != TOKEN_INPUT) {
+//    if(token_type != TOKEN_INPUT) {
 
-        // It is EPSILON
-        return true;
-    } else {
-        CALL_RULE(body_statement_single)
-        GET_NEXT_TOKEN_TYPE()
-        TEST_TOKEN_TYPE(TOKEN_EOL)
-        CALL_RULE(eols)
-        CALL_RULE(body_statements)
-    }
+//        // It is EPSILON
+//        return true;
+//    } else {
+//        CALL_RULE(body_statement_single)
+//        GET_NEXT_TOKEN_TYPE()
+//        TEST_TOKEN_TYPE(TOKEN_EOL)
+//        CALL_RULE(eols)
+//        CALL_RULE(body_statements)
+//    }
 
-    return true;
+//    return true;
+
+    RULES(
+        CONDITIONAL_RULES(
+            CHECK_RULE(token_type != TOKEN_INPUT, epsilon);
+            CHECK_RULE(body_statement_single);
+            CHECK_TOKEN(TOKEN_EOL);
+            CHECK_RULE(eols);
+            CHECK_RULE(body_statements);
+        );
+    );
 }
 
 bool parser_parse_function_statement_single(Parser* parser) {
@@ -245,6 +288,12 @@ bool parser_parse_function_statement_single(Parser* parser) {
     }
 
     return false;
+
+//    RULES(
+//        CONDITIONAL_RULES(
+//            CHECK_TOKEN(token_type == TOKEN_INPUT, TOKEN_IDENTIFIER);
+//        );
+//    );
 }
 
 bool parser_parse_body_statement_single(Parser* parser) {
@@ -433,6 +482,19 @@ bool parser_parse_eols(Parser* parser) {
         CALL_RULE(eols)
     } else
         lexer_rewind_token(parser->lexer, token);
+
+    return true;
+//    RULES(
+//        CONDITIONAL_RULES(
+//            CHECK_RULE(token_type == TOKEN_EOL, eols);
+//            CHECK_RULE(epsilon);
+//        );
+//    );
+}
+
+bool parser_parse_epsilon(Parser* parser)
+{
+    UNUSED(parser);
 
     return true;
 }

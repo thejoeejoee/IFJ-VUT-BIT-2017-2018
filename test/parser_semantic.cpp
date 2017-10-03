@@ -17,8 +17,7 @@ class ParserSemanticTestFixture : public ::testing::Test {
 
         void SetUp() override {
             parser = parser_init(token_stream);
-            parser->enabled_semantic_analysis = true;
-            parser->enabled_code_generation = false;
+            parser->run_type = PARSER_RUN_TYPE_SEMANTIC_ANALYSIS;
             provider = StringByCharProvider::instance();
         }
 

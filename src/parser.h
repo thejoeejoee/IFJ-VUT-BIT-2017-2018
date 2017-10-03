@@ -8,24 +8,30 @@
 #include "memory.h"
 #include "error.h"
 #include "common.h"
+#include "token.h"
 
 //Todo: we need to invent better macros
 #define GET_NEXT_TOKEN_TYPE() do { \
+    token_free(&token);\
     token = lexer_next_token(parser->lexer); \
-    token_type = token->type; \
+    token_type = token.type; \
     if (token_type == TOKEN_ERROR) { \
         parser->error_report.error_code = ERROR_LEXER; \
         parser->error_report.detail_information = (int )parser->lexer->lexer_fsm->lexer_error; \
     }} while(false);
 
 
-#define INIT_LOCAL_TOKEN_VARS() Token *token; TokenType token_type; (void) token; (void) token_type;
+#define INIT_LOCAL_TOKEN_VARS() NULL_POINTER_CHECK(parser, false); Token token = {.data = NULL, .type = TOKEN_UNKNOWN}; TokenType token_type
 
-#define CALL_RULE(Rule) if (!parser_parse_##Rule(parser)) return false;
+#define CALL_RULE(Rule) if (!parser_parse_##Rule(parser)) { token_free(&token); return false; }
 
-#define TEST_TOKEN_TYPE(Type) if(token_type != (Type)) return false;
+//#define RULE_RETURN_OK() token_free(&token); return true
 
-#define TEST_TOKEN_IS_DATA_TYPE() if(token_type != TOKEN_INTEGER && token_type != TOKEN_STRING && token_type != TOKEN_DOUBLE) return false;
+//#define RULE_RETURN_BAD() token_free(&token); return false
+
+#define TEST_TOKEN_TYPE(Type) if(token_type != (Type)) { token_free(&token); return false; }
+
+#define TEST_TOKEN_IS_DATA_TYPE() if(token_type != TOKEN_INTEGER && token_type != TOKEN_STRING && token_type != TOKEN_DOUBLE) {token_free(&token); return false;}
 
 
 
@@ -37,7 +43,7 @@
 
 #define RULES(rules) \
     do { \
-        Token* token = NULL; \
+        Token token; \
         TokenType token_type = TOKEN_UNKNOWN; \
         bool conditional_rules = false; \
         unsigned int conditions_buffer = 0; \
@@ -140,15 +146,21 @@
     __VA_ARGS__, CHECK_TOKEN_4, CHECK_TOKEN_3, CHECK_TOKEN_2, CHECK_TOKEN_1)(__VA_ARGS__))
 
 #define SEMANTIC_ANALYSIS(parser, code) do {\
-if ((parser)->enabled_semantic_analysis) \
+if ((parser)->run_type & PARSER_RUN_TYPE_SEMANTIC_ANALYSIS) \
     code \
 } while (0)
 
 #define CODE_GENERATION(parser, code) do {\
-if ((parser)->enabled_semantic_analysis) \
+if ((parser)->run_type & PARSER_RUN_TYPE_CODE_GENERATION) \
     code \
 } while (0)
 
+typedef enum {
+    PARSER_RUN_TYPE_NOTHING = 0,
+    PARSER_RUN_TYPE_SEMANTIC_ANALYSIS = 1,
+    PARSER_RUN_TYPE_SEMANTIC_CODE_GENERATION = 2,
+    PARSER_RUN_TYPE_ALL = PARSER_RUN_TYPE_SEMANTIC_ANALYSIS | PARSER_RUN_TYPE_SEMANTIC_CODE_GENERATION,
+} ParserRunType;
 
 /**
  * @brief Representation of Parser
@@ -158,9 +170,7 @@ typedef struct parser_t {
     ParserSemantic* parser_semantic;
     ErrorReport error_report;
 
-    // TODO: refactor to bit flags
-    bool enabled_semantic_analysis;
-    bool enabled_code_generation;
+    int run_type;
 } Parser;
 
 /**

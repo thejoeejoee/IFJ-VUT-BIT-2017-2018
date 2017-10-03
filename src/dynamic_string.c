@@ -31,8 +31,8 @@ static inline void string_update_capacity(String* string, size_t needed_size) {
         size_t new_capacity = 2 * string->capacity;
         new_capacity = new_capacity >= 2 ? new_capacity : 2;
         while(needed_size > new_capacity) {
+            // impossible to handle
             new_capacity <<= 2; //multiply new capacity by 2
-            // TODO: check overflow
         }
         char* tmp = (char*) memory_alloc(sizeof(char) * new_capacity);
         strcpy(tmp, string->content);

@@ -82,5 +82,9 @@ typedef struct token_t {
     char* data;
 } Token;
 
+/**
+* @brief Free token data.
+*/
+void token_free(Token *token);
 
 #endif //_TOKEN_H

@@ -11,7 +11,7 @@ Lexer* lexer_init(lexer_input_stream_f input_stream) {
     NULL_POINTER_CHECK(input_stream, NULL);
 
     lexer->lexer_fsm = lexer_fsm;
-    lexer->token_buffer = NULL;
+    lexer->is_token_rewind = false;
 
     return lexer;
 }
@@ -25,26 +25,26 @@ void lexer_free(Lexer** lexer) {
     *lexer = NULL;
 }
 
-void lexer_rewind_token(Lexer* lexer, Token* token) {
+void lexer_rewind_token(Lexer* lexer, Token token) {
     NULL_POINTER_CHECK(lexer,);
-    NULL_POINTER_CHECK(token,);
 
-    lexer->token_buffer = token;
+    ASSERT(!lexer->is_token_rewind);
+    lexer->is_token_rewind = true;
+    lexer->rewind_token = token;
 }
 
-Token* lexer_next_token(Lexer* lexer) {
-    NULL_POINTER_CHECK(lexer, NULL);
+Token lexer_next_token(Lexer* lexer) {
+    Token token = {
+            .data = NULL,
+            .type = TOKEN_UNKNOWN
+    };
 
-    if(lexer->token_buffer != NULL) {
-        Token* return_token = lexer->token_buffer;
-        lexer->token_buffer = NULL;
-        return return_token;
+    NULL_POINTER_CHECK(lexer, token);
+
+    if(lexer->is_token_rewind) {
+        lexer->is_token_rewind = false;
+        return lexer->rewind_token;
     }
-
-    // TODO: mem leak, processor should free loaded tokens
-    Token* token = memory_alloc(sizeof(Token));
-
-    token->type = TOKEN_UNKNOWN;
 
     LexerFSMState actual_state = LEX_FSM__INIT;
     do {
@@ -52,19 +52,30 @@ Token* lexer_next_token(Lexer* lexer) {
         actual_state = lexer_fsm_next_state(lexer->lexer_fsm, actual_state);
     } while(!lexer_fsm_is_final_state(actual_state));
 
-    token->type = (TokenType) actual_state;
-    size_t data_length = string_length(lexer->lexer_fsm->stream_buffer);
-    if(data_length > 0) {
-        token->data = memory_alloc(sizeof(char) * (data_length + 1));
+    token.type = (TokenType) actual_state;
 
-        if(NULL == strcpy(token->data, string_content(lexer->lexer_fsm->stream_buffer))) {
-            exit_with_code(ERROR_INTERNAL);
-        }
-    } else
-        token->data = NULL;
-
+    token.data = lexer_store_token_data(lexer, token);
     string_clear(lexer->lexer_fsm->stream_buffer);
-
     return token;
+}
 
+char* lexer_store_token_data(const Lexer* lexer, Token token) {
+    NULL_POINTER_CHECK(lexer, NULL);
+
+    size_t data_length = string_length(lexer->lexer_fsm->stream_buffer);
+    if(!data_length || !(
+            token.type == TOKEN_IDENTIFIER ||
+            token.type == TOKEN_STRING_VALUE ||
+            token.type == TOKEN_INTEGER_LITERAL ||
+            token.type == TOKEN_DOUBLE_LITERAL
+    )) {
+        return NULL;
+    }
+
+    char* data = memory_alloc(sizeof(char) * (data_length + 1));
+
+    if(NULL == strcpy(data, string_content(lexer->lexer_fsm->stream_buffer))) {
+        exit_with_code(ERROR_INTERNAL);
+    }
+    return data;
 }

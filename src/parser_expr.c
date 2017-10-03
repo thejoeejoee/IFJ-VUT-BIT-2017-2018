@@ -7,4 +7,6 @@
 
 void parser_parse_expression(Parser* parser) {
     NULL_POINTER_CHECK(parser,);
+
+    UNUSED(parser);
 }

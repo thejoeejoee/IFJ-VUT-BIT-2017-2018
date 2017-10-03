@@ -20,8 +20,7 @@ LexerFSM* lexer_fsm_init(lexer_input_stream_f input_stream) {
     lexer_fsm->numeric_char_position = -1;
     lexer_fsm->lexer_error = LEXER_ERROR__NO_ERROR;
 
-    // Todo: Checking line
-    lexer_fsm->line = 0;
+    lexer_fsm->line = 1;
 
     return lexer_fsm;
 }
@@ -46,15 +45,13 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
         c = lexer_fsm->input_stream();
 
     switch(prev_state) {
-
         // Starting state
-
         case LEX_FSM__INIT:
-
             // If it is a white space, we ignore it
-
-            if(c == '\n')
+            if(c == '\n') {
+                lexer_fsm->line++;
                 return LEX_FSM__EOL;
+            }
 
             if(isspace(c))
                 return LEX_FSM__INIT;
@@ -63,7 +60,6 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
                 STORE_CHAR(tolower(c));
                 return LEX_FSM__IDENTIFIER_UNFINISHED;
             }
-
             if(isdigit(c)) {
                 STORE_CHAR(c);
                 return LEX_FSM__INTEGER_LITERAL_UNFINISHED;
@@ -103,7 +99,6 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
                     break;
             }
             break;
-
             // String states
 
         case LEX_FSM__STRING_EXC:
@@ -115,8 +110,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
             }
 
         case LEX_FSM__STRING_LOAD:
-
-            if (c < 32) {
+            if(c < 32) {
                 return LEX_FSM__ERROR;
             }
             switch(c) {
@@ -133,7 +127,6 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
             }
 
         case LEX_FSM__STRING_SLASH:
-
             if(isdigit(c)) {
                 lexer_fsm->numeric_char_position = 0;
                 lexer_fsm->numeric_char_value[0] = c;
@@ -159,7 +152,6 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
             }
 
             // Integer literal
-
         case LEX_FSM__STRING_NUMERIC_CHAR:
             if(isdigit(c)) {
                 lexer_fsm->numeric_char_position++;
@@ -188,14 +180,13 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
             } else if(c == '.') {
                 STORE_CHAR(c);
                 return LEX_FSM__DOUBLE_DOT;
-            } else if (tolower(c) == 'e') {
+            } else if(tolower(c) == 'e') {
                 STORE_CHAR(c);
                 return LEX_FSM__DOUBLE_E;
             } else {
                 REWIND_CHAR(c);
                 return LEX_FSM__INTEGER_LITERAL_FINISHED;
             }
-
             // Double literal
 
         case LEX_FSM__DOUBLE_DOT:
@@ -241,7 +232,6 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
             }
 
             // Relation operators
-
         case LEX_FSM__LEFT_SHARP_BRACKET:
             switch(c) {
                 case '=':
@@ -263,7 +253,6 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
             }
 
             // Identifiers
-
         case LEX_FSM__IDENTIFIER_UNFINISHED:
             if(c == '_' || isdigit(c) || isalpha(c)) {
                 STORE_CHAR(tolower(c));
@@ -275,7 +264,6 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
             }
 
             // Comments
-
         case LEX_FSM__SLASH:
             if(c == '\'')
                 return LEX_FSM__COMMENT_BLOCK;
@@ -283,7 +271,6 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
                 REWIND_CHAR(c);
                 return LEX_FSM__DIVIDE;
             }
-
 
         case LEX_FSM__COMMENT_LINE:
             if(c != '\n')
@@ -342,7 +329,6 @@ LexerFSMState lexer_fsm_get_identifier_state(const char* name) {
 }
 
 bool lexer_fsm_is_final_state(LexerFSMState state) {
-
     return state >= LEX_FSM__ADD;
     // TODO: inline of macro to better performance
 }

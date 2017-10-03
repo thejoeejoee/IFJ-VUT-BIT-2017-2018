@@ -212,9 +212,11 @@ bool parser_parse_body_statement_single(Parser* parser) {
             CHECK_TOKEN(token_type == TOKEN_INPUT, TOKEN_IDENTIFIER, BEFORE(), AFTER(
                 SEMANTIC_ANALYSIS(parser,
                     if(NULL == symbol_register_find_variable_recursive(parser->parser_semantic->register_, token.data)) {
-                      return false;
+                        token_free(&token);
+                        return false;
                     }
                 );
+            token_free(&token);
                 return true;
             ));
             CHECK_RULE(token_type == TOKEN_DIM, variable_declaration, BEFORE(
@@ -248,7 +250,7 @@ bool parser_parse_function_header(Parser* parser) {
      * RULE
      * FUNCTION IDENTIFIER (<function_params>) AS <type>
      */
-  
+
     RULES(
         CHECK_TOKEN(TOKEN_FUNCTION);
         CHECK_TOKEN(TOKEN_IDENTIFIER);
@@ -354,14 +356,15 @@ bool parser_parse_variable_declaration(Parser* parser) {
         char* name;
         CHECK_TOKEN(TOKEN_DIM);
         CHECK_TOKEN(TOKEN_IDENTIFIER, BEFORE(
-            name = malloc(sizeof(token.data));
-            strcpy(name, token.data);
+                name = token.data;
+            token.data = NULL;
         ));
         CHECK_TOKEN(TOKEN_AS);
         CHECK_TOKEN(TOKEN_DATA_TYPE_CLASS, BEFORE(), AFTER(
-            SEMANTIC_ANALYSIS(
-                parser,
-                return parser_semantic_add_symbol_variable(parser->parser_semantic, name, (short) token_type);
+            SEMANTIC_ANALYSIS(parser,
+            bool successful = parser_semantic_add_symbol_variable(parser->parser_semantic, name, (short) token_type);
+            memory_free(name);
+            return successful;
             );
         ));
     );

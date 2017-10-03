@@ -44,10 +44,12 @@
 #define RULES(rules) \
     do { \
         Token token; \
+        token.data = NULL; \
         TokenType token_type = TOKEN_UNKNOWN; \
         bool conditional_rules = false; \
         unsigned int conditions_buffer = 0; \
         rules \
+        token_free(&token); \
     } while(false)
 
 #define CONDITIONAL_RULES(rules) do { \

@@ -31,93 +31,113 @@
 
 
 // NEW MACROS
+#define BEFORE(code) do { code } while(false);
+#define AFTER(code) do { code } while(false);
+#define NO_CODE BEFORE(), AFTER()
+
 #define RULES(rules) \
     do { \
         Token* token = NULL; \
         TokenType token_type = TOKEN_UNKNOWN; \
         bool conditional_rules = false; \
         unsigned int conditions_buffer = 0; \
-        bool token_rewinded = false; \
         rules \
-        return true; \
     } while(false)
 
 #define CONDITIONAL_RULES(rules) do { \
         GET_NEXT_TOKEN_TYPE(); \
-        lexer_rewind_token(parser->lexer, token); \
         conditions_buffer = 0; \
-        token_rewinded = false; \
         conditional_rules = true; \
         rules \
         conditional_rules = false; \
     } while(false)
 
-#define CHECK_RULE_2(condition, rule_name) do { \
+#define CHECK_RULE_4(condition, rule_name, before_code, after_code) do { \
         if(conditional_rules) { \
             if(condition) { \
                 conditions_buffer <<= 1; \
                 conditions_buffer |= 1; \
+                before_code \
                 if(!parser_parse_ ## rule_name(parser)) return false; \
+                after_code \
             } \
         }   \
         else { \
+            before_code \
             if(!parser_parse_ ## rule_name(parser)) return false; \
+            after_code \
         } \
     } while(false)
 
-#define CHECK_RULE_1(rule_name) do { \
+#define CHECK_RULE_3(rule_name, before_code, after_code) do { \
     if(conditional_rules) { \
         if(conditions_buffer == 0) { \
-            if(!token_rewinded) { \
-                token_rewinded = true; \
-                lexer_rewind_token(parser->lexer, token); \
-            } \
+            before_code \
             if(!parser_parse_ ## rule_name(parser)) return false; \
+            after_code \
         } \
     }   \
     else { \
+        before_code \
         if(!parser_parse_ ## rule_name(parser)) return false; \
+        after_code \
     } \
 } while(false)
 
-#define CHECK_RULE(...) MSVC_EXPAND(GET_OVERLOADED_MACRO12( \
-    __VA_ARGS__, CHECK_RULE_2, CHECK_RULE_1)(__VA_ARGS__))
+#define CHECK_RULE_2(rule_name, before_code) CHECK_RULE_3(rule_name, before_code, AFTER())
+#define CHECK_RULE_1(rule_name) CHECK_RULE_3(rule_name, BEFORE(), AFTER())
 
-/*#define CHECK_TOKEN(token_type_literal) \
-    GET_NEXT_TOKEN_TYPE(); \
-    if(token_type != (token_type_literal)) return false;*/
+#define CHECK_RULE(...) MSVC_EXPAND(GET_OVERLOADED_MACRO34( \
+    __VA_ARGS__, CHECK_RULE_4, CHECK_RULE_3, CHECK_RULE_2, CHECK_RULE_1)(__VA_ARGS__))
 
-#define CHECK_TOKEN_2(condition, token_type_literal) do { \
+#define _RAW_CHECK_TOKEN(token_type_literal) \
+    if(((token_type & (token_type_literal)) == 0 && (token_type_literal) >= TOKEN_CLASSES &&  \
+    (token_type_literal & 0xFF) == 0) || \
+    (token_type != (token_type_literal) && (token_type_literal) < TOKEN_CLASSES)) \
+        return false
+
+#define CHECK_TOKEN_4(condition, token_type_literal, before_code, after_code) do { \
         if(conditional_rules) { \
             if(condition) { \
+                before_code \
                 conditions_buffer <<= 1; \
                 conditions_buffer |= 1; \
                 GET_NEXT_TOKEN_TYPE(); \
-                if(token_type != (token_type_literal)) return false; \
+                _RAW_CHECK_TOKEN(token_type_literal); \
+                after_code \
             } \
         } \
-        else {\
+        else { \
+            before_code \
             GET_NEXT_TOKEN_TYPE(); \
-            if(token_type != (token_type_literal)) return false; \
+            _RAW_CHECK_TOKEN(token_type_literal); \
+            after_code \
         }\
     } while(false)
 
-#define CHECK_TOKEN_1(token_type_literal) do { \
+#define CHECK_TOKEN_3(token_type_literal, before_code, after_code) do { \
     if(conditional_rules) { \
         if(conditions_buffer == 0) { \
+            before_code \
             GET_NEXT_TOKEN_TYPE(); \
-            if(token_type != (token_type_literal)) return false; \
+            _RAW_CHECK_TOKEN(token_type_literal); \
+            after_code \
         } \
     } \
-    else {\
+    else { \
+        before_code \
         GET_NEXT_TOKEN_TYPE(); \
-        if(token_type != (token_type_literal)) return false; \
+        _RAW_CHECK_TOKEN(token_type_literal); \
+        after_code \
     }\
 } while(false)
 
+#define CHECK_TOKEN_2(token_type_literal, before_code) CHECK_TOKEN_3( \
+    token_type_literal, before_code, AFTER())
+#define CHECK_TOKEN_1(token_type_literal) CHECK_TOKEN_3(token_type_literal, BEFORE(), AFTER())
 
-#define CHECK_TOKEN(...) MSVC_EXPAND(GET_OVERLOADED_MACRO12(\
-    __VA_ARGS__, CHECK_TOKEN_2, CHECK_TOKEN_1)(__VA_ARGS__))
+#define CHECK_TOKEN(...) MSVC_EXPAND(GET_OVERLOADED_MACRO34(\
+    __VA_ARGS__, CHECK_TOKEN_4, CHECK_TOKEN_3, CHECK_TOKEN_2, CHECK_TOKEN_1)(__VA_ARGS__))
 
 #define SEMANTIC_ANALYSIS(parser, code) do {\
 if ((parser)->enabled_semantic_analysis) \

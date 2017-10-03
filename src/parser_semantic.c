@@ -30,3 +30,20 @@ SymbolVariable* parser_semantic_expect_symbol_variable(ParserSemantic* parser_se
 
     return symbol_variable;
 }
+
+bool parser_semantic_add_symbol_variable(ParserSemantic* parser_semantic, char* name, short data_type) {
+
+    if(symbol_register_find_variable(parser_semantic->register_, name) != NULL)
+        return false;
+
+    SymbolVariable* symbol_variable = symbol_table_variable_get_or_create(
+            parser_semantic->register_->variables->symbol_table,
+            name
+    );
+
+    symbol_variable->data_type = data_type;
+
+
+    return true;
+
+}

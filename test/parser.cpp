@@ -252,6 +252,10 @@ TEST_F(ParserTestFixture, DimRule) {
 
     provider->setString("dim id as integer");
 
+    parser_semantic_free(&(parser->parser_semantic));
+
+    parser->parser_semantic = parser_semantic_init();
+
     EXPECT_TRUE(
             parser_parse_variable_declaration(parser)
     ) << "Error parsing <variable_declaration> rule";

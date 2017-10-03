@@ -18,4 +18,6 @@ void parser_semantic_free(ParserSemantic** parser);
 
 SymbolVariable* parser_semantic_expect_symbol_variable(ParserSemantic* parser_semantic, Token token);
 
+bool parser_semantic_add_symbol_variable(ParserSemantic* parser_semantic, char* name, short data_type);
+
 #endif //_PARSER_SEMANTIC_H

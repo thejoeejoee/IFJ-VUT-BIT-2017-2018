@@ -417,6 +417,7 @@ bool parser_parse_variable_declaration(Parser* parser) {
      */
     INIT_LOCAL_TOKEN_VARS();
 
+
     // Expect DIM token
     GET_NEXT_TOKEN_TYPE();
     TEST_TOKEN_TYPE(TOKEN_DIM);
@@ -424,6 +425,9 @@ bool parser_parse_variable_declaration(Parser* parser) {
     // Expect IDENTIFIER token
     GET_NEXT_TOKEN_TYPE();
     TEST_TOKEN_TYPE(TOKEN_IDENTIFIER);
+
+    char *name = malloc(sizeof(token.data));
+    strcpy(name, token.data);
 
     // Expect AS token
     GET_NEXT_TOKEN_TYPE();
@@ -433,5 +437,5 @@ bool parser_parse_variable_declaration(Parser* parser) {
     GET_NEXT_TOKEN_TYPE();
     TEST_TOKEN_IS_DATA_TYPE()
 
-    RULE_RETURN_OK();
+    return parser_semantic_add_symbol_variable(parser->parser_semantic, name, (short)token_type);
 }

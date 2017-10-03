@@ -45,7 +45,7 @@ Token lexer_next_token(Lexer* lexer);
 char* lexer_store_token_data(const Lexer* lexer, Token token);
 
 /**
- * @brief Push token to the stack
+ * @brief Push token to the stack (only one token can be rewinded at time)
  *
  * @param Lexer* lexer Pointer to instance of lexer
  * @param Token* token Pointer to token

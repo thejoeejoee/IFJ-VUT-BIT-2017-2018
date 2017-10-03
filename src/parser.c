@@ -55,11 +55,11 @@ bool parser_parse_program(Parser* parser) {
     GET_NEXT_TOKEN_TYPE();
     TEST_TOKEN_TYPE(TOKEN_EOF);
 
-    return true;
+    RULE_RETURN_OK();
 }
 
 bool parser_parse_body(Parser* parser) {
-    INIT_LOCAL_TOKEN_VARS()
+    INIT_LOCAL_TOKEN_VARS();
     /**
      * RULE
      * <body> -> <definitions> SCOPE EOL <statements> END SCOPE
@@ -86,11 +86,11 @@ bool parser_parse_body(Parser* parser) {
     GET_NEXT_TOKEN_TYPE();
     TEST_TOKEN_TYPE(TOKEN_SCOPE);
 
-    return true;
+    RULE_RETURN_OK();
 }
 
 bool parser_parse_definitions(Parser* parser) {
-    INIT_LOCAL_TOKEN_VARS()
+    INIT_LOCAL_TOKEN_VARS();
     /**
      * RULES
      *
@@ -98,7 +98,7 @@ bool parser_parse_definitions(Parser* parser) {
      * <definitions> -> <eols> E
      */
 
-    CALL_RULE(eols)
+    CALL_RULE(eols);
 
     token = lexer_next_token(parser->lexer);
     token_type = token.type;
@@ -107,15 +107,15 @@ bool parser_parse_definitions(Parser* parser) {
         lexer_rewind_token(parser->lexer, token);
     else {
         lexer_rewind_token(parser->lexer, token);
-        CALL_RULE(definition)
-        CALL_RULE(definitions)
+        CALL_RULE(definition);
+        CALL_RULE(definitions);
     }
 
-    return true;
+    RULE_RETURN_OK();
 }
 
 bool parser_parse_definition(Parser* parser) {
-    INIT_LOCAL_TOKEN_VARS()
+    INIT_LOCAL_TOKEN_VARS();
     /**
      * RULES
      * <definition> -> <function_declaration>
@@ -130,34 +130,36 @@ bool parser_parse_definition(Parser* parser) {
     } else if(token_type == TOKEN_FUNCTION) {
         lexer_rewind_token(parser->lexer, token);
         CALL_RULE(function_definition)
-    } else
+    } else {
         // Zatím Epsilon
         lexer_rewind_token(parser->lexer, token);
-    return true;
+    }
+    RULE_RETURN_OK();
 }
 
 bool parser_parse_function_definition(Parser* parser) {
-    INIT_LOCAL_TOKEN_VARS()
+    INIT_LOCAL_TOKEN_VARS();
     /**
      * RULE
      * <function_definition> -> <function_header> EOL <eols> <statements> END FUNCTION
      */
-    CALL_RULE(function_header)
-    GET_NEXT_TOKEN_TYPE()
-    TEST_TOKEN_TYPE(TOKEN_EOL)
-    CALL_RULE(eols)
+    CALL_RULE(function_header);
+    GET_NEXT_TOKEN_TYPE();
+    TEST_TOKEN_TYPE(TOKEN_EOL);
+    CALL_RULE(eols);
 
-    CALL_RULE(function_statements)
+    CALL_RULE(function_statements);
 
-    GET_NEXT_TOKEN_TYPE()
-    TEST_TOKEN_TYPE(TOKEN_END)
-    GET_NEXT_TOKEN_TYPE()
-    TEST_TOKEN_TYPE(TOKEN_FUNCTION)
-    return true;
+    GET_NEXT_TOKEN_TYPE();
+    TEST_TOKEN_TYPE(TOKEN_END);
+    GET_NEXT_TOKEN_TYPE();
+    TEST_TOKEN_TYPE(TOKEN_FUNCTION);
+    
+    RULE_RETURN_OK();
 }
 
 bool parser_parse_function_statements(Parser* parser) {
-    INIT_LOCAL_TOKEN_VARS()
+    INIT_LOCAL_TOKEN_VARS();
     /**
      * RULES
      * <statements> -> E
@@ -169,7 +171,7 @@ bool parser_parse_function_statements(Parser* parser) {
 
     if(token_type != TOKEN_INPUT) {
         // It is EPSILON
-        return true;
+        RULE_RETURN_OK();
     } else {
         CALL_RULE(function_statement_single)
         GET_NEXT_TOKEN_TYPE()
@@ -178,11 +180,11 @@ bool parser_parse_function_statements(Parser* parser) {
         CALL_RULE(function_statements)
     }
 
-    return true;
+    RULE_RETURN_OK();
 }
 
 bool parser_parse_body_statements(Parser* parser) {
-    INIT_LOCAL_TOKEN_VARS()
+    INIT_LOCAL_TOKEN_VARS();
     /**
      * RULES
      * <statements> -> E
@@ -195,20 +197,20 @@ bool parser_parse_body_statements(Parser* parser) {
     if(token_type != TOKEN_INPUT) {
 
         // It is EPSILON
-        return true;
+        RULE_RETURN_OK();
     } else {
-        CALL_RULE(body_statement_single)
-        GET_NEXT_TOKEN_TYPE()
-        TEST_TOKEN_TYPE(TOKEN_EOL)
-        CALL_RULE(eols)
-        CALL_RULE(body_statements)
+        CALL_RULE(body_statement_single);
+        GET_NEXT_TOKEN_TYPE();
+        TEST_TOKEN_TYPE(TOKEN_EOL);
+        CALL_RULE(eols);
+        CALL_RULE(body_statements);
     }
 
-    return true;
+    RULE_RETURN_OK();
 }
 
 bool parser_parse_function_statement_single(Parser* parser) {
-    INIT_LOCAL_TOKEN_VARS()
+    INIT_LOCAL_TOKEN_VARS();
     /**
      * RULE
      * <statement_single> -> INPUT <id>
@@ -218,18 +220,17 @@ bool parser_parse_function_statement_single(Parser* parser) {
     token_type = token.type;
 
     if(token_type == TOKEN_INPUT) {
-        GET_NEXT_TOKEN_TYPE()
-        TEST_TOKEN_TYPE(TOKEN_IDENTIFIER)
+        GET_NEXT_TOKEN_TYPE();
+        TEST_TOKEN_TYPE(TOKEN_IDENTIFIER);
 
-        FREE_TOKEN_DATA();
-        return true;
+        RULE_RETURN_OK();
     }
 
-    return false;
+    RULE_RETURN_BAD();
 }
 
 bool parser_parse_body_statement_single(Parser* parser) {
-    INIT_LOCAL_TOKEN_VARS()
+    INIT_LOCAL_TOKEN_VARS();
     /**
      * RULE
      * <statement_single> -> INPUT <id>
@@ -238,26 +239,23 @@ bool parser_parse_body_statement_single(Parser* parser) {
     token_type = token.type;
 
     if(token_type == TOKEN_INPUT) {
-        GET_NEXT_TOKEN_TYPE()
-        TEST_TOKEN_TYPE(TOKEN_IDENTIFIER)
+        GET_NEXT_TOKEN_TYPE();
+        TEST_TOKEN_TYPE(TOKEN_IDENTIFIER);
         SEMANTIC_ANALYSIS(
                 parser,
                 if(NULL == parser_semantic_expect_symbol_variable(parser->parser_semantic, token)) {
-                    FREE_TOKEN_DATA();
-
-                    return false;
+                    RULE_RETURN_BAD();
                 }
         );
-        FREE_TOKEN_DATA();
-        return true;
+        RULE_RETURN_OK();
     }
 
-    return false;
+    RULE_RETURN_BAD();
 }
 
 
 bool parser_parse_function_declaration(Parser* parser) {
-    INIT_LOCAL_TOKEN_VARS()
+    INIT_LOCAL_TOKEN_VARS();
     /**
      * RULE
      * <function_declaration> -> DECLARE <function_header> EOL <eols>
@@ -267,7 +265,7 @@ bool parser_parse_function_declaration(Parser* parser) {
     TEST_TOKEN_TYPE(TOKEN_DECLARE);
 
     // Call <statements> rule
-    CALL_RULE(function_header)
+    CALL_RULE(function_header);
 
     // Expect EOL token
     GET_NEXT_TOKEN_TYPE();
@@ -276,11 +274,11 @@ bool parser_parse_function_declaration(Parser* parser) {
     // Call <eols> rule
     CALL_RULE(eols)
 
-    return true;
+    RULE_RETURN_OK();
 }
 
 bool parser_parse_function_header(Parser* parser) {
-    INIT_LOCAL_TOKEN_VARS()
+    INIT_LOCAL_TOKEN_VARS();
     /**
      * RULE
      * FUNCTION IDENTIFIER (<function_params>) AS <type>
@@ -293,14 +291,13 @@ bool parser_parse_function_header(Parser* parser) {
     // Expect IDENTIFIER token
     GET_NEXT_TOKEN_TYPE();
     TEST_TOKEN_TYPE(TOKEN_IDENTIFIER);
-    FREE_TOKEN_DATA();
 
     // Expect LEFT_BRACKET token
     GET_NEXT_TOKEN_TYPE();
     TEST_TOKEN_TYPE(TOKEN_LEFT_BRACKET);
 
     // Call <function_params> rule
-    CALL_RULE(function_params)
+    //CALL_RULE(function_params);
 
     // Expect RIGHT_BRACKET token
     GET_NEXT_TOKEN_TYPE();
@@ -312,13 +309,13 @@ bool parser_parse_function_header(Parser* parser) {
 
     // Expect <type>
     GET_NEXT_TOKEN_TYPE();
-    TEST_TOKEN_IS_DATA_TYPE()
+    TEST_TOKEN_IS_DATA_TYPE();
 
-    return true;
+    RULE_RETURN_OK();
 }
 
 bool parser_parse_function_params(Parser* parser) {
-    INIT_LOCAL_TOKEN_VARS()
+    INIT_LOCAL_TOKEN_VARS();
     /**
      * RULE
      * E
@@ -332,17 +329,17 @@ bool parser_parse_function_params(Parser* parser) {
     if(token_type == TOKEN_RIGHT_BRACKET) {
         // It is EPSILON
 
-        return true;
+        RULE_RETURN_OK();
     } else {
-        CALL_RULE(function_param)
-        CALL_RULE(function_n_param)
+        CALL_RULE(function_param);
+        CALL_RULE(function_n_param);
     }
 
-    return true;
+    RULE_RETURN_OK();
 }
 
 bool parser_parse_function_n_param(Parser* parser) {
-    INIT_LOCAL_TOKEN_VARS()
+    INIT_LOCAL_TOKEN_VARS();
     /**
      * RULE
      * E
@@ -355,17 +352,17 @@ bool parser_parse_function_n_param(Parser* parser) {
     if(token_type == TOKEN_RIGHT_BRACKET) {
         // It is EPSILON
         lexer_rewind_token(parser->lexer, token);
-        return true;
+        RULE_RETURN_OK();
     } else {
-        CALL_RULE(function_param)
-        CALL_RULE(function_n_param)
+        CALL_RULE(function_param);
+        CALL_RULE(function_n_param);
     }
 
-    return true;
+    RULE_RETURN_OK();
 }
 
 bool parser_parse_function_param(Parser* parser) {
-    INIT_LOCAL_TOKEN_VARS()
+    INIT_LOCAL_TOKEN_VARS();
     /**
      * RULE
      * <function_param> -> IDENTIFIER AS TYPE
@@ -374,7 +371,6 @@ bool parser_parse_function_param(Parser* parser) {
     // Expect IDENTIFIER token
     GET_NEXT_TOKEN_TYPE();
     TEST_TOKEN_TYPE(TOKEN_IDENTIFIER);
-    FREE_TOKEN_DATA();
 
     // Expect AS token
     GET_NEXT_TOKEN_TYPE();
@@ -382,10 +378,9 @@ bool parser_parse_function_param(Parser* parser) {
 
     // Expect TYPE token
     GET_NEXT_TOKEN_TYPE();
-    TEST_TOKEN_IS_DATA_TYPE()
+    TEST_TOKEN_IS_DATA_TYPE();
 
-    return true;
-
+    RULE_RETURN_OK();
 }
 
 bool parser_parse_eols(Parser* parser) {
@@ -394,14 +389,15 @@ bool parser_parse_eols(Parser* parser) {
      * <eols> -> E
      * <eols> -> EOL <eols>
      */
-    INIT_LOCAL_TOKEN_VARS()
+    INIT_LOCAL_TOKEN_VARS();
 
     token = lexer_next_token(parser->lexer);
     token_type = token.type;
     if(token_type == TOKEN_EOL) {
         CALL_RULE(eols)
-    } else
+    } else {
         lexer_rewind_token(parser->lexer, token);
+    }
 
-    return true;
+    RULE_RETURN_OK();
 }

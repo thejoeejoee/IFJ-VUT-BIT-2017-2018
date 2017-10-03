@@ -7,9 +7,11 @@
 #include "parser_semantic.h"
 #include "memory.h"
 #include "error.h"
+#include "token.h"
 
 //Todo: we need to invent better macros
 #define GET_NEXT_TOKEN_TYPE()\
+    token_free(&token);\
     token = lexer_next_token(parser->lexer);\
     token_type = token.type;\
     if (token_type == TOKEN_ERROR) {\
@@ -18,15 +20,17 @@
     }
 
 
-#define INIT_LOCAL_TOKEN_VARS() NULL_POINTER_CHECK(parser, false); Token token; TokenType token_type;
+#define INIT_LOCAL_TOKEN_VARS() NULL_POINTER_CHECK(parser, false); Token token = {.data = NULL, .type = TOKEN_UNKNOWN}; TokenType token_type
 
-#define CALL_RULE(Rule) if (!parser_parse_##Rule(parser)) return false;
+#define CALL_RULE(Rule) if (!parser_parse_##Rule(parser)) { token_free(&token); return false; }
 
-#define TEST_TOKEN_TYPE(Type) if(token_type != (Type)) return false;
+#define RULE_RETURN_OK() token_free(&token); return true
 
-#define TEST_TOKEN_IS_DATA_TYPE() if(token_type != TOKEN_INTEGER && token_type != TOKEN_STRING && token_type != TOKEN_DOUBLE) return false;
+#define RULE_RETURN_BAD() token_free(&token); return false
 
-#define FREE_TOKEN_DATA() if(token.data != NULL) memory_free(token.data)
+#define TEST_TOKEN_TYPE(Type) if(token_type != (Type)) { token_free(&token); return false; }
+
+#define TEST_TOKEN_IS_DATA_TYPE() if(token_type != TOKEN_INTEGER && token_type != TOKEN_STRING && token_type != TOKEN_DOUBLE) {token_free(&token); return false;}
 
 #define SEMANTIC_ANALYSIS(parser, code) do {\
 if ((parser)->run_type & PARSER_RUN_TYPE_SEMANTIC_ANALYSIS) \

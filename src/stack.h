@@ -11,12 +11,12 @@ typedef struct stack_base_item_t {
 
 typedef void (* stack_item_free_callback_f)(StackBaseItem* item);
 
-typedef struct stack_t {
+typedef struct stack__t {
     stack_item_free_callback_f stack_item_free_callback;
     StackBaseItem* head;
 } Stack;
 
-Stack stack_init(stack_item_free_callback_f stack_item_free_callback);
+Stack* stack_init(stack_item_free_callback_f stack_item_free_callback);
 
 void stack_free(Stack** stack);
 

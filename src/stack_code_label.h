@@ -7,14 +7,14 @@
 typedef struct code_label_t {
     StackBaseItem base;
 
-    const char* label;
+    char* label;
 } CodeLabel;
 
 void stack_code_label_free(StackBaseItem* item);
 
-Stack stack_code_label_init();
+Stack* stack_code_label_init();
 
-void stack_code_label_push(Stack* stack, const char* label);
+void stack_code_label_push(Stack* stack, char* label);
 
 CodeLabel* stack_code_label_pop(Stack* stack);
 

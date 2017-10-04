@@ -1,9 +1,10 @@
 #include "stack.h"
 
-Stack stack_init(stack_item_free_callback_f stack_item_free_callback) {
-    Stack stack;
-    stack.stack_item_free_callback = stack_item_free_callback;
-    stack.head = NULL;
+Stack* stack_init(stack_item_free_callback_f stack_item_free_callback) {
+    Stack* stack = memory_alloc(sizeof(Stack));
+    stack->stack_item_free_callback = stack_item_free_callback;
+    stack->head = NULL;
+
     return stack;
 }
 

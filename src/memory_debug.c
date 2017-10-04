@@ -6,9 +6,6 @@
 
 MemoryManager memory_manager;
 
-#define INFO_MAX_LENGTH 128
-#define INFO_FORMAT "%s:%d:%s()"
-
 void* memory_manager_malloc(
         size_t size,
         const char* file,
@@ -162,7 +159,7 @@ void memory_manager_log_stats(MemoryManager* manager) {
 
         page = next;
     }
-    LOG_DEBUG(
+    LOG_INFO(
             "Allocated %d bytes in %d pages. Total memory usage %d bytes.",
             allocated_size, allocated_pages_count, total_size
     );

@@ -11,6 +11,7 @@ int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);
     memory_manager_enter(nullptr);
     auto ret = RUN_ALL_TESTS();
+    memory_manager_log_stats(nullptr);
     memory_manager_exit(nullptr);
     return ret;
 }

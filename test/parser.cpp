@@ -134,17 +134,17 @@ TEST_F(ParserTestFixture, FunctionHeader) {
             parser_parse_function_header(parser)
     ) << "Error parsing <funtion_header> rule";
 
-    provider->setString("FUNCTION hello (foo as string) AS integer");
+    provider->setString("FUNCTION hello (param1 as string) AS integer");
     EXPECT_TRUE(
             parser_parse_function_header(parser)
     ) << "Error parsing <funtion_header> rule";
 
-    provider->setString("FUNCTION hello (foo as string, bar as integer) AS integer");
+    provider->setString("FUNCTION hello (param2 as string, param6 as integer) AS integer");
     EXPECT_TRUE(
             parser_parse_function_header(parser)
     ) << "Error parsing <funtion_header> rule";
 
-    provider->setString("FUNCTION hello (foo as string, bar as integer, foobar as double) AS integer");
+    provider->setString("FUNCTION hello (param3 as string, param4 as integer, param5 as double) AS integer");
     EXPECT_TRUE(
             parser_parse_function_header(parser)
     ) << "Error parsing <funtion_header> rule";
@@ -258,13 +258,13 @@ TEST_F(ParserTestFixture, BodyStatementSingle) {
 
 TEST_F(ParserTestFixture, DimRule) {
 
-    provider->setString("dim promena as string");
+    provider->setString("dim param475624 as string");
 
     EXPECT_TRUE(
             parser_parse_variable_declaration(parser)
     ) << "Error parsing <variable_declaration> rule";
 
-    provider->setString("dim id as integer");
+    provider->setString("dim param48745 as integer");
 
     parser_semantic_free(&(parser->parser_semantic));
 
@@ -274,7 +274,7 @@ TEST_F(ParserTestFixture, DimRule) {
             parser_parse_variable_declaration(parser)
     ) << "Error parsing <variable_declaration> rule";
 
-    provider->setString("dim id asc string");
+    provider->setString("dim param79541 asc string");
 
     EXPECT_FALSE(
             parser_parse_variable_declaration(parser)

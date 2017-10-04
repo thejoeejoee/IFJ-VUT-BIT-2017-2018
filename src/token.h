@@ -69,6 +69,8 @@ typedef enum {
     TOKEN_EOL = LEX_FSM__EOL,
     TOKEN_ERROR = LEX_FSM__ERROR,
     TOKEN_EOF = LEX_FSM__EOF,
+    TOKEN_DATA_TYPE_CLASS = 256,
+    TOKEN_CLASSES = 256,
 
 } TokenType;
 

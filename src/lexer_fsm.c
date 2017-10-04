@@ -303,20 +303,24 @@ LexerFSMState lexer_fsm_get_identifier_state(const char* name) {
     static const char* keywords[] = {
             // keywords
             "as", "asc", "declare", "dim", "do",
-            "double", "else", "end", "chr", "function",
-            "if", "input", "integer", "length", "loop",
-            "print", "return", "scope", "string", "substr",
+            "else", "end", "chr", "function",
+            "if", "input", "length", "loop",
+            "print", "return", "scope", "substr",
             "then", "while",
             // reserved
-            "and", "boolean", "continue",
+            "and", "continue",
             "elseif", "exit", "false", "for", "next", "not",
-            "or", "shared", "static", "true"
+            "or", "shared", "static", "true",
+            // data type keywords
+            "integer", "double", "boolean", "string"
     };
 
     static const int number_of_keywords = sizeof(keywords) / sizeof(*keywords);
 
     for(int i = 0; i < number_of_keywords; i++) {
         if(strcmp(keywords[i], name) == 0) {
+            if(i >= 31)
+                return LEX_FSM__INTEGER + (i - 31);
             return LEX_FSM__AS + i;
         }
     }

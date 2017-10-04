@@ -9,7 +9,7 @@ typedef struct stack_base_item_t {
     struct stack_base_item_t* next;
 } StackBaseItem;
 
-typedef void (* stack_item_free_callback_f)(StackBaseItem*);;
+typedef void (* stack_item_free_callback_f)(StackBaseItem* item);
 
 typedef struct stack_t {
     stack_item_free_callback_f stack_item_free_callback;

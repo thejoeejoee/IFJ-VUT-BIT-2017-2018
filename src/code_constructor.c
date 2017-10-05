@@ -24,7 +24,7 @@ void code_constructor_start_code(CodeConstructor* constructor) {
 
     // TODO: random labels? hashed?
     stack_code_label_push(constructor->code_label_stack, "scope");
-    GENERATE(JUMP, code_instruction_operand_init_label(stack_code_label_head(constructor->code_label_stack)));
+    GENERATE(I_JUMP, code_instruction_operand_init_label(stack_code_label_head(constructor->code_label_stack)));
 }
 
 void code_constructor_scope_start(CodeConstructor* constructor) {
@@ -37,9 +37,9 @@ void code_constructor_scope_start(CodeConstructor* constructor) {
         // main program scope, generate label for jump from start of this file
         CodeLabel* scope_label = stack_code_label_pop(constructor->code_label_stack);
         ASSERT(scope_label == NULL);
-        GENERATE(LABEL, code_instruction_operand_init_label(scope_label->label));
+        GENERATE(I_LABEL, code_instruction_operand_init_label(scope_label->label));
         GENERATE(
-                JUMP_IF_EQUAL,
+                I_JUMP_IF_EQUAL,
                 code_instruction_operand_init_label("target"),
                 code_instruction_operand_init_integer(42),
                 code_instruction_operand_init_integer(34)

@@ -25,5 +25,7 @@ void code_instruction_free(CodeInstruction** instruction) {
     if((*instruction)->op0 != NULL) code_instruction_operand_free(&(*instruction)->op0);
     if((*instruction)->op1 != NULL) code_instruction_operand_free(&(*instruction)->op1);
     if((*instruction)->op2 != NULL) code_instruction_operand_free(&(*instruction)->op2);
+    memory_free(*instruction);
+    *instruction = NULL;
 }
 

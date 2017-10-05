@@ -41,7 +41,7 @@ typedef struct code_instruction_operand_t {
 
 CodeInstructionOperand* code_instruction_operand_init_integer(int integer);
 
-CodeInstructionOperand* code_instruction_operand_init_string(const char* string);
+CodeInstructionOperand* code_instruction_operand_init_string(String* string);
 
 CodeInstructionOperand* code_instruction_operand_init_double(double floating_point);
 

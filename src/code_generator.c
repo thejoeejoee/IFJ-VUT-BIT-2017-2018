@@ -1,5 +1,7 @@
 #include "code_generator.h"
 #include "memory.h"
+#include "common.h"
+#include "debug.h"
 
 CodeGenerator* code_generator_init() {
     CodeGenerator* generator = memory_alloc(sizeof(CodeGenerator));
@@ -19,6 +21,8 @@ void code_generator_free(CodeGenerator** generator) {
         code_instruction_free(&instruction);
         instruction = next;
     }
+    memory_free(*generator);
+    *generator = NULL;
 }
 
 void code_generator_generate_instruction(
@@ -41,32 +45,32 @@ void code_generator_generate_instruction(
     }
 }
 
-// TODO: macro generation?
-void generate_WRITE(CodeGenerator* generator, CodeInstructionOperand* op0) {
-    ASSERT(op0->type & TYPE_INSTRUCTION_OPERAND_SYMBOL);
+bool code_generator_generic_instruction(
+        CodeGenerator* generator,
+        TypeInstruction type_instruction,
+        CodeInstructionOperand* op0, TypeInstructionOperand type0,
+        CodeInstructionOperand* op1, TypeInstructionOperand type1,
+        CodeInstructionOperand* op2, TypeInstructionOperand type2
+) {
+    if(type0)
+        CHECK_OPERAND(op0, type0);
+    // TODO: possible mem leak for type1 or type2 type check fail
+    if(type1)
+        CHECK_OPERAND(op1, type1);
+    if(type2)
+        CHECK_OPERAND(op2, type2);
 
-    code_generator_generate_instruction(generator, I_WRITE, op0, NULL, NULL);
+    code_generator_generate_instruction(generator, type_instruction, op0, op1, op2);
+    return true;
 }
 
-void generate_LABEL(CodeGenerator* generator, CodeInstructionOperand* op0) {
-    ASSERT(op0->type & TYPE_INSTRUCTION_OPERAND_LABEL);
+CODE_GENERATE_METHOD(I_DEF_VAR)
 
-    code_generator_generate_instruction(generator, I_LABEL, op0, NULL, NULL);
-}
+CODE_GENERATE_METHOD(I_WRITE, TYPE_INSTRUCTION_OPERAND_SYMBOL)
 
-void generate_JUMP(CodeGenerator* generator, CodeInstructionOperand* op0) {
-    ASSERT(op0->type & TYPE_INSTRUCTION_OPERAND_LABEL);
+CODE_GENERATE_METHOD(I_LABEL, TYPE_INSTRUCTION_OPERAND_LABEL)
 
-    code_generator_generate_instruction(generator, I_JUMP, op0, NULL, NULL);
-}
+CODE_GENERATE_METHOD(I_JUMP, TYPE_INSTRUCTION_OPERAND_LABEL)
 
-
-void generate_JUMP_IF_EQUAL(CodeGenerator* generator, CodeInstructionOperand* op0, CodeInstructionOperand* op1,
-                            CodeInstructionOperand* op2) {
-    // TODO: check NULL operands
-    ASSERT(op0->type & TYPE_INSTRUCTION_OPERAND_LABEL);
-    ASSERT(op1->type & TYPE_INSTRUCTION_OPERAND_SYMBOL);
-    ASSERT(op2->type & TYPE_INSTRUCTION_OPERAND_SYMBOL);
-
-    code_generator_generate_instruction(generator, I_JUMP_IF_EQUAL, op0, op1, op2);
-}
+CODE_GENERATE_METHOD(I_JUMP_IF_EQUAL,
+                     TYPE_INSTRUCTION_OPERAND_LABEL, TYPE_INSTRUCTION_OPERAND_SYMBOL, TYPE_INSTRUCTION_OPERAND_SYMBOL)

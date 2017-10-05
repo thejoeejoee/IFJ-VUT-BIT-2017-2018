@@ -16,7 +16,7 @@ CodeInstructionOperand* code_instruction_operand_init(TypeInstructionOperand typ
 void code_instruction_operand_free(CodeInstructionOperand** operand) {
     NULL_POINTER_CHECK(operand,);
     NULL_POINTER_CHECK(*operand,);
-    // TODO: free operand with string data
+    // TODO: free specific operands
 }
 
 CodeInstructionOperand* code_instruction_operand_init_variable(SymbolVariable* variable) {

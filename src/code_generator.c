@@ -41,8 +41,32 @@ void code_generator_generate_instruction(
     }
 }
 
+// TODO: macro generation?
 void generate_WRITE(CodeGenerator* generator, CodeInstructionOperand* op0) {
     ASSERT(op0->type & TYPE_INSTRUCTION_OPERAND_SYMBOL);
 
     code_generator_generate_instruction(generator, I_WRITE, op0, NULL, NULL);
+}
+
+void generate_LABEL(CodeGenerator* generator, CodeInstructionOperand* op0) {
+    ASSERT(op0->type & TYPE_INSTRUCTION_OPERAND_LABEL);
+
+    code_generator_generate_instruction(generator, I_LABEL, op0, NULL, NULL);
+}
+
+void generate_JUMP(CodeGenerator* generator, CodeInstructionOperand* op0) {
+    ASSERT(op0->type & TYPE_INSTRUCTION_OPERAND_LABEL);
+
+    code_generator_generate_instruction(generator, I_JUMP, op0, NULL, NULL);
+}
+
+
+void generate_JUMP_IF_EQUAL(CodeGenerator* generator, CodeInstructionOperand* op0, CodeInstructionOperand* op1,
+                            CodeInstructionOperand* op2) {
+    // TODO: check NULL operands
+    ASSERT(op0->type & TYPE_INSTRUCTION_OPERAND_LABEL);
+    ASSERT(op1->type & TYPE_INSTRUCTION_OPERAND_SYMBOL);
+    ASSERT(op2->type & TYPE_INSTRUCTION_OPERAND_SYMBOL);
+
+    code_generator_generate_instruction(generator, I_JUMP_IF_EQUAL, op0, op1, op2);
 }

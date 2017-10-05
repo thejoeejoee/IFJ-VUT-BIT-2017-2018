@@ -22,7 +22,15 @@ void code_generator_generate_instruction(
         CodeInstructionOperand* op2
 );
 
-void generate_WRITE(CodeGenerator* generator,
-                    CodeInstructionOperand* op0);
+
+void generate_WRITE(CodeGenerator* generator, CodeInstructionOperand* op0);
+
+void generate_LABEL(CodeGenerator* generator, CodeInstructionOperand* op0);
+
+void generate_JUMP(CodeGenerator* generator, CodeInstructionOperand* op0);
+
+void generate_JUMP_IF_EQUAL(CodeGenerator* generator, CodeInstructionOperand* op0, CodeInstructionOperand* op1,
+                            CodeInstructionOperand* op2);
+
 
 #endif //_CODE_GENERATOR_H

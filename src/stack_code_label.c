@@ -29,3 +29,10 @@ CodeLabel* stack_code_label_pop(Stack* stack) {
 
     return code_label;
 }
+
+char* stack_code_label_head(Stack* stack) {
+    NULL_POINTER_CHECK(stack, NULL);
+    NULL_POINTER_CHECK(stack->head, NULL);
+
+    return ((CodeLabel*) stack->head)->label;
+}

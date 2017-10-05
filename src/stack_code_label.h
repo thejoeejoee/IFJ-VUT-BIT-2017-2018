@@ -18,4 +18,7 @@ void stack_code_label_push(Stack* stack, char* label);
 
 CodeLabel* stack_code_label_pop(Stack* stack);
 
+char* stack_code_label_head(Stack* stack);
+
+
 #endif //_STACK_CODE_LABEL_H

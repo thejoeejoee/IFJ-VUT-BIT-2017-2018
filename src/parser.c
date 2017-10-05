@@ -3,6 +3,7 @@
 #include "lexer.h"
 #include "lexer_fsm.h"
 #include "token.h"
+#include "parser_expr.h"
 
 
 Parser* parser_init(lexer_input_stream_f input_stream) {
@@ -159,7 +160,8 @@ bool parser_parse_function_statements(Parser* parser) {
     RULES(
         CONDITIONAL_RULES(
             lexer_rewind_token(parser->lexer, token);
-            CHECK_RULE(token_type != TOKEN_INPUT, epsilon, NO_CODE);
+            CHECK_RULE(token_type != TOKEN_INPUT && token_type != TOKEN_RETURN && token_type != TOKEN_DIM, epsilon,
+                       NO_CODE);
             CHECK_RULE(function_statement_single);
             CHECK_TOKEN(TOKEN_EOL);
             CHECK_RULE(eols);
@@ -197,14 +199,21 @@ bool parser_parse_function_statement_single(Parser* parser) {
     /*
      * RULE
      * <statement_single> -> INPUT <id>
+     * <statement_single> -> RETURN <expr>
+     * <statement_single> -> <variable_declaration>
      */
 
     RULES(
         CONDITIONAL_RULES(
-            CHECK_TOKEN(token_type == TOKEN_INPUT, TOKEN_IDENTIFIER, BEFORE(), AFTER(
-                    token_free(&token);
-                return true;
-            ));
+
+                CHECK_RULE(token_type == TOKEN_INPUT, input, BEFORE(
+                        lexer_rewind_token(parser->lexer, token);
+    ), AFTER(token_free(&token); return true;));
+
+            CHECK_RULE(token_type == TOKEN_RETURN, return, BEFORE(
+            lexer_rewind_token(parser->lexer, token);
+    ), AFTER(token_free(&token); return true;));
+
             CHECK_RULE(token_type == TOKEN_DIM, variable_declaration, BEFORE(
                 lexer_rewind_token(parser->lexer, token);
             ), AFTER());
@@ -222,16 +231,11 @@ bool parser_parse_body_statement_single(Parser* parser) {
 
     RULES(
         CONDITIONAL_RULES(
-            CHECK_TOKEN(token_type == TOKEN_INPUT, TOKEN_IDENTIFIER, BEFORE(), AFTER(
-                SEMANTIC_ANALYSIS(parser,
-                    if(NULL == symbol_register_find_variable_recursive(parser->parser_semantic->register_, token.data)) {
-                        token_free(&token);
-                        return false;
-                    }
-                );
-                token_free(&token);
-                return true;
-            ));
+
+                CHECK_RULE(token_type == TOKEN_INPUT, input, BEFORE(
+                        lexer_rewind_token(parser->lexer, token);
+    ), AFTER(token_free(&token); return true;));
+
             CHECK_RULE(token_type == TOKEN_DIM, variable_declaration, BEFORE(
                 lexer_rewind_token(parser->lexer, token);
             ), AFTER(token_free(&token); return true;));
@@ -381,5 +385,41 @@ bool parser_parse_variable_declaration(Parser* parser) {
             );
         ));
     );
+    return true;
+}
+
+bool parser_parse_return(Parser* parser) {
+    /*
+     * RULE
+     * <statement> -> return <expr>
+     */
+
+    RULES(
+            CHECK_TOKEN(TOKEN_RETURN);
+            CALL_RULE(expression);
+    );
+
+    return true;
+}
+
+bool parser_parse_input(Parser* parser) {
+    /*
+     * RULE
+     * <statement> -> input identifier
+     */
+
+    RULES(
+            CHECK_TOKEN(TOKEN_INPUT);
+
+            CHECK_TOKEN(TOKEN_IDENTIFIER, BEFORE(), AFTER(
+                    SEMANTIC_ANALYSIS(parser,
+            if(NULL == symbol_register_find_variable_recursive(parser->parser_semantic->register_, token.data)) {
+                token_free(&token);
+                return false;
+            }
+    );
+    ));
+    );
+
     return true;
 }

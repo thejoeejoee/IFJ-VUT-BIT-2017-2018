@@ -8,6 +8,7 @@ extern "C" {
 #include "../src/lexer.h"
 #include "../src/parser.h"
 #include "../src/memory.h"
+#include "../src/parser_expr.h"
 }
 
 class ParserTestFixture : public ::testing::Test {
@@ -89,6 +90,24 @@ TEST_F(ParserTestFixture, BodyRule) {
             parser_parse_program(parser)
     ) << "Body parse";
 
+
+    provider->setString(
+            R"(
+                SCOPE
+
+
+
+
+
+                END SCOPE
+
+
+
+
+    )");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    ) << "Body parse";
 
     provider->setString("SCOPE \n ENDD SCOPE");
     EXPECT_FALSE(
@@ -281,4 +300,31 @@ TEST_F(ParserTestFixture, DimRule) {
     ) << "Error parsing <variable_declaration> rule";
 
 
+}
+
+TEST_F(ParserTestFixture, ReturnRule) {
+
+    provider->setString("return 34");
+
+    EXPECT_TRUE(
+            parser_parse_return(parser)
+    ) << "Error parsing <expression> rule";
+
+}
+
+TEST_F(ParserTestFixture, ComplexTest1) {
+    provider->setString(R"(
+DECLARE FUNCTION FOO() AS INTEGER
+
+FUNCTION FOO() AS INTEGER
+INPUT ID
+RETURN 43
+END FUNCTION
+
+SCOPE
+END SCOPE
+    )");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    ) << "Body parse";
 }

@@ -183,7 +183,8 @@ bool parser_parse_body_statements(Parser* parser) {
     RULES(
         CONDITIONAL_RULES(
             lexer_rewind_token(parser->lexer, token);
-            CHECK_RULE(token_type != TOKEN_INPUT && token_type != TOKEN_DIM && token_type != TOKEN_PRINT, epsilon,
+            CHECK_RULE(token_type != TOKEN_INPUT && token_type != TOKEN_DIM && token_type != TOKEN_PRINT
+                       && token_type != TOKEN_DO, epsilon,
                        BEFORE(),
                        AFTER(token_free(&token);
             return true;));
@@ -243,6 +244,9 @@ bool parser_parse_body_statement_single(Parser* parser) {
                         lexer_rewind_token(parser->lexer, token);
     ), AFTER(token_free(&token); return true;));
 
+            CHECK_RULE(token_type == TOKEN_DO, body_while, BEFORE(
+            lexer_rewind_token(parser->lexer, token);
+    ), AFTER(token_free(&token); return true;));
 
             CHECK_RULE(token_type == TOKEN_PRINT, print, BEFORE(
             lexer_rewind_token(parser->lexer, token);
@@ -437,6 +441,26 @@ bool parser_parse_print_expression(Parser* parser) {
     RULES(
             CALL_RULE(expression);
             CHECK_TOKEN(TOKEN_SEMICOLON);
+    );
+
+    return true;
+}
+
+
+bool parser_parse_body_while(Parser* parser) {
+    /*
+     * RULE
+     * <do_while> -> DO WHILE <expression> EOL <eols> <statements> LOOP
+     */
+
+    RULES(
+            CHECK_TOKEN(TOKEN_DO);
+            CHECK_TOKEN(TOKEN_WHILE);
+            CALL_RULE(expression);
+            CHECK_TOKEN(TOKEN_EOL);
+            CALL_RULE(eols);
+            CALL_RULE(body_statements);
+            CHECK_TOKEN(TOKEN_LOOP);
     );
 
     return true;

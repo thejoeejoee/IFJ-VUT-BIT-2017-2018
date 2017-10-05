@@ -312,7 +312,27 @@ TEST_F(ParserTestFixture, DimRule) {
 
 }
 
+TEST_F(ParserTestFixture, DoWhile) {
+
+    provider->setString(R"(DO WHILE 42
+input id
+DO WHILE 42
+input id
+input id
+loop
+input id
+loop
+    )");
+
+    EXPECT_TRUE(
+            parser_parse_body_while(parser)
+    ) << "Error parsing <do_while> rule";
+
+
+}
+
 TEST_F(ParserTestFixture, ReturnRule) {
+
 
     provider->setString("return 34");
 
@@ -324,14 +344,6 @@ TEST_F(ParserTestFixture, ReturnRule) {
 
 TEST_F(ParserTestFixture, ComplexTest1) {
     provider->setString(R"(
-DECLARE FUNCTION FOO() AS INTEGER
-
-FUNCTION FOO() AS INTEGER
-INPUT ID
-print 42;
-RETURN 43
-END FUNCTION
-
 SCOPE
 
 input id
@@ -345,4 +357,21 @@ END SCOPE
 
 
 }
+
+TEST_F(ParserTestFixture, ComplexTest2) {
+    provider->setString(R"(
+SCOPE
+DO WHILE 42
+input id
+input id
+loop
+END SCOPE
+    )");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    ) << "Body parse";
+
+
+}
+
 

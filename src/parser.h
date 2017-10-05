@@ -284,6 +284,10 @@ bool parser_parse_return(Parser* parser);
 
 bool parser_parse_input(Parser* parser);
 
+bool parser_parse_print_expression(Parser* parser);
+
+bool parser_parse_print(Parser* parser);
+
 
 
 #endif //_PARSER_H

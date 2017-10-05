@@ -265,6 +265,16 @@ TEST_F(ParserTestFixture, FunctionStatementSingle) {
 
 }
 
+TEST_F(ParserTestFixture, PrintStatement) {
+    // Rule is Epsilon, it is just demonstration, it will be implemented in future
+    provider->setString("print 42;");
+
+    EXPECT_TRUE(
+            parser_parse_print(parser)
+    ) << "Error parsing <definitions> rule";
+
+}
+
 TEST_F(ParserTestFixture, BodyStatementSingle) {
     // Rule is Epsilon, it is just demonstration, it will be implemented in future
     provider->setString("input foo");
@@ -318,13 +328,21 @@ DECLARE FUNCTION FOO() AS INTEGER
 
 FUNCTION FOO() AS INTEGER
 INPUT ID
+print 42;
 RETURN 43
 END FUNCTION
 
 SCOPE
+
+input id
+print 42;
+
 END SCOPE
     )");
     EXPECT_TRUE(
             parser_parse_program(parser)
     ) << "Body parse";
+
+
 }
+

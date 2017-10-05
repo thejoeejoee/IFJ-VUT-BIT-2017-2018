@@ -160,7 +160,8 @@ bool parser_parse_function_statements(Parser* parser) {
     RULES(
         CONDITIONAL_RULES(
             lexer_rewind_token(parser->lexer, token);
-            CHECK_RULE(token_type != TOKEN_INPUT && token_type != TOKEN_RETURN && token_type != TOKEN_DIM, epsilon,
+            CHECK_RULE(token_type != TOKEN_INPUT && token_type != TOKEN_RETURN &&
+                       token_type != TOKEN_DIM && token_type != TOKEN_PRINT, epsilon,
                        NO_CODE);
             CHECK_RULE(function_statement_single);
             CHECK_TOKEN(TOKEN_EOL);
@@ -182,7 +183,8 @@ bool parser_parse_body_statements(Parser* parser) {
     RULES(
         CONDITIONAL_RULES(
             lexer_rewind_token(parser->lexer, token);
-            CHECK_RULE(token_type != TOKEN_INPUT && token_type != TOKEN_DIM, epsilon, BEFORE(),
+            CHECK_RULE(token_type != TOKEN_INPUT && token_type != TOKEN_DIM && token_type != TOKEN_PRINT, epsilon,
+                       BEFORE(),
                        AFTER(token_free(&token);
             return true;));
             CHECK_RULE(body_statement_single);
@@ -201,6 +203,7 @@ bool parser_parse_function_statement_single(Parser* parser) {
      * <statement_single> -> INPUT <id>
      * <statement_single> -> RETURN <expr>
      * <statement_single> -> <variable_declaration>
+     * <statement_single> -> <statement_print>
      */
 
     RULES(
@@ -214,9 +217,13 @@ bool parser_parse_function_statement_single(Parser* parser) {
             lexer_rewind_token(parser->lexer, token);
     ), AFTER(token_free(&token); return true;));
 
+            CHECK_RULE(token_type == TOKEN_PRINT, print, BEFORE(
+            lexer_rewind_token(parser->lexer, token);
+    ), AFTER(token_free(&token); return true;));
+
             CHECK_RULE(token_type == TOKEN_DIM, variable_declaration, BEFORE(
-                lexer_rewind_token(parser->lexer, token);
-            ), AFTER());
+            lexer_rewind_token(parser->lexer, token);
+    ), AFTER());
         );
     );
 
@@ -234,6 +241,11 @@ bool parser_parse_body_statement_single(Parser* parser) {
 
                 CHECK_RULE(token_type == TOKEN_INPUT, input, BEFORE(
                         lexer_rewind_token(parser->lexer, token);
+    ), AFTER(token_free(&token); return true;));
+
+
+            CHECK_RULE(token_type == TOKEN_PRINT, print, BEFORE(
+            lexer_rewind_token(parser->lexer, token);
     ), AFTER(token_free(&token); return true;));
 
             CHECK_RULE(token_type == TOKEN_DIM, variable_declaration, BEFORE(
@@ -401,6 +413,35 @@ bool parser_parse_return(Parser* parser) {
 
     return true;
 }
+
+bool parser_parse_print(Parser* parser) {
+    /*
+     * RULE
+     * <statement_print> -> PRINT <print_expression> Todo: <print_expressions>
+     */
+
+    RULES(
+            CHECK_TOKEN(TOKEN_PRINT);
+            CALL_RULE(print_expression);
+    );
+
+    return true;
+}
+
+bool parser_parse_print_expression(Parser* parser) {
+    /*
+     * RULE
+     * <print_expression> -> <expression> SEMICOLON
+     */
+
+    RULES(
+            CALL_RULE(expression);
+            CHECK_TOKEN(TOKEN_SEMICOLON);
+    );
+
+    return true;
+}
+
 
 bool parser_parse_input(Parser* parser) {
     /*

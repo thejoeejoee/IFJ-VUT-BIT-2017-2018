@@ -108,7 +108,7 @@ void memory_manager_exit(MemoryManager* manager) {
             char* string = (char*) page->address;
             bool is_string = true;
             if(string[page->size - 1] == 0) {
-                for(int i = 0; i < page->size - 1; ++i) {
+                for(int i = 0; i < (int)(page->size) - 1; ++i) {
                     if(!isprint(string[i])) {
                         is_string = false;
                         break;

@@ -185,7 +185,7 @@ bool parser_parse_body_statements(Parser* parser) {
             lexer_rewind_token(parser->lexer, token);
             CHECK_RULE(token_type != TOKEN_INPUT && token_type != TOKEN_DIM && token_type != TOKEN_PRINT
                        && token_type != TOKEN_DO, epsilon,
-                       BEFORE(),
+                       BEFORE(;),
                        AFTER(token_free(&token);
             return true;));
             CHECK_RULE(body_statement_single);
@@ -224,7 +224,7 @@ bool parser_parse_function_statement_single(Parser* parser) {
 
             CHECK_RULE(token_type == TOKEN_DIM, variable_declaration, BEFORE(
             lexer_rewind_token(parser->lexer, token);
-    ), AFTER());
+    ), AFTER(;));
         );
     );
 
@@ -307,7 +307,7 @@ bool parser_parse_function_params(Parser* parser) {
     RULES(
         CONDITIONAL_RULES(
             lexer_rewind_token(parser->lexer, token);
-            CHECK_RULE(token_type == TOKEN_RIGHT_BRACKET, epsilon, BEFORE(), AFTER(
+            CHECK_RULE(token_type == TOKEN_RIGHT_BRACKET, epsilon, BEFORE(;), AFTER(
                            return true;
             ));
             CHECK_RULE(function_param);
@@ -327,7 +327,7 @@ bool parser_parse_function_n_param(Parser* parser) {
 
     RULES(
         CONDITIONAL_RULES(
-            CHECK_RULE(token_type == TOKEN_RIGHT_BRACKET, epsilon, BEFORE(), AFTER(
+            CHECK_RULE(token_type == TOKEN_RIGHT_BRACKET, epsilon, BEFORE(;), AFTER(
                 lexer_rewind_token(parser->lexer, token);
                 return true;
             ));
@@ -364,7 +364,7 @@ bool parser_parse_eols(Parser* parser) {
     RULES(
         CONDITIONAL_RULES(
             CHECK_RULE(token_type == TOKEN_EOL, eols, NO_CODE);
-            CHECK_RULE(epsilon, BEFORE(), AFTER(
+    CHECK_RULE(epsilon, BEFORE(;), AFTER(
                            lexer_rewind_token(parser->lexer, token);));
         );
     );
@@ -394,7 +394,7 @@ bool parser_parse_variable_declaration(Parser* parser) {
             strcpy(name, token.data);
         ));
         CHECK_TOKEN(TOKEN_AS);
-        CHECK_TOKEN(TOKEN_DATA_TYPE_CLASS, BEFORE(), AFTER(
+        CHECK_TOKEN(TOKEN_DATA_TYPE_CLASS, BEFORE(;), AFTER(
             SEMANTIC_ANALYSIS(parser,
             bool successful = parser_semantic_add_symbol_variable(parser->parser_semantic, name, (short) token_type);
             return successful;
@@ -476,7 +476,7 @@ bool parser_parse_input(Parser* parser) {
     RULES(
             CHECK_TOKEN(TOKEN_INPUT);
 
-            CHECK_TOKEN(TOKEN_IDENTIFIER, BEFORE(), AFTER(
+            CHECK_TOKEN(TOKEN_IDENTIFIER, BEFORE(;), AFTER(
                     SEMANTIC_ANALYSIS(parser,
             if(NULL == symbol_register_find_variable_recursive(parser->parser_semantic->register_, token.data)) {
                 token_free(&token);

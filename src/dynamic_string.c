@@ -42,7 +42,7 @@ static inline void string_update_capacity(String* string, size_t needed_size) {
     }
 }
 
-void string_append_c(String* string, const char c) {
+void string_append_c(String* string, char c) {
     size_t new_size = string->size + 1;
     string_update_capacity(string, new_size);
     ASSERT(string->capacity >= new_size);

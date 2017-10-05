@@ -34,9 +34,9 @@
 
 
 // NEW MACROS
-#define BEFORE(code) do { code } while(false);
-#define AFTER(code) do { code } while(false);
-#define NO_CODE BEFORE(), AFTER()
+#define BEFORE(code) code
+#define AFTER(code) code
+#define NO_CODE ;, ;
 
 #define RULES(rules) \
     do { \
@@ -62,35 +62,35 @@
             if(condition) { \
                 conditions_buffer <<= 1; \
                 conditions_buffer |= 1; \
-                before_code \
+                { before_code } \
                 _RAW_CHECK_RULE(rule_name); \
-                after_code \
+                { after_code } \
             } \
         }   \
         else { \
-            before_code \
+            { before_code } \
             _RAW_CHECK_RULE(rule_name); \
-            after_code \
+            { after_code } \
         } \
     } while(false)
 
 #define CHECK_RULE_3(rule_name, before_code, after_code) do { \
     if(conditional_rules) { \
         if(conditions_buffer == 0) { \
-            before_code \
+            { before_code } \
             _RAW_CHECK_RULE(rule_name); \
-            after_code \
+            { after_code } \
         } \
     }   \
     else { \
-        before_code \
+        { before_code } \
         _RAW_CHECK_RULE(rule_name); \
-        after_code \
+        { after_code } \
     } \
 } while(false)
 
-#define CHECK_RULE_2(rule_name, before_code) CHECK_RULE_3(rule_name, before_code, AFTER())
-#define CHECK_RULE_1(rule_name) CHECK_RULE_3(rule_name, BEFORE(), AFTER())
+#define CHECK_RULE_2(rule_name, before_code) CHECK_RULE_3(rule_name, before_code, ;)
+#define CHECK_RULE_1(rule_name) CHECK_RULE_3(rule_name, ;, ;)
 
 #define CHECK_RULE(...) MSVC_EXPAND(GET_OVERLOADED_MACRO34( \
     __VA_ARGS__, CHECK_RULE_4, CHECK_RULE_3, CHECK_RULE_2, CHECK_RULE_1)(__VA_ARGS__))
@@ -115,16 +115,16 @@
                 conditions_buffer <<= 1; \
                 conditions_buffer |= 1; \
                 GET_NEXT_TOKEN_TYPE(); \
-                before_code \
+                { before_code } \
                 _RAW_CHECK_TOKEN(token_type_literal); \
-                after_code \
+                { after_code } \
             } \
         } \
         else { \
             GET_NEXT_TOKEN_TYPE(); \
-            before_code \
+            { before_code } \
             _RAW_CHECK_TOKEN(token_type_literal); \
-            after_code \
+            { after_code } \
         }\
     } while(false)
 
@@ -132,22 +132,22 @@
     if(conditional_rules) { \
         if(conditions_buffer == 0) { \
             GET_NEXT_TOKEN_TYPE(); \
-            before_code \
+            { before_code } \
             _RAW_CHECK_TOKEN(token_type_literal); \
-            after_code \
+            { after_code } \
         } \
     } \
     else { \
         GET_NEXT_TOKEN_TYPE(); \
-        before_code \
+        { before_code } \
         _RAW_CHECK_TOKEN(token_type_literal); \
-        after_code \
+        { after_code } \
     }\
 } while(false)
 
 #define CHECK_TOKEN_2(token_type_literal, before_code) CHECK_TOKEN_3( \
-    token_type_literal, before_code, AFTER())
-#define CHECK_TOKEN_1(token_type_literal) CHECK_TOKEN_3(token_type_literal, BEFORE(), AFTER())
+    token_type_literal, before_code, ;)
+#define CHECK_TOKEN_1(token_type_literal) CHECK_TOKEN_3(token_type_literal, ;, ;)
 
 #define CHECK_TOKEN(...) MSVC_EXPAND(GET_OVERLOADED_MACRO34(\
     __VA_ARGS__, CHECK_TOKEN_4, CHECK_TOKEN_3, CHECK_TOKEN_2, CHECK_TOKEN_1)(__VA_ARGS__))

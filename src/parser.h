@@ -15,10 +15,7 @@
     token_free(&token);\
     token = lexer_next_token(parser->lexer); \
     token_type = token.type; \
-    if (token_type == TOKEN_ERROR) { \
-        parser->error_report.error_code = ERROR_LEXER; \
-        parser->error_report.detail_information = (int )parser->lexer->lexer_fsm->lexer_error; \
-    }} while(false);
+    } while(false);
 
 
 #define INIT_LOCAL_TOKEN_VARS() NULL_POINTER_CHECK(parser, false); Token token = {.data = NULL, .type = TOKEN_UNKNOWN}; TokenType token_type

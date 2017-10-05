@@ -12,6 +12,7 @@ Lexer* lexer_init(lexer_input_stream_f input_stream) {
 
     lexer->lexer_fsm = lexer_fsm;
     lexer->is_token_rewind = false;
+    lexer->error_report.error_code = ERROR_NONE;
 
     return lexer;
 }
@@ -56,6 +57,13 @@ Token lexer_next_token(Lexer* lexer) {
 
     token.data = lexer_store_token_data(lexer, token);
     string_clear(lexer->lexer_fsm->stream_buffer);
+
+    // Set error information
+    if(token.type == TOKEN_ERROR) {
+        lexer->error_report.error_code = ERROR_LEXER;
+        lexer->error_report.detail_information = (int) lexer->lexer_fsm->lexer_error;
+    }
+
     return token;
 }
 

@@ -27,12 +27,20 @@ void parser_free(Parser** parser) {
 
 bool parser_parse(Parser* parser) {
     NULL_POINTER_CHECK(parser, false);
+
     if(!parser_parse_program(parser)) {
-        parser->error_report.line = parser->lexer->lexer_fsm->line;
-        if(parser->parser_semantic->error_report.error_code != ERROR_NONE)
+
+        // Toggle the corresponding error
+        if(parser->parser_semantic->error_report.error_code != ERROR_NONE) {
             parser->error_report = parser->parser_semantic->error_report;
-        if(parser->error_report.error_code == ERROR_NONE)
+        } else if(parser->lexer->error_report.error_code != ERROR_NONE) {
+            parser->error_report = parser->lexer->error_report;
+        } else {
             parser->error_report.error_code = ERROR_SYNTAX;
+        }
+
+        // Set correct line
+        parser->error_report.line = (int) parser->lexer->lexer_fsm->line;
 
         return false;
     }
@@ -62,7 +70,7 @@ bool parser_parse_program(Parser* parser) {
 bool parser_parse_body(Parser* parser) {
     /*
      * RULE
-     * <body> -> <definitions> SCOPE EOL <statements> END SCOPE
+     * <body> -> <definitions> SCOPE EOL <eols> <statements> END SCOPE
      */
 
     RULES(
@@ -71,6 +79,8 @@ bool parser_parse_body(Parser* parser) {
     CHECK_TOKEN(TOKEN_SCOPE);
 
     CHECK_TOKEN(TOKEN_EOL);
+
+            CHECK_RULE(eols);
 
     CHECK_RULE(body_statements);
 

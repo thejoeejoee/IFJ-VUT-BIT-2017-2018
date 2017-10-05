@@ -3,6 +3,7 @@
 
 #include "token.h"
 #include "lexer_fsm.h"
+#include "error.h"
 
 /**
  * @brief Representation of lexical analyzer
@@ -13,6 +14,7 @@ typedef struct lexer_t {
 
     bool is_token_rewind;
     Token rewind_token; // buffered token
+    ErrorReport error_report; // Error report
 } Lexer;
 
 

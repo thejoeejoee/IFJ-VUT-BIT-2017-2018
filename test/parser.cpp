@@ -311,7 +311,7 @@ end if
     )");
 
     EXPECT_TRUE(
-            parser_parse_body_condition(parser)
+            parser_parse_condition(parser)
     ) << "Error parsing <condition> rule";
 
 }
@@ -355,9 +355,13 @@ input id
 loop
     )");
 
+    parser->body_statement = true;
+
     EXPECT_TRUE(
-            parser_parse_body_while(parser)
+            parser_parse_while(parser)
     ) << "Error parsing <do_while> rule";
+
+    parser->body_statement = false;
 
 
 }
@@ -391,6 +395,54 @@ END SCOPE
 
 TEST_F(ParserTestFixture, ComplexTest2) {
     provider->setString(R"(
+SCOPE
+DO WHILE 42
+input id
+input id
+loop
+END SCOPE
+    )");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    ) << "Body parse";
+
+}
+
+TEST_F(ParserTestFixture, ComplexTestWhileInFuncion) {
+    provider->setString(R"(
+FUNCTION FOO() AS INTEGER
+DO WHILE 42
+input id
+input id
+loop
+END  FUNCTION
+SCOPE
+DO WHILE 42
+input id
+input id
+loop
+END SCOPE
+    )");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    ) << "Body parse";
+
+}
+
+TEST_F(ParserTestFixture, ComplexTestConditionInFuncion) {
+    provider->setString(R"(
+FUNCTION FOO() AS INTEGER
+DO WHILE 42
+if 42 then
+input id
+elseif 43
+input id
+else
+input id
+input id
+end if
+loop
+END  FUNCTION
 SCOPE
 DO WHILE 42
 input id

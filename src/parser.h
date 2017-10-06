@@ -178,6 +178,8 @@ typedef struct parser_t {
     ErrorReport error_report;
 
     int run_type;
+
+    bool body_statement;
 } Parser;
 
 /**
@@ -288,15 +290,15 @@ bool parser_parse_print_expression(Parser* parser);
 
 bool parser_parse_print(Parser* parser);
 
-bool parser_parse_body_while(Parser* parser);
+bool parser_parse_while(Parser* parser);
 
 bool parser_parse_print_expressions(Parser* parser);
 
-bool parser_parse_body_condition(Parser* parser);
+bool parser_parse_condition(Parser* parser);
 
-bool parser_parse_body_condition_else(Parser* parser);
+bool parser_parse_condition_else(Parser* parser);
 
-bool parser_parse_body_condition_elseif(Parser* parser);
+bool parser_parse_condition_elseif(Parser* parser);
 
 
 

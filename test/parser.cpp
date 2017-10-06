@@ -402,6 +402,24 @@ END SCOPE
             parser_parse_program(parser)
     ) << "Body parse";
 
+}
+
+TEST_F(ParserTestFixture, ComplexTestWithCondition) {
+    provider->setString(R"(
+SCOPE
+if 42 then
+input id
+elseif 43
+input id
+else
+input id
+input id
+end if
+END SCOPE
+    )");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    ) << "Body parse";
 
 }
 

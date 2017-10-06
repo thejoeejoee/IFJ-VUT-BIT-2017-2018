@@ -184,7 +184,7 @@ bool parser_parse_body_statements(Parser* parser) {
         CONDITIONAL_RULES(
             lexer_rewind_token(parser->lexer, token);
             CHECK_RULE(token_type != TOKEN_INPUT && token_type != TOKEN_DIM && token_type != TOKEN_PRINT
-                       && token_type != TOKEN_DO, epsilon,
+                       && token_type != TOKEN_DO && token_type != TOKEN_IF, epsilon,
                        BEFORE(;),
                        AFTER(token_free(&token);
             return true;));
@@ -249,6 +249,10 @@ bool parser_parse_body_statement_single(Parser* parser) {
     ), AFTER(token_free(&token); return true;));
 
             CHECK_RULE(token_type == TOKEN_PRINT, print, BEFORE(
+            lexer_rewind_token(parser->lexer, token);
+    ), AFTER(token_free(&token); return true;));
+
+            CHECK_RULE(token_type == TOKEN_IF, body_condition, BEFORE(
             lexer_rewind_token(parser->lexer, token);
     ), AFTER(token_free(&token); return true;));
 

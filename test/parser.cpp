@@ -454,6 +454,33 @@ END SCOPE
             parser_parse_program(parser)
     ) << "Body parse";
 
+    provider->setString(R"(
+FUNCTION FOO() AS INTEGER
+DO WHILE 42
+if 42 then
+input id
+elseif 43
+input id
+else
+input id
+input id
+end if
+loop
+END  FUNCTION
+SCOPE
+DO WHILE 42
+input id
+input id
+loop
+RETURN 43
+END SCOPE
+    )");
+    EXPECT_FALSE(
+            parser_parse_program(parser)
+    ) << "Body parse";
+
+
+
 }
 
 TEST_F(ParserTestFixture, ComplexTestWithCondition) {
@@ -470,6 +497,23 @@ end if
 END SCOPE
     )");
     EXPECT_TRUE(
+            parser_parse_program(parser)
+    ) << "Body parse";
+
+    provider->setString(R"(
+SCOPE
+return 32
+if 42 then
+input id
+elseif 43
+input id
+else
+input id
+input id
+end if
+END SCOPE
+    )");
+    EXPECT_FALSE(
             parser_parse_program(parser)
     ) << "Body parse";
 

@@ -495,11 +495,7 @@ bool parser_parse_while(Parser* parser) {
             CALL_RULE(expression);
             CHECK_TOKEN(TOKEN_EOL);
             CALL_RULE(eols);
-            if(parser->body_statement) {
-                CALL_RULE(body_statements);
-            } else {
-                CALL_RULE(function_statements);
-            }
+            CALL_RULE_STATEMENTS()
 
             CHECK_TOKEN(TOKEN_LOOP);
     );
@@ -541,11 +537,7 @@ bool parser_parse_condition(Parser* parser) {
             CHECK_TOKEN(TOKEN_THEN);
             CHECK_TOKEN(TOKEN_EOL);
 
-            if(parser->body_statement) {
-                CALL_RULE(body_statements);
-            } else {
-                CALL_RULE(function_statements);
-            }
+            CALL_RULE_STATEMENTS()
 
             CALL_RULE(condition_elseif);
 
@@ -574,12 +566,7 @@ bool parser_parse_condition_elseif(Parser* parser) {
 
             CHECK_TOKEN(TOKEN_EOL);
 
-            if(parser->body_statement) {
-            CALL_RULE(body_statements);
-    }
-            else {
-            CALL_RULE(function_statements);
-    }
+            CALL_RULE_STATEMENTS()
 
             CALL_RULE(condition_elseif);
     );
@@ -604,12 +591,7 @@ bool parser_parse_condition_else(Parser* parser) {
 
             CHECK_TOKEN(TOKEN_EOL);
 
-            if(parser->body_statement) {
-            CALL_RULE(body_statements);
-    }
-            else {
-            CALL_RULE(function_statements);
-    }
+            CALL_RULE_STATEMENTS();
     );
     );
 

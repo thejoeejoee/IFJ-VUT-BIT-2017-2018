@@ -162,6 +162,15 @@ if ((parser)->run_type & PARSER_RUN_TYPE_CODE_GENERATION) \
     code \
 }
 
+#define CALL_RULE_STATEMENTS() {\
+if(parser->body_statement) {\
+    CALL_RULE(body_statements);\
+}\
+else {\
+    CALL_RULE(function_statements);\
+}\
+}
+
 typedef enum {
     PARSER_RUN_TYPE_NOTHING = 0,
     PARSER_RUN_TYPE_SEMANTIC_ANALYSIS = 1,

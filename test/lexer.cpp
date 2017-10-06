@@ -26,7 +26,7 @@ class LexerTokenizerTestFixture : public ::testing::Test {
         TokenType getNextTokenType() {
             Token token = lexer_next_token(lexer);
             const TokenType tokenType = token.type;
-            memory_free(token.data);
+            token_free(&token);
             return tokenType;
         }
 };

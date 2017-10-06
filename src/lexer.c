@@ -31,7 +31,7 @@ void lexer_rewind_token(Lexer* lexer, Token token) {
 
     ASSERT(!lexer->is_token_rewind);
     lexer->is_token_rewind = true;
-    lexer->rewind_token = token;
+    lexer->rewind_token = token_copy(token);
 }
 
 Token lexer_next_token(Lexer* lexer) {
@@ -44,7 +44,12 @@ Token lexer_next_token(Lexer* lexer) {
 
     if(lexer->is_token_rewind) {
         lexer->is_token_rewind = false;
-        return lexer->rewind_token;
+
+        Token tmp = { .data = lexer->rewind_token.data,.type = lexer->rewind_token.type };
+        lexer->rewind_token.data = NULL;
+        lexer->rewind_token.type = TOKEN_UNKNOWN;
+
+        return tmp;
     }
 
     LexerFSMState actual_state = LEX_FSM__INIT;
@@ -71,19 +76,19 @@ char* lexer_store_token_data(const Lexer* lexer, Token token) {
     NULL_POINTER_CHECK(lexer, NULL);
 
     size_t data_length = string_length(lexer->lexer_fsm->stream_buffer);
-    if(!data_length || !(
+    if(data_length && (
             token.type == TOKEN_IDENTIFIER ||
             token.type == TOKEN_STRING_VALUE ||
             token.type == TOKEN_INTEGER_LITERAL ||
             token.type == TOKEN_DOUBLE_LITERAL
     )) {
+        char* data = memory_alloc(sizeof(char) * (data_length + 1));
+
+        if (NULL == strcpy(data, string_content(lexer->lexer_fsm->stream_buffer))) {
+            exit_with_code(ERROR_INTERNAL);
+        }
+        return data;
+    } else {
         return NULL;
     }
-
-    char* data = memory_alloc(sizeof(char) * (data_length + 1));
-
-    if(NULL == strcpy(data, string_content(lexer->lexer_fsm->stream_buffer))) {
-        exit_with_code(ERROR_INTERNAL);
-    }
-    return data;
 }

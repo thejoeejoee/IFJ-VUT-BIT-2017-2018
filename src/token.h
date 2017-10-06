@@ -83,6 +83,11 @@ typedef struct token_t {
 } Token;
 
 /**
+* @brief Performs deep copy of token.
+*/
+Token token_copy(Token token);
+
+/**
 * @brief Free token data.
 */
 void token_free(Token *token);

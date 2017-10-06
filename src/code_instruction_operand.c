@@ -45,8 +45,15 @@ CodeInstructionOperand* code_instruction_operand_init_integer(int integer) {
 
 CodeInstructionOperand* code_instruction_operand_init_double(double double_) {
     CodeInstructionOperandData data;
-    data.constant.data.floating_point = double_;
+    data.constant.data.double_ = double_;
     data.constant.data_type = DATA_TYPE_DOUBLE;
+    return code_instruction_operand_init(TYPE_INSTRUCTION_OPERAND_CONSTANT, data);
+}
+
+CodeInstructionOperand* code_instruction_operand_init_boolean(bool boolean) {
+    CodeInstructionOperandData data;
+    data.constant.data.boolean = boolean;
+    data.constant.data_type = DATA_TYPE_BOOLEAN;
     return code_instruction_operand_init(TYPE_INSTRUCTION_OPERAND_CONSTANT, data);
 }
 

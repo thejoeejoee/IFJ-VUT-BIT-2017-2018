@@ -17,7 +17,7 @@ typedef struct code_instruction_operand_constant_data_t {
     union {
         int integer;
         bool boolean;
-        double floating_point;
+        double double_;
         String string;
     } data;
     DataType data_type;
@@ -44,6 +44,8 @@ CodeInstructionOperand* code_instruction_operand_init_integer(int integer);
 CodeInstructionOperand* code_instruction_operand_init_string(String* string);
 
 CodeInstructionOperand* code_instruction_operand_init_double(double floating_point);
+
+CodeInstructionOperand* code_instruction_operand_init_boolean(bool boolean);
 
 CodeInstructionOperand* code_instruction_operand_init_label(const char* label);
 

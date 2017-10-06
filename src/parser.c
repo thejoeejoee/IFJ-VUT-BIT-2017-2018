@@ -250,7 +250,7 @@ bool parser_parse_function_statement_single(Parser* parser) {
 
             CHECK_RULE(token_type == TOKEN_DIM, variable_declaration, BEFORE(
             lexer_rewind_token(parser->lexer, token);
-    ), AFTER(;));
+    ), AFTER(token_free(&token); return true;));
         );
     );
 

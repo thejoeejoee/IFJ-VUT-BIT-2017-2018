@@ -377,7 +377,7 @@ TEST_F(ParserTestFixture, ReturnRule) {
 
 }
 
-TEST_F(ParserTestFixture, ComplexTest1) {
+TEST_F(ParserTestFixture, ComplexTest) {
     provider->setString(R"(
 SCOPE
 
@@ -390,16 +390,39 @@ END SCOPE
             parser_parse_program(parser)
     ) << "Body parse";
 
-
-}
-
-TEST_F(ParserTestFixture, ComplexTest2) {
     provider->setString(R"(
 SCOPE
 DO WHILE 42
 input id
 input id
 loop
+END SCOPE
+    )");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    ) << "Body parse";
+
+
+}
+
+TEST_F(ParserTestFixture, ComplexTest2) {
+    provider->setString(R"(
+declare function foo(a as integer, b as string) as string
+function bar(b as string, a as integer) as integer
+dim a as integer
+input a
+print 42;42;332;
+end function
+
+SCOPE
+
+SCOPE
+if 32 then
+input id
+dim a as string
+end if
+END SCOPE
+
 END SCOPE
     )");
     EXPECT_TRUE(
@@ -535,6 +558,8 @@ END SCOPE
     ) << "Body parse";
 
 }
+
+
 
 
 

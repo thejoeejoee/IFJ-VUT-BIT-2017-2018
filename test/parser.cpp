@@ -291,12 +291,28 @@ TEST_F(ParserTestFixture, PrintStatement) {
 }
 
 TEST_F(ParserTestFixture, BodyStatementSingle) {
-    // Rule is Epsilon, it is just demonstration, it will be implemented in future
     provider->setString("input foo");
 
     EXPECT_TRUE(
             parser_parse_body_statement_single(parser)
     ) << "Error parsing <definitions> rule";
+
+}
+
+TEST_F(ParserTestFixture, IfRule) {
+    provider->setString(R"(if 42 then
+input id
+elseif 43
+input id
+else
+input id
+input id
+end if
+    )");
+
+    EXPECT_TRUE(
+            parser_parse_body_condition(parser)
+    ) << "Error parsing <condition> rule";
 
 }
 

@@ -292,6 +292,12 @@ bool parser_parse_body_while(Parser* parser);
 
 bool parser_parse_print_expressions(Parser* parser);
 
+bool parser_parse_body_condition(Parser* parser);
+
+bool parser_parse_body_condition_else(Parser* parser);
+
+bool parser_parse_body_condition_elseif(Parser* parser);
+
 
 
 #endif //_PARSER_H

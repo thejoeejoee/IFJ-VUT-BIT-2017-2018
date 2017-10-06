@@ -509,3 +509,75 @@ bool parser_parse_input(Parser* parser) {
 
     return true;
 }
+
+bool parser_parse_body_condition(Parser* parser) {
+    /*
+     * RULE
+     */
+
+    RULES(
+            CHECK_TOKEN(TOKEN_IF);
+            CALL_RULE(expression);
+            CHECK_TOKEN(TOKEN_THEN);
+            CHECK_TOKEN(TOKEN_EOL);
+            CALL_RULE(body_statements);
+
+            CALL_RULE(body_condition_elseif);
+
+            CALL_RULE(body_condition_else);
+
+            CHECK_TOKEN(TOKEN_END);
+            CHECK_TOKEN(TOKEN_IF);
+    );
+
+    return true;
+}
+
+bool parser_parse_body_condition_elseif(Parser* parser) {
+    /*
+     * RULE
+     */
+
+    RULES(
+            CONDITIONAL_RULES(
+
+                    CHECK_RULE(token_type != TOKEN_ELSEIF, epsilon, BEFORE(
+                            lexer_rewind_token(parser->lexer, token);
+    ), AFTER(token_free(&token); return true;));
+
+            CALL_RULE(expression);
+
+            CHECK_TOKEN(TOKEN_EOL);
+
+            CALL_RULE(body_statements);
+
+            CALL_RULE(body_condition_elseif);
+    );
+    );
+
+
+    return true;
+}
+
+
+bool parser_parse_body_condition_else(Parser* parser) {
+    /*
+     * RULE
+     */
+
+    RULES(
+            CONDITIONAL_RULES(
+
+                    CHECK_RULE(token_type != TOKEN_ELSE, epsilon, BEFORE(
+                            lexer_rewind_token(parser->lexer, token);
+    ), AFTER(token_free(&token); return true;));
+
+            CHECK_TOKEN(TOKEN_EOL);
+
+            CALL_RULE(body_statements);
+    );
+    );
+
+
+    return true;
+}

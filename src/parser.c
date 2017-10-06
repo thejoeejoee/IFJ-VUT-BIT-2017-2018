@@ -444,7 +444,7 @@ bool parser_parse_print_expressions(Parser* parser) {
 
             CHECK_RULE(token_type != TOKEN_EOL, print_expression, BEFORE(
             lexer_rewind_token(parser->lexer, token);
-    ), AFTER(token_free(&token); return true;));
+    ), AFTER(token_free(&token);));
 
             CALL_RULE(print_expressions);
     );

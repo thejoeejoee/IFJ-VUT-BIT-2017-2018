@@ -10,8 +10,6 @@ typedef struct code_label_t {
     char* label;
 } CodeLabel;
 
-void stack_code_label_free(StackBaseItem* item);
-
 Stack* stack_code_label_init();
 
 void stack_code_label_push(Stack* stack, char* label);

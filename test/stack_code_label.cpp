@@ -59,3 +59,18 @@ TEST_F(StackCodeLabelTestFixture, PushAndPop) {
             nullptr
     ) << "Empty after two pops.";
 }
+
+TEST_F(StackCodeLabelTestFixture, HeadValue) {
+    std::string string = "header value label";
+    auto const_string = const_cast<char*>(string.data());
+
+    stack_code_label_push(stack, const_string);
+
+
+    EXPECT_EQ(
+            strcmp("header value label", stack_code_label_head(stack)),
+            0
+    ) << "Head value";
+
+    // no item free to test auto free by design
+}

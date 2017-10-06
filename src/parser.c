@@ -421,13 +421,35 @@ bool parser_parse_return(Parser* parser) {
 bool parser_parse_print(Parser* parser) {
     /*
      * RULE
-     * <statement_print> -> PRINT <print_expression> Todo: <print_expressions>
+     * <statement_print> -> PRINT <print_expression> <print_expressions>
      */
 
     RULES(
             CHECK_TOKEN(TOKEN_PRINT);
             CALL_RULE(print_expression);
+            CALL_RULE(print_expressions);
     );
+
+    return true;
+}
+
+bool parser_parse_print_expressions(Parser* parser) {
+
+    RULES(
+            CONDITIONAL_RULES(
+
+                    CHECK_RULE(token_type == TOKEN_EOL, epsilon, BEFORE(
+                            lexer_rewind_token(parser->lexer, token);
+    ), AFTER(token_free(&token); return true;));
+
+            CHECK_RULE(token_type != TOKEN_EOL, print_expression, BEFORE(
+            lexer_rewind_token(parser->lexer, token);
+    ), AFTER(token_free(&token); return true;));
+
+            CALL_RULE(print_expressions);
+    );
+    );
+
 
     return true;
 }
@@ -445,7 +467,6 @@ bool parser_parse_print_expression(Parser* parser) {
 
     return true;
 }
-
 
 bool parser_parse_body_while(Parser* parser) {
     /*

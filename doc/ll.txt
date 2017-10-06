@@ -52,7 +52,7 @@
 // Tisk řetězce
 <print_expression> -> <expression> SEMICOLON
 <print_expressions> -> E
-<print_expressions> -> <print_expression> SEMICOLON <print_expressions>
+<print_expressions> -> <print_expression> <print_expressions>
 
 // Deklarace proměnné
 <variable_declaration> -> DIM <id> AS <type>

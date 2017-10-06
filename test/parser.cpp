@@ -267,11 +267,19 @@ TEST_F(ParserTestFixture, FunctionStatementSingle) {
 
 TEST_F(ParserTestFixture, PrintStatement) {
     // Rule is Epsilon, it is just demonstration, it will be implemented in future
-    provider->setString("print 42;");
+    provider->setString("print 42;\n");
 
     EXPECT_TRUE(
             parser_parse_print(parser)
-    ) << "Error parsing <definitions> rule";
+    ) << "Error parsing <print> rule";
+
+    parser->lexer->is_token_rewind = false;
+
+    provider->setString("print 42; 24; 42; \n");
+
+    EXPECT_TRUE(
+            parser_parse_print(parser)
+    ) << "Error parsing <print> rule with concatenation";
 
 }
 

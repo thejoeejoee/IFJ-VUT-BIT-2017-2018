@@ -290,6 +290,8 @@ bool parser_parse_print(Parser* parser);
 
 bool parser_parse_body_while(Parser* parser);
 
+bool parser_parse_print_expressions(Parser* parser);
+
 
 
 #endif //_PARSER_H

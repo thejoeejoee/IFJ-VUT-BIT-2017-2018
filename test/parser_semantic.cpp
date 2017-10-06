@@ -94,3 +94,33 @@ end scope
 
 }
 
+TEST_F(ParserSemanticTestFixture, ComplexTest2) {
+    parser_semantic_free(&(parser->parser_semantic));
+    parser->parser_semantic = parser_semantic_init();
+
+    provider->setString(R"(
+declare function foo(a as integer) as integer
+declare function bar(a as string) as string
+SCOPE
+END SCOPE
+    )");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    ) << "Body parse";
+
+    parser_semantic_free(&(parser->parser_semantic));
+    parser->parser_semantic = parser_semantic_init();
+
+    provider->setString(R"(
+declare function foo(a as integer) as integer
+declare function foo(a as string) as string
+SCOPE
+END SCOPE
+    )");
+    EXPECT_FALSE(
+            parser_parse_program(parser)
+    ) << "Body parse";
+
+
+}
+

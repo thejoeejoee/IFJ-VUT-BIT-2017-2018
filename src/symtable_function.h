@@ -8,6 +8,7 @@ typedef struct symbol_function_t {
     // TODO: define all needed members
     bool declared;
     bool defined;
+    
     short return_data_type;
 } SymbolFunction;
 

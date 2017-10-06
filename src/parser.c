@@ -304,6 +304,12 @@ bool parser_parse_function_declaration(Parser* parser) {
 
     RULES(
             CHECK_TOKEN(TOKEN_DECLARE);
+
+            SEMANTIC_ANALYSIS(
+                    parser,
+                    parser_semantic_set_action(parser->parser_semantic, ACTUAL_ACTION__FUNCTION_DECLARATION);
+            );
+
             CHECK_RULE(function_header);
             CHECK_TOKEN(TOKEN_EOL);
             CHECK_RULE(eols);
@@ -321,11 +327,21 @@ bool parser_parse_function_header(Parser* parser) {
     RULES(
         CHECK_TOKEN(TOKEN_FUNCTION);
         CHECK_TOKEN(TOKEN_IDENTIFIER);
+        SEMANTIC_ANALYSIS(
+            parser,
+            if(!parser_semantic_add_function(parser->parser_semantic, token.data))
+                return false;
+        );
+
         CHECK_TOKEN(TOKEN_LEFT_BRACKET);
         CHECK_RULE(function_params);
         CHECK_TOKEN(TOKEN_RIGHT_BRACKET);
         CHECK_TOKEN(TOKEN_AS);
         CHECK_TOKEN(TOKEN_DATA_TYPE_CLASS);
+        SEMANTIC_ANALYSIS(
+            parser,
+            parser_semantic_add_function_return_data_type(parser->parser_semantic, token_type);
+        );
     );
 
     return true;
@@ -555,13 +571,9 @@ bool parser_parse_condition(Parser* parser) {
             CALL_RULE(expression);
             CHECK_TOKEN(TOKEN_THEN);
             CHECK_TOKEN(TOKEN_EOL);
-
-            CALL_RULE_STATEMENTS()
-
+            CALL_RULE_STATEMENTS();
             CALL_RULE(condition_elseif);
-
             CALL_RULE(condition_else);
-
             CHECK_TOKEN(TOKEN_END);
             CHECK_TOKEN(TOKEN_IF);
     );
@@ -579,18 +591,14 @@ bool parser_parse_condition_elseif(Parser* parser) {
 
                     CHECK_RULE(token_type != TOKEN_ELSEIF, epsilon, BEFORE(
                             lexer_rewind_token(parser->lexer, token);
-    ), AFTER(token_free(&token); return true;));
+                    ), AFTER(token_free(&token); return true;));
 
-            CALL_RULE(expression);
-
-            CHECK_TOKEN(TOKEN_EOL);
-
-            CALL_RULE_STATEMENTS()
-
-            CALL_RULE(condition_elseif);
+                CALL_RULE(expression);
+                CHECK_TOKEN(TOKEN_EOL);
+                CALL_RULE_STATEMENTS()
+                CALL_RULE(condition_elseif);
+            );
     );
-    );
-
 
     return true;
 }
@@ -613,7 +621,6 @@ bool parser_parse_condition_else(Parser* parser) {
             CALL_RULE_STATEMENTS();
     );
     );
-
 
     return true;
 }

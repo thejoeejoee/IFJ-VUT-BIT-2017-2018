@@ -519,4 +519,22 @@ END SCOPE
 
 }
 
+TEST_F(ParserTestFixture, ComplexTestWithScopeInsideScope) {
+    provider->setString(R"(
+SCOPE
+input id
+
+SCOPE
+input id
+END SCOPE
+
+END SCOPE
+    )");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    ) << "Body parse";
+
+}
+
+
 

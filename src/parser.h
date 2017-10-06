@@ -309,6 +309,8 @@ bool parser_parse_condition_else(Parser* parser);
 
 bool parser_parse_condition_elseif(Parser* parser);
 
+bool parser_parse_scope(Parser* parser);
+
 
 
 #endif //_PARSER_H

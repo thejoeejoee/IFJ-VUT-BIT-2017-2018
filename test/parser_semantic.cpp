@@ -50,6 +50,86 @@ TEST_F(ParserSemanticTestFixture, FunctionDeclaration) {
 
 }
 
+TEST_F(ParserSemanticTestFixture, FunctionDefinition) {
+
+    parser_semantic_free(&(parser->parser_semantic));
+    parser->parser_semantic = parser_semantic_init();
+
+    provider->setString(R"(
+declare function foo() as integer
+function foo() as integer
+end function
+scope
+end scope
+    )");
+
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    ) << "Error parsing program";
+
+    parser_semantic_free(&(parser->parser_semantic));
+    parser->parser_semantic = parser_semantic_init();
+
+    provider->setString(R"(
+function foo() as integer
+end function
+scope
+end scope
+    )");
+
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    ) << "Error parsing program";
+
+    parser_semantic_free(&(parser->parser_semantic));
+    parser->parser_semantic = parser_semantic_init();
+
+    provider->setString(R"(
+function foo() as integer
+end function
+function foo() as string
+end function
+scope
+end scope
+    )");
+
+    EXPECT_FALSE(
+            parser_parse_program(parser)
+    ) << "Error parsing program";
+
+    parser_semantic_free(&(parser->parser_semantic));
+    parser->parser_semantic = parser_semantic_init();
+
+    provider->setString(R"(
+declare function foo() as integer
+function foo() as integer
+end function
+function foo() as integer
+end function
+scope
+end scope
+    )");
+
+    EXPECT_FALSE(
+            parser_parse_program(parser)
+    ) << "Error parsing program";
+
+    parser_semantic_free(&(parser->parser_semantic));
+    parser->parser_semantic = parser_semantic_init();
+
+    provider->setString(R"(
+declare function foo() as integer
+function foo() as string
+end function
+scope
+end scope
+    )");
+
+    EXPECT_FALSE(
+            parser_parse_program(parser)
+    ) << "Error parsing program";
+}
+
 TEST_F(ParserSemanticTestFixture, ComplexTest1) {
 
     parser_semantic_free(&(parser->parser_semantic));

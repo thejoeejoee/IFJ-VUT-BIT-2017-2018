@@ -1,7 +1,9 @@
 #include "symtable_function.h"
 
 SymbolFunction* symbol_table_function_get_or_create(SymbolTable* table, const char* key) {
-    return (SymbolFunction*) symbol_table_get_or_create(table, key);
+    SymbolFunction* symbol_function_return =  (SymbolFunction*) symbol_table_get_or_create(table, key);
+    symbol_function_return->return_data_type = 0;
+    return symbol_function_return;
 }
 
 SymbolFunction* symbol_table_function_get(SymbolTable* table, const char* key) {

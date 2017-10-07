@@ -155,6 +155,10 @@ bool parser_parse_function_definition(Parser* parser) {
      */
 
     RULES(
+        SEMANTIC_ANALYSIS(
+            parser,
+            parser_semantic_set_action(parser->parser_semantic, ACTUAL_ACTION__FUNCTION_DEFINITION);
+        );
         CHECK_RULE(function_header);
         CHECK_TOKEN(TOKEN_EOL);
         CHECK_RULE(eols);
@@ -329,7 +333,7 @@ bool parser_parse_function_header(Parser* parser) {
         CHECK_TOKEN(TOKEN_IDENTIFIER);
         SEMANTIC_ANALYSIS(
             parser,
-            if(!parser_semantic_add_function(parser->parser_semantic, token.data))
+            if(!parser_semantic_set_function_name(parser->parser_semantic, token.data))
                 return false;
         );
 
@@ -340,7 +344,7 @@ bool parser_parse_function_header(Parser* parser) {
         CHECK_TOKEN(TOKEN_DATA_TYPE_CLASS);
         SEMANTIC_ANALYSIS(
             parser,
-            parser_semantic_add_function_return_data_type(parser->parser_semantic, token_type);
+            parser_semantic_function_return_data_type(parser->parser_semantic, token_type);
         );
     );
 

@@ -22,18 +22,64 @@ typedef struct parser_semantic_t {
 
 } ParserSemantic;
 
+/**
+ * @brief Set actual action for parser semantic. Sematic actions are scenarios. We have to keep the action.
+ *
+ * @param parser_semantic
+ * @param actual_action
+ */
 void parser_semantic_set_action(ParserSemantic* parser_semantic, ActualAction actual_action);
 
-bool parser_semantic_add_function(ParserSemantic* parserSemantic, char* name);
+/**
+ * @brief Sets the function name for the current scenario.
+ *
+ * @param parserSemantic
+ * @param char* name Name of function
+ * @return bool
+ */
+bool parser_semantic_set_function_name(ParserSemantic* parserSemantic, char* name);
 
+/**
+ * Constructor for parser_semanatic
+ *
+ * @return ParserSematic*
+ */
 ParserSemantic* parser_semantic_init();
 
+/**
+ * @brief Destructor for parser semantic
+ *
+ * @param ParserSemantic** parser
+ */
 void parser_semantic_free(ParserSemantic** parser);
 
+/**
+ * @brief Find variable in symbol variable
+ *
+ * @param parser_semantic
+ * @param token
+ * @return SymbolVariable*
+ */
 SymbolVariable* parser_semantic_expect_symbol_variable(ParserSemantic* parser_semantic, Token token);
 
+/**
+ * @brief Add Variable to the actual symbol table
+ *
+ * @param parser_semantic
+ * @param name
+ * @param data_type
+ * @return bool
+ */
 bool parser_semantic_add_symbol_variable(ParserSemantic* parser_semantic, char* name, short data_type);
 
-void parser_semantic_add_function_return_data_type(ParserSemantic* parser_semantic, TokenType token_type);
+/**
+ * @brief If the actual action is ACTUAL_ACTION__FUNCTION_DECLARATION, then set return data type for actual function,
+ *        If the actual action is ACTUAL_ACTION__FUNCTION_DEFINITION, then check return data type in symbol table
+ *
+ * @param parser_semantic
+ * @param token_type
+ * @return bool
+ */
+bool parser_semantic_function_return_data_type(ParserSemantic* parser_semantic, TokenType token_type);
 
 #endif //_PARSER_SEMANTIC_H

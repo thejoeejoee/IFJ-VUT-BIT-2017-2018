@@ -25,15 +25,15 @@ class SymbolRegisterTestFixture : public ::testing::Test {
 };
 
 TEST_F(SymbolRegisterTestFixture, PushAndGetFunctions) {
-    SymbolTableListItemSymbolFunction* item = symbol_table_function_get_or_create(symbol_register->functions, "printf");
-    SymbolTableListItemSymbolFunction* find_item = symbol_table_function_get(symbol_register->functions, "printf");
+    SymbolFunction* item = symbol_table_function_get_or_create(symbol_register->functions, "printf");
+    SymbolFunction* find_item = symbol_table_function_get(symbol_register->functions, "printf");
 
     EXPECT_EQ(
             item,
             find_item
     ) << "Error finding item";
 
-    SymbolTableListItemSymbolFunction* error_item = symbol_table_function_get(
+    SymbolFunction* error_item = symbol_table_function_get(
             symbol_register->functions,
             "neexistujici"
     );
@@ -46,7 +46,7 @@ TEST_F(SymbolRegisterTestFixture, PushAndGetFunctions) {
 }
 
 TEST_F(SymbolRegisterTestFixture, FindingVariablesInStack) {
-    SymbolTableListItemSymbolVariable* symbol_variable = symbol_table_variable_get_or_create(
+    SymbolVariable* symbol_variable = symbol_table_variable_get_or_create(
             symbol_register->variables->symbol_table,
             "foo"
     );
@@ -57,10 +57,11 @@ TEST_F(SymbolRegisterTestFixture, FindingVariablesInStack) {
     ) << "Created variable.";
 
     EXPECT_NE(
-            symbol_variable->data,
+            symbol_variable,
             nullptr
     ) << "Auto allocated data ptr.";
 
+    symbol_variable->data_type = 42;
     symbol_register_push_variables_table(symbol_register);
 
     SymbolVariable* found_variable = symbol_register_find_variable(symbol_register, "foo");
@@ -74,17 +75,17 @@ TEST_F(SymbolRegisterTestFixture, FindingVariablesInStack) {
 
     EXPECT_EQ(
             found_variable,
-            symbol_variable->data
+            symbol_variable
     ) << "Recursively found variable.";
 
-    SymbolTableListItemSymbolVariable* new_variable = symbol_table_variable_get_or_create(
+    SymbolVariable* new_variable = symbol_table_variable_get_or_create(
             symbol_register->variables->symbol_table,
             "bar"
     );
 
     EXPECT_EQ(
             symbol_register_find_variable(symbol_register, "bar"),
-            new_variable->data
+            new_variable
     ) << "Found variable in new frame.";
 
     symbol_register_pop_variables_table(symbol_register);
@@ -102,8 +103,8 @@ TEST_F(SymbolRegisterTestFixture, FindingVariablesInStack) {
 
 
 TEST_F(SymbolRegisterTestFixture, InvalidStackAccess) {
-    SymbolTableListItemSymbolVariable* found_item;
-    SymbolTableListItemSymbolVariable* symbol_variable = symbol_table_variable_get_or_create(
+    SymbolVariable* found_item;
+    SymbolVariable* symbol_variable = symbol_table_variable_get_or_create(
             symbol_register->variables->symbol_table,
             "foo"
     );

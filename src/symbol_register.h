@@ -2,12 +2,14 @@
 #define _SYMBOL_REGISTER_H
 
 #include "symtable.h"
+#include "symtable_variable.h"
+#include "symtable_function.h"
 
 /**
  * @brief Helper structure for stacking variable symbol tables.
  */
 typedef struct symbol_table_symbol_variable_stack_item_t {
-    SymbolTableSymbolVariable* symbol_table;
+    SymbolTable* symbol_table;
     struct symbol_table_symbol_variable_stack_item_t* parent;
 } SymbolTableSymbolVariableStackItem;
 
@@ -15,7 +17,7 @@ typedef struct symbol_table_symbol_variable_stack_item_t {
  * @brief Register of used functions/variables.
  */
 typedef struct symbol_register_t {
-    SymbolTableSymbolFunction* functions;
+    SymbolTable* functions;
     SymbolTableSymbolVariableStackItem* variables;
 } SymbolRegister;
 

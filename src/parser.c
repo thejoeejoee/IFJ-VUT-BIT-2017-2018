@@ -59,9 +59,7 @@ bool parser_parse_program(Parser* parser) {
     // Call rule <body>. If <body> return false => return false
     RULES(
         CHECK_RULE(body);
-
             CHECK_RULE(eols);
-
         // Expect EOF token If return true, program is syntactically correct
         CHECK_TOKEN(TOKEN_EOF);
     );
@@ -155,8 +153,8 @@ bool parser_parse_function_definition(Parser* parser) {
 
     RULES(
         SEMANTIC_ANALYSIS(
-            parser,
-            parser_semantic_set_action(parser->parser_semantic, ACTUAL_ACTION__FUNCTION_DEFINITION);
+                parser,
+                parser_semantic_set_action(parser->parser_semantic, SEMANTIC_ACTION__FUNCTION_DEFINITION);
         );
         CHECK_RULE(function_header);
         CHECK_TOKEN(TOKEN_EOL);
@@ -345,7 +343,8 @@ bool parser_parse_function_header(Parser* parser) {
         CHECK_TOKEN(TOKEN_DATA_TYPE_CLASS);
         SEMANTIC_ANALYSIS(
             parser,
-            parser_semantic_function_return_data_type(parser->parser_semantic, (DataType) token_type);
+            if(parser_semantic_set_function_return_data_type(parser->parser_semantic, (DataType) token_type))
+            return false;
             // TODO: resolve token_type -> data_type conversion for boolean
         );
     );
@@ -447,7 +446,7 @@ bool parser_parse_variable_declaration(Parser* parser) {
         CHECK_TOKEN(TOKEN_IDENTIFIER, BEFORE(
                 name = memory_alloc(sizeof(char) * (strlen(token.data) + 1));
             memory_free_lazy(name);
-            strcpy(name, token.data);
+            MALLOC_CHECK(strcpy(name, token.data));
         ));
         CHECK_TOKEN(TOKEN_AS);
         CHECK_TOKEN(TOKEN_DATA_TYPE_CLASS, BEFORE(;), AFTER(

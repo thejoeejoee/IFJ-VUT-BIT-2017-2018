@@ -51,10 +51,6 @@ TEST_F(ParserSemanticTestFixture, FunctionDeclaration) {
 }
 
 TEST_F(ParserSemanticTestFixture, FunctionDefinition) {
-
-    parser_semantic_free(&(parser->parser_semantic));
-    parser->parser_semantic = parser_semantic_init();
-
     provider->setString(R"(
 declare function foo() as integer
 function foo() as integer
@@ -66,9 +62,9 @@ end scope
     EXPECT_TRUE(
             parser_parse_program(parser)
     ) << "Error parsing program";
+}
 
-    parser_semantic_free(&(parser->parser_semantic));
-    parser->parser_semantic = parser_semantic_init();
+TEST_F(ParserSemanticTestFixture, FunctionDefinition1) {
 
     provider->setString(R"(
 function foo() as integer
@@ -81,8 +77,9 @@ end scope
             parser_parse_program(parser)
     ) << "Error parsing program";
 
-    parser_semantic_free(&(parser->parser_semantic));
-    parser->parser_semantic = parser_semantic_init();
+}
+
+TEST_F(ParserSemanticTestFixture, FunctionDefinition2) {
 
     provider->setString(R"(
 function foo() as integer
@@ -97,8 +94,9 @@ end scope
             parser_parse_program(parser)
     ) << "Error parsing program";
 
-    parser_semantic_free(&(parser->parser_semantic));
-    parser->parser_semantic = parser_semantic_init();
+}
+
+TEST_F(ParserSemanticTestFixture, FunctionDefinition3) {
 
     provider->setString(R"(
 declare function foo() as integer
@@ -114,8 +112,9 @@ end scope
             parser_parse_program(parser)
     ) << "Error parsing program";
 
-    parser_semantic_free(&(parser->parser_semantic));
-    parser->parser_semantic = parser_semantic_init();
+}
+
+TEST_F(ParserSemanticTestFixture, FunctionDefinition4) {
 
     provider->setString(R"(
 declare function foo() as integer
@@ -132,9 +131,6 @@ end scope
 
 TEST_F(ParserSemanticTestFixture, ComplexTest1) {
 
-    parser_semantic_free(&(parser->parser_semantic));
-    parser->parser_semantic = parser_semantic_init();
-
     provider->setString(R"(scope
 input promena
 dim promena as integer
@@ -145,9 +141,9 @@ end scope
             parser_parse_program(parser)
     ) << "Error parsing program";
 
-    parser_semantic_free(&(parser->parser_semantic));
-    parser->parser_semantic = parser_semantic_init();
+}
 
+TEST_F(ParserSemanticTestFixture, ComplexTest2) {
     provider->setString(R"(scope
 dim promena as integer
 input promena
@@ -158,8 +154,9 @@ end scope
             parser_parse_program(parser)
     ) << "Error parsing program";
 
-    parser_semantic_free(&(parser->parser_semantic));
-    parser->parser_semantic = parser_semantic_init();
+}
+
+TEST_F(ParserSemanticTestFixture, ComplexTest3) {
 
     provider->setString(R"(scope
 dim promena as integer
@@ -174,10 +171,7 @@ end scope
 
 }
 
-TEST_F(ParserSemanticTestFixture, ComplexTest2) {
-    parser_semantic_free(&(parser->parser_semantic));
-    parser->parser_semantic = parser_semantic_init();
-
+TEST_F(ParserSemanticTestFixture, ComplexTest4) {
     provider->setString(R"(
 declare function foo_function_complex(a as integer) as integer
 declare function bar_function_complex(a as string) as string
@@ -190,7 +184,7 @@ END SCOPE
 
 }
 
-TEST_F(ParserSemanticTestFixture, ComplexTest3) {
+TEST_F(ParserSemanticTestFixture, ComplexTest5) {
     provider->setString(R"(
 declare function foo_complex3(a as integer) as integer
 declare function foo_complex3(a as string) as string

@@ -33,11 +33,11 @@ void parser_semantic_set_action(ParserSemantic* parser_semantic, SemanticAction 
 /**
  * @brief Sets the function name for the current scenario.
  *
- * @param parserSemantic
+ * @param parser_semantic
  * @param char* name Name of function
  * @return bool
  */
-bool parser_semantic_set_function_name(ParserSemantic* parserSemantic, char* name);
+bool parser_semantic_set_function_name(ParserSemantic* parser_semantic, char* name);
 
 /**
  * Constructor for parser_semantic
@@ -80,6 +80,6 @@ bool parser_semantic_add_symbol_variable(ParserSemantic* parser_semantic, char* 
  * @param token_type
  * @return bool
  */
-bool parser_semantic_function_return_data_type(ParserSemantic* parser_semantic, DataType token_type);
+bool parser_semantic_set_function_return_data_type(ParserSemantic* parser_semantic, DataType token_type);
 
 #endif //_PARSER_SEMANTIC_H

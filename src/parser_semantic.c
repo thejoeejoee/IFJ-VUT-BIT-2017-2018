@@ -55,23 +55,23 @@ bool parser_semantic_add_symbol_variable(ParserSemantic* parser_semantic, char* 
     return true;
 }
 
-bool parser_semantic_set_function_name(ParserSemantic* parser_semantic, char* name) {if(parserSemantic->actual_action == ACTUAL_ACTION__FUNCTION_DECLARATION) {
+bool parser_semantic_set_function_name(ParserSemantic* parser_semantic, char* name) {
     NULL_POINTER_CHECK(parser_semantic, false);
-    NULL_POINTER_CHECK(name, false);if(symbol_table_function_get(parser_semantic->register_->functions, name) != NULL) {
-        // already declared function
-        parser_semantic->error_report.error_code = ERROR_SEMANTIC_DEFINITION;
-        return false;
-    }
+    NULL_POINTER_CHECK(name, false);
 
-    parser_semantic->symbol_function = symbol_table_function_get_or_create(
-            parser_semantic->register_->functions,
-            name
-    );
+    if(parser_semantic->actual_action == SEMANTIC_ACTION__FUNCTION_DECLARATION) {
+        if(symbol_table_function_get(parser_semantic->register_->functions, name) != NULL) {
+            parser_semantic->error_report.error_code = ERROR_SEMANTIC_DEFINITION;
+            return false;
+        }
+
+        parser_semantic->symbol_function = symbol_table_function_get_or_create(
+                parser_semantic->register_->functions,
+                name
+        );
 
         parser_semantic->symbol_function->declared = true;
-
     } else if(parser_semantic->actual_action == SEMANTIC_ACTION__FUNCTION_DEFINITION) {
-
         parser_semantic->symbol_function = symbol_table_function_get_or_create(
                 parser_semantic->register_->functions,
                 name
@@ -81,23 +81,20 @@ bool parser_semantic_set_function_name(ParserSemantic* parser_semantic, char* na
             return false;
 
         parser_semantic->symbol_function->defined = true;
-
     }
-
 
     return true;
 }
 
-bool parser_semantic_function_return_data_type(ParserSemantic* parser_semantic, DataType data_type) {
-    NULL_POINTER_CHECK(parser_semantic,);
+bool parser_semantic_set_function_return_data_type(ParserSemantic* parser_semantic, DataType data_type) {
+    NULL_POINTER_CHECK(parser_semantic, false);
 
     if(parser_semantic->actual_action == SEMANTIC_ACTION__FUNCTION_DECLARATION ||
-            parser_semantic->symbol_function->return_data_type == (DataType) 0)
+       parser_semantic->symbol_function->return_data_type == DATA_TYPE_NONE) {
 
         parser_semantic->symbol_function->return_data_type = data_type;
 
-    else if(parser_semantic->actual_action == SEMANTIC_ACTION__FUNCTION_DEFINITION) {
-
+    } else if(parser_semantic->actual_action == SEMANTIC_ACTION__FUNCTION_DEFINITION) {
         if(parser_semantic->symbol_function->return_data_type != data_type)
             return false;
     }

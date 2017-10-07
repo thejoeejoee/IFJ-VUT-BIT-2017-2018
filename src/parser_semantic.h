@@ -6,17 +6,17 @@
 #include "error.h"
 
 typedef enum {
-    ACTUAL_ACTION__NO_ACTION,
-    ACTUAL_ACTION__FUNCTION_DECLARATION,
-    ACTUAL_ACTION__FUNCTION_DEFINITION
-} ActualAction;
+    SEMANTIC_ACTION__NONE,
+    SEMANTIC_ACTION__FUNCTION_DECLARATION,
+    SEMANTIC_ACTION__FUNCTION_DEFINITION
+} SemanticAction;
 
 typedef struct parser_semantic_t {
     SymbolRegister* register_;
 
     ErrorReport error_report;
 
-    ActualAction actual_action;
+    SemanticAction actual_action;
 
     SymbolFunction* symbol_function; // Pointer to actual function
 
@@ -28,7 +28,7 @@ typedef struct parser_semantic_t {
  * @param parser_semantic
  * @param actual_action
  */
-void parser_semantic_set_action(ParserSemantic* parser_semantic, ActualAction actual_action);
+void parser_semantic_set_action(ParserSemantic* parser_semantic, SemanticAction actual_action);
 
 /**
  * @brief Sets the function name for the current scenario.
@@ -40,7 +40,7 @@ void parser_semantic_set_action(ParserSemantic* parser_semantic, ActualAction ac
 bool parser_semantic_set_function_name(ParserSemantic* parserSemantic, char* name);
 
 /**
- * Constructor for parser_semanatic
+ * Constructor for parser_semantic
  *
  * @return ParserSematic*
  */
@@ -70,7 +70,7 @@ SymbolVariable* parser_semantic_expect_symbol_variable(ParserSemantic* parser_se
  * @param data_type
  * @return bool
  */
-bool parser_semantic_add_symbol_variable(ParserSemantic* parser_semantic, char* name, short data_type);
+bool parser_semantic_add_symbol_variable(ParserSemantic* parser_semantic, char* name, DataType data_type);
 
 /**
  * @brief If the actual action is ACTUAL_ACTION__FUNCTION_DECLARATION, then set return data type for actual function,
@@ -80,6 +80,6 @@ bool parser_semantic_add_symbol_variable(ParserSemantic* parser_semantic, char* 
  * @param token_type
  * @return bool
  */
-bool parser_semantic_function_return_data_type(ParserSemantic* parser_semantic, TokenType token_type);
+bool parser_semantic_function_return_data_type(ParserSemantic* parser_semantic, DataType token_type);
 
 #endif //_PARSER_SEMANTIC_H

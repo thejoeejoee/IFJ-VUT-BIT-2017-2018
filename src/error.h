@@ -1,6 +1,8 @@
 #ifndef _ERROR_H
 #define _ERROR_H
 
+#include "stdlib.h"
+
 typedef enum error_code_t {
     ERROR_NONE = 0,
     ERROR_LEXER = 1,
@@ -14,7 +16,7 @@ typedef enum error_code_t {
 
 typedef struct error_report_t {
     ErrorCode error_code;
-    int line;
+    size_t line;
     int detail_information;
     // TODO: Other information
 } ErrorReport;

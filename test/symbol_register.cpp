@@ -61,7 +61,6 @@ TEST_F(SymbolRegisterTestFixture, FindingVariablesInStack) {
             nullptr
     ) << "Auto allocated data ptr.";
 
-    symbol_variable->data_type = 42;
     symbol_register_push_variables_table(symbol_register);
 
     SymbolVariable* found_variable = symbol_register_find_variable(symbol_register, "foo");
@@ -106,7 +105,7 @@ TEST_F(SymbolRegisterTestFixture, InvalidStackAccess) {
     SymbolVariable* found_item;
     SymbolVariable* symbol_variable = symbol_table_variable_get_or_create(
             symbol_register->variables->symbol_table,
-            "foo"
+            "foo_variable_42"
     );
     EXPECT_NE(
             symbol_variable,
@@ -115,7 +114,7 @@ TEST_F(SymbolRegisterTestFixture, InvalidStackAccess) {
     symbol_register_pop_variables_table(symbol_register);
     found_item = symbol_table_variable_get(
             symbol_register->variables->symbol_table,
-            "foo"
+            "foo_variable_42"
     );
     EXPECT_EQ(
             found_item,

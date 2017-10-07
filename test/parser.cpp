@@ -407,7 +407,7 @@ END SCOPE
 
 TEST_F(ParserTestFixture, ComplexTest2) {
     provider->setString(R"(
-declare function foo(a as integer, b as string) as string
+declare function foo_function(a as integer, b as string) as string
 function bar(b as string, a as integer) as integer
 dim a as integer
 input a

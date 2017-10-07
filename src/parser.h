@@ -188,7 +188,7 @@ typedef struct parser_t {
 
     int run_type;
 
-    bool body_statement;
+    bool body_statement; // TODO: cannot by done with semantic parser action?
 } Parser;
 
 /**

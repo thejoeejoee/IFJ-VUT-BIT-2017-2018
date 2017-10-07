@@ -160,7 +160,7 @@ void memory_manager_log_stats(MemoryManager* manager) {
         page = next;
     }
     LOG_INFO(
-            "Allocated %d bytes in %d pages. Total memory usage %d bytes.",
+            "Auto freed %d bytes from %d pages. Total memory usage %d bytes.",
             allocated_size, allocated_pages_count, total_size
     );
 }

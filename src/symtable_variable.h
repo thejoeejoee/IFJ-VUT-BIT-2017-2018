@@ -2,13 +2,14 @@
 #define SYMTABLE_VARIABLE_H
 
 #include "symtable.h"
+#include "data_type.h"
 
 typedef struct symbol_variable_t {
     SymbolTableBaseItem base;
     // TODO: define all needed members
     bool declared;
     bool defined;
-    short data_type;
+    DataType data_type;
 } SymbolVariable;
 
 SymbolVariable* symbol_table_variable_get_or_create(SymbolTable* table, const char* key);

@@ -179,8 +179,8 @@ TEST_F(ParserSemanticTestFixture, ComplexTest2) {
     parser->parser_semantic = parser_semantic_init();
 
     provider->setString(R"(
-declare function foo(a as integer) as integer
-declare function bar(a as string) as string
+declare function foo_function_complex(a as integer) as integer
+declare function bar_function_complex(a as string) as string
 SCOPE
 END SCOPE
     )");
@@ -188,19 +188,17 @@ END SCOPE
             parser_parse_program(parser)
     ) << "Body parse";
 
-    parser_semantic_free(&(parser->parser_semantic));
-    parser->parser_semantic = parser_semantic_init();
+}
 
+TEST_F(ParserSemanticTestFixture, ComplexTest3) {
     provider->setString(R"(
-declare function foo(a as integer) as integer
-declare function foo(a as string) as string
+declare function foo_complex3(a as integer) as integer
+declare function foo_complex3(a as string) as string
 SCOPE
 END SCOPE
     )");
     EXPECT_FALSE(
             parser_parse_program(parser)
     ) << "Body parse";
-
-
 }
 

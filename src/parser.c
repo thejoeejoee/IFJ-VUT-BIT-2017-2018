@@ -42,7 +42,7 @@ bool parser_parse(Parser* parser) {
         }
 
         // Set correct line
-        parser->error_report.line = (int) parser->lexer->lexer_fsm->line;
+        parser->error_report.line = parser->lexer->lexer_fsm->line;
 
         return false;
     }
@@ -60,7 +60,7 @@ bool parser_parse_program(Parser* parser) {
     RULES(
         CHECK_RULE(body);
 
-    CHECK_RULE(eols);
+            CHECK_RULE(eols);
 
         // Expect EOF token If return true, program is syntactically correct
         CHECK_TOKEN(TOKEN_EOF);
@@ -92,7 +92,6 @@ bool parser_parse_scope(Parser* parser) {
      */
 
     RULES(
-
             CHECK_TOKEN(TOKEN_SCOPE);
 
             CHECK_TOKEN(TOKEN_EOL);
@@ -311,7 +310,7 @@ bool parser_parse_function_declaration(Parser* parser) {
 
             SEMANTIC_ANALYSIS(
                     parser,
-                    parser_semantic_set_action(parser->parser_semantic, ACTUAL_ACTION__FUNCTION_DECLARATION);
+                    parser_semantic_set_action(parser->parser_semantic, SEMANTIC_ACTION__FUNCTION_DECLARATION);
             );
 
             CHECK_RULE(function_header);
@@ -333,8 +332,10 @@ bool parser_parse_function_header(Parser* parser) {
         CHECK_TOKEN(TOKEN_IDENTIFIER);
         SEMANTIC_ANALYSIS(
             parser,
-            if(!parser_semantic_set_function_name(parser->parser_semantic, token.data))
+            if(!parser_semantic_set_function_name(parser->parser_semantic, token.data)) {
+                token_free(&token);
                 return false;
+            }
         );
 
         CHECK_TOKEN(TOKEN_LEFT_BRACKET);
@@ -344,7 +345,8 @@ bool parser_parse_function_header(Parser* parser) {
         CHECK_TOKEN(TOKEN_DATA_TYPE_CLASS);
         SEMANTIC_ANALYSIS(
             parser,
-            parser_semantic_function_return_data_type(parser->parser_semantic, token_type);
+            parser_semantic_function_return_data_type(parser->parser_semantic, (DataType) token_type);
+            // TODO: resolve token_type -> data_type conversion for boolean
         );
     );
 
@@ -450,8 +452,12 @@ bool parser_parse_variable_declaration(Parser* parser) {
         CHECK_TOKEN(TOKEN_AS);
         CHECK_TOKEN(TOKEN_DATA_TYPE_CLASS, BEFORE(;), AFTER(
             SEMANTIC_ANALYSIS(parser,
-            bool successful = parser_semantic_add_symbol_variable(parser->parser_semantic, name, (short) token_type);
-            return successful;
+            // TODO: resolve token_type -> data_type conversion for boolean
+            return parser_semantic_add_symbol_variable(
+            parser->parser_semantic,
+            name,
+    (DataType) token_type
+    );
             );
         ));
     );
@@ -592,16 +598,14 @@ bool parser_parse_condition_elseif(Parser* parser) {
 
     RULES(
             CONDITIONAL_RULES(
-
                     CHECK_RULE(token_type != TOKEN_ELSEIF, epsilon, BEFORE(
                             lexer_rewind_token(parser->lexer, token);
-                    ), AFTER(token_free(&token); return true;));
-
-                CALL_RULE(expression);
-                CHECK_TOKEN(TOKEN_EOL);
-                CALL_RULE_STATEMENTS()
-                CALL_RULE(condition_elseif);
-            );
+    ), AFTER(token_free(&token); return true;));
+            CALL_RULE(expression);
+            CHECK_TOKEN(TOKEN_EOL);
+            CALL_RULE_STATEMENTS()
+            CALL_RULE(condition_elseif);
+    );
     );
 
     return true;
@@ -615,16 +619,12 @@ bool parser_parse_condition_else(Parser* parser) {
 
     RULES(
             CONDITIONAL_RULES(
-
                     CHECK_RULE(token_type != TOKEN_ELSE, epsilon, BEFORE(
                             lexer_rewind_token(parser->lexer, token);
     ), AFTER(token_free(&token); return true;));
-
             CHECK_TOKEN(TOKEN_EOL);
-
             CALL_RULE_STATEMENTS();
     );
     );
-
     return true;
 }

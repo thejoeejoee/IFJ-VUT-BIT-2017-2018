@@ -2,14 +2,15 @@
 #define SYMTABLE_FUNCTION_H
 
 #include "symtable.h"
+#include "data_type.h"
 
 typedef struct symbol_function_t {
     SymbolTableBaseItem base;
     // TODO: define all needed members
     bool declared;
     bool defined;
-    
-    short return_data_type;
+
+    DataType return_data_type;
 } SymbolFunction;
 
 SymbolFunction* symbol_table_function_get_or_create(SymbolTable* table, const char* key);

@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include "symtable.h"
 #include "dynamic_string.h"
+#include "data_type.h"
+#include "symtable_variable.h"
 
 typedef enum type_instruction_operand_t {
     TYPE_INSTRUCTION_OPERAND_VARIABLE = 1,

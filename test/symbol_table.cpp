@@ -161,8 +161,12 @@ TEST_F(SymbolTableWithDataTestFixture, DeleteInvalidItem) {
 }
 
 TEST_F(SymbolTableWithDataTestFixture, DeleteValidItem) {
-    EXPECT_TRUE(symbol_table_remove(symbol_table, keys.at(keys.size() / 2)))
-                        << "Deleting valid key should return true";
+    EXPECT_TRUE(
+            symbol_table_remove(symbol_table, keys.at(keys.size() / 2))
+    ) << "Deleting valid key should return true";
+    EXPECT_TRUE(
+            symbol_table_remove(symbol_table, keys.at(0))
+    ) << "Remove first item.";
 }
 
 TEST_F(SymbolTableTestFixture, DeleteOnEmptyTable) {

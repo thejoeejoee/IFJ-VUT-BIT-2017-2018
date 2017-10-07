@@ -45,6 +45,21 @@ void code_generator_generate_instruction(
     }
 }
 
+static bool _check_operand(CodeInstructionOperand *op, TypeInstructionOperand type) {
+    if (type == 0) {
+        return (op == NULL);
+    } else {
+        if (op == NULL) {
+            NULL_POINTER_CHECK(op, false);
+            return false;
+        }
+        else {
+            ASSERT(((op)->type & (type)));
+            return (bool)((op)->type & (type));
+        }
+    }
+}
+
 bool code_generator_generic_instruction(
         CodeGenerator* generator,
         TypeInstruction type_instruction,
@@ -52,13 +67,10 @@ bool code_generator_generic_instruction(
         CodeInstructionOperand* op1, TypeInstructionOperand type1,
         CodeInstructionOperand* op2, TypeInstructionOperand type2
 ) {
-    if(type0)
-        CHECK_OPERAND(op0, type0);
-    // TODO: possible mem leak for type1 or type2 type check fail
-    if(type1)
-        CHECK_OPERAND(op1, type1);
-    if(type2)
-        CHECK_OPERAND(op2, type2);
+
+    if (!(_check_operand(op0, type0) && _check_operand(op1, type1) && _check_operand(op1, type2))) {
+        return false;
+    }
 
     code_generator_generate_instruction(generator, type_instruction, op0, op1, op2);
     return true;

@@ -5,12 +5,6 @@
 #include "memory.h"
 #include "code_instruction.h"
 
-#define CHECK_OPERAND(op, operand_type) do { \
-    NULL_POINTER_CHECK(op, false); \
-    ASSERT(((op)->type & (operand_type))); \
-    if (!(((op)->type & (operand_type)))) { code_instruction_operand_free(&(op)); return false; } \
-} while(0)
-
 #define CODE_GENERATE_METHOD_HEADER_0(name) bool code_generate_##name(CodeGenerator* generator)
 #define CODE_GENERATE_METHOD_HEADER_1(name) bool code_generate_##name(CodeGenerator* generator, \
     CodeInstructionOperand* op0)

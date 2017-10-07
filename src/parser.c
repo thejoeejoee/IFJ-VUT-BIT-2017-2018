@@ -539,7 +539,7 @@ bool parser_parse_while(Parser* parser) {
             CALL_RULE(expression);
             CHECK_TOKEN(TOKEN_EOL);
             CALL_RULE(eols);
-            CALL_RULE_STATEMENTS()
+            CALL_RULE_STATEMENTS();
 
             CHECK_TOKEN(TOKEN_LOOP);
     );
@@ -602,7 +602,7 @@ bool parser_parse_condition_elseif(Parser* parser) {
     ), AFTER(token_free(&token); return true;));
             CALL_RULE(expression);
             CHECK_TOKEN(TOKEN_EOL);
-            CALL_RULE_STATEMENTS()
+            CALL_RULE_STATEMENTS();
             CALL_RULE(condition_elseif);
     );
     );

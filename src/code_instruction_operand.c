@@ -74,7 +74,9 @@ CodeInstructionOperand* code_instruction_operand_init_label(const char* label) {
 }
 
 char* code_instruction_operand_render(CodeInstructionOperand* operand) {
-    NULL_POINTER_CHECK(operand, "");
+    if(operand == NULL)
+        return "";
+
     size_t length = 1;
     if(operand->type == TYPE_INSTRUCTION_OPERAND_CONSTANT && operand->data.constant.data_type == DATA_TYPE_STRING) {
         length += string_length(&(operand->data.constant.data.string));
@@ -88,7 +90,7 @@ char* code_instruction_operand_render(CodeInstructionOperand* operand) {
             break;
         case TYPE_INSTRUCTION_OPERAND_SYMBOL:
             // TODO: resolve frame
-            snprintf(rendered, length, "%s", operand->data.variable->base.key);
+            snprintf(rendered, length, "GF@%s", operand->data.variable->base.key);
             break;
         case TYPE_INSTRUCTION_OPERAND_CONSTANT:
             switch(operand->data.constant.data_type) {
@@ -105,7 +107,7 @@ char* code_instruction_operand_render(CodeInstructionOperand* operand) {
                     break;
 
                 case DATA_TYPE_STRING:
-                    snprintf(rendered, length, "%s", string_content(&(operand->data.constant.data.string)));
+                    snprintf(rendered, length, "string@%s", string_content(&(operand->data.constant.data.string)));
                     break;
                 default:
                     LOG_WARNING("Unknown operand data type.");

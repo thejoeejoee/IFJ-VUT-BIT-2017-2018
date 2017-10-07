@@ -68,10 +68,13 @@ void code_generator_render(CodeGenerator* generator, FILE* file) {
     NULL_POINTER_CHECK(generator,);
     NULL_POINTER_CHECK(file,);
 
+    char* rendered;
     CodeInstruction* instruction = generator->first;
     while(instruction != NULL) {
-        fprintf(file, "%s\n", code_instruction_render(instruction));
+        rendered = code_instruction_render(instruction);
+        fprintf(file, "%s\n", rendered);
         instruction = instruction->next;
+        memory_free(rendered);
     }
 }
 

@@ -47,6 +47,9 @@ char* code_instruction_render(CodeInstruction* instruction) {
             op1,
             op2
     );
+    memory_free(op0);
+    memory_free(op1);
+    memory_free(op2);
     return formatted;
 }
 

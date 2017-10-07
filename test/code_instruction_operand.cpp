@@ -15,8 +15,7 @@ class CodeInstructionOperandTestFixture : public ::testing::Test {
 };
 
 TEST_F(CodeInstructionOperandTestFixture, Label) {
-
-    auto label = const_cast<char*>("label ");
+    auto label = const_cast<char*>("label operand");
     operand = code_instruction_operand_init_label(label);
 
     EXPECT_EQ(
@@ -27,6 +26,42 @@ TEST_F(CodeInstructionOperandTestFixture, Label) {
             operand->data.label,
             label
     );
+}
+
+TEST_F(CodeInstructionOperandTestFixture, Variable) {
+    auto symbol = static_cast<SymbolVariable*>(memory_alloc(sizeof(SymbolVariable)));
+
+    operand = code_instruction_operand_init_variable(symbol);
+
+    EXPECT_EQ(
+            operand->type,
+            TYPE_INSTRUCTION_OPERAND_VARIABLE
+    );
+    EXPECT_EQ(
+            operand->data.variable,
+            symbol
+    );
+    memory_free(symbol);
+}
+
+TEST_F(CodeInstructionOperandTestFixture, String) {
+    auto string = string_init();
+    string_append_s(string, "static string to generate");
+    operand = code_instruction_operand_init_string(string);
+
+    EXPECT_EQ(
+            operand->type,
+            TYPE_INSTRUCTION_OPERAND_CONSTANT
+    );
+    EXPECT_STREQ(
+            string_content(&(operand->data.constant.data.string)),
+            string_content(string)
+    );
+    EXPECT_EQ(
+            operand->data.constant.data_type,
+            DATA_TYPE_STRING
+    );
+    string_free(&string);
 }
 
 

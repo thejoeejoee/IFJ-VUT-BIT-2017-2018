@@ -13,8 +13,18 @@ bool parser_parse_expression(Parser* parser) {
     // !!! It will be replaced by parsing a complete string. I need it in other rules
     RULES(
 
-            CHECK_TOKEN(TOKEN_INTEGER_LITERAL);
+        CHECK_TOKEN(TOKEN_INTEGER_LITERAL);
     );
+
+    return true;
+}
+
+bool parser_parse_expression_(Parser* parser) {
+    Token token = lexer_next_token(parser->lexer);
+
+    TokenType t = TOKEN_INTEGER_LITERAL;
+
+    
 
     return true;
 }

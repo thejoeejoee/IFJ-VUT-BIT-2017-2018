@@ -83,6 +83,11 @@ typedef struct token_t {
 } Token;
 
 /**
+* @brief Checks type of token
+*/
+bool token_check(Token token, TokenType type);
+
+/**
 * @brief Performs deep copy of token.
 */
 Token token_copy(Token token);

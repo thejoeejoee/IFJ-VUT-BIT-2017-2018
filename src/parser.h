@@ -97,9 +97,7 @@
     __VA_ARGS__, CHECK_RULE_4, CHECK_RULE_3, CHECK_RULE_2, CHECK_RULE_1)(__VA_ARGS__))
 
 #define _RAW_CHECK_TOKEN(token_type_literal) do { \
-    if(((token_type & (token_type_literal)) == 0 && (token_type_literal) >= TOKEN_CLASSES &&  \
-    ((token_type_literal) & 0xFF) == 0) || \
-    (token_type != (token_type_literal) && (token_type_literal) < TOKEN_CLASSES)) {\
+    if(!token_check(token,(token_type_literal))) {\
         token_free(&token); \
         return false; \
     }} while(false)
@@ -191,6 +189,11 @@ typedef struct parser_t {
     int run_type;
 
     bool body_statement; // TODO: cannot by done with semantic parser action?
+
+    /** GET_NEXT_TOKEN_TYPE()
+    * Token token;
+    * TokenType token_type;
+    */
 } Parser;
 
 /**

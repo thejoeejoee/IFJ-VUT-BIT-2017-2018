@@ -81,7 +81,6 @@ bool parser_parse_body(Parser* parser) {
     RULES(
             CHECK_RULE(definitions);
             CHECK_RULE(scope);
-            UNUSED(token_type);
     );
 
 

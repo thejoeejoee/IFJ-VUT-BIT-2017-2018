@@ -39,7 +39,7 @@
 #define NO_CODE ;, ;
 
 #define RULES(rules) \
-    { \
+    do { \
         Token token; \
         token.data = NULL; \
         TokenType token_type = TOKEN_UNKNOWN; \
@@ -47,17 +47,17 @@
         unsigned int conditions_buffer = 0; \
         rules \
         token_free(&token); \
-    }
+    } while(false)
 
-#define CONDITIONAL_RULES(rules) { \
+#define CONDITIONAL_RULES(rules) do { \
         GET_NEXT_TOKEN_TYPE(); \
         conditions_buffer = 0; \
         conditional_rules = true; \
         rules \
         conditional_rules = false; \
-    }
+    } while(false)
 
-#define CHECK_RULE_4(condition, rule_name, before_code, after_code) { \
+#define CHECK_RULE_4(condition, rule_name, before_code, after_code) do { \
         if(conditional_rules) { \
             if(condition) { \
                 conditions_buffer <<= 1; \
@@ -72,9 +72,9 @@
             _RAW_CHECK_RULE(rule_name); \
             { after_code } \
         } \
-    }
+    } while(false)
 
-#define CHECK_RULE_3(rule_name, before_code, after_code) { \
+#define CHECK_RULE_3(rule_name, before_code, after_code) do { \
     if(conditional_rules) { \
         if(conditions_buffer == 0) { \
             { before_code } \
@@ -87,7 +87,7 @@
         _RAW_CHECK_RULE(rule_name); \
         { after_code } \
     } \
-}
+} while(false)
 
 #define CHECK_RULE_2(rule_name, before_code) CHECK_RULE_3(rule_name, before_code, ;)
 #define CHECK_RULE_1(rule_name) CHECK_RULE_3(rule_name, ;, ;)
@@ -95,21 +95,21 @@
 #define CHECK_RULE(...) MSVC_EXPAND(GET_OVERLOADED_MACRO34( \
     __VA_ARGS__, CHECK_RULE_4, CHECK_RULE_3, CHECK_RULE_2, CHECK_RULE_1)(__VA_ARGS__))
 
-#define _RAW_CHECK_TOKEN(token_type_literal) { \
+#define _RAW_CHECK_TOKEN(token_type_literal) do { \
     if(((token_type & (token_type_literal)) == 0 && (token_type_literal) >= TOKEN_CLASSES &&  \
     ((token_type_literal) & 0xFF) == 0) || \
     (token_type != (token_type_literal) && (token_type_literal) < TOKEN_CLASSES)) {\
         token_free(&token); \
         return false; \
-    }}
+    }} while(0)
 
-#define _RAW_CHECK_RULE(rule_name) { \
+#define _RAW_CHECK_RULE(rule_name) do { \
     if(!parser_parse_ ## rule_name(parser)) {\
         token_free(&token);\
         return false;\
-    }}
+    }} while(0)
 
-#define CHECK_TOKEN_4(condition, token_type_literal, before_code, after_code) { \
+#define CHECK_TOKEN_4(condition, token_type_literal, before_code, after_code) do { \
         if(conditional_rules) { \
             if(condition) { \
                 conditions_buffer <<= 1; \
@@ -126,9 +126,9 @@
             _RAW_CHECK_TOKEN(token_type_literal); \
             { after_code } \
         }\
-    }
+    } while(false)
 
-#define CHECK_TOKEN_3(token_type_literal, before_code, after_code) { \
+#define CHECK_TOKEN_3(token_type_literal, before_code, after_code) do { \
     if(conditional_rules) { \
         if(conditions_buffer == 0) { \
             GET_NEXT_TOKEN_TYPE(); \
@@ -143,7 +143,7 @@
         _RAW_CHECK_TOKEN(token_type_literal); \
         { after_code } \
     }\
-}
+} while(false)
 
 #define CHECK_TOKEN_2(token_type_literal, before_code) CHECK_TOKEN_3( \
     token_type_literal, before_code, ;)
@@ -152,24 +152,15 @@
 #define CHECK_TOKEN(...) MSVC_EXPAND(GET_OVERLOADED_MACRO34(\
     __VA_ARGS__, CHECK_TOKEN_4, CHECK_TOKEN_3, CHECK_TOKEN_2, CHECK_TOKEN_1)(__VA_ARGS__))
 
-#define SEMANTIC_ANALYSIS(parser, code) {\
+#define SEMANTIC_ANALYSIS(parser, code) do {\
 if ((parser)->run_type & PARSER_RUN_TYPE_SEMANTIC_ANALYSIS) \
     {code} \
-}
+} while (0)
 
-#define CODE_GENERATION(parser, code) {\
+#define CODE_GENERATION(parser, code) do {\
 if ((parser)->run_type & PARSER_RUN_TYPE_CODE_GENERATION) \
     code \
-}
-
-#define CALL_RULE_STATEMENTS() {\
-if(parser->body_statement) {\
-    CALL_RULE(body_statements);\
-}\
-else {\
-    CALL_RULE(function_statements);\
-}\
-}
+} while (0)
 
 typedef enum {
     PARSER_RUN_TYPE_NOTHING = 0,
@@ -187,8 +178,6 @@ typedef struct parser_t {
     ErrorReport error_report;
 
     int run_type;
-
-    bool body_statement; // TODO: cannot by done with semantic parser action?
 } Parser;
 
 /**
@@ -299,17 +288,7 @@ bool parser_parse_print_expression(Parser* parser);
 
 bool parser_parse_print(Parser* parser);
 
-bool parser_parse_while(Parser* parser);
-
-bool parser_parse_print_expressions(Parser* parser);
-
-bool parser_parse_condition(Parser* parser);
-
-bool parser_parse_condition_else(Parser* parser);
-
-bool parser_parse_condition_elseif(Parser* parser);
-
-bool parser_parse_scope(Parser* parser);
+bool parser_parse_body_while(Parser* parser);
 
 
 

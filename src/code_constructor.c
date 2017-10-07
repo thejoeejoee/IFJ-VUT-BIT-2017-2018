@@ -14,6 +14,7 @@ void code_constructor_free(CodeConstructor** constructor) {
     NULL_POINTER_CHECK(constructor,);
     NULL_POINTER_CHECK(*constructor,);
 
+    stack_free(&(*constructor)->code_label_stack);
     code_generator_free(&((*constructor)->generator));
     memory_free(*constructor);
     *constructor = NULL;

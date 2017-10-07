@@ -13,6 +13,7 @@ Parser* parser_init(lexer_input_stream_f input_stream) {
     parser->lexer = lexer_init(input_stream);
     parser->error_report.error_code = ERROR_NONE;
     parser->parser_semantic = parser_semantic_init();
+    parser->code_constructor = code_constructor_init();
     parser->run_type = PARSER_RUN_TYPE_ALL;
     parser->body_statement = false;
     return parser;
@@ -23,6 +24,7 @@ void parser_free(Parser** parser) {
     NULL_POINTER_CHECK(*parser,);
     lexer_free(&((*parser)->lexer));
     parser_semantic_free(&((*parser)->parser_semantic));
+    code_constructor_free(&((*parser)->code_constructor));
     memory_free(*parser);
     *parser = NULL;
 }
@@ -55,11 +57,14 @@ bool parser_parse_program(Parser* parser) {
      * RULE
      * <prog> -> <body> <eols> EOF
      */
-
+    CODE_GENERATION(
+            parser,
+            code_constructor_start_code(parser->code_constructor);
+    );
     // Call rule <body>. If <body> return false => return false
     RULES(
         CHECK_RULE(body);
-            CHECK_RULE(eols);
+        CHECK_RULE(eols);
         // Expect EOF token If return true, program is syntactically correct
         CHECK_TOKEN(TOKEN_EOF);
     );

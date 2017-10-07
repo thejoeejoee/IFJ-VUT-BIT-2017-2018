@@ -9,6 +9,7 @@
 #include "error.h"
 #include "common.h"
 #include "token.h"
+#include "code_constructor.h"
 
 //Todo: we need to invent better macros
 #define GET_NEXT_TOKEN_TYPE() do { \
@@ -158,8 +159,8 @@ if ((parser)->run_type & PARSER_RUN_TYPE_SEMANTIC_ANALYSIS) \
 } while(false)
 
 #define CODE_GENERATION(parser, code) do {\
-if ((parser)->run_type & PARSER_RUN_TYPE_CODE_GENERATION) \
-    code \
+if ((parser)->run_type & PARSER_RUN_TYPE_SEMANTIC_CODE_GENERATION) \
+    {code} \
 } while(false)
 
 #define CALL_RULE_STATEMENTS() do {\
@@ -185,6 +186,7 @@ typedef struct parser_t {
     Lexer* lexer;
     ParserSemantic* parser_semantic;
     ErrorReport error_report;
+    CodeConstructor* code_constructor;
 
     int run_type;
 

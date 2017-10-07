@@ -57,4 +57,6 @@ CodeInstructionOperand* code_instruction_operand_init(TypeInstructionOperand typ
 
 void code_instruction_operand_free(CodeInstructionOperand** operand);
 
+char* code_instruction_operand_render(CodeInstructionOperand* operand);
+
 #endif //_CODE_INSTRUCTION_OPERAND_H

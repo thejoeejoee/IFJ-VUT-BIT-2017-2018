@@ -64,6 +64,17 @@ bool code_generator_generic_instruction(
     return true;
 }
 
+void code_generator_render(CodeGenerator* generator, FILE* file) {
+    NULL_POINTER_CHECK(generator,);
+    NULL_POINTER_CHECK(file,);
+
+    CodeInstruction* instruction = generator->first;
+    while(instruction != NULL) {
+        fprintf(file, "%s\n", code_instruction_render(instruction));
+        instruction = instruction->next;
+    }
+}
+
 CODE_GENERATE_METHOD(I_DEF_VAR)
 
 CODE_GENERATE_METHOD(I_WRITE, TYPE_INSTRUCTION_OPERAND_SYMBOL)

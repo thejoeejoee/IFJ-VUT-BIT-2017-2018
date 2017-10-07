@@ -29,3 +29,24 @@ void code_instruction_free(CodeInstruction** instruction) {
     *instruction = NULL;
 }
 
+char* code_instruction_render(CodeInstruction* instruction) {
+    NULL_POINTER_CHECK(instruction, NULL);
+    char* op0 = code_instruction_operand_render(instruction->op0);
+    char* op1 = code_instruction_operand_render(instruction->op1);
+    char* op2 = code_instruction_operand_render(instruction->op2);
+
+    size_t length = strlen(op0) + strlen(op1) + strlen(op2);
+
+    char* formatted = (char*) memory_alloc(sizeof(char) * (length + 16));
+    snprintf(
+            formatted,
+            length - 1,
+            "%d %s %s %s",
+            instruction->type,
+            op0,
+            op1,
+            op2
+    );
+    return formatted;
+}
+

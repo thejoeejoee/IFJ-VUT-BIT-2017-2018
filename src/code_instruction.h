@@ -117,4 +117,7 @@ CodeInstruction* code_instruction_init(
 
 void code_instruction_free(CodeInstruction** instruction);
 
+
+char* code_instruction_render(CodeInstruction* instruction);
+
 #endif //_INSTRUCTION_H

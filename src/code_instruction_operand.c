@@ -72,3 +72,49 @@ CodeInstructionOperand* code_instruction_operand_init_label(const char* label) {
     data.label = label;
     return code_instruction_operand_init(TYPE_INSTRUCTION_OPERAND_LABEL, data);
 }
+
+char* code_instruction_operand_render(CodeInstructionOperand* operand) {
+    NULL_POINTER_CHECK(operand, "");
+    size_t length = 1;
+    if(operand->type == TYPE_INSTRUCTION_OPERAND_CONSTANT && operand->data.constant.data_type == DATA_TYPE_STRING) {
+        length += string_length(&(operand->data.constant.data.string));
+    } else {
+        length += 7;
+    }
+    char* rendered = memory_alloc(sizeof(char) * length);
+    switch(operand->type) {
+        case TYPE_INSTRUCTION_OPERAND_LABEL:
+            snprintf(rendered, length, "%s", operand->data.label);
+            break;
+        case TYPE_INSTRUCTION_OPERAND_SYMBOL:
+            // TODO: resolve frame
+            snprintf(rendered, length, "%s", operand->data.variable->base.key);
+            break;
+        case TYPE_INSTRUCTION_OPERAND_CONSTANT:
+            switch(operand->data.constant.data_type) {
+                case DATA_TYPE_INTEGER:
+                    snprintf(rendered, length, "int@% d", operand->data.constant.data.integer);
+                    break;
+
+                case DATA_TYPE_DOUBLE:
+                    snprintf(rendered, length, "float@% g", operand->data.constant.data.double_);
+                    break;
+
+                case DATA_TYPE_BOOLEAN:
+                    snprintf(rendered, length, "bool@%s", operand->data.constant.data.boolean ? "true" : "false");
+                    break;
+
+                case DATA_TYPE_STRING:
+                    snprintf(rendered, length, "%s", string_content(&(operand->data.constant.data.string)));
+                    break;
+                default:
+                    LOG_WARNING("Unknown operand data type.");
+                    break;
+            }
+            break;
+        default:
+            LOG_WARNING("Unknown operand.");
+            break;
+    }
+    return rendered;
+}

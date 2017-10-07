@@ -84,6 +84,8 @@ bool code_generator_generic_instruction(
         TypeInstructionOperand type2
 );
 
+void code_generator_render(CodeGenerator* generator, FILE* file);
+
 CODE_GENERATE_METHOD_HEADER_1(I_WRITE);
 
 CODE_GENERATE_METHOD_HEADER_0(I_DEF_VAR);

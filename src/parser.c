@@ -97,6 +97,11 @@ bool parser_parse_scope(Parser* parser) {
     RULES(
             CHECK_TOKEN(TOKEN_SCOPE);
 
+            CODE_GENERATION(
+                    parser,
+                    code_constructor_scope_start(parser->code_constructor);
+            );
+
             CHECK_TOKEN(TOKEN_EOL);
 
             CHECK_RULE(eols);

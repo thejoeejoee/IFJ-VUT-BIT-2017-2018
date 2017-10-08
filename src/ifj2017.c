@@ -8,6 +8,8 @@ int main(int argc, char** argv) {
     UNUSED(argc);
     UNUSED(argv);
 
+    // log_verbosity = LOG_VERBOSITY_NONE;
+
     Parser* parser = parser_init(stdin_stream);
 
     if(!parser_parse(parser))

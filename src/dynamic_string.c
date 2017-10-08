@@ -86,3 +86,13 @@ size_t string_length(String* string) { //excluding null terminator
     ASSERT(string->size >= 1);
     return string->size - 1;
 }
+
+String* string_copy(String* source) {
+    NULL_POINTER_CHECK(source, NULL);
+
+    String* string = memory_alloc(sizeof(String));
+    string->size = source->size;
+    string->capacity = source->capacity;
+    string->content = c_string_copy(source->content);
+    return string;
+}

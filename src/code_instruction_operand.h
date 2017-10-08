@@ -23,7 +23,7 @@ typedef struct code_instruction_operand_constant_data_t {
         int integer;
         bool boolean;
         double double_;
-        String string;
+        String* string;
     } data;
     DataType data_type;
 } CodeInstructionOperandConstantData;

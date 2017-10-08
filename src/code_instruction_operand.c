@@ -20,6 +20,9 @@ void code_instruction_operand_free(CodeInstructionOperand** operand_) {
     CodeInstructionOperand* operand = *operand_;
     switch(operand->type) {
         case TYPE_INSTRUCTION_OPERAND_CONSTANT:
+            if(operand->data.constant.data_type == DATA_TYPE_STRING)
+                string_free(&(operand->data.constant.data.string));
+            break;
         case TYPE_INSTRUCTION_OPERAND_VARIABLE:
             break;
         case TYPE_INSTRUCTION_OPERAND_LABEL:
@@ -64,7 +67,7 @@ CodeInstructionOperand* code_instruction_operand_init_string(String* string) {
     NULL_POINTER_CHECK(string, NULL);
     CodeInstructionOperandData data;
 
-    data.constant.data.string = *string;
+    data.constant.data.string = string_copy(string);
     data.constant.data_type = DATA_TYPE_STRING;
     return code_instruction_operand_init(TYPE_INSTRUCTION_OPERAND_CONSTANT, data);
 }
@@ -89,7 +92,7 @@ char* code_instruction_operand_render(CodeInstructionOperand* operand) {
 
     size_t length = 1;
     if(operand->type == TYPE_INSTRUCTION_OPERAND_CONSTANT && operand->data.constant.data_type == DATA_TYPE_STRING) {
-        length += string_length(&(operand->data.constant.data.string));
+        length += string_length(operand->data.constant.data.string);
     } else {
         length += 7;
     }
@@ -136,7 +139,7 @@ char* code_instruction_operand_render(CodeInstructionOperand* operand) {
                     break;
 
                 case DATA_TYPE_STRING:
-                    snprintf(rendered, length, "string@%s", string_content(&(operand->data.constant.data.string)));
+                    snprintf(rendered, length, "string@%s", string_content(operand->data.constant.data.string));
                     break;
                 default:
                     LOG_WARNING("Unknown operand data type.");

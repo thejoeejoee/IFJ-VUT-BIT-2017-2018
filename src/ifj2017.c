@@ -13,7 +13,9 @@ int main(int argc, char** argv) {
     if(!parser_parse(parser))
         exit_with_detail_information(parser->error_report);
 
+    setbuf(stdout, NULL);
     code_generator_render(parser->code_constructor->generator, stdout);
+    fflush(stdout);
 
     parser_free(&parser);
 

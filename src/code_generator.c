@@ -68,7 +68,7 @@ bool code_generator_generic_instruction(
         CodeInstructionOperand* op2, TypeInstructionOperand type2
 ) {
 
-    if (!(_check_operand(op0, type0) && _check_operand(op1, type1) && _check_operand(op1, type2))) {
+    if(!(_check_operand(op0, type0) && _check_operand(op1, type1) && _check_operand(op2, type2))) {
         return false;
     }
 

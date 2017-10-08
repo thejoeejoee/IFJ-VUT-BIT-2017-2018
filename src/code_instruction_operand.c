@@ -21,7 +21,10 @@ void code_instruction_operand_free(CodeInstructionOperand** operand_) {
     switch(operand->type) {
         case TYPE_INSTRUCTION_OPERAND_CONSTANT:
         case TYPE_INSTRUCTION_OPERAND_VARIABLE:
+            break;
         case TYPE_INSTRUCTION_OPERAND_LABEL:
+            memory_free((void*) operand->data.label);
+            operand->data.label = NULL;
         default:
             // TODO: free what?
             break;
@@ -69,7 +72,7 @@ CodeInstructionOperand* code_instruction_operand_init_string(String* string) {
 CodeInstructionOperand* code_instruction_operand_init_label(const char* label) {
     NULL_POINTER_CHECK(label, NULL);
     CodeInstructionOperandData data;
-    data.label = label;
+    data.label = c_string_copy(label);
     return code_instruction_operand_init(TYPE_INSTRUCTION_OPERAND_LABEL, data);
 }
 

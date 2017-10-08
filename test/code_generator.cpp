@@ -69,8 +69,6 @@ TEST_F(CodeGeneratorTestFixture, OneInstructionWithOperands) {
             code_generator->first->op2,
             nullptr
     );
-
-    code_instruction_operand_free(&label_operand);
 }
 
 
@@ -97,13 +95,6 @@ TEST_F(CodeGeneratorTestFixture, OneInstructionWithMultipleOperands) {
             code_generator->last->op2,
             int_operand3
     );
-
-    code_instruction_operand_free(&label_operand);
-    code_instruction_operand_free(&label_operand2);
-    code_instruction_operand_free(&int_operand0);
-    code_instruction_operand_free(&int_operand1);
-    code_instruction_operand_free(&int_operand2);
-    code_instruction_operand_free(&int_operand3);
 }
 
 
@@ -133,7 +124,7 @@ TEST_F(CodeGeneratorTestFixture, InvalidOperandType) {
             code_generator->last,
             nullptr
     );
-    
+
     code_instruction_operand_free(&int_operand);
     code_instruction_operand_free(&label_operand);
 }

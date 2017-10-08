@@ -37,9 +37,8 @@ void code_constructor_scope_start(CodeConstructor* constructor) {
     } else {
         // main program scope, generate label for jump from start of this file
         CodeLabel* scope_label = stack_code_label_pop(constructor->code_label_stack);
-        ASSERT(scope_label == NULL);
+        ASSERT(scope_label = !NULL);
         GENERATE_CODE(I_LABEL, code_instruction_operand_init_label(scope_label->label));
-
     }
 }
 

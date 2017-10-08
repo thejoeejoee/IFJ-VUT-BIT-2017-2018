@@ -73,6 +73,8 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
                     return LEX_FSM__COMMENT_LINE;
                 case '/':
                     return LEX_FSM__SLASH;
+                case '\\':
+                    return LEX_FSM__INTEGER_DIVIDE;
                 case '+':
                     return LEX_FSM__ADD;
                 case '-':

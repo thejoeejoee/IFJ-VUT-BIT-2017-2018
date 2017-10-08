@@ -304,7 +304,7 @@ TEST_F(LexerTokenizerTestFixture, ErrorTokens) {
             LEXER_ERROR__DOUBLE_FORMAT
     ) << "Error getting error code";
 
-    provider->setString("\\256");
+    provider->setString("!\"\\256\"");
     EXPECT_EQ(
             this->getNextTokenType(),
             TOKEN_ERROR
@@ -312,10 +312,10 @@ TEST_F(LexerTokenizerTestFixture, ErrorTokens) {
 
     EXPECT_EQ(
             lexer->lexer_fsm->lexer_error,
-            LEXER_ERROR__ERROR_LEXEM
+            LEXER_ERROR__STRING_FORMAT
     ) << "Error getting error code";
 
-    provider->setString("\\-1");
+    provider->setString("!\"\\-1\"");
     EXPECT_EQ(
             this->getNextTokenType(),
             TOKEN_ERROR
@@ -323,7 +323,7 @@ TEST_F(LexerTokenizerTestFixture, ErrorTokens) {
 
     EXPECT_EQ(
             lexer->lexer_fsm->lexer_error,
-            LEXER_ERROR__ERROR_LEXEM
+            LEXER_ERROR__STRING_FORMAT
     ) << "Error getting error code";
 
     provider->setString("!\\256");
@@ -339,7 +339,7 @@ TEST_F(LexerTokenizerTestFixture, ErrorTokens) {
 }
 
 TEST_F(LexerTokenizerTestFixture, ComplexTest) {
-    provider->setString("+ <= >= ahoj _8wtf *");
+    provider->setString("+ <= >= ahoj _8wtf \\ *");
     char_stack_empty(lexer->lexer_fsm->stack);
 
     EXPECT_EQ(
@@ -365,7 +365,12 @@ TEST_F(LexerTokenizerTestFixture, ComplexTest) {
     EXPECT_EQ(
             this->getNextTokenType(),
             TOKEN_IDENTIFIER
-    ) << "Error MULTIPLY token";
+    ) << "Error IDENTIFIER token";
+
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_INTEGER_DIVIDE
+    ) << "Error INTEGER_DIVIDE token";
 
     EXPECT_EQ(
             this->getNextTokenType(),

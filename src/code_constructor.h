@@ -29,4 +29,7 @@ void code_constructor_start_code(CodeConstructor* constructor);
 
 void code_constructor_scope_start(CodeConstructor* constructor);
 
+void code_constructor_dim(CodeConstructor* constructor, int frame, short datatype);
+
+
 #endif //_CODE_CONSTRUCTOR_H

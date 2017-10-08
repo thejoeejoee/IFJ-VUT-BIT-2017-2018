@@ -15,5 +15,7 @@ int main(int argc, char** argv) {
 
     code_generator_render(parser->code_constructor->generator, stdout);
 
+    parser_free(&parser);
+
     return EXIT_SUCCESS;
 }

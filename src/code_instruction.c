@@ -31,11 +31,22 @@ void code_instruction_free(CodeInstruction** instruction) {
 
 char* code_instruction_render(CodeInstruction* instruction) {
     NULL_POINTER_CHECK(instruction, NULL);
-    char* op0 = code_instruction_operand_render(instruction->op0);
-    char* op1 = code_instruction_operand_render(instruction->op1);
-    char* op2 = code_instruction_operand_render(instruction->op2);
-
-    size_t length = strlen(op0) + strlen(op1) + strlen(op2);
+    char* op0 = NULL;
+    char* op1 = NULL;
+    char* op2 = NULL;
+    size_t length = 0;
+    if(instruction->op0) {
+        op0 = code_instruction_operand_render(instruction->op0);
+        length += strlen(op0);
+    }
+    if(instruction->op1) {
+        op1 = code_instruction_operand_render(instruction->op1);
+        length += strlen(op1);
+    }
+    if(instruction->op2) {
+        op2 = code_instruction_operand_render(instruction->op2);
+        length += strlen(op2);
+    }
 
     char* formatted = (char*) memory_alloc(sizeof(char) * (length + 16));
     snprintf(
@@ -47,9 +58,12 @@ char* code_instruction_render(CodeInstruction* instruction) {
             op1,
             op2
     );
-    memory_free(op0);
-    memory_free(op1);
-    memory_free(op2);
+    if(op0 != NULL)
+        memory_free(op0);
+    if(op1 != NULL)
+        memory_free(op1);
+    if(op2 != NULL)
+        memory_free(op2);
     return formatted;
 }
 

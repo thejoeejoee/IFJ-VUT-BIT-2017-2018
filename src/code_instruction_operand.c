@@ -77,8 +77,7 @@ CodeInstructionOperand* code_instruction_operand_init_label(const char* label) {
 }
 
 char* code_instruction_operand_render(CodeInstructionOperand* operand) {
-    if(operand == NULL)
-        return "";
+    NULL_POINTER_CHECK(operand, NULL);
 
     size_t length = 1;
     if(operand->type == TYPE_INSTRUCTION_OPERAND_CONSTANT && operand->data.constant.data_type == DATA_TYPE_STRING) {

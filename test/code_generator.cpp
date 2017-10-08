@@ -27,15 +27,19 @@ TEST_F(CodeGeneratorTestFixture, OneInstruction) {
             nullptr
     );
 
-    code_generate_I_DEF_VAR(code_generator);
+    code_generator_instruction(code_generator, I_RETURN, NULL, NULL, NULL);
 
     EXPECT_EQ(
             code_generator->first,
             code_generator->last
     ) << "One added instruction";
+    EXPECT_NE(
+            code_generator->first,
+            nullptr
+    ) << "One added instruction";
     EXPECT_EQ(
             code_generator->first->type,
-            I_DEF_VAR
+            I_RETURN
     );
     EXPECT_EQ(
             code_generator->first->op0,
@@ -55,7 +59,7 @@ TEST_F(CodeGeneratorTestFixture, OneInstruction) {
 TEST_F(CodeGeneratorTestFixture, OneInstructionWithOperands) {
     CodeInstructionOperand* label_operand = code_instruction_operand_init_label("test");
 
-    code_generate_I_JUMP(code_generator, label_operand);
+    code_generator_instruction(code_generator, I_JUMP, label_operand, NULL, NULL);
 
     EXPECT_EQ(
             code_generator->first->op0,
@@ -69,8 +73,6 @@ TEST_F(CodeGeneratorTestFixture, OneInstructionWithOperands) {
             code_generator->first->op2,
             nullptr
     );
-
-    code_instruction_operand_free(&label_operand);
 }
 
 
@@ -82,8 +84,20 @@ TEST_F(CodeGeneratorTestFixture, OneInstructionWithMultipleOperands) {
     CodeInstructionOperand* int_operand2 = code_instruction_operand_init_integer(863);
     CodeInstructionOperand* int_operand3 = code_instruction_operand_init_integer(719);
 
-    EXPECT_TRUE(code_generate_I_JUMP_IF_EQUAL(code_generator, label_operand, int_operand0, int_operand1));
-    EXPECT_TRUE(code_generate_I_JUMP_IF_EQUAL(code_generator, label_operand2, int_operand2, int_operand3));
+    ASSERT_TRUE(
+            code_generator_instruction(
+                    code_generator,
+                    I_JUMP_IF_EQUAL,
+                    label_operand, int_operand0, int_operand1
+            )
+    );
+    ASSERT_TRUE(
+            code_generator_instruction(
+                    code_generator,
+                    I_JUMP_IF_EQUAL,
+                    label_operand2, int_operand2, int_operand3
+            )
+    );
 
     EXPECT_NE(
             code_generator->first,
@@ -97,13 +111,6 @@ TEST_F(CodeGeneratorTestFixture, OneInstructionWithMultipleOperands) {
             code_generator->last->op2,
             int_operand3
     );
-
-    code_instruction_operand_free(&label_operand);
-    code_instruction_operand_free(&label_operand2);
-    code_instruction_operand_free(&int_operand0);
-    code_instruction_operand_free(&int_operand1);
-    code_instruction_operand_free(&int_operand2);
-    code_instruction_operand_free(&int_operand3);
 }
 
 
@@ -112,17 +119,19 @@ TEST_F(CodeGeneratorTestFixture, InvalidOperandType) {
     CodeInstructionOperand* int_operand = code_instruction_operand_init_integer(42);
     DISABLE_LOG(
             EXPECT_FALSE(
-                    code_generate_I_WRITE(code_generator, label_operand)
+                    code_generator_instruction(code_generator, I_WRITE, label_operand, nullptr, nullptr)
             ) << "Invalid operand type.";
     );
     DISABLE_LOG(
             EXPECT_FALSE(
-                    code_generate_I_JUMP_IF_EQUAL(code_generator, label_operand, label_operand, label_operand)
+                    code_generator_instruction(code_generator, I_JUMP_IF_EQUAL, label_operand, label_operand,
+                                               label_operand)
             ) << "Invalid operand type.";
     );
     DISABLE_LOG(
             EXPECT_FALSE(
-                    code_generate_I_JUMP_IF_EQUAL(code_generator, label_operand, int_operand, label_operand)
+                    code_generator_instruction(code_generator, I_JUMP_IF_EQUAL, label_operand, int_operand,
+                                               label_operand)
             ) << "Invalid operand type.";
     );
     EXPECT_EQ(
@@ -133,7 +142,7 @@ TEST_F(CodeGeneratorTestFixture, InvalidOperandType) {
             code_generator->last,
             nullptr
     );
-    
+
     code_instruction_operand_free(&int_operand);
     code_instruction_operand_free(&label_operand);
 }

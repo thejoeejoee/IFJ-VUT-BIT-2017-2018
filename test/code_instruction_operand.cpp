@@ -22,7 +22,7 @@ TEST_F(CodeInstructionOperandTestFixture, Label) {
             operand->type,
             TYPE_INSTRUCTION_OPERAND_LABEL
     );
-    EXPECT_EQ(
+    EXPECT_STREQ(
             operand->data.label,
             label
     );
@@ -54,7 +54,7 @@ TEST_F(CodeInstructionOperandTestFixture, String) {
             TYPE_INSTRUCTION_OPERAND_CONSTANT
     );
     EXPECT_STREQ(
-            string_content(&(operand->data.constant.data.string)),
+            string_content(operand->data.constant.data.string),
             string_content(string)
     );
     EXPECT_EQ(

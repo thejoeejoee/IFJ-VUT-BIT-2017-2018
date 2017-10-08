@@ -75,4 +75,11 @@ char* string_content(String* string);
 */
 size_t string_length(String* string);//excluding null terminator
 
+/**
+ * @brief Deep copy of string.
+ * @param source source string instance
+ * @return copied string instance
+ */
+String* string_copy(String* source);
+
 #endif

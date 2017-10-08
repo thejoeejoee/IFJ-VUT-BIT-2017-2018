@@ -4,11 +4,12 @@
 #include "code_generator.h"
 #include "stack_code_label.h"
 
-#define GENERATE_1(name) code_generate_##name(constructor->generator)
-#define GENERATE_2(name, op0) code_generate_##name(constructor->generator, op0)
-#define GENERATE_3(name, op0, op1) code_generate_##name(constructor->generator, op0, op1)
-#define GENERATE_4(name, op0, op1, op2) code_generate_##name(constructor->generator, op0, op1, op2)
-#define GENERATE(...) MSVC_EXPAND(GET_OVERLOADED_MACRO1234(__VA_ARGS__, GENERATE_4, GENERATE_3, GENERATE_2, GENERATE_1)(__VA_ARGS__))
+#define _GENERATE_CODE_1(name) _GENERATE_CODE_4(name, NULL, NULL, NULL)
+#define _GENERATE_CODE_2(name, op0) _GENERATE_CODE_4(name, op0, NULL, NULL)
+#define _GENERATE_CODE_3(name, op0, op1) _GENERATE_CODE_4(name, op0, op1, NULL)
+#define _GENERATE_CODE_4(name, op0, op1, op2) code_generator_instruction(constructor->generator, name, op0, op1, op2)
+#define GENERATE_CODE(...) MSVC_EXPAND(GET_OVERLOADED_MACRO1234(__VA_ARGS__, _GENERATE_CODE_4, _GENERATE_CODE_3, \
+    _GENERATE_CODE_2, _GENERATE_CODE_1)(__VA_ARGS__))
 
 typedef struct code_constructor_t {
     // generator for raw target code

@@ -8,9 +8,12 @@
 #include "symtable_variable.h"
 
 typedef enum type_instruction_operand_t {
+    TYPE_INSTRUCTION_OPERAND_NONE = 0,
+
     TYPE_INSTRUCTION_OPERAND_VARIABLE = 1,
     TYPE_INSTRUCTION_OPERAND_CONSTANT = 2,
     TYPE_INSTRUCTION_OPERAND_LABEL = 4,
+    TYPE_INSTRUCTION_OPERAND_DATA_TYPE = 8,
 
     TYPE_INSTRUCTION_OPERAND_SYMBOL = TYPE_INSTRUCTION_OPERAND_VARIABLE | TYPE_INSTRUCTION_OPERAND_CONSTANT, // symbol
 } TypeInstructionOperand;
@@ -20,7 +23,7 @@ typedef struct code_instruction_operand_constant_data_t {
         int integer;
         bool boolean;
         double double_;
-        String string;
+        String* string;
     } data;
     DataType data_type;
 } CodeInstructionOperandConstantData;
@@ -52,6 +55,8 @@ CodeInstructionOperand* code_instruction_operand_init_boolean(bool boolean);
 CodeInstructionOperand* code_instruction_operand_init_label(const char* label);
 
 CodeInstructionOperand* code_instruction_operand_init_variable(SymbolVariable* variable);
+
+CodeInstructionOperand* code_instruction_operand_init_data_type(DataType data_type);
 
 CodeInstructionOperand* code_instruction_operand_init(TypeInstructionOperand type, CodeInstructionOperandData data);
 

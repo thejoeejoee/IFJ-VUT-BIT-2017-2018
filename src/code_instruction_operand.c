@@ -76,6 +76,14 @@ CodeInstructionOperand* code_instruction_operand_init_label(const char* label) {
     return code_instruction_operand_init(TYPE_INSTRUCTION_OPERAND_LABEL, data);
 }
 
+CodeInstructionOperand* code_instruction_operand_init_data_type(DataType data_type) {
+    ASSERT(data_type != DATA_TYPE_NONE);
+    CodeInstructionOperandData data;
+    data.constant.data_type = data_type;
+
+    return code_instruction_operand_init(TYPE_INSTRUCTION_OPERAND_DATA_TYPE, data);
+}
+
 char* code_instruction_operand_render(CodeInstructionOperand* operand) {
     NULL_POINTER_CHECK(operand, NULL);
 
@@ -90,6 +98,25 @@ char* code_instruction_operand_render(CodeInstructionOperand* operand) {
         case TYPE_INSTRUCTION_OPERAND_LABEL:
             snprintf(rendered, length, "%s", operand->data.label);
             break;
+        case TYPE_INSTRUCTION_OPERAND_DATA_TYPE:
+            switch(operand->data.constant.data_type) {
+                case DATA_TYPE_BOOLEAN:
+                    snprintf(rendered, length, "bool");
+                    break;
+                case DATA_TYPE_DOUBLE:
+                    snprintf(rendered, length, "float");
+                    break;
+                case DATA_TYPE_INTEGER:
+                    snprintf(rendered, length, "int");
+                    break;
+                case DATA_TYPE_STRING:
+                    snprintf(rendered, length, "string");
+                    break;
+                case DATA_TYPE_NONE:
+                default:
+                    LOG_WARNING("Unknown data type to render: %d.", operand->data.constant.data_type);
+            }
+            break;
         case TYPE_INSTRUCTION_OPERAND_SYMBOL:
             // TODO: resolve frame
             snprintf(rendered, length, "GF@%s", operand->data.variable->base.key);
@@ -97,11 +124,11 @@ char* code_instruction_operand_render(CodeInstructionOperand* operand) {
         case TYPE_INSTRUCTION_OPERAND_CONSTANT:
             switch(operand->data.constant.data_type) {
                 case DATA_TYPE_INTEGER:
-                    snprintf(rendered, length, "int@% d", operand->data.constant.data.integer);
+                    snprintf(rendered, length, "int@%d", operand->data.constant.data.integer);
                     break;
 
                 case DATA_TYPE_DOUBLE:
-                    snprintf(rendered, length, "float@% g", operand->data.constant.data.double_);
+                    snprintf(rendered, length, "float@%g", operand->data.constant.data.double_);
                     break;
 
                 case DATA_TYPE_BOOLEAN:

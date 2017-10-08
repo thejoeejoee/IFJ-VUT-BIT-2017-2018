@@ -43,7 +43,7 @@
     do { \
         Token token; \
         token.data = NULL; \
-        TokenType token_type = TOKEN_UNKNOWN; \
+        TokenType token_type = TOKEN_UNKNOWN; UNUSED(token_type); \
         bool conditional_rules = false; \
         unsigned int conditions_buffer = 0; \
         rules \

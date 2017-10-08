@@ -20,9 +20,9 @@ bool parser_parse_expression(Parser* parser) {
 }
 
 bool parser_parse_expression_(Parser* parser) {
-    Token token = lexer_next_token(parser->lexer);
+    //Token token = lexer_next_token(parser->lexer);
 
-    TokenType t = TOKEN_INTEGER_LITERAL;
+    //TokenType t = TOKEN_INTEGER_LITERAL;
 
     
 

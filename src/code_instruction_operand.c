@@ -87,6 +87,7 @@ CodeInstructionOperand* code_instruction_operand_init_data_type(DataType data_ty
     return code_instruction_operand_init(TYPE_INSTRUCTION_OPERAND_DATA_TYPE, data);
 }
 
+
 char* code_instruction_operand_render(CodeInstructionOperand* operand) {
     NULL_POINTER_CHECK(operand, NULL);
 
@@ -97,6 +98,7 @@ char* code_instruction_operand_render(CodeInstructionOperand* operand) {
         length += 7;
     }
     char* rendered = memory_alloc(sizeof(char) * length);
+    char* escaped = NULL;
     switch(operand->type) {
         case TYPE_INSTRUCTION_OPERAND_LABEL:
             snprintf(rendered, length, "%s", operand->data.label);
@@ -139,7 +141,9 @@ char* code_instruction_operand_render(CodeInstructionOperand* operand) {
                     break;
 
                 case DATA_TYPE_STRING:
-                    snprintf(rendered, length, "string@%s", string_content(operand->data.constant.data.string));
+                    escaped = code_instruction_operand_escaped_string(operand->data.constant.data.string);
+                    snprintf(rendered, length, "string@%s", escaped);
+                    memory_free(escaped);
                     break;
                 default:
                     LOG_WARNING("Unknown operand data type.");
@@ -151,4 +155,25 @@ char* code_instruction_operand_render(CodeInstructionOperand* operand) {
             break;
     }
     return rendered;
+}
+
+char* code_instruction_operand_escaped_string(String* source) {
+    NULL_POINTER_CHECK(source, NULL);
+    size_t source_length = string_length(source);
+    String* escaped = string_init_with_capacity((size_t) (source_length * 1.5));
+    short c;
+    char buffer[5];
+    buffer[4] = '\0';
+    for(int i = 0; i < source_length; ++i) {
+        c = source->content[i];
+        if((c >= 0 && c <= 32) || c == 35 || c == 92) {
+            snprintf(buffer, 4 + 1, "\\%03d", c);
+            string_append_s(escaped, buffer);
+        } else {
+            string_append_c(escaped, (char) c);
+        }
+    }
+    char* escaped_c_string = c_string_copy(string_content(escaped));
+    string_free(&escaped);
+    return escaped_c_string;
 }

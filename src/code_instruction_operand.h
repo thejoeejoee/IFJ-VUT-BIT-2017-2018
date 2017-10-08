@@ -60,6 +60,8 @@ CodeInstructionOperand* code_instruction_operand_init_data_type(DataType data_ty
 
 CodeInstructionOperand* code_instruction_operand_init(TypeInstructionOperand type, CodeInstructionOperandData data);
 
+char* code_instruction_operand_escaped_string(String* source);
+
 void code_instruction_operand_free(CodeInstructionOperand** operand);
 
 char* code_instruction_operand_render(CodeInstructionOperand* operand);

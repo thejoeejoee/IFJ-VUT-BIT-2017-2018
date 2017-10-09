@@ -70,7 +70,7 @@ SymbolVariable* parser_semantic_expect_symbol_variable(ParserSemantic* parser_se
  * @param data_type
  * @return bool
  */
-bool parser_semantic_add_symbol_variable(ParserSemantic* parser_semantic, char* name, DataType data_type);
+SymbolVariable* parser_semantic_add_symbol_variable(ParserSemantic* parser_semantic, char* name, DataType data_type);
 
 /**
  * @brief If the actual action is ACTUAL_ACTION__FUNCTION_DECLARATION, then set return data type for actual function,

@@ -37,7 +37,7 @@ SymbolVariable* parser_semantic_expect_symbol_variable(ParserSemantic* parser_se
     return symbol_variable;
 }
 
-bool parser_semantic_add_symbol_variable(ParserSemantic* parser_semantic, char* name, DataType data_type) {
+SymbolVariable* parser_semantic_add_symbol_variable(ParserSemantic* parser_semantic, char* name, DataType data_type) {
     NULL_POINTER_CHECK(parser_semantic, false);
     NULL_POINTER_CHECK(name, false);
     if(symbol_register_find_variable(parser_semantic->register_, name) != NULL) {
@@ -52,7 +52,7 @@ bool parser_semantic_add_symbol_variable(ParserSemantic* parser_semantic, char* 
     );
 
     symbol_variable->data_type = data_type;
-    return true;
+    return symbol_variable;
 }
 
 bool parser_semantic_set_function_name(ParserSemantic* parser_semantic, char* name) {

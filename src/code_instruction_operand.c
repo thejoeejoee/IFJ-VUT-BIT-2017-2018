@@ -122,7 +122,7 @@ char* code_instruction_operand_render(CodeInstructionOperand* operand) {
                     LOG_WARNING("Unknown data type to render: %d.", operand->data.constant.data_type);
             }
             break;
-        case TYPE_INSTRUCTION_OPERAND_SYMBOL:
+        case TYPE_INSTRUCTION_OPERAND_VARIABLE:
             // TODO: resolve frame
             snprintf(rendered, length, "GF@%s", operand->data.variable->base.key);
             break;

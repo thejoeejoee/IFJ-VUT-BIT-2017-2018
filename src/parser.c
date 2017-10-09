@@ -452,6 +452,7 @@ bool parser_parse_variable_declaration(Parser* parser) {
 
     RULES(
         char* name = NULL;
+        SymbolVariable* variable;
         CHECK_TOKEN(TOKEN_DIM);
         CHECK_TOKEN(TOKEN_IDENTIFIER, BEFORE(
                 name = memory_alloc(sizeof(char) * (strlen(token.data) + 1));
@@ -462,19 +463,20 @@ bool parser_parse_variable_declaration(Parser* parser) {
         CHECK_TOKEN(TOKEN_DATA_TYPE_CLASS, BEFORE(;), AFTER(
             SEMANTIC_ANALYSIS(parser,
             // TODO: resolve token_type -> data_type conversion for boolean
-               if(!parser_semantic_add_symbol_variable(
+               variable = parser_semantic_add_symbol_variable(
                     parser->parser_semantic,
                     name,
                     (DataType) token_type
-                )) return false;
+                );
+                if(variable == NULL)
+                    return false;
             );
 
             CODE_GENERATION(
                 parser,
             code_constructor_variable_declaration(parser->code_constructor,
                     parser->parser_semantic->register_->index_of_found_variable,
-                    name,
-                    (DataType) token_type
+                    variable
                 );
             );
         ));

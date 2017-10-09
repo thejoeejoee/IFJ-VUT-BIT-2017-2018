@@ -29,7 +29,7 @@ void code_constructor_start_code(CodeConstructor* constructor);
 
 void code_constructor_scope_start(CodeConstructor* constructor);
 
-void code_constructor_variable_declaration(CodeConstructor* constructor, int frame, char* name, DataType data_type);
+void code_constructor_variable_declaration(CodeConstructor* constructor, int frame, SymbolVariable* symbol_variable);
 
 
 #endif //_CODE_CONSTRUCTOR_H

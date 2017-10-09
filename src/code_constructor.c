@@ -43,7 +43,18 @@ void code_constructor_scope_start(CodeConstructor* constructor) {
 }
 
 
-void code_constructor_variable_declaration(CodeConstructor* constructor, int frame, char* name, DataType data_type) {
+void code_constructor_variable_declaration(CodeConstructor* constructor, int frame, SymbolVariable* symbol_variable) {
     NULL_POINTER_CHECK(constructor,);
+
+    UNUSED(frame);
+
+    // TODO: Add generationg symbol with corresponding frame
+    // TODO: Add inicialization part (defvar)
+
+    GENERATE_CODE(
+            I_MOVE,
+            code_instruction_operand_init_variable(symbol_variable),
+            code_instruction_operand_init_integer(0)
+    );
 }
 

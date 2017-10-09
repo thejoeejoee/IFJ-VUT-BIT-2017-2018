@@ -65,22 +65,22 @@ bool parser_semantic_set_function_name(ParserSemantic* parser_semantic, char* na
             return false;
         }
 
-        parser_semantic->symbol_function = symbol_table_function_get_or_create(
+        parser_semantic->actual_function = symbol_table_function_get_or_create(
                 parser_semantic->register_->functions,
                 name
         );
 
-        parser_semantic->symbol_function->declared = true;
+        parser_semantic->actual_function->declared = true;
     } else if(parser_semantic->actual_action == SEMANTIC_ACTION__FUNCTION_DEFINITION) {
-        parser_semantic->symbol_function = symbol_table_function_get_or_create(
+        parser_semantic->actual_function = symbol_table_function_get_or_create(
                 parser_semantic->register_->functions,
                 name
         );
 
-        if(parser_semantic->symbol_function->defined)
+        if(parser_semantic->actual_function->defined)
             return false;
 
-        parser_semantic->symbol_function->defined = true;
+        parser_semantic->actual_function->defined = true;
     }
 
     return true;
@@ -90,12 +90,12 @@ bool parser_semantic_set_function_return_data_type(ParserSemantic* parser_semant
     NULL_POINTER_CHECK(parser_semantic, false);
 
     if(parser_semantic->actual_action == SEMANTIC_ACTION__FUNCTION_DECLARATION ||
-       parser_semantic->symbol_function->return_data_type == DATA_TYPE_NONE) {
+       parser_semantic->actual_function->return_data_type == DATA_TYPE_NONE) {
 
-        parser_semantic->symbol_function->return_data_type = data_type;
+        parser_semantic->actual_function->return_data_type = data_type;
 
     } else if(parser_semantic->actual_action == SEMANTIC_ACTION__FUNCTION_DEFINITION) {
-        if(parser_semantic->symbol_function->return_data_type != data_type)
+        if(parser_semantic->actual_function->return_data_type != data_type)
             return false;
     }
 

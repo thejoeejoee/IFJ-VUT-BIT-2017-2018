@@ -256,6 +256,7 @@ void code_generator_render(CodeGenerator* generator, FILE* file) {
 
     char* rendered;
     CodeInstruction* instruction = generator->first;
+    fprintf(file, ".IFJcode17\n");
     while(instruction != NULL) {
         rendered = code_instruction_render(instruction);
         NULL_POINTER_CHECK(rendered,);

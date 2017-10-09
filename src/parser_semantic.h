@@ -18,7 +18,7 @@ typedef struct parser_semantic_t {
 
     SemanticAction actual_action;
 
-    SymbolFunction* symbol_function; // Pointer to actual function
+    SymbolFunction* actual_function; // Pointer to actual function
 
 } ParserSemantic;
 

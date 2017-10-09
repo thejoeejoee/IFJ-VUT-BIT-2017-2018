@@ -155,12 +155,12 @@
 
 #define SEMANTIC_ANALYSIS(parser, code) do {\
 if ((parser)->run_type & PARSER_RUN_TYPE_SEMANTIC_ANALYSIS) \
-    {code} \
+    { code } \
 } while(false)
 
 #define CODE_GENERATION(parser, code) do {\
 if ((parser)->run_type & PARSER_RUN_TYPE_SEMANTIC_CODE_GENERATION) \
-    {code} \
+    { code } \
 } while(false)
 
 #define CALL_RULE_STATEMENTS() do {\

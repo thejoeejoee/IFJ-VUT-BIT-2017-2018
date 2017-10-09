@@ -471,7 +471,7 @@ bool parser_parse_variable_declaration(Parser* parser) {
 
             CODE_GENERATION(
                 parser,
-                code_constructor_dim(parser->code_constructor,
+            code_constructor_variable_declaration(parser->code_constructor,
                     parser->parser_semantic->register_->index_of_found_variable,
                     name,
                     (DataType) token_type

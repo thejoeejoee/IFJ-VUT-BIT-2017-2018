@@ -214,8 +214,11 @@ static bool _check_operand(CodeInstructionOperand* op, TypeInstructionOperand ty
             LOG_WARNING("Required operand type of %d, NULL given.", type);
             return false;
         } else {
-            ASSERT(((op)->type & (type)));
-            return (bool) ((op)->type & (type));
+            if((op->type & type)) {
+                return true;
+            }
+            LOG_WARNING("Expected operand type %d, given %d.", type, op->type);
+            return false;
         }
     }
 }

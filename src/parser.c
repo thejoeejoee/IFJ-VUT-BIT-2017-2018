@@ -575,18 +575,30 @@ bool parser_parse_input(Parser* parser) {
      * RULE
      * <statement> -> input identifier
      */
+    SymbolVariable* symbol_variable;
 
     RULES(
             CHECK_TOKEN(TOKEN_INPUT);
 
             CHECK_TOKEN(TOKEN_IDENTIFIER, BEFORE(;), AFTER(
                     SEMANTIC_ANALYSIS(parser,
-            if(NULL == symbol_register_find_variable_recursive(parser->parser_semantic->register_, token.data)) {
-                token_free(&token);
-                return false;
-            }
-    );
-    ));
+                        symbol_variable = symbol_register_find_variable_recursive(parser->parser_semantic->register_, token.data);
+                        if(NULL == symbol_variable) {
+                            token_free(&token);
+                            return false;
+                        }
+
+                    );
+
+                    CODE_GENERATION(
+                        parser,
+                        code_constructor_input(
+                            parser->code_constructor,
+                            parser->parser_semantic->register_->index_of_found_variable,
+                            symbol_variable
+                        );
+                    );
+            ));
     );
 
     return true;

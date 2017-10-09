@@ -31,5 +31,7 @@ void code_constructor_scope_start(CodeConstructor* constructor);
 
 void code_constructor_variable_declaration(CodeConstructor* constructor, int frame, SymbolVariable* symbol_variable);
 
+void code_constructor_input(CodeConstructor* constructor, int frame, SymbolVariable* symbolVariable);
+
 
 #endif //_CODE_CONSTRUCTOR_H

@@ -49,12 +49,36 @@ void code_constructor_variable_declaration(CodeConstructor* constructor, int fra
     UNUSED(frame);
 
     // TODO: Add generationg symbol with corresponding frame
-    // TODO: Add inicialization part (defvar)
+    // TODO: Add add inicialization on LF
+
+    GENERATE_CODE(
+            I_DEF_VAR,
+            code_instruction_operand_init_variable(symbol_variable)
+    );
 
     GENERATE_CODE(
             I_MOVE,
             code_instruction_operand_init_variable(symbol_variable),
             code_instruction_operand_init_integer(0)
     );
+}
+
+void code_constructor_input(CodeConstructor* constructor, int frame, SymbolVariable* symbol_variable) {
+    NULL_POINTER_CHECK(constructor,);
+
+    UNUSED(frame);
+
+    // TODO: Add generationg symbol with corresponding frame
+    // TODO: Add add inicialization on LF
+
+
+    // TODO: Produce warning WARNING [code_instruction_operand.c:122:code_instruction_operand_render()]: Unknown data type to render: 257.
+    GENERATE_CODE(
+            I_READ,
+            code_instruction_operand_init_variable(symbol_variable),
+            code_instruction_operand_init_data_type(symbol_variable->data_type)
+    );
+
+
 }
 

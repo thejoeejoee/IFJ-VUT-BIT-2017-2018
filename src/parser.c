@@ -468,6 +468,7 @@ bool parser_parse_variable_declaration(Parser* parser) {
                     name,
                     (DataType) token_type
                 );
+
                 if(variable == NULL)
                     return false;
             );

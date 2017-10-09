@@ -71,8 +71,6 @@ void code_constructor_input(CodeConstructor* constructor, int frame, SymbolVaria
     // TODO: Add generationg symbol with corresponding frame
     // TODO: Add add inicialization on LF
 
-
-    // TODO: Produce warning WARNING [code_instruction_operand.c:122:code_instruction_operand_render()]: Unknown data type to render: 257.
     GENERATE_CODE(
             I_READ,
             code_instruction_operand_init_variable(symbol_variable),

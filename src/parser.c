@@ -462,18 +462,19 @@ bool parser_parse_variable_declaration(Parser* parser) {
         CHECK_TOKEN(TOKEN_DATA_TYPE_CLASS, BEFORE(;), AFTER(
             SEMANTIC_ANALYSIS(parser,
             // TODO: resolve token_type -> data_type conversion for boolean
-               return parser_semantic_add_symbol_variable(
+               if(!parser_semantic_add_symbol_variable(
                     parser->parser_semantic,
                     name,
                     (DataType) token_type
-                );
+                )) return false;
             );
 
             CODE_GENERATION(
                 parser,
                 code_constructor_dim(parser->code_constructor,
                     parser->parser_semantic->register_->index_of_found_variable,
-                    (short) token_type
+                    name,
+                    (DataType) token_type
                 );
             );
         ));

@@ -43,7 +43,7 @@ void code_constructor_scope_start(CodeConstructor* constructor) {
 }
 
 
-void code_constructor_dim(CodeConstructor* constructor, int frame, short datatype) {
+void code_constructor_dim(CodeConstructor* constructor, int frame, char* name, short datatype) {
     NULL_POINTER_CHECK(constructor,);
 
 }

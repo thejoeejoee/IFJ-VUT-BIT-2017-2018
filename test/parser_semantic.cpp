@@ -39,7 +39,7 @@ TEST_F(ParserSemanticTestFixture, FunctionStatementSingle) {
 }
 
 TEST_F(ParserSemanticTestFixture, FunctionDeclaration) {
-    provider->setString("dim promena as integer");
+    provider->setString("dim promena785 as integer");
 
     EXPECT_TRUE(
             parser_parse_variable_declaration(parser)
@@ -49,8 +49,8 @@ TEST_F(ParserSemanticTestFixture, FunctionDeclaration) {
 
 TEST_F(ParserSemanticTestFixture, FunctionDefinition) {
     provider->setString(R"(
-declare function foo() as integer
-function foo() as integer
+declare function foo735() as integer
+function foo735() as integer
 end function
 scope
 end scope
@@ -63,7 +63,7 @@ end scope
 
 TEST_F(ParserSemanticTestFixture, FunctionDefinition1) {
     provider->setString(R"(
-function foo() as integer
+function fooqwe() as integer
 end function
 scope
 end scope
@@ -77,9 +77,9 @@ end scope
 
 TEST_F(ParserSemanticTestFixture, FunctionDefinition2) {
     provider->setString(R"(
-function foo() as integer
+function foowebtg() as integer
 end function
-function foo() as string
+function foowebtg() as string
 end function
 scope
 end scope
@@ -93,10 +93,10 @@ end scope
 
 TEST_F(ParserSemanticTestFixture, FunctionDefinition3) {
     provider->setString(R"(
-declare function foo() as integer
-function foo() as integer
+declare function fooyxcvyxvc() as integer
+function fooyxcvyxvc() as integer
 end function
-function foo() as integer
+function fooyxcvyxvc() as integer
 end function
 scope
 end scope
@@ -110,8 +110,8 @@ end scope
 
 TEST_F(ParserSemanticTestFixture, FunctionDefinition4) {
     provider->setString(R"(
-declare function foo() as integer
-function foo() as string
+declare function fooqwead() as integer
+function fooqwead() as string
 end function
 scope
 end scope
@@ -124,9 +124,9 @@ end scope
 
 TEST_F(ParserSemanticTestFixture, FunctionDefinition5) {
     provider->setString(R"(
-function foo(a as integer, b as integer) as integer
+function erzert(aqrqwer as integer, bqewqxc as integer) as integer
 end function
-function foo(a as integer) as integer
+function erzert(aqrqwer as integer) as integer
 end function
 scope
 end scope
@@ -140,8 +140,8 @@ end scope
 
 TEST_F(ParserSemanticTestFixture, FunctionDecAndDefWithParams) {
     provider->setString(R"(
-declare function foo(a as string) as integer
-function foo(a as string) as integer
+declare function qweadscyx(iopfg as string) as integer
+function qweadscyx(iopfg as string) as integer
 end function
 scope
 end scope
@@ -155,8 +155,8 @@ end scope
 
 TEST_F(ParserSemanticTestFixture, FunctionDecAndDefWithParams2) {
     provider->setString(R"(
-declare function foo(a as string, b as integer) as integer
-function foo(a as string, b as integer) as integer
+declare function mikmikmik(qweqweqwe as string, rfvrfvrfv as integer) as integer
+function mikmikmik(qweqweqwe as string, rfvrfvrfv as integer) as integer
 end function
 scope
 end scope
@@ -170,8 +170,8 @@ end scope
 TEST_F(ParserSemanticTestFixture, FunctionDecAndDefWithParamsBad) {
 
     provider->setString(R"(
-declare function foo(a as string) as integer
-function foo(a as integer) as integer
+declare function thht(yeyeyesyse as string) as integer
+function thht(yeyeyesyse as integer) as integer
 end function
 scope
 end scope
@@ -185,8 +185,8 @@ end scope
 TEST_F(ParserSemanticTestFixture, FunctionDecAndDefWithParamsBad2) {
 
     provider->setString(R"(
-declare function foo(a as string, b as integer) as integer
-function foo(a as string, b as string) as integer
+declare function qaywsxedc(njznz as string, yxcyxcyxc as integer) as integer
+function qaywsxedc(njznz as string, yxcyxcyxc as string) as integer
 end function
 scope
 end scope
@@ -199,8 +199,8 @@ end scope
 
 TEST_F(ParserSemanticTestFixture, FunctionDecAndDefWithParamsBad3) {
     provider->setString(R"(
-declare function foo(a as string, b as integer) as integer
-function foo(a as string, b as integer, c as integer) as integer
+declare function yrse(tztzujzuj as string, qwexcxcyb as integer) as integer
+function yrse(tztzujzuj as string, qwexcxcyb as integer, qweasdcyxv as integer) as integer
 end function
 scope
 end scope
@@ -213,8 +213,8 @@ end scope
 
 TEST_F(ParserSemanticTestFixture, ComplexTest1) {
     provider->setString(R"(scope
-input promena
-dim promena as integer
+input qweeqwrsdf
+dim qweeqwrsdf as integer
 end scope
     )");
 
@@ -226,8 +226,8 @@ end scope
 
 TEST_F(ParserSemanticTestFixture, ComplexTest2) {
     provider->setString(R"(scope
-dim promena as integer
-input promena
+dim cbnfjtzu as integer
+input cbnfjtzu
 end scope
     )");
 
@@ -238,9 +238,9 @@ end scope
 
 TEST_F(ParserSemanticTestFixture, ComplexTest3) {
     provider->setString(R"(scope
-dim promena as integer
-input promena
-dim promena as string
+dim ywergdfgert as integer
+input ywergdfgert
+dim ywergdfgert as string
 end scope
     )");
 
@@ -252,8 +252,8 @@ end scope
 
 TEST_F(ParserSemanticTestFixture, ComplexTest4) {
     provider->setString(R"(
-declare function foo_function_complex(a as integer) as integer
-declare function bar_function_complex(a as string) as string
+declare function foo_function_complexqwead(aqwead as integer) as integer
+declare function foo_function_complexlpp(aqwead as string) as string
 SCOPE
 END SCOPE
     )");
@@ -265,8 +265,8 @@ END SCOPE
 
 TEST_F(ParserSemanticTestFixture, ComplexTest5) {
     provider->setString(R"(
-declare function foo_complex3(a as integer) as integer
-declare function foo_complex3(a as string) as string
+declare function foo_complex3qwe(aqewqwe as integer) as integer
+declare function foo_complex3qwe(aqewqwe as string) as string
 SCOPE
 END SCOPE
     )");

@@ -35,6 +35,17 @@ SymbolFunctionParam* symbol_function_add_param(SymbolFunction* function, char* n
 
     param->data_type = data_type;
     param->name = c_string_copy(name);
+    param->next = NULL;
+
+    SymbolFunctionParam* actual = function->param;
+    if(actual == NULL) {
+        function->param = param;
+    } else {
+        while(actual->next != NULL) {
+            actual = actual->next;
+        }
+        actual->next = param;
+    }
 
     return param;
 }

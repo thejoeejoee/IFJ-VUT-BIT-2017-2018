@@ -452,7 +452,7 @@ bool parser_parse_variable_declaration(Parser* parser) {
 
     RULES(
         char* name = NULL;
-        SymbolVariable* variable;
+            SymbolVariable* variable = NULL;
         CHECK_TOKEN(TOKEN_DIM);
         CHECK_TOKEN(TOKEN_IDENTIFIER, BEFORE(
                 name = memory_alloc(sizeof(char) * (strlen(token.data) + 1));
@@ -576,7 +576,7 @@ bool parser_parse_input(Parser* parser) {
      * RULE
      * <statement> -> input identifier
      */
-    SymbolVariable* symbol_variable;
+    SymbolVariable* symbol_variable = NULL;
 
     RULES(
             CHECK_TOKEN(TOKEN_INPUT);

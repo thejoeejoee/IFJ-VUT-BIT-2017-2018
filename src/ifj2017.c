@@ -12,8 +12,11 @@ int main(int argc, char** argv) {
     log_verbosity = LOG_VERBOSITY_WARNING;
     Parser* parser = parser_init(stdin_stream);
 
-    if(!parser_parse(parser))
-        exit_with_detail_information(parser->error_report);
+    if(!parser_parse(parser)) {
+        ErrorReport report = parser->error_report;
+        parser_free(&parser);
+        exit_with_detail_information(report);
+    }
 
     setbuf(stdout, NULL);
     code_generator_render(parser->code_constructor->generator, stdout);

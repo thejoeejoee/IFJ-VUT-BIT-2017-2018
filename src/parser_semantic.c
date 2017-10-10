@@ -80,8 +80,10 @@ bool parser_semantic_set_function_name(ParserSemantic* parser_semantic, char* na
                 name
         );
 
-        if(parser_semantic->actual_function->defined)
+        if(parser_semantic->actual_function->defined) {
+            parser_semantic->error_report.error_code = ERROR_SEMANTIC_DEFINITION;
             return false;
+        }
 
         parser_semantic->actual_function->defined = true;
     }
@@ -98,8 +100,11 @@ bool parser_semantic_set_function_return_data_type(ParserSemantic* parser_semant
         parser_semantic->actual_function->return_data_type = data_type;
 
     } else if(parser_semantic->actual_action == SEMANTIC_ACTION__FUNCTION_DEFINITION) {
-        if(parser_semantic->actual_function->return_data_type != data_type)
+
+        if(parser_semantic->actual_function->return_data_type != data_type) {
+            parser_semantic->error_report.error_code = ERROR_SEMANTIC_TYPE;
             return false;
+        }
     }
 
     return true;
@@ -122,8 +127,10 @@ bool parser_semantic_function_argument(ParserSemantic* parser_semantic, char* na
                 parser_semantic->actual_function,
                 parser_semantic->argument_index++);
 
-        if(actual_param == NULL || strcmp(name, actual_param->name) != 0 || data_type != actual_param->data_type)
+        if(actual_param == NULL || strcmp(name, actual_param->name) != 0 || data_type != actual_param->data_type) {
+            parser_semantic->error_report.error_code = ERROR_SEMANTIC_TYPE;
             return false;
+        }
     }
 
     return true;

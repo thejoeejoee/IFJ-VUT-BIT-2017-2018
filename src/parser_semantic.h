@@ -20,6 +20,8 @@ typedef struct parser_semantic_t {
 
     SymbolFunction* actual_function; // Pointer to actual function
 
+    int argument_index;
+
 } ParserSemantic;
 
 /**
@@ -81,5 +83,13 @@ SymbolVariable* parser_semantic_add_symbol_variable(ParserSemantic* parser_seman
  * @return bool
  */
 bool parser_semantic_set_function_return_data_type(ParserSemantic* parser_semantic, DataType token_type);
+
+/**
+ *
+ * @param parser_semantic
+ * @param name
+ * @param data_type
+ */
+bool parser_semantic_function_argument(ParserSemantic* parser_semantic, char* name, DataType data_type);
 
 #endif //_PARSER_SEMANTIC_H

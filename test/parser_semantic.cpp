@@ -129,6 +129,82 @@ end scope
     ) << "Error parsing program";
 }
 
+TEST_F(ParserSemanticTestFixture, FunctionDecAndDefWithParams) {
+
+    provider->setString(R"(
+declare function foo(a as string) as integer
+function foo(a as string) as integer
+end function
+scope
+end scope
+    )");
+
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    ) << "Error parsing program";
+}
+
+
+TEST_F(ParserSemanticTestFixture, FunctionDecAndDefWithParams2) {
+
+    provider->setString(R"(
+declare function foo(a as string, b as integer) as integer
+function foo(a as string, b as integer) as integer
+end function
+scope
+end scope
+    )");
+
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    ) << "Error parsing program";
+}
+
+TEST_F(ParserSemanticTestFixture, FunctionDecAndDefWithParamsBad) {
+
+    provider->setString(R"(
+declare function foo(a as string) as integer
+function foo(a as integer) as integer
+end function
+scope
+end scope
+    )");
+
+    EXPECT_FALSE(
+            parser_parse_program(parser)
+    ) << "Error parsing program";
+}
+
+TEST_F(ParserSemanticTestFixture, FunctionDecAndDefWithParamsBad2) {
+
+    provider->setString(R"(
+declare function foo(a as string, b as integer) as integer
+function foo(a as string, b as string) as integer
+end function
+scope
+end scope
+    )");
+
+    EXPECT_FALSE(
+            parser_parse_program(parser)
+    ) << "Error parsing program";
+}
+
+TEST_F(ParserSemanticTestFixture, FunctionDecAndDefWithParamsBad3) {
+
+    provider->setString(R"(
+declare function foo(a as string, b as integer) as integer
+function foo(a as string, b as integer, c as integer) as integer
+end function
+scope
+end scope
+    )");
+
+    EXPECT_FALSE(
+            parser_parse_program(parser)
+    ) << "Error parsing program";
+}
+
 TEST_F(ParserSemanticTestFixture, ComplexTest1) {
 
     provider->setString(R"(scope

@@ -412,8 +412,17 @@ bool parser_parse_function_param(Parser* parser) {
 
     RULES(
         CHECK_TOKEN(TOKEN_IDENTIFIER);
+        char* name = memory_alloc(sizeof(char) * (strlen(token.data) + 1));
+        memory_free_lazy(name);
+        MALLOC_CHECK(strcpy(name, token.data));
+
         CHECK_TOKEN(TOKEN_AS);
         CHECK_TOKEN(TOKEN_DATA_TYPE_CLASS);
+        SEMANTIC_ANALYSIS(
+                parser,
+                if(!parser_semantic_function_argument(parser->parser_semantic, name, (DataType) token_type))
+                    return false;
+        );
     );
 
     return true;

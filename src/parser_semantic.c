@@ -21,6 +21,9 @@ void parser_semantic_free(ParserSemantic** parser) {
 void parser_semantic_set_action(ParserSemantic* parser_semantic, SemanticAction actual_action) {
     NULL_POINTER_CHECK(parser_semantic,);
     parser_semantic->actual_action = actual_action;
+
+    if(actual_action == SEMANTIC_ACTION__FUNCTION_DEFINITION)
+        parser_semantic->argument_index = 0;
 }
 
 SymbolVariable* parser_semantic_expect_symbol_variable(ParserSemantic* parser_semantic, Token token) {
@@ -96,6 +99,30 @@ bool parser_semantic_set_function_return_data_type(ParserSemantic* parser_semant
 
     } else if(parser_semantic->actual_action == SEMANTIC_ACTION__FUNCTION_DEFINITION) {
         if(parser_semantic->actual_function->return_data_type != data_type)
+            return false;
+    }
+
+    return true;
+}
+
+bool parser_semantic_function_argument(ParserSemantic* parser_semantic, char* name, DataType data_type) {
+
+    NULL_POINTER_CHECK(parser_semantic, false);
+
+    if(parser_semantic->actual_action == SEMANTIC_ACTION__FUNCTION_DECLARATION) {
+
+        // TODO: Check duplicity name
+        // Function declaration, add function argument
+        symbol_function_add_param(parser_semantic->actual_function, name, data_type);
+    }
+    else if(parser_semantic->actual_action == SEMANTIC_ACTION__FUNCTION_DEFINITION) {
+
+        // Function definition, check argument on actual index
+        SymbolFunctionParam* actual_param = symbol_function_get_param(
+                parser_semantic->actual_function,
+                parser_semantic->argument_index++);
+
+        if(actual_param == NULL || strcmp(name, actual_param->name) != 0 || data_type != actual_param->data_type)
             return false;
     }
 

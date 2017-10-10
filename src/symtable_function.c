@@ -25,6 +25,7 @@ void symbol_function_init_data(SymbolTableBaseItem* item) {
     SymbolFunction* function = (SymbolFunction*) item;
 
     function->return_data_type = DATA_TYPE_NONE;
+    function->param = NULL;
     function->declared = false;
     function->defined = false;
 }
@@ -59,6 +60,7 @@ SymbolFunctionParam* symbol_function_get_param(SymbolFunction* function, size_t 
     do {
         if(actual == index)
             return param;
-    } while(++actual && NULL != (param = param->next));
+        actual++;
+    } while(NULL != (param = param->next));
     return NULL;
 }

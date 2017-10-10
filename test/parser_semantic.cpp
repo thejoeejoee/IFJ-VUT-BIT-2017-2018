@@ -39,9 +39,6 @@ TEST_F(ParserSemanticTestFixture, FunctionStatementSingle) {
 }
 
 TEST_F(ParserSemanticTestFixture, FunctionDeclaration) {
-    parser_semantic_free(&(parser->parser_semantic));
-    parser->parser_semantic = parser_semantic_init();
-
     provider->setString("dim promena as integer");
 
     EXPECT_TRUE(
@@ -65,7 +62,6 @@ end scope
 }
 
 TEST_F(ParserSemanticTestFixture, FunctionDefinition1) {
-
     provider->setString(R"(
 function foo() as integer
 end function
@@ -80,7 +76,6 @@ end scope
 }
 
 TEST_F(ParserSemanticTestFixture, FunctionDefinition2) {
-
     provider->setString(R"(
 function foo() as integer
 end function
@@ -97,7 +92,6 @@ end scope
 }
 
 TEST_F(ParserSemanticTestFixture, FunctionDefinition3) {
-
     provider->setString(R"(
 declare function foo() as integer
 function foo() as integer
@@ -115,7 +109,6 @@ end scope
 }
 
 TEST_F(ParserSemanticTestFixture, FunctionDefinition4) {
-
     provider->setString(R"(
 declare function foo() as integer
 function foo() as string
@@ -130,7 +123,6 @@ end scope
 }
 
 TEST_F(ParserSemanticTestFixture, FunctionDefinition5) {
-
     provider->setString(R"(
 function foo(a as integer, b as integer) as integer
 end function
@@ -147,7 +139,6 @@ end scope
 }
 
 TEST_F(ParserSemanticTestFixture, FunctionDecAndDefWithParams) {
-
     provider->setString(R"(
 declare function foo(a as string) as integer
 function foo(a as string) as integer
@@ -163,7 +154,6 @@ end scope
 
 
 TEST_F(ParserSemanticTestFixture, FunctionDecAndDefWithParams2) {
-
     provider->setString(R"(
 declare function foo(a as string, b as integer) as integer
 function foo(a as string, b as integer) as integer
@@ -208,7 +198,6 @@ end scope
 }
 
 TEST_F(ParserSemanticTestFixture, FunctionDecAndDefWithParamsBad3) {
-
     provider->setString(R"(
 declare function foo(a as string, b as integer) as integer
 function foo(a as string, b as integer, c as integer) as integer
@@ -223,7 +212,6 @@ end scope
 }
 
 TEST_F(ParserSemanticTestFixture, ComplexTest1) {
-
     provider->setString(R"(scope
 input promena
 dim promena as integer
@@ -246,11 +234,9 @@ end scope
     EXPECT_TRUE(
             parser_parse_program(parser)
     ) << "Error parsing program";
-
 }
 
 TEST_F(ParserSemanticTestFixture, ComplexTest3) {
-
     provider->setString(R"(scope
 dim promena as integer
 input promena

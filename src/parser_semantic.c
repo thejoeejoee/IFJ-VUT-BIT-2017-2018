@@ -73,9 +73,9 @@ bool parser_semantic_set_function_name(ParserSemantic* parser_semantic, char* na
                 name
         );
 
-        parser_semantic->actual_function->count_of_argument = 0;
-
+        parser_semantic->actual_function->arguments_count = 0;
         parser_semantic->actual_function->declared = true;
+
     } else if(parser_semantic->actual_action == SEMANTIC_ACTION__FUNCTION_DEFINITION) {
         parser_semantic->actual_function = symbol_table_function_get_or_create(
                 parser_semantic->register_->functions,
@@ -88,6 +88,8 @@ bool parser_semantic_set_function_name(ParserSemantic* parser_semantic, char* na
         }
 
         parser_semantic->actual_function->defined = true;
+        if(!parser_semantic->actual_function->declared)
+            parser_semantic->actual_function->arguments_count = 0;
     }
 
     return true;
@@ -112,25 +114,24 @@ bool parser_semantic_set_function_return_data_type(ParserSemantic* parser_semant
     return true;
 }
 
-bool parser_semantic_function_argument(ParserSemantic* parser_semantic, char* name, DataType data_type) {
-
+bool parser_semantic_add_function_parameter(ParserSemantic* parser_semantic, char* name, DataType data_type) {
     NULL_POINTER_CHECK(parser_semantic, false);
 
     if(parser_semantic->actual_action == SEMANTIC_ACTION__FUNCTION_DECLARATION) {
-
         // TODO: Check duplicity name
         // Function declaration, add function argument
         symbol_function_add_param(parser_semantic->actual_function, name, data_type);
-        parser_semantic->actual_function->count_of_argument++;
-    }
-    else if(parser_semantic->actual_action == SEMANTIC_ACTION__FUNCTION_DEFINITION) {
+        parser_semantic->actual_function->arguments_count++;
+
+    } else if(parser_semantic->actual_action == SEMANTIC_ACTION__FUNCTION_DEFINITION) {
 
         // Function definition, check argument on actual index
-        SymbolFunctionParam* actual_param = symbol_function_get_param(
+        SymbolFunctionParam* parameter = symbol_function_get_param(
                 parser_semantic->actual_function,
-                parser_semantic->argument_index++);
+                parser_semantic->argument_index++
+        );
 
-        if(actual_param == NULL || strcmp(name, actual_param->name) != 0 || data_type != actual_param->data_type) {
+        if(parameter == NULL || strcmp(name, parameter->name) != 0 || data_type != parameter->data_type) {
             parser_semantic->error_report.error_code = ERROR_SEMANTIC_TYPE;
             return false;
         }
@@ -140,13 +141,12 @@ bool parser_semantic_function_argument(ParserSemantic* parser_semantic, char* na
 }
 
 bool parser_semantic_check_count_of_function_arguments(ParserSemantic* parser_semantic) {
+    NULL_POINTER_CHECK(parser_semantic, false);
+    NULL_POINTER_CHECK(parser_semantic->actual_function, false);
 
-    if(parser_semantic->actual_action == SEMANTIC_ACTION__FUNCTION_DEFINITION) {
-
-        if(parser_semantic->actual_function->count_of_argument != parser_semantic->argument_index)
-            return false;
-
-    }
+    if(parser_semantic->actual_action == SEMANTIC_ACTION__FUNCTION_DEFINITION &&
+       parser_semantic->actual_function->arguments_count != parser_semantic->argument_index)
+        return false;
 
     return true;
 }

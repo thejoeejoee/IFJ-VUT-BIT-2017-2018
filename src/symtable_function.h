@@ -17,7 +17,7 @@ typedef struct symbol_function_t {
     bool declared;
     bool defined;
     DataType return_data_type;
-    int count_of_argument;
+    int arguments_count;
     SymbolFunctionParam* param;
 } SymbolFunction;
 

@@ -20,9 +20,23 @@ typedef struct parser_semantic_t {
 
     SymbolFunction* actual_function; // Pointer to actual function
 
-    int argument_index;
+    size_t argument_index;
 
 } ParserSemantic;
+
+/**
+ * Constructor for parser_semantic
+ *
+ * @return ParserSematic*
+ */
+ParserSemantic* parser_semantic_init();
+
+/**
+ * @brief Destructor for parser semantic
+ *
+ * @param ParserSemantic** parser
+ */
+void parser_semantic_free(ParserSemantic** parser);
 
 /**
  * @brief Set actual action for parser semantic. Sematic actions are scenarios. We have to keep the action.
@@ -40,20 +54,6 @@ void parser_semantic_set_action(ParserSemantic* parser_semantic, SemanticAction 
  * @return bool
  */
 bool parser_semantic_set_function_name(ParserSemantic* parser_semantic, char* name);
-
-/**
- * Constructor for parser_semantic
- *
- * @return ParserSematic*
- */
-ParserSemantic* parser_semantic_init();
-
-/**
- * @brief Destructor for parser semantic
- *
- * @param ParserSemantic** parser
- */
-void parser_semantic_free(ParserSemantic** parser);
 
 /**
  * @brief Find variable in symbol variable
@@ -90,7 +90,7 @@ bool parser_semantic_set_function_return_data_type(ParserSemantic* parser_semant
  * @param name
  * @param data_type
  */
-bool parser_semantic_function_argument(ParserSemantic* parser_semantic, char* name, DataType data_type);
+bool parser_semantic_add_function_parameter(ParserSemantic* parser_semantic, char* name, DataType data_type);
 
 /**
  *

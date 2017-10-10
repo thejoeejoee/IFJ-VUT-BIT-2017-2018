@@ -7,7 +7,7 @@ extern "C" {
 
 class CodeInstructionOperandTestFixture : public ::testing::Test {
     protected:
-        CodeInstructionOperand* operand;
+        CodeInstructionOperand* operand = nullptr;
 
         virtual void TearDown() {
             if(operand != NULL)

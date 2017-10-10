@@ -70,6 +70,13 @@ void code_constructor_input(CodeConstructor* constructor, int frame, SymbolVaria
 
     // TODO: Add generationg symbol with corresponding frame
     // TODO: Add add inicialization on LF
+    String* prompt = string_init();
+    string_append_s(prompt, "? ");
+
+    GENERATE_CODE(
+            I_WRITE,
+            code_instruction_operand_init_string(prompt)
+    );
 
     GENERATE_CODE(
             I_READ,

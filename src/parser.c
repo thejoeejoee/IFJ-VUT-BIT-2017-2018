@@ -348,6 +348,12 @@ bool parser_parse_function_header(Parser* parser) {
 
         CHECK_TOKEN(TOKEN_LEFT_BRACKET);
         CHECK_RULE(function_params);
+        SEMANTIC_ANALYSIS(
+            parser,
+            if(!parser_semantic_check_count_of_function_arguments(parser->parser_semantic))
+                return false;
+        );
+
         CHECK_TOKEN(TOKEN_RIGHT_BRACKET);
         CHECK_TOKEN(TOKEN_AS);
         CHECK_TOKEN(TOKEN_DATA_TYPE_CLASS);

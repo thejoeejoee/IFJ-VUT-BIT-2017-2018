@@ -92,4 +92,11 @@ bool parser_semantic_set_function_return_data_type(ParserSemantic* parser_semant
  */
 bool parser_semantic_function_argument(ParserSemantic* parser_semantic, char* name, DataType data_type);
 
+/**
+ *
+ * @param parser_semantic
+ * @return
+ */
+bool parser_semantic_check_count_of_function_arguments(ParserSemantic* parser_semantic);
+
 #endif //_PARSER_SEMANTIC_H

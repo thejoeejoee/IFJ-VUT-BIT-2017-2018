@@ -73,6 +73,8 @@ bool parser_semantic_set_function_name(ParserSemantic* parser_semantic, char* na
                 name
         );
 
+        parser_semantic->actual_function->count_of_argument = 0;
+
         parser_semantic->actual_function->declared = true;
     } else if(parser_semantic->actual_action == SEMANTIC_ACTION__FUNCTION_DEFINITION) {
         parser_semantic->actual_function = symbol_table_function_get_or_create(
@@ -119,6 +121,7 @@ bool parser_semantic_function_argument(ParserSemantic* parser_semantic, char* na
         // TODO: Check duplicity name
         // Function declaration, add function argument
         symbol_function_add_param(parser_semantic->actual_function, name, data_type);
+        parser_semantic->actual_function->count_of_argument++;
     }
     else if(parser_semantic->actual_action == SEMANTIC_ACTION__FUNCTION_DEFINITION) {
 
@@ -131,6 +134,18 @@ bool parser_semantic_function_argument(ParserSemantic* parser_semantic, char* na
             parser_semantic->error_report.error_code = ERROR_SEMANTIC_TYPE;
             return false;
         }
+    }
+
+    return true;
+}
+
+bool parser_semantic_check_count_of_function_arguments(ParserSemantic* parser_semantic) {
+
+    if(parser_semantic->actual_action == SEMANTIC_ACTION__FUNCTION_DEFINITION) {
+
+        if(parser_semantic->actual_function->count_of_argument != parser_semantic->argument_index)
+            return false;
+
     }
 
     return true;

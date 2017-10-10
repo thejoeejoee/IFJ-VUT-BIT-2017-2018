@@ -129,6 +129,23 @@ end scope
     ) << "Error parsing program";
 }
 
+TEST_F(ParserSemanticTestFixture, FunctionDefinition5) {
+
+    provider->setString(R"(
+function foo(a as integer, b as integer) as integer
+end function
+function foo(a as integer) as integer
+end function
+scope
+end scope
+    )");
+
+    EXPECT_FALSE(
+            parser_parse_program(parser)
+    ) << "Error parsing program";
+
+}
+
 TEST_F(ParserSemanticTestFixture, FunctionDecAndDefWithParams) {
 
     provider->setString(R"(

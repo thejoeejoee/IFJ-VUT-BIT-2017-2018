@@ -131,8 +131,8 @@ bool parser_semantic_add_function_parameter(ParserSemantic* parser_semantic, cha
                 parser_semantic->argument_index++
         );
 
-        if(parameter == NULL || strcmp(name, parameter->name) != 0 || data_type != parameter->data_type) {
-            parser_semantic->error_report.error_code = ERROR_SEMANTIC_TYPE;
+        if(parameter == NULL || data_type != parameter->data_type) {
+            parser_semantic->error_report.error_code = ERROR_SEMANTIC_DEFINITION;
             return false;
         }
     }

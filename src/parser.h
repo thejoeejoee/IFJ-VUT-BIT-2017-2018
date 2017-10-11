@@ -153,21 +153,21 @@
 #define CHECK_TOKEN(...) MSVC_EXPAND(GET_OVERLOADED_MACRO1234(\
     __VA_ARGS__, CHECK_TOKEN_4, CHECK_TOKEN_3, CHECK_TOKEN_2, CHECK_TOKEN_1)(__VA_ARGS__))
 
-#define SEMANTIC_ANALYSIS(parser, code) do {\
+#define SEMANTIC_ANALYSIS(parser, code) do { \
 if ((parser)->run_type & PARSER_RUN_TYPE_SEMANTIC_ANALYSIS) { \
     code \
 }} while(false)
 
-#define CODE_GENERATION(parser, code) do {\
+#define CODE_GENERATION(parser, code) do { \
 if ((parser)->run_type & PARSER_RUN_TYPE_SEMANTIC_CODE_GENERATION) { \
     code \
 }} while(false)
 
-#define CALL_RULE_STATEMENTS() do {\
-if(parser->body_statement) {\
-    CALL_RULE(body_statements);\
-} else {\
-    CALL_RULE(function_statements);\
+#define CALL_RULE_STATEMENTS() do { \
+if(parser->body_statement) { \
+    CALL_RULE(body_statements); \
+} else { \
+    CALL_RULE(function_statements); \
 }} while(0)
 
 typedef enum {

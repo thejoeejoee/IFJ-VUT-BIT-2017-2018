@@ -154,6 +154,23 @@ end scope
 
 }
 
+TEST_F(ParserSemanticTestFixture, FunctionInvalidCount) {
+    provider->setString(R"(
+' function params with declaration but invalid count
+declare function bar(h as string, t as integer, x as string) as string
+function bar(b as string, c as integer) as string
+end function
+scope
+end scope
+
+    )");
+
+    EXPECT_FALSE(
+            parser_parse_program(parser)
+    ) << "Error parsing program";
+
+}
+
 TEST_F(ParserSemanticTestFixture, FunctionDecAndDefWithParams) {
     provider->setString(R"(
 declare function qweadscyx(iopfg as string) as integer

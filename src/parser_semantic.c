@@ -152,8 +152,10 @@ bool parser_semantic_check_count_of_function_arguments(ParserSemantic* parser_se
 
     if(parser_semantic->actual_action == SEMANTIC_ACTION__FUNCTION_DEFINITION &&
        parser_semantic->actual_function->arguments_count != parser_semantic->argument_index &&
-       parser_semantic->function_declared)
+       parser_semantic->function_declared) {
+        parser_semantic->error_report.error_code = ERROR_SEMANTIC_TYPE;
         return false;
+    }
 
     return true;
 }

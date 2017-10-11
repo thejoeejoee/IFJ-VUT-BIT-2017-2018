@@ -350,8 +350,10 @@ bool parser_parse_function_header(Parser* parser) {
         CHECK_RULE(function_params);
         SEMANTIC_ANALYSIS(
             parser,
-            if(!parser_semantic_check_count_of_function_arguments(parser->parser_semantic))
+            if(!parser_semantic_check_count_of_function_arguments(parser->parser_semantic)) {
+            token_free(&token);
                 return false;
+    }
         );
 
         CHECK_TOKEN(TOKEN_RIGHT_BRACKET);
@@ -359,12 +361,13 @@ bool parser_parse_function_header(Parser* parser) {
         CHECK_TOKEN(TOKEN_DATA_TYPE_CLASS);
         SEMANTIC_ANALYSIS(
             parser,
-            if(!parser_semantic_set_function_return_data_type(parser->parser_semantic, (DataType) token_type))
+            if(!parser_semantic_set_function_return_data_type(parser->parser_semantic, (DataType) token_type)) {
+            token_free(&token);
             return false;
+    }
             // TODO: resolve token_type -> data_type conversion for boolean
         );
     );
-
     return true;
 }
 
@@ -418,10 +421,8 @@ bool parser_parse_function_param(Parser* parser) {
     char* name = NULL;
     RULES(
         CHECK_TOKEN(TOKEN_IDENTIFIER);
-            name = memory_alloc(sizeof(char) * (strlen(token.data) + 1));
+            name = c_string_copy(token.data);
         memory_free_lazy(name);
-        MALLOC_CHECK(strcpy(name, token.data));
-
         CHECK_TOKEN(TOKEN_AS);
         CHECK_TOKEN(TOKEN_DATA_TYPE_CLASS);
         SEMANTIC_ANALYSIS(
@@ -470,9 +471,8 @@ bool parser_parse_variable_declaration(Parser* parser) {
             SymbolVariable* variable = NULL;
         CHECK_TOKEN(TOKEN_DIM);
         CHECK_TOKEN(TOKEN_IDENTIFIER, BEFORE(
-                name = memory_alloc(sizeof(char) * (strlen(token.data) + 1));
+                name = c_string_copy(token.data);
             memory_free_lazy(name);
-            MALLOC_CHECK(strcpy(name, token.data));
         ));
         CHECK_TOKEN(TOKEN_AS);
         CHECK_TOKEN(TOKEN_DATA_TYPE_CLASS, BEFORE(;), AFTER(

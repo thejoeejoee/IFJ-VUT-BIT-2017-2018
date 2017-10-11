@@ -51,7 +51,12 @@ void symbol_table_clear_buckets(SymbolTable* table) {
         do {
             tmp_item = item_to_free;
             item_to_free = item_to_free->next;
-            memory_free(tmp_item->key);
+            if(table->free_data_callback != NULL) {
+                table->free_data_callback(tmp_item);
+            }
+            if(tmp_item->key != NULL) {
+                memory_free(tmp_item->key);
+            }
             memory_free(tmp_item);
         } while(item_to_free != NULL);
         table->items[i] = NULL;

@@ -341,7 +341,6 @@ bool parser_parse_function_header(Parser* parser) {
         SEMANTIC_ANALYSIS(
             parser,
             if(!parser_semantic_set_function_name(parser->parser_semantic, token.data)) {
-                parser->error_report.error_code = ERROR_SEMANTIC_DEFINITION;
                 token_free(&token);
                 return false;
             }
@@ -353,7 +352,6 @@ bool parser_parse_function_header(Parser* parser) {
             parser,
             if(!parser_semantic_check_count_of_function_arguments(parser->parser_semantic)) {
             token_free(&token);
-            parser->error_report.error_code = ERROR_SEMANTIC_DEFINITION;
                 return false;
     }
         );
@@ -364,7 +362,6 @@ bool parser_parse_function_header(Parser* parser) {
         SEMANTIC_ANALYSIS(
             parser,
             if(!parser_semantic_set_function_return_data_type(parser->parser_semantic, (DataType) token_type)) {
-            parser->error_report.error_code = ERROR_SEMANTIC_DEFINITION;
             token_free(&token);
             return false;
     }

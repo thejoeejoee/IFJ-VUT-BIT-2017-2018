@@ -164,7 +164,7 @@ char* code_instruction_operand_escaped_string(String* source) {
     short c;
     char buffer[5];
     buffer[4] = '\0';
-    for(int i = 0; i < source_length; ++i) {
+    for(size_t i = 0; i < source_length; ++i) {
         c = source->content[i];
         if((c >= 0 && c <= 32) || c == 35 || c == 92) {
             snprintf(buffer, 4 + 1, "\\%03d", c);

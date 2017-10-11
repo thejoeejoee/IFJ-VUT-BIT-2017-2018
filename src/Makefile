@@ -1,6 +1,6 @@
 CC=gcc
 
-CFLAGS+=-std=c99 -Wall -Wextra -pedantic -O3 -DNDEBUG
+CFLAGS+=-std=c99 -Wall -Wextra -pedantic -O3 -DNDEBUG -Wno-unused-parameter -Wno-variadic-macros
 
 TARGETS=ifj2017
 

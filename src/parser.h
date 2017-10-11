@@ -292,7 +292,7 @@ bool parser_parse_epsilon(Parser* parser);
 
 bool parser_parse_variable_declaration(Parser* parser);
 
-bool parser_parse_return(Parser* parser);
+bool parser_parse_return_(Parser* parser);
 
 bool parser_parse_input(Parser* parser);
 
@@ -300,7 +300,7 @@ bool parser_parse_print_expression(Parser* parser);
 
 bool parser_parse_print(Parser* parser);
 
-bool parser_parse_while(Parser* parser);
+bool parser_parse_while_(Parser* parser);
 
 bool parser_parse_print_expressions(Parser* parser);
 

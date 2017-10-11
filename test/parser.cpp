@@ -358,7 +358,7 @@ loop
     parser->body_statement = true;
 
     EXPECT_TRUE(
-            parser_parse_while(parser)
+            parser_parse_while_(parser)
     ) << "Error parsing <do_while> rule";
 
     parser->body_statement = false;
@@ -372,7 +372,7 @@ TEST_F(ParserTestFixture, ReturnRule) {
     provider->setString("return 34");
 
     EXPECT_TRUE(
-            parser_parse_return(parser)
+            parser_parse_return_(parser)
     ) << "Error parsing <expression> rule";
 
 }

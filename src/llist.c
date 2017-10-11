@@ -2,13 +2,15 @@
 #include "llist.h"
 #include <stdlib.h>
 
-void llist_init(LList** list) {
+void llist_init(LList** list, llist_free_item_data free_function, llist_item_compare_function cmp_function) {
     *list = (LList*) memory_alloc(sizeof(LList));
     (*list)->head = NULL;
     (*list)->tail = NULL;
+    (*list)->free_function = free_function;
+    (*list)->cmp_function = cmp_function;
 }
 
-void llist_append(LList* list, int value) {
+void llist_append(LList* list, void* value) {
     NULL_POINTER_CHECK(list,);
 
     LListItem* new_item = (LListItem*) memory_alloc(sizeof(LListItem));
@@ -26,15 +28,16 @@ void llist_append(LList* list, int value) {
     list->tail = new_item;
 }
 
-void llist_remove_one(LList* list, int value) {
-    NULL_POINTER_CHECK(list,);
+bool llist_remove_one(LList* list, void* value) {
+    NULL_POINTER_CHECK(list, false);
+    if (list->cmp_function == NULL) { return false; }
 
     LListItem* current_item = list->head;
     if(current_item == NULL)
-        return;
+        return false;
 
     do {
-        if(current_item->value == value) {
+        if(list->cmp_function(current_item->value,value) == 0) {
             LListItem* previous_item = current_item->previous;
             LListItem* next_item = current_item->next;
 
@@ -48,10 +51,14 @@ void llist_remove_one(LList* list, int value) {
             if(next_item != NULL)
                 next_item->previous = current_item->previous;
 
+            if (list->free_function != NULL) {
+                list->free_function(current_item);
+            }
             memory_free(current_item);
-            break;
+            return true;
         }
     } while((current_item = current_item->next) != NULL);
+    return false;
 }
 
 void llist_free(LList** list) {
@@ -64,6 +71,9 @@ void llist_free(LList** list) {
     if(current_item != NULL) {
         do {
             next_item = current_item->next;
+            if ((*list)->free_function != NULL) {
+                (*list)->free_function(current_item);
+            }
             memory_free(current_item);
             current_item = next_item;
         } while(current_item != NULL);

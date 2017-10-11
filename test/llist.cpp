@@ -4,12 +4,30 @@ extern "C" {
 #include "../src/llist.h"
 }
 
+void free_item_int_data_func(void* data) {
+    memory_free((int*)data);
+}
+
+int cmp_function(void* a, void* b) {
+    int A = *((int*)a);
+    int B = *((int*)b);
+    if ( A < B ) {
+        return -1;
+    }
+    else if ( A == B ) {
+        return 0;
+    }
+    else {
+        return 1;
+    }
+}
+
 class LlistTestFixture : public ::testing::Test {
     protected:
         LList* llist;
 
         virtual void SetUp() {
-            llist_init(&llist);
+            llist_init(&llist, free_item_int_data_func, cmp_function);
         }
 
         virtual void TearDown() {
@@ -27,7 +45,7 @@ TEST_F(LlistTestFixture, Initialization) {
 
     // Init seznam
     LList* llist;
-    llist_init(&llist);
+    llist_init(&llist, NULL, NULL);
 
     // Test for correctly allocated memory
     EXPECT_EQ(
@@ -55,9 +73,10 @@ TEST_F(LlistTestFixture, Destruction) {
     /*
      * Test destructor for list with one item
      */
-
+    int* data = (int*)memory_alloc(sizeof(int));
+    *data = 24;
     // Add one number
-    llist_append(llist, 42);
+    llist_append(llist, data);
 
     // Remove all elements from list
     llist_free(&llist);
@@ -78,7 +97,9 @@ TEST_F(LlistTestFixture, DestructionWithMultipleItems) {
 
     // Add ten elements to the list
     for(int i = 0; i < 2; i++) {
-        llist_append(llist, i);
+        int* data = (int*)memory_alloc(sizeof(int));
+        *data = i;
+        llist_append(llist, data);
     }
 
     // free list
@@ -92,18 +113,21 @@ TEST_F(LlistTestFixture, DestructionWithMultipleItems) {
 
 TEST_F(LlistTestFixture, SimpleAppend) {
     constexpr int number = 42;
+
+    int* data = (int*)memory_alloc(sizeof(int));
+    *data = number;
     // Add one number
-    llist_append(llist, number);
+    llist_append(llist, data);
 
     // Test correct head value
     EXPECT_EQ(
-            llist->head->value,
+            *((int*)llist->head->value),
             number
     ) << "The value in head is incorrect";
 
     // Test correct tail value
     EXPECT_EQ(
-            llist->tail->value,
+            *((int*)llist->tail->value),
             number
     ) << "The value in tail is incorrect";
 
@@ -134,8 +158,6 @@ TEST_F(LlistTestFixture, SimpleAppend) {
             nullptr
     ) << "Next pointer in tail doesn't have NULL value";
 
-    // remove number from list
-    llist_remove_one(llist, number);
 }
 
 TEST_F(LlistTestFixture, SimpleRemove) {
@@ -144,11 +166,15 @@ TEST_F(LlistTestFixture, SimpleRemove) {
      * Test remove one when llist have just one item
      */
     const int number = 42;
+
+    int* data = (int*)memory_alloc(sizeof(int));
+    *data = number;
+
     // Add one number
-    llist_append(llist, number);
+    llist_append(llist, data);
 
     // Remove number
-    llist_remove_one(llist, number);
+    llist_remove_one(llist, (void*)(&number));
 
     EXPECT_EQ(
             llist->head,
@@ -160,9 +186,6 @@ TEST_F(LlistTestFixture, SimpleRemove) {
             nullptr
     ) << "Tail is not NULL";
 
-    // Remove number from list
-    llist_remove_one(llist, number);
-
 }
 
 TEST_F(LlistTestFixture, MultipleRemove) {
@@ -173,11 +196,14 @@ TEST_F(LlistTestFixture, MultipleRemove) {
 
     // Add testing data to the list
     for(int i = 0; i <= 2; i++) {
-        llist_append(llist, i);
+        int* data = (int*)memory_alloc(sizeof(int));
+        *data = i;
+        llist_append(llist, data);
     }
 
     // Remove items with value 2 & 4
-    llist_remove_one(llist, 1);
+    int test = 1;
+    llist_remove_one(llist, &test);
 
     // Get two items from llist
     LListItem* first = llist->head;
@@ -185,12 +211,12 @@ TEST_F(LlistTestFixture, MultipleRemove) {
 
     // Test values in items
     EXPECT_EQ(
-            first->value,
+            *((int*)first->value),
             0
     ) << "Error value in first item";
 
     EXPECT_EQ(
-            second->value,
+            *((int*)second->value),
             2
     ) << "Error value in second item";
 

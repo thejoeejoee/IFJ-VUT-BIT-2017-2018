@@ -138,6 +138,22 @@ end scope
 
 }
 
+
+TEST_F(ParserSemanticTestFixture, FunctionDefinitionWithoutDeclaration) {
+    provider->setString(R"(
+function erzert(aqrqwer as integer, bqewqxc as integer) as integer
+end function
+
+scope
+end scope
+    )");
+
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    ) << "Error parsing program";
+
+}
+
 TEST_F(ParserSemanticTestFixture, FunctionDecAndDefWithParams) {
     provider->setString(R"(
 declare function qweadscyx(iopfg as string) as integer

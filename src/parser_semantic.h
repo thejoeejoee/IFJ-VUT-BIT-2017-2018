@@ -22,6 +22,8 @@ typedef struct parser_semantic_t {
 
     size_t argument_index;
 
+    bool function_declared;
+
 } ParserSemantic;
 
 /**

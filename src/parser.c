@@ -353,7 +353,7 @@ bool parser_parse_function_header(Parser* parser) {
             if(!parser_semantic_check_count_of_function_arguments(parser->parser_semantic)) {
             token_free(&token);
                 return false;
-    }
+            }
         );
 
         CHECK_TOKEN(TOKEN_RIGHT_BRACKET);
@@ -364,7 +364,7 @@ bool parser_parse_function_header(Parser* parser) {
             if(!parser_semantic_set_function_return_data_type(parser->parser_semantic, (DataType) token_type)) {
             token_free(&token);
             return false;
-    }
+            }
             // TODO: resolve token_type -> data_type conversion for boolean
         );
     );

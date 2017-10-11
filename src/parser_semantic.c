@@ -43,6 +43,12 @@ SymbolVariable* parser_semantic_expect_symbol_variable(ParserSemantic* parser_se
 SymbolVariable* parser_semantic_add_symbol_variable(ParserSemantic* parser_semantic, char* name, DataType data_type) {
     NULL_POINTER_CHECK(parser_semantic, false);
     NULL_POINTER_CHECK(name, false);
+
+    if(symbol_table_function_get(parser_semantic->register_->functions, name) != NULL) {
+        parser_semantic->error_report.error_code = ERROR_SEMANTIC_DEFINITION;
+        return false;
+    }
+
     if(symbol_register_find_variable(parser_semantic->register_, name) != NULL) {
         // already declared in current scope
         parser_semantic->error_report.error_code = ERROR_SEMANTIC_DEFINITION;

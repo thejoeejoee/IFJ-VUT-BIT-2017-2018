@@ -748,7 +748,7 @@ PrinT 42;                ' !"Zadejte cislo pro vypocet faktorialu";
 InpuT A
 
 If 42 THEN               ' a < 0
-print 42                 ' !"\nFaktorial nelze spocitat\n";
+print 42;                 ' !"\nFaktorial nelze spocitat\n";
 
 ELSE
 
@@ -759,7 +759,7 @@ VYSL = 42                ' vysl * a
 a = 42                   ' A - 1
 LooP
 
-Print 42                 ' !"\nVysledek je:" ; vYsl ; !"\n";
+Print 42;                 ' !"\nVysledek je:" ; vYsl ; !"\n";
 end IF
 
 

@@ -739,6 +739,7 @@ bool parser_parse_condition_else(Parser* parser) {
                             )
                     );
             CHECK_TOKEN(TOKEN_EOL);
+            CALL_RULE(eols)
             CODE_GENERATION(
                     {
                             code_constructor_if_else_block(parser->code_constructor);

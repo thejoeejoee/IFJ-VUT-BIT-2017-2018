@@ -8,13 +8,13 @@ extern "C" {
 
 #include "utils/functioncallcounter.h"
 
-void ForeachCount(const char* key, void* data) {}
+void ForeachCount(const char* key, void* data, void* static_data) {}
 
 
 class SymbolTableTestFixture : public ::testing::Test {
     protected:
         SymbolTable* symbol_table = nullptr;
-        FunctionCallCounter<void, const char*, void*>* callCounter;
+        FunctionCallCounter<void, const char*, void*, void*>* callCounter;
 
         SymbolTableTestFixture() : testing::Test() {
             callCounter = callCounterInstance(&ForeachCount);
@@ -23,7 +23,7 @@ class SymbolTableTestFixture : public ::testing::Test {
         virtual void SetUp() {
             callCounter->resetCounter();
             symbol_table = symbol_table_init(2, sizeof(SymbolTableBaseItem),
-                                             InitData,FreeData);
+                                             InitData, FreeData);
         }
 
         virtual void TearDown() {
@@ -31,6 +31,7 @@ class SymbolTableTestFixture : public ::testing::Test {
         }
 
         void static InitData(SymbolTableBaseItem*) {}
+
         void static FreeData(SymbolTableBaseItem*) {}
 };
 
@@ -41,7 +42,7 @@ class SymbolTableWithDataTestFixture : public ::testing::Test {
                 "test1", "test2", "test3", "test4", "test5",
                 "test6", "test7", "test8", "test9", "test10"
         };
-        FunctionCallCounter<void, const char*, void*>* callCounter;
+        FunctionCallCounter<void, const char*, void*, void*>* callCounter;
 
         SymbolTableWithDataTestFixture() : testing::Test() {
             callCounter = callCounterInstance(&ForeachCount);
@@ -63,6 +64,7 @@ class SymbolTableWithDataTestFixture : public ::testing::Test {
         }
 
         void static InitData(SymbolTableBaseItem*) {}
+
         void static FreeData(SymbolTableBaseItem*) {}
 };
 
@@ -233,7 +235,7 @@ TEST_F(SymbolTableTestFixture, MoveTableInvalid) {
 TEST_F(SymbolTableTestFixture, Foreach) {
     DISABLE_LOG({
 
-                    symbol_table_foreach(nullptr, callCounter->wrapper());
+                    symbol_table_foreach(nullptr, callCounter->wrapper(), nullptr);
                 });
 
     EXPECT_EQ(
@@ -243,7 +245,7 @@ TEST_F(SymbolTableTestFixture, Foreach) {
 
     callCounter->resetCounter();
 
-    symbol_table_foreach(symbol_table, callCounter->wrapper());
+    symbol_table_foreach(symbol_table, callCounter->wrapper(), nullptr);
 
     EXPECT_EQ(
             callCounter->callCount(),
@@ -252,7 +254,7 @@ TEST_F(SymbolTableTestFixture, Foreach) {
 }
 
 TEST_F(SymbolTableWithDataTestFixture, Foreach) {
-    symbol_table_foreach(symbol_table, callCounter->wrapper());
+    symbol_table_foreach(symbol_table, callCounter->wrapper(), nullptr);
 
     EXPECT_EQ(
             callCounter->callCount(),

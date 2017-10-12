@@ -64,3 +64,29 @@ SymbolFunctionParam* symbol_function_get_param(SymbolFunction* function, size_t 
     } while(NULL != (param = param->next));
     return NULL;
 }
+
+void symbol_function_find_first_undefined_function_foreach(const char* key, void* item, void* static_data) {
+    NULL_POINTER_CHECK(key,);
+    NULL_POINTER_CHECK(item,);
+    NULL_POINTER_CHECK(static_data,);
+
+    SymbolFunction* function = (SymbolFunction*) item;
+    char** function_name = ((char**) static_data);
+    if(*function_name != NULL)
+        return;
+
+    if(function->declared && !function->defined) {
+        *function_name = (char*) key;
+    }
+}
+
+SymbolFunction* symbol_function_find_declared_function_without_definition(SymbolTable* table) {
+    NULL_POINTER_CHECK(table, NULL);
+
+    char* function_name = NULL;
+
+    symbol_table_foreach(table, symbol_function_find_first_undefined_function_foreach, &function_name);
+    if(function_name == NULL)
+        return NULL;
+    return symbol_table_function_get(table, function_name);
+}

@@ -56,6 +56,14 @@ void llist_init(struct LList** list, llist_free_item_data free_function, llist_i
 void llist_append(struct LList* list, void* value);
 
 /**
+* @brief llist_append Inserts one item with given value after item 'after' of the list.
+* @param list List where item will be inserted.
+* @param after Item from given list after which the item will be inserted.
+* @param value Value of inserted item.
+*/
+void llist_insert_after(struct LList* list, struct LListItem* after, void* value);
+
+/**
  * @brief llist_remove_one Remove first occurrence of item with given value.
  * @param list List where item will be searched.
  * @param value Value of deleting item.

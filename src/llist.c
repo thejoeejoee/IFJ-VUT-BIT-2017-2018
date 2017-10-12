@@ -28,6 +28,11 @@ void llist_append(LList* list, void* value) {
     list->tail = new_item;
 }
 
+void llist_insert_after(LList * list, LListItem * after, void * value)
+{
+    // TODO : implement!!!
+}
+
 bool llist_remove_one(LList* list, void* value) {
     NULL_POINTER_CHECK(list, false);
     if (list->cmp_function == NULL) { return false; }

@@ -102,14 +102,20 @@
     ((token_type_literal) & 0xFF) == 0) || \
     (token_type != (token_type_literal) && (token_type_literal) < TOKEN_CLASSES)) {\
         token_free(&token); \
+        LOG_INFO("Token test %s fail, %d present.", #token_type_literal, token_type); \
         return false; \
-    }} while(0)
+    } \
+    LOG_INFO("Token test %s success.", #token_type_literal); \
+    } while(0)
 
 #define _RAW_CHECK_RULE(rule_name) do { \
     if(!parser_parse_ ## rule_name(parser)) {\
         token_free(&token);\
+        LOG_INFO("Rule test %s fail.", #rule_name); \
         return false;\
-    }} while(0)
+    } \
+    LOG_INFO("Rule test %s success.", #rule_name); \
+    } while(0)
 
 #define CHECK_TOKEN_4(condition, token_type_literal, before_code, after_code) do { \
         if(conditional_rules) { \

@@ -689,6 +689,7 @@ bool parser_parse_condition_elseif(Parser* parser) {
                             code_constructor_if_else_if_after_expression(parser->code_constructor);
                     }
             );
+            CHECK_TOKEN(TOKEN_THEN);
             CHECK_TOKEN(TOKEN_EOL);
             CALL_RULE_STATEMENTS();
             CALL_RULE(condition_elseif);

@@ -487,7 +487,7 @@ FUNCTION FOO() AS INTEGER
 DO WHILE 42
 if 42 then
 input id
-elseif 43
+elseif 43 then
 input id
 else
 input id
@@ -540,7 +540,7 @@ TEST_F(ParserTestFixture, ComplexTestWithCondition) {
 SCOPE
 if 42 then
 input id
-elseif 43
+elseif 43 then
 input id
 else
 input id
@@ -557,7 +557,7 @@ SCOPE
 return 32
 if 42 then
 input id
-elseif 43
+elseif 43 then
 input id
 else
 input id

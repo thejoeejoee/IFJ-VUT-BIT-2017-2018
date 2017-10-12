@@ -582,11 +582,27 @@ bool parser_parse_while_(Parser* parser) {
     RULES(
             CHECK_TOKEN(TOKEN_DO);
             CHECK_TOKEN(TOKEN_WHILE);
+            CODE_GENERATION(
+                    {
+                            code_constructor_while_before_condition(parser->code_constructor);
+                    }
+            );
             CALL_RULE(expression);
+            CODE_GENERATION(
+                    {
+                            code_constructor_while_after_condition(parser->code_constructor);
+                    }
+            );
             CHECK_TOKEN(TOKEN_EOL);
             CALL_RULE(eols);
+
             CALL_RULE_STATEMENTS();
             CHECK_TOKEN(TOKEN_LOOP);
+            CODE_GENERATION(
+                    {
+                            code_constructor_while_end(parser->code_constructor);
+                    }
+            );
     );
     return true;
 }

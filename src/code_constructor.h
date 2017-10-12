@@ -17,6 +17,8 @@ typedef struct code_constructor_t {
 
     // metadata about actually generated code
     Stack* code_label_stack;
+    Stack* conditions_label_stack;
+    Stack* loops_label_stack;
     size_t scope_depth;
     bool in_function_definition;
 
@@ -47,6 +49,12 @@ void code_constructor_if_else_if_after_expression(CodeConstructor* constructor);
 void code_constructor_if_after_end_if(CodeConstructor* constructor);
 
 void code_constructor_if_else_block(CodeConstructor* constructor);
+
+void code_constructor_while_before_condition(CodeConstructor* constructor);
+
+void code_constructor_while_after_condition(CodeConstructor* constructor);
+
+void code_constructor_while_end(CodeConstructor* constructor);
 
 void code_constructor_print_expression(CodeConstructor* constructor);
 

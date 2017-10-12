@@ -1,0 +1,18 @@
+E ->	i
+E ->	fn
+E ->	- E
+E ->	( E )
+E ->	E * E
+E ->	E / E
+E ->	E \ E
+E ->	E + E
+E ->	E - E
+E ->	E = E
+E ->	E <> E
+E ->	E < E
+E ->	E <= E
+E ->	E >= E
+E ->	E > E
+E ->	NOT E
+E ->	E AND E
+E ->	E OR E

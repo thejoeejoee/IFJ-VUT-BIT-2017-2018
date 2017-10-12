@@ -345,7 +345,7 @@ end if
     ) << "Error parsing <condition> rule";
 }
 
-TEST_F(ParserTestFixture, DimRule) {
+TEST_F(ParserTestFixture, DimRuleDeclaration) {
 
     provider->setString("dim param475624 as string");
 
@@ -353,21 +353,97 @@ TEST_F(ParserTestFixture, DimRule) {
             parser_parse_variable_declaration(parser)
     ) << "Error parsing <variable_declaration> rule";
 
+
+}
+
+TEST_F(ParserTestFixture, DimRuleDeclaration2) {
+
     provider->setString("dim param48745 as integer");
-
-    parser_semantic_free(&(parser->parser_semantic));
-
-    parser->parser_semantic = parser_semantic_init();
 
     EXPECT_TRUE(
             parser_parse_variable_declaration(parser)
     ) << "Error parsing <variable_declaration> rule";
+
+
+}
+
+TEST_F(ParserTestFixture, DimRuleDeclaration3) {
+
 
     provider->setString("dim param79541 asc string");
 
     EXPECT_FALSE(
             parser_parse_variable_declaration(parser)
     ) << "Error parsing <variable_declaration> rule";
+
+
+}
+
+TEST_F(ParserTestFixture, DimRuleDeclaration4) {
+
+    provider->setString("dim param475624 as integer = 376457455678");
+
+    EXPECT_TRUE(
+            parser_parse_variable_declaration(parser)
+    ) << "Error parsing <variable_declaration> rule";
+
+
+}
+
+
+TEST_F(ParserTestFixture, DimRuleWithAssignment) {
+
+    provider->setString("dim param475624 as integer = 10");
+
+    EXPECT_TRUE(
+            parser_parse_variable_declaration(parser)
+    ) << "Error parsing <variable_declaration> rule";
+
+
+}
+
+
+TEST_F(ParserTestFixture, AssignmentRule) {
+
+    provider->setString("= 56875687");
+
+    EXPECT_TRUE(
+            parser_parse_assignment(parser)
+    ) << "Error parsing <assignment rule";
+
+
+}
+
+
+TEST_F(ParserTestFixture, DeclarationAssigment) {
+
+    provider->setString(" = 567868");
+
+    EXPECT_TRUE(
+            parser_parse_declaration_assignment(parser)
+    ) << "Error parsing <assignment rule";
+
+
+}
+
+TEST_F(ParserTestFixture, DeclarationAssigment2) {
+
+    provider->setString("");
+
+    EXPECT_TRUE(
+            parser_parse_declaration_assignment(parser)
+    ) << "Error parsing <assignment rule";
+
+
+}
+
+TEST_F(ParserTestFixture, DeclarationAssigment3) {
+
+    provider->setString("= =");
+
+    EXPECT_FALSE(
+            parser_parse_declaration_assignment(parser)
+    ) << "Error parsing <assignment rule";
 
 
 }
@@ -439,6 +515,33 @@ TEST_F(ParserTestFixture, ComplexTest2) {
 declare function foo_function(a as integer, b as string) as string
 function bar(b as string, a as integer) as integer
 dim a as integer
+input a
+print 42;42;332;
+end function
+
+SCOPE
+
+SCOPE
+if 32 then
+input id
+dim a as string
+end if
+END SCOPE
+
+END SCOPE
+    )");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    ) << "Body parse";
+
+}
+
+TEST_F(ParserTestFixture, ComplexTest3) {
+    provider->setString(R"(
+declare function foo_function(a as integer, b as string) as string
+function bar(b as string, a as integer) as integer
+dim a as integer = 69887
+dim Z6_7890 as integer = 6709890
 input a
 print 42;42;332;
 end function

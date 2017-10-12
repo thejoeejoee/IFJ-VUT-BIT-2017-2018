@@ -490,6 +490,7 @@ bool parser_parse_variable_declaration(Parser* parser) {
                             }
                     );}
             );
+            CALL_RULE(declaration_assignment);
     );
     return true;
 }
@@ -726,6 +727,36 @@ bool parser_parse_condition_else(Parser* parser) {
             );
             CALL_RULE_STATEMENTS();
     );
+    );
+    return true;
+}
+
+bool parser_parse_declaration_assignment(Parser* parser) {
+    /*
+     * RULE
+     * <condition_assignment> -> E
+     * <condition_assignment> -> <assignment>
+     */
+
+    RULES(
+
+            CONDITIONAL_RULES(
+                    lexer_rewind_token(parser->lexer, token);
+                    CHECK_RULE(token_type == TOKEN_EQUAL, assignment, NO_CODE);
+        );
+    );
+
+    return true;
+}
+
+bool parser_parse_assignment(Parser* parser) {
+    /*
+     * RULE
+     * <assignment> -> = <expression>
+     */
+    RULES(
+            CHECK_TOKEN(TOKEN_EQUAL);
+            CALL_RULE(expression);
     );
     return true;
 }

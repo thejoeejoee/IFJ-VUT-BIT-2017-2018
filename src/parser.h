@@ -318,6 +318,10 @@ bool parser_parse_condition_elseif(Parser* parser);
 
 bool parser_parse_scope(Parser* parser);
 
+bool parser_parse_assignment(Parser* parser);
+
+bool parser_parse_declaration_assignment(Parser* parser);
+
 
 
 #endif //_PARSER_H

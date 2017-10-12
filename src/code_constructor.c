@@ -30,11 +30,11 @@ void code_constructor_start_code(CodeConstructor* constructor) {
     NULL_POINTER_CHECK(constructor,);
 
     // TODO: random labels? hashed?
-    stack_code_label_push(constructor->code_label_stack, "scope");
+    stack_code_label_push(constructor->code_label_stack, "%__main__scope");
     GENERATE_CODE(I_JUMP, code_instruction_operand_init_label(stack_code_label_head(constructor->code_label_stack)));
 }
 
-void code_constructor_scope_start(CodeConstructor* constructor) {
+void code_constructor_main_scope_start(CodeConstructor* constructor) {
     NULL_POINTER_CHECK(constructor,);
 
     if(constructor->in_function_definition) {
@@ -191,15 +191,16 @@ char* code_constructor_generate_label(CodeConstructor* constructor, const char* 
     NULL_POINTER_CHECK(constructor, NULL);
     NULL_POINTER_CHECK(type, NULL);
 
-    size_t len = strlen(type) + 16;
+    size_t len = strlen(type) + 16 + 10;
     char* label = memory_alloc(len * sizeof(char));
-    if(include_label_counter) {
-        snprintf(label, len, "_%03zd_%s_%03zd", constructor->label_counter++, type,
-                 constructor->control_statement_depth);
-    } else {
-        snprintf(label, len, "_%s_%03zd", type, constructor->control_statement_depth);
-
-    }
+    snprintf(
+            label,
+            len,
+            "%%_LABEL%03zd_%s_DEPTH%03zd",
+            constructor->label_counter++,
+            type,
+            constructor->control_statement_depth
+    );
 
     return label;
 }

@@ -31,7 +31,7 @@ Lexer* lexer_init(lexer_input_stream_f input_stream);
 void lexer_free(Lexer** lexer);
 
 /**
- * @brief Get next token from lexer
+ * @brief Get next token from lexer, this token must be freed with 'token_free()' function
  *
  * @param Lexer* lexer Pointer to lexer
  * @return Token* Pointer to next token

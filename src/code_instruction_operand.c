@@ -94,6 +94,8 @@ char* code_instruction_operand_render(CodeInstructionOperand* operand) {
     size_t length = 1;
     if(operand->type == TYPE_INSTRUCTION_OPERAND_CONSTANT && operand->data.constant.data_type == DATA_TYPE_STRING) {
         length += string_length(operand->data.constant.data.string);
+    } else if(operand->type == TYPE_INSTRUCTION_OPERAND_LABEL) {
+        length += strlen(operand->data.label);
     }
 
     length += 16; // data type

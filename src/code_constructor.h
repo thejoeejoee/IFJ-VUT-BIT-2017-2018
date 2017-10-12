@@ -19,6 +19,9 @@ typedef struct code_constructor_t {
     Stack* code_label_stack;
     size_t scope_depth;
     bool in_function_definition;
+
+    size_t label_counter;
+    size_t control_statement_depth;
 } CodeConstructor;
 
 CodeConstructor* code_constructor_init();
@@ -32,6 +35,20 @@ void code_constructor_scope_start(CodeConstructor* constructor);
 void code_constructor_variable_declaration(CodeConstructor* constructor, int frame, SymbolVariable* symbol_variable);
 
 void code_constructor_input(CodeConstructor* constructor, int frame, SymbolVariable* symbolVariable);
+
+void code_constructor_if_after_expression(CodeConstructor* constructor);
+
+void code_constructor_if_end_if_block(CodeConstructor* constructor);
+
+void code_constructor_if_else_if_before_expression(CodeConstructor* constructor);
+
+void code_constructor_if_else_if_after_expression(CodeConstructor* constructor);
+
+void code_constructor_if_after_end_id(CodeConstructor* constructor);
+
+void code_constructor_print_expression(CodeConstructor* constructor);
+
+char* code_constructor_generate_label(CodeConstructor* constructor, const char* type, bool include_label_counter);
 
 
 #endif //_CODE_CONSTRUCTOR_H

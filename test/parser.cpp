@@ -299,21 +299,50 @@ TEST_F(ParserTestFixture, BodyStatementSingle) {
 
 }
 
-TEST_F(ParserTestFixture, IfRule) {
-    provider->setString(R"(if 42 then
-input id
-elseif 43
-input id
-else
-input id
-input id
+TEST_F(ParserTestFixture, IfRule0) {
+    provider->setString(R"(if 714156 then
+print 4658791;
 end if
     )");
 
     EXPECT_TRUE(
             parser_parse_condition(parser)
     ) << "Error parsing <condition> rule";
+}
 
+TEST_F(ParserTestFixture, IfRule1) {
+    provider->setString(R"(if 46593 then
+print 1254;
+else
+print 23137486;
+print 214687;
+end if
+    )");
+
+    EXPECT_TRUE(
+            parser_parse_condition(parser)
+    ) << "Error parsing <condition> rule";
+}
+
+TEST_F(ParserTestFixture, IfRule2) {
+    provider->setString(R"(if 42 then
+print 23137213546486;
+print 23137213546486;
+elseif 43 then
+if 38 then
+print 23137879486;
+elseif 14 then
+print 23137213546486;
+end if
+else
+print 23137213546486;
+print 23137213546486;
+end if
+    )");
+
+    EXPECT_TRUE(
+            parser_parse_condition(parser)
+    ) << "Error parsing <condition> rule";
 }
 
 TEST_F(ParserTestFixture, DimRule) {

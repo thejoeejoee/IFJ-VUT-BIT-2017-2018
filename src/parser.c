@@ -48,6 +48,7 @@ bool parser_parse(Parser* parser) {
 
         return false;
     }
+    ASSERT(stack_code_label_head(parser->code_constructor->code_label_stack) == NULL);
     return true;
 
 }
@@ -180,12 +181,15 @@ bool parser_parse_function_statements(Parser* parser) {
     RULES(
             CONDITIONAL_RULES(
                     lexer_rewind_token(parser->lexer, token);
+
+
             CHECK_RULE(
                     token_type != TOKEN_INPUT && token_type != TOKEN_RETURN && token_type != TOKEN_IF &&
                     token_type != TOKEN_DIM && token_type != TOKEN_PRINT && token_type != TOKEN_DO,
                     epsilon,
                     NO_CODE
             );
+
             CHECK_RULE(function_statement_single);
             CHECK_TOKEN(TOKEN_EOL);
             CHECK_RULE(eols);
@@ -203,10 +207,10 @@ bool parser_parse_body_statements(Parser* parser) {
      */
 
     parser->body_statement = true;
-
     RULES(
             CONDITIONAL_RULES(
                     lexer_rewind_token(parser->lexer, token);
+
             CHECK_RULE(
                     token_type != TOKEN_INPUT && token_type != TOKEN_DIM && token_type != TOKEN_PRINT &&
                     token_type != TOKEN_DO && token_type != TOKEN_IF && token_type != TOKEN_SCOPE,
@@ -238,6 +242,7 @@ bool parser_parse_function_statement_single(Parser* parser) {
      */
     RULES(
             CONDITIONAL_RULES(
+
                     CHECK_RULE(token_type == TOKEN_INPUT, input, REWIND_AND_SUCCESS);
             CHECK_RULE(token_type == TOKEN_RETURN, return_, REWIND_AND_SUCCESS);
             CHECK_RULE(token_type == TOKEN_PRINT, print, REWIND_AND_SUCCESS);
@@ -558,6 +563,11 @@ bool parser_parse_print_expression(Parser* parser) {
      */
     RULES(
             CALL_RULE(expression);
+            CODE_GENERATION(
+                    {
+                            code_constructor_print_expression(parser->code_constructor);
+                    }
+            );
             CHECK_TOKEN(TOKEN_SEMICOLON);
     );
     return true;
@@ -624,13 +634,28 @@ bool parser_parse_condition(Parser* parser) {
     RULES(
             CHECK_TOKEN(TOKEN_IF);
             CALL_RULE(expression);
+            CODE_GENERATION(
+                    {
+                            code_constructor_if_after_expression(parser->code_constructor);
+                    }
+            );
             CHECK_TOKEN(TOKEN_THEN);
             CHECK_TOKEN(TOKEN_EOL);
             CALL_RULE_STATEMENTS();
+            CODE_GENERATION(
+                    {
+                            code_constructor_if_end_if_block(parser->code_constructor);
+                    }
+            );
             CALL_RULE(condition_elseif);
             CALL_RULE(condition_else);
             CHECK_TOKEN(TOKEN_END);
             CHECK_TOKEN(TOKEN_IF);
+            CODE_GENERATION(
+                    {
+                            code_constructor_if_after_end_id(parser->code_constructor);
+                    }
+            );
     );
     return true;
 }
@@ -645,14 +670,25 @@ bool parser_parse_condition_elseif(Parser* parser) {
                                     {
                                             lexer_rewind_token(parser->lexer, token);
                                     }
-                            ), AFTER(
+                            ),
+                            AFTER(
                                     {
                                             token_free(&token);
                                             return true;
                                     }
                             )
                     );
+            CODE_GENERATION(
+                    {
+                            code_constructor_if_else_if_before_expression(parser->code_constructor);
+                    }
+            );
             CALL_RULE(expression);
+            CODE_GENERATION(
+                    {
+                            code_constructor_if_else_if_after_expression(parser->code_constructor);
+                    }
+            );
             CHECK_TOKEN(TOKEN_EOL);
             CALL_RULE_STATEMENTS();
             CALL_RULE(condition_elseif);

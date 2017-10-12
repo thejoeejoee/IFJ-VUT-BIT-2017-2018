@@ -52,7 +52,7 @@ bool llist_remove_one(LList* list, void* value) {
                 next_item->previous = current_item->previous;
 
             if (list->free_function != NULL) {
-                list->free_function(current_item);
+                list->free_function(current_item->value);
             }
             memory_free(current_item);
             return true;
@@ -72,7 +72,7 @@ void llist_free(LList** list) {
         do {
             next_item = current_item->next;
             if ((*list)->free_function != NULL) {
-                (*list)->free_function(current_item);
+                (*list)->free_function(current_item->value);
             }
             memory_free(current_item);
             current_item = next_item;

@@ -114,7 +114,7 @@ void code_constructor_while_end(CodeConstructor* constructor);
 
 void code_constructor_print_expression(CodeConstructor* constructor);
 
-char* code_constructor_generate_label(CodeConstructor* constructor, const char* type, bool include_label_counter);
+char* code_constructor_generate_label(CodeConstructor* constructor, const char* type);
 
 
 #endif //_CODE_CONSTRUCTOR_H

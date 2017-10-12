@@ -95,7 +95,7 @@ void code_constructor_if_after_expression(CodeConstructor* constructor) {
     NULL_POINTER_CHECK(constructor,);
     constructor->control_statement_depth++;
     // prepare end jump with label to first position in stack
-    char* label = code_constructor_generate_label(constructor, "if_end", true);
+    char* label = code_constructor_generate_label(constructor, "if_end");
     stack_code_label_push(constructor->conditions_label_stack, label);
 
     GENERATE_CODE(
@@ -103,7 +103,7 @@ void code_constructor_if_after_expression(CodeConstructor* constructor) {
             code_instruction_operand_init_boolean(false)
     );
 
-    label = code_constructor_generate_label(constructor, "if_else", true);
+    label = code_constructor_generate_label(constructor, "if_else");
     GENERATE_CODE(
             I_JUMP_IF_EQUAL_STACK,
             code_instruction_operand_init_label(label)
@@ -164,7 +164,7 @@ void code_constructor_if_else_if_after_expression(CodeConstructor* constructor) 
             code_instruction_operand_init_boolean(false)
     );
 
-    char* label = code_constructor_generate_label(constructor, "if_else", true);
+    char* label = code_constructor_generate_label(constructor, "if_else");
     GENERATE_CODE(
             I_JUMP_IF_EQUAL_STACK,
             code_instruction_operand_init_label(label)
@@ -182,12 +182,12 @@ void code_constructor_if_else_block(CodeConstructor* constructor) {
             code_instruction_operand_init_label(code_label->label)
     );
     code_label_free(&code_label);
-    char* label = code_constructor_generate_label(constructor, "if_else", true);
+    char* label = code_constructor_generate_label(constructor, "if_else");
     stack_code_label_push(constructor->conditions_label_stack, label);
 }
 
 
-char* code_constructor_generate_label(CodeConstructor* constructor, const char* type, bool include_label_counter) {
+char* code_constructor_generate_label(CodeConstructor* constructor, const char* type) {
     NULL_POINTER_CHECK(constructor, NULL);
     NULL_POINTER_CHECK(type, NULL);
 
@@ -218,7 +218,7 @@ void code_constructor_while_before_condition(CodeConstructor* constructor) {
     NULL_POINTER_CHECK(constructor,);
     constructor->control_statement_depth++;
 
-    char* label = code_constructor_generate_label(constructor, "while_start", true);
+    char* label = code_constructor_generate_label(constructor, "while_start");
     stack_code_label_push(constructor->loops_label_stack, label);
 
     GENERATE_CODE(
@@ -235,7 +235,7 @@ void code_constructor_while_after_condition(CodeConstructor* constructor) {
             code_instruction_operand_init_boolean(false)
     );
 
-    char* label = code_constructor_generate_label(constructor, "while_end", true);
+    char* label = code_constructor_generate_label(constructor, "while_end");
     GENERATE_CODE(
             I_JUMP_IF_EQUAL_STACK,
             code_instruction_operand_init_label(label)

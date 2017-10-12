@@ -81,6 +81,7 @@ bool parser_parse_body(Parser* parser) {
      */
     RULES(
             CHECK_RULE(definitions);
+            parser->body_statement = true;
             CHECK_RULE(scope);
             UNUSED(token_type);
     );
@@ -206,14 +207,14 @@ bool parser_parse_body_statements(Parser* parser) {
      * <statements> -> <statement_single> EOL <eols> <statements>
      */
 
-    parser->body_statement = true;
     RULES(
             CONDITIONAL_RULES(
                     lexer_rewind_token(parser->lexer, token);
 
             CHECK_RULE(
                     token_type != TOKEN_INPUT && token_type != TOKEN_DIM && token_type != TOKEN_PRINT &&
-                    token_type != TOKEN_DO && token_type != TOKEN_IF && token_type != TOKEN_SCOPE,
+                    token_type != TOKEN_DO && token_type != TOKEN_IF && token_type != TOKEN_SCOPE &&
+                    token_type != TOKEN_PRINT,
                     epsilon,
                     BEFORE({}),
                     AFTER(
@@ -521,6 +522,7 @@ bool parser_parse_print(Parser* parser) {
 }
 
 bool parser_parse_print_expressions(Parser* parser) {
+
     RULES(
             CONDITIONAL_RULES(
                     CHECK_RULE(
@@ -658,6 +660,7 @@ bool parser_parse_condition(Parser* parser) {
             );
             CHECK_TOKEN(TOKEN_THEN);
             CHECK_TOKEN(TOKEN_EOL);
+            CALL_RULE(eols)
             CALL_RULE_STATEMENTS();
             CODE_GENERATION(
                     {

@@ -655,6 +655,10 @@ END SCOPE
             parser_parse_program(parser)
     ) << "Body parse";
 
+}
+
+TEST_F(ParserTestFixture, ComplexTestWithCondition1) {
+
     provider->setString(R"(
 SCOPE
 return 32
@@ -669,6 +673,45 @@ end if
 END SCOPE
     )");
     EXPECT_FALSE(
+            parser_parse_program(parser)
+    ) << "Body parse";
+
+}
+
+TEST_F(ParserTestFixture, ComplexTestWithConditionWithoutElseif) {
+    provider->setString(R"(
+SCOPE
+if 42 then
+input id
+ELSE
+input id
+input id
+end if
+END SCOPE
+    )");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    ) << "Body parse";
+
+}
+
+TEST_F(ParserTestFixture, SimpleIf) {
+    provider->setString(R"(
+
+scope 'Hlavni telo programu
+
+
+if 42 then
+
+
+input id
+
+end if
+
+
+END SCOPE
+    )");
+    EXPECT_TRUE(
             parser_parse_program(parser)
     ) << "Body parse";
 
@@ -690,6 +733,44 @@ END SCOPE
     ) << "Body parse";
 
 }
+
+TEST_F(ParserTestFixture, ComplexTestFactorial) {
+    provider->setString(R"(
+/' Program 1: Vypocet faktorialu (iterativne) '/
+/' Vcetne ukazky case-insensitive vlastnosti jazyka IFJ17 '/
+
+scope 'Hlavni telo programu
+
+Dim a As Integer
+DIM vysl AS INTEGER
+
+PrinT 42;                ' !"Zadejte cislo pro vypocet faktorialu";
+InpuT A
+
+If 42 THEN               ' a < 0
+print 42                 ' !"\nFaktorial nelze spocitat\n";
+
+ELSE
+
+Vysl = 1
+
+Do WHile 42              ' A > 0
+VYSL = 42                ' vysl * a
+a = 42                   ' A - 1
+LooP
+
+Print 42                 ' !"\nVysledek je:" ; vYsl ; !"\n";
+end IF
+
+
+END SCOPE
+    )");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    ) << "Body parse";
+
+}
+
 
 
 

@@ -48,7 +48,7 @@ bool parser_parse(Parser* parser) {
 
         return false;
     }
-    ASSERT(stack_code_label_head(parser->code_constructor->code_label_stack) == NULL);
+    ASSERT(parser->code_constructor->code_label_stack->head == NULL);
     return true;
 
 }
@@ -653,7 +653,7 @@ bool parser_parse_condition(Parser* parser) {
             CHECK_TOKEN(TOKEN_IF);
             CODE_GENERATION(
                     {
-                            code_constructor_if_after_end_id(parser->code_constructor);
+                            code_constructor_if_after_end_if(parser->code_constructor);
                     }
             );
     );
@@ -705,15 +705,24 @@ bool parser_parse_condition_else(Parser* parser) {
                     CHECK_RULE(
                             token_type != TOKEN_ELSE,
                             epsilon,
-                            BEFORE({
-                                           lexer_rewind_token(parser->lexer, token);
-                                   }),
-                            AFTER({
-                                          token_free(&token);
-                                          return true;
-                                  })
+                            BEFORE(
+                                    {
+                                            lexer_rewind_token(parser->lexer, token);
+                                    }
+                            ),
+                            AFTER(
+                                    {
+                                            token_free(&token);
+                                            return true;
+                                    }
+                            )
                     );
             CHECK_TOKEN(TOKEN_EOL);
+            CODE_GENERATION(
+                    {
+                            code_constructor_if_else_block(parser->code_constructor);
+                    }
+            );
             CALL_RULE_STATEMENTS();
     );
     );

@@ -44,3 +44,13 @@ StackBaseItem* stack_pop(Stack* stack) {
     stack->head = stack->head->next;
     return item;
 }
+
+StackBaseItem* stack_get_by_index(Stack* stack, size_t index) {
+    NULL_POINTER_CHECK(stack, NULL);
+    StackBaseItem* item = stack->head;
+    while(index > 0 && item != NULL) {
+        item = item->next;
+        index--;
+    }
+    return item;
+}

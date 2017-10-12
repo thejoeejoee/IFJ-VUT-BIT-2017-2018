@@ -90,6 +90,71 @@ void code_constructor_input(CodeConstructor* constructor, int frame, SymbolVaria
 void code_constructor_if_after_expression(CodeConstructor* constructor) {
     NULL_POINTER_CHECK(constructor,);
     constructor->control_statement_depth++;
+    // prepare end jump with label to first position in stack
+    char* label = code_constructor_generate_label(constructor, "if_end", true);
+    stack_code_label_push(constructor->code_label_stack, label);
+
+    GENERATE_CODE(
+            I_PUSH_STACK,
+            code_instruction_operand_init_boolean(false)
+    );
+
+    label = code_constructor_generate_label(constructor, "if_else", true);
+    GENERATE_CODE(
+            I_JUMP_IF_EQUAL_STACK,
+            code_instruction_operand_init_label(label)
+    );
+    stack_code_label_push(constructor->code_label_stack, label);
+}
+
+void code_constructor_if_end_if_block(CodeConstructor* constructor) {
+    NULL_POINTER_CHECK(constructor,);
+    char* label = stack_code_label_get_by_index(constructor->code_label_stack, 1);
+    GENERATE_CODE(
+            I_JUMP,
+            code_instruction_operand_init_label(label)
+    );
+}
+
+
+void code_constructor_if_after_end_if(CodeConstructor* constructor) {
+    NULL_POINTER_CHECK(constructor,);
+
+
+    CodeLabel* code_label = stack_code_label_pop(constructor->code_label_stack);
+    GENERATE_CODE(
+            I_LABEL,
+            code_instruction_operand_init_label(code_label->label)
+    );
+    // prepared endif
+    code_label_free(&code_label);
+    code_label = stack_code_label_pop(constructor->code_label_stack);
+    NULL_POINTER_CHECK(code_label,);
+    GENERATE_CODE(
+            I_LABEL,
+            code_instruction_operand_init_label(code_label->label)
+    );
+
+    constructor->control_statement_depth--;
+    code_label_free(&code_label);
+}
+
+
+void code_constructor_if_else_if_before_expression(CodeConstructor* constructor) {
+
+    CodeLabel* code_label = stack_code_label_pop(constructor->code_label_stack);
+    GENERATE_CODE(
+            I_LABEL,
+            code_instruction_operand_init_label(code_label->label)
+    );
+
+    code_label_free(&code_label);
+}
+
+
+void code_constructor_if_else_if_after_expression(CodeConstructor* constructor) {
+    NULL_POINTER_CHECK(constructor,);
+
     GENERATE_CODE(
             I_PUSH_STACK,
             code_instruction_operand_init_boolean(false)
@@ -103,64 +168,17 @@ void code_constructor_if_after_expression(CodeConstructor* constructor) {
     stack_code_label_push(constructor->code_label_stack, label);
 }
 
-void code_constructor_if_end_if_block(CodeConstructor* constructor) {
+
+void code_constructor_if_else_block(CodeConstructor* constructor) {
     NULL_POINTER_CHECK(constructor,);
-    char* label = code_constructor_generate_label(constructor, "if_end", false);
-    GENERATE_CODE(
-            I_JUMP,
-            code_instruction_operand_init_label(label)
-    );
-    memory_free(label);
-}
-
-
-void code_constructor_if_after_end_id(CodeConstructor* constructor) {
-    NULL_POINTER_CHECK(constructor,);
-
-
     CodeLabel* code_label = stack_code_label_pop(constructor->code_label_stack);
+    ASSERT(code_label != NULL);
     GENERATE_CODE(
             I_LABEL,
             code_instruction_operand_init_label(code_label->label)
     );
-    char* label = code_constructor_generate_label(constructor, "if_end", false);
-    GENERATE_CODE(
-            I_LABEL,
-            code_instruction_operand_init_label(label)
-    );
-
-    constructor->control_statement_depth--;
-    memory_free(code_label->label);
-    memory_free(code_label);
-    memory_free(label);
-}
-
-
-void code_constructor_if_else_if_before_expression(CodeConstructor* constructor) {
-
-    CodeLabel* code_label = stack_code_label_pop(constructor->code_label_stack);
-    GENERATE_CODE(
-            I_LABEL,
-            code_instruction_operand_init_label(code_label->label)
-    );
-    memory_free(code_label->label);
-    memory_free(code_label);
-}
-
-
-void code_constructor_if_else_if_after_expression(CodeConstructor* constructor) {
-    NULL_POINTER_CHECK(constructor,);
-
-    GENERATE_CODE(
-            I_PUSH_STACK,
-            code_instruction_operand_init_boolean(false)
-    );
-
-    char* label = code_constructor_generate_label(constructor, "if_end", true);
-    GENERATE_CODE(
-            I_JUMP_IF_EQUAL_STACK,
-            code_instruction_operand_init_label(label)
-    );
+    code_label_free(&code_label);
+    char* label = code_constructor_generate_label(constructor, "if_else", true);
     stack_code_label_push(constructor->code_label_stack, label);
 }
 
@@ -172,10 +190,10 @@ char* code_constructor_generate_label(CodeConstructor* constructor, const char* 
     size_t len = strlen(type) + 16;
     char* label = memory_alloc(len * sizeof(char));
     if(include_label_counter) {
-        snprintf(label, len, "_%05zd_%s_%05zd", constructor->label_counter++, type,
+        snprintf(label, len, "_%03zd_%s_%03zd", constructor->label_counter++, type,
                  constructor->control_statement_depth);
     } else {
-        snprintf(label, len, "_%s_%05zd", type, constructor->control_statement_depth);
+        snprintf(label, len, "_%s_%03zd", type, constructor->control_statement_depth);
 
     }
 

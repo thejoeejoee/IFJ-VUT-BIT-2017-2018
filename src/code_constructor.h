@@ -44,7 +44,9 @@ void code_constructor_if_else_if_before_expression(CodeConstructor* constructor)
 
 void code_constructor_if_else_if_after_expression(CodeConstructor* constructor);
 
-void code_constructor_if_after_end_id(CodeConstructor* constructor);
+void code_constructor_if_after_end_if(CodeConstructor* constructor);
+
+void code_constructor_if_else_block(CodeConstructor* constructor);
 
 void code_constructor_print_expression(CodeConstructor* constructor);
 

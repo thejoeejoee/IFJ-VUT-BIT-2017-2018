@@ -18,5 +18,8 @@ CodeLabel* stack_code_label_pop(Stack* stack);
 
 char* stack_code_label_head(Stack* stack);
 
+char* stack_code_label_get_by_index(Stack* stack, size_t index);
+
+void code_label_free(CodeLabel** label);
 
 #endif //_STACK_CODE_LABEL_H

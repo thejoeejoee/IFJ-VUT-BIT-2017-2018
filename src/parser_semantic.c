@@ -99,6 +99,7 @@ bool parser_semantic_set_function_name(ParserSemantic* parser_semantic, char* na
             return false;
         }
 
+        parser_semantic->actual_function->declared  = true;
         parser_semantic->actual_function->defined = true;
         if(!parser_semantic->actual_function->declared)
             parser_semantic->actual_function->arguments_count = 0;
@@ -165,3 +166,17 @@ bool parser_semantic_check_count_of_function_arguments(ParserSemantic* parser_se
 
     return true;
 }
+
+bool parser_semantic_check_definitions(ParserSemantic* parser_semantic) {
+    NULL_POINTER_CHECK(parser_semantic, false);
+
+    SymbolFunction* symbol_function = NULL;
+
+    symbol_function = symbol_function_find_declared_function_without_definition(parser_semantic->register_->functions);
+
+    if(symbol_function != NULL)
+        return false;
+
+    return true;
+}
+

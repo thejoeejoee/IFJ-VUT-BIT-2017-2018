@@ -244,6 +244,18 @@ end scope
     ) << "Error parsing program";
 }
 
+TEST_F(ParserSemanticTestFixture, DeclareFunctionWithoutDefitiniton) {
+    provider->setString(R"(
+declare function foo_complex3qwe(aqewqwe as integer) as integer
+
+SCOPE
+END SCOPE
+    )");
+    EXPECT_FALSE(
+            parser_parse_program(parser)
+    ) << "Body parse";
+}
+
 TEST_F(ParserSemanticTestFixture, ComplexTest1) {
     provider->setString(R"(scope
 input qweeqwrsdf
@@ -287,6 +299,29 @@ TEST_F(ParserSemanticTestFixture, ComplexTest4) {
     provider->setString(R"(
 declare function foo_function_complexqwead(aqwead as integer) as integer
 declare function foo_function_complexlpp(aqwead as string) as string
+SCOPE
+END SCOPE
+    )");
+    EXPECT_FALSE(
+            parser_parse_program(parser)
+    ) << "Body parse";
+
+}
+
+TEST_F(ParserSemanticTestFixture, ComplexTest4WithDefinitions) {
+    provider->setString(R"(
+declare function foo_function_complexqwead(aqwead as integer) as integer
+declare function foo_function_complexlpp(aqwead as string) as string
+
+function foo_function_complexqwead(aqwead as integer) as integer
+print 42;
+end function
+
+function foo_function_complexlpp(aqwead as string) as string
+dim a as integer
+input a
+end function
+
 SCOPE
 END SCOPE
     )");

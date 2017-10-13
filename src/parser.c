@@ -81,6 +81,15 @@ bool parser_parse_body(Parser* parser) {
      */
     RULES(
             CHECK_RULE(definitions);
+
+            SEMANTIC_ANALYSIS(
+                    {
+                        if(!parser_semantic_check_definitions(parser->parser_semantic))
+                            return false;
+                    }
+            );
+
+
             parser->body_statement = true;
             CHECK_RULE(scope);
             UNUSED(token_type);

@@ -273,22 +273,26 @@ TEST_F(ParserTestFixture, PrintStatement) {
             parser_parse_print(parser)
     ) << "Error parsing <print> rule";
 
-    parser->lexer->is_token_rewind = false;
+}
 
+TEST_F(ParserTestFixture, PrintStatement2) {
     provider->setString("print 42; 24; 42; \n");
 
     EXPECT_TRUE(
             parser_parse_print(parser)
     ) << "Error parsing <print> rule with concatenation";
 
-    parser->lexer->is_token_rewind = false;
+}
 
+TEST_F(ParserTestFixture, PrintStatement3) {
     provider->setString("print 42;42;42;42;42;42; \n");
 
     EXPECT_TRUE(
             parser_parse_print(parser)
     ) << "Error parsing <print> rule with concatenation";
 }
+
+
 
 TEST_F(ParserTestFixture, BodyStatementSingle) {
     provider->setString("input foo");
@@ -381,7 +385,7 @@ TEST_F(ParserTestFixture, DimRuleDeclaration3) {
 
 TEST_F(ParserTestFixture, DimRuleDeclaration4) {
 
-    provider->setString("dim param475624 as integer = 376457455678");
+    provider->setString("dim param475624 as integer = 42");
 
     EXPECT_TRUE(
             parser_parse_variable_declaration(parser)

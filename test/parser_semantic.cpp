@@ -171,6 +171,43 @@ end scope
 
 }
 
+
+TEST_F(ParserSemanticTestFixture, FunctionDuplicityArgumentName) {
+    provider->setString(R"(
+
+function bar(h as string, h as integer, x as string) as string
+end function
+
+scope
+end scope
+
+    )");
+
+    EXPECT_FALSE(
+            parser_parse_program(parser)
+    ) << "Error parsing program";
+
+}
+
+TEST_F(ParserSemanticTestFixture, FunctionDuplicityArgumentName2) {
+    provider->setString(R"(
+
+declare function bar(h as string, a as integer, h as string) as string
+
+function bar(h as string, a as integer, x as string) as string
+end function
+
+scope
+end scope
+
+    )");
+
+    EXPECT_FALSE(
+            parser_parse_program(parser)
+    ) << "Error parsing program";
+
+}
+
 TEST_F(ParserSemanticTestFixture, FunctionDecAndDefWithParams) {
     provider->setString(R"(
 declare function qweadscyx(iopfg as string) as integer

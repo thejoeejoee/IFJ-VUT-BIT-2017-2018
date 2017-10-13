@@ -99,10 +99,11 @@ bool parser_semantic_set_function_name(ParserSemantic* parser_semantic, char* na
             return false;
         }
 
-        parser_semantic->actual_function->declared  = true;
-        parser_semantic->actual_function->defined = true;
         if(!parser_semantic->actual_function->declared)
             parser_semantic->actual_function->arguments_count = 0;
+
+        parser_semantic->actual_function->declared  = true;
+        parser_semantic->actual_function->defined = true;
     }
 
     return true;
@@ -131,7 +132,17 @@ bool parser_semantic_add_function_parameter(ParserSemantic* parser_semantic, cha
     NULL_POINTER_CHECK(parser_semantic, false);
 
     if(parser_semantic->actual_action == SEMANTIC_ACTION__FUNCTION_DECLARATION || !parser_semantic->function_declared) {
-        // TODO: Check duplicity name
+
+        // Check duplicity name
+        for(int i = 1; i <= (int)parser_semantic->actual_function->arguments_count; i++) {
+            SymbolFunctionParam* param = symbol_function_get_param(parser_semantic->actual_function, i - 1);
+            if(strcmp(param->name, name) == 0) {
+                parser_semantic->error_report.error_code = ERROR_SEMANTIC_DEFINITION;
+                return false;
+            }
+
+        }
+
         // Function declaration, add function argument
         symbol_function_add_param(parser_semantic->actual_function, name, data_type);
         parser_semantic->actual_function->arguments_count++;

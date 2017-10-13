@@ -322,6 +322,6 @@ bool parser_parse_assignment(Parser* parser);
 
 bool parser_parse_declaration_assignment(Parser* parser);
 
-
+bool parser_parse_identif_assignment(Parser* parser);
 
 #endif //_PARSER_H

@@ -695,6 +695,23 @@ END SCOPE
 
 }
 
+TEST_F(ParserTestFixture, IdentifAssignment) {
+    provider->setString(R"(
+SCOPE
+if 42 then
+input id
+ELSE
+input id
+input id
+end if
+END SCOPE
+    )");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    ) << "Body parse";
+
+}
+
 TEST_F(ParserTestFixture, SimpleIf) {
     provider->setString(R"(
 
@@ -717,19 +734,12 @@ END SCOPE
 
 }
 
-TEST_F(ParserTestFixture, ComplexTestWithScopeInsideScope) {
-    provider->setString(R"(
-SCOPE
-input id
+TEST_F(ParserTestFixture, ComplexTestIdentifAssignement) {
 
-SCOPE
-input id
-END SCOPE
+    provider->setString("ahoj = 42");
 
-END SCOPE
-    )");
     EXPECT_TRUE(
-            parser_parse_program(parser)
+            parser_parse_identif_assignment(parser)
     ) << "Body parse";
 
 }

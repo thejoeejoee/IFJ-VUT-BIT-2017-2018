@@ -44,9 +44,6 @@ void* llist_pop_back(LList* list)
 
     ret = tmp->value;
 
-    if (list->free_function != NULL) {
-        list->free_function(tmp->value);
-    }
     memory_free(tmp);
 
     return ret;

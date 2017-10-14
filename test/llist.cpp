@@ -268,6 +268,9 @@ TEST_F(LlistTestFixture, SimplePopBack) {
         llist->tail,
         nullptr
     ) << "Pointers in head and tail are not ok";
+
+    memory_free(data[0]);
+    memory_free(data[1]);
 }
 
 

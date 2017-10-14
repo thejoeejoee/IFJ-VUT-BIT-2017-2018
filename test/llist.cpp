@@ -273,6 +273,72 @@ TEST_F(LlistTestFixture, SimplePopBack) {
     memory_free(data[1]);
 }
 
+TEST_F(LlistTestFixture, SimpleRemoveItem) {
+    LListItem* next;
+    int* data[3];
+    data[0] = (int*)memory_alloc(sizeof(int));
+    data[1] = (int*)memory_alloc(sizeof(int));
+    data[2] = (int*)memory_alloc(sizeof(int));
+
+    *data[0] = 42;
+    *data[1] = 43;
+    *data[2] = 44;
+
+    llist_append(llist, data[0]);
+    llist_append(llist, data[1]);
+    llist_append(llist, data[2]);
+
+    next = llist_remove_item(llist, llist->head->next);
+
+    // TEST return value of llist_remove_item
+    EXPECT_EQ(
+        *((int*)next->value),
+        44
+    ) << "Return value of llist_remove_item is not ok";
+    // TEST head and tail values of llist
+    EXPECT_EQ(
+        *((int*)llist->head->value),
+        42
+    ) << "Head value of llist is not ok";
+    EXPECT_EQ(
+        *((int*)llist->tail->value),
+        44
+    ) << "Tail value of llist is not ok";
+
+    next = llist_remove_item(llist, llist->head);
+
+    // TEST return value of llist_remove_item
+    EXPECT_EQ(
+        *((int*)next->value),
+        43
+    ) << "Return value of llist_remove_item is not ok";
+    // TEST head and tail values of llist
+    EXPECT_EQ(
+        *((int*)llist->head->value),
+        44
+    ) << "Head value of llist is not ok";
+    EXPECT_EQ(
+        *((int*)llist->tail->value),
+        44
+    ) << "Tail value of llist is not ok";
+
+    next = llist_remove_item(llist, llist->tail);
+
+    // TEST return value of llist_remove_item
+    EXPECT_EQ(
+        next,
+        nullptr
+    ) << "Return value of llist_remove_item is not ok";
+    // TEST head and tail values of llist
+    EXPECT_EQ(
+        llist->head,
+        nullptr
+    ) << "Head value of llist is not ok";
+    EXPECT_EQ(
+        llist->tail,
+        nullptr
+    ) << "Tail value of llist is not ok";
+}
 
 TEST_F(LlistTestFixture, SimpleRemove) {
 

@@ -72,6 +72,36 @@ void llist_insert_after(LList* list, LListItem* after, void* value)
     }
 }
 
+LListItem* llist_remove_item(LList* list, LListItem* item)
+{
+    NULL_POINTER_CHECK(list, NULL);
+    NULL_POINTER_CHECK(item, NULL);
+
+    LListItem* next = item->next;
+    
+    if (item->previous == NULL) {
+        if (list->head == item) {
+            list->head = item->next;
+        }
+    } else {
+        item->previous->next = item->next;
+    }
+    if (item->next == NULL) {
+        if (list->tail == item) {
+            list->tail = item->previous;
+        }
+    } else {
+        item->next->previous = item->previous;
+    }
+
+    if (list->free_function != NULL) {
+        list->free_function(item->value);
+    }
+    memory_free(item);
+
+    return next;
+}
+
 bool llist_remove_one(LList* list, void* value) {
     NULL_POINTER_CHECK(list, false);
     if (list->cmp_function == NULL) { return false; }

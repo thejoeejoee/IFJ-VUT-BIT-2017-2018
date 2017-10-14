@@ -71,6 +71,14 @@ void* llist_pop_back(struct LList* list);
 void llist_insert_after(struct LList* list, struct LListItem* after, void* value);
 
 /**
+* @brief llist_remove_item Removes one item from the list.
+* @param list List from which the item will be removed.
+* @param item Item which will be removed.
+* @return Next item after removed one.
+*/
+struct LListItem* llist_remove_item(struct LList* list, struct LListItem* item);
+
+/**
  * @brief llist_remove_one Remove first occurrence of item with given value.
  * @param list List where item will be searched.
  * @param value Value of deleting item.

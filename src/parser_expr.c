@@ -1,34 +1,17 @@
 #include "parser_expr.h"
 #include "parser_expr_internal.h"
+#include "parser_expr_rules.h"
 #include "parser.h"
 #include "llist.h"
 
-
 bool expression_reduce(Parser* parser, LList *expr_token_buffer, ExprIdx* expression_idx) {
-    if (((ExprToken*)expr_token_buffer->tail->value)->type != EXPR_REDUCE) {
-        return false;
+    bool pass = false;
+    const int table_size = sizeof(expr_rule_table) / sizeof(*expr_rule_table);
+    for (int i = 0; i < table_size; i++) {
+        pass |= expr_rule_table[i](parser, expr_token_buffer, expression_idx);
+        if (pass == true) { break; }
     }
-
-    // ***FAKE Reduction***
-    ExprToken *tmp;
-    ExprTokenType type;
-    do {
-        tmp = llist_pop_back(expr_token_buffer);
-        if (tmp == NULL) {
-            return false;
-        }
-        type = tmp->type;
-        expr_token_free(tmp);
-    } while (type != EXPR_LEFT_SHARP);
-    return true;
-
-    //example: some rule that generates E
-    /*
-    ExprToken* e = create_expression(*expression_idx);
-    (*expression_idx)++;
-    llist_append(expr_token_buffer, e);
-    return true;
-    */
+    return pass;
 }
 
 bool parser_parse_expression(Parser* parser) {

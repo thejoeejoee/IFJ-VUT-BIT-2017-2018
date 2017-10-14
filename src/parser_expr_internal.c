@@ -208,3 +208,17 @@ void expr_token_update_unary(ExprToken* minus, const ExprToken* previous) {
         minus->type = EXPR_TOKEN_UNARY_MINUS;
     }
 }
+
+ExprIdx get_next_expr_idx(LListItem** expr_token_buffer_item) {
+    while (((ExprToken*)((*expr_token_buffer_item)->value))->type != EXPR_EXPRESSION) {
+        (*expr_token_buffer_item) = (*expr_token_buffer_item)->next;
+        ASSERT((*expr_token_buffer_item) != NULL);
+    }
+    return ((ExprToken*)((*expr_token_buffer_item)->value))->data.idx;
+}
+
+void expr_replace(LList *expr_token_buffer, LListItem* expr_token_buffer_left_sharp, ExprToken* single_expression) {
+    LListItem* i = expr_token_buffer_left_sharp;
+    while ((i = llist_remove_item(expr_token_buffer, i)) != NULL);
+    llist_append(expr_token_buffer, single_expression);
+}

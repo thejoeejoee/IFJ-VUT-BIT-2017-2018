@@ -364,7 +364,7 @@ bool parser_parse_function_params(Parser* parser) {
             CHECK_RULE(
                     token_type == TOKEN_RIGHT_BRACKET,
                     epsilon,
-                    BEFORE(),
+                    BEFORE(;),
                     AFTER({
                                   return true;
                           }
@@ -388,7 +388,7 @@ bool parser_parse_function_n_param(Parser* parser) {
                     CHECK_RULE(
                             token_type == TOKEN_RIGHT_BRACKET,
                             epsilon,
-                            BEFORE(),
+                            BEFORE(;),
                             AFTER({
                                           lexer_rewind_token(
                                                   parser->lexer,
@@ -439,7 +439,7 @@ bool parser_parse_eols(Parser* parser) {
                     CHECK_RULE(token_type == TOKEN_EOL, eols, NO_CODE);
             CHECK_RULE(
                     epsilon,
-                    BEFORE(),
+                    BEFORE(;),
                     AFTER(
                             {
                                     lexer_rewind_token(parser->lexer, token);
@@ -475,7 +475,7 @@ bool parser_parse_variable_declaration(Parser* parser) {
             CHECK_TOKEN(TOKEN_AS);
             CHECK_TOKEN(
                     TOKEN_DATA_TYPE_CLASS,
-                    BEFORE(),
+                    BEFORE(;),
                     {
                             SEMANTIC_ANALYSIS(
                                     {

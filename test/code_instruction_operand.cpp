@@ -7,10 +7,11 @@ extern "C" {
 
 class CodeInstructionOperandTestFixture : public ::testing::Test {
     protected:
-        CodeInstructionOperand* operand;
+        CodeInstructionOperand* operand = nullptr;
 
         virtual void TearDown() {
-            code_instruction_operand_free(&operand);
+            if(operand != NULL)
+                code_instruction_operand_free(&operand);
         }
 };
 
@@ -62,6 +63,34 @@ TEST_F(CodeInstructionOperandTestFixture, String) {
             DATA_TYPE_STRING
     );
     string_free(&string);
+}
+
+TEST_F(CodeInstructionOperandTestFixture, StringEscape1) {
+    auto string = string_init();
+    string_append_s(string, "#foo\\bar\nstr ing");
+    char* escaped = code_instruction_operand_escaped_string(string);
+
+    EXPECT_STREQ(
+            escaped,
+            "\\035foo\\092bar\\010str\\032ing"
+    );
+
+    string_free(&string);
+    memory_free(escaped);
+}
+
+TEST_F(CodeInstructionOperandTestFixture, StringEscape2) {
+    auto string = string_init();
+    string_append_s(string, "\16ia\17f\12j\40");
+    char* escaped = code_instruction_operand_escaped_string(string);
+
+    EXPECT_STREQ(
+            escaped,
+            "\\014ia\\015f\\010j\\032"
+    );
+
+    string_free(&string);
+    memory_free(escaped);
 }
 
 

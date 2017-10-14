@@ -1,9 +1,16 @@
-#ifndef SYMTABLE_FUNCTION_H
-#define SYMTABLE_FUNCTION_H
+#ifndef _SYMTABLE_FUNCTION_H
+#define _SYMTABLE_FUNCTION_H
 
 #include "common.h"
 #include "symtable.h"
 #include "data_type.h"
+
+#define symbol_table_function_init(bucket_count) symbol_table_init( \
+    bucket_count, \
+    sizeof(SymbolFunction), \
+    symbol_function_init_data, \
+    symbol_function_free_data \
+)
 
 typedef struct symbol_function_param_t {
     char* name;
@@ -17,6 +24,7 @@ typedef struct symbol_function_t {
     bool declared;
     bool defined;
     DataType return_data_type;
+    size_t arguments_count;
     SymbolFunctionParam* param;
 } SymbolFunction;
 
@@ -32,12 +40,6 @@ SymbolFunctionParam* symbol_function_add_param(SymbolFunction* function, char* n
 
 SymbolFunctionParam* symbol_function_get_param(SymbolFunction* function, size_t index);
 
+SymbolFunction* symbol_function_find_declared_function_without_definition(SymbolTable* table);
 
-#define symbol_table_function_init(bucket_count) symbol_table_init( \
-    bucket_count, \
-    sizeof(SymbolFunction), \
-    symbol_function_init_data, \
-    symbol_function_free_data \
-)
-
-#endif // SYMTABLE_FUNCTION_H
+#endif // _SYMTABLE_FUNCTION_H

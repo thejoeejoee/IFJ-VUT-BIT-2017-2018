@@ -55,7 +55,12 @@
 <print_expressions> -> <print_expression> <print_expressions>
 
 // Deklarace proměnné
-<variable_declaration> -> DIM <id> AS <type>
+<variable_declaration> -> DIM <id> AS <type> <declaration_assigment>
+
+<declaration_assignment> -> E
+<declaration_assignment> -> <assignment>
+
+<assignment> -> = <expression>
 
 // podmínky
 <condition> -> IF <expression> THEN EOL <eols> <statements> <else_section> END IF

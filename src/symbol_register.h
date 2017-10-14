@@ -10,6 +10,7 @@
  */
 typedef struct symbol_table_symbol_variable_stack_item_t {
     SymbolTable* symbol_table;
+    size_t index;
     struct symbol_table_symbol_variable_stack_item_t* parent;
 } SymbolTableSymbolVariableStackItem;
 
@@ -19,6 +20,7 @@ typedef struct symbol_table_symbol_variable_stack_item_t {
 typedef struct symbol_register_t {
     SymbolTable* functions;
     SymbolTableSymbolVariableStackItem* variables;
+    signed short index_of_found_variable;
 } SymbolRegister;
 
 /**

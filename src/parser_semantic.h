@@ -18,9 +18,27 @@ typedef struct parser_semantic_t {
 
     SemanticAction actual_action;
 
-    SymbolFunction* symbol_function; // Pointer to actual function
+    SymbolFunction* actual_function; // Pointer to actual function
+
+    size_t argument_index;
+
+    bool function_declared;
 
 } ParserSemantic;
+
+/**
+ * Constructor for parser_semantic
+ *
+ * @return ParserSematic*
+ */
+ParserSemantic* parser_semantic_init();
+
+/**
+ * @brief Destructor for parser semantic
+ *
+ * @param ParserSemantic** parser
+ */
+void parser_semantic_free(ParserSemantic** parser);
 
 /**
  * @brief Set actual action for parser semantic. Sematic actions are scenarios. We have to keep the action.
@@ -40,20 +58,6 @@ void parser_semantic_set_action(ParserSemantic* parser_semantic, SemanticAction 
 bool parser_semantic_set_function_name(ParserSemantic* parser_semantic, char* name);
 
 /**
- * Constructor for parser_semantic
- *
- * @return ParserSematic*
- */
-ParserSemantic* parser_semantic_init();
-
-/**
- * @brief Destructor for parser semantic
- *
- * @param ParserSemantic** parser
- */
-void parser_semantic_free(ParserSemantic** parser);
-
-/**
  * @brief Find variable in symbol variable
  *
  * @param parser_semantic
@@ -70,7 +74,7 @@ SymbolVariable* parser_semantic_expect_symbol_variable(ParserSemantic* parser_se
  * @param data_type
  * @return bool
  */
-bool parser_semantic_add_symbol_variable(ParserSemantic* parser_semantic, char* name, DataType data_type);
+SymbolVariable* parser_semantic_add_symbol_variable(ParserSemantic* parser_semantic, char* name, DataType data_type);
 
 /**
  * @brief If the actual action is ACTUAL_ACTION__FUNCTION_DECLARATION, then set return data type for actual function,
@@ -81,5 +85,22 @@ bool parser_semantic_add_symbol_variable(ParserSemantic* parser_semantic, char* 
  * @return bool
  */
 bool parser_semantic_set_function_return_data_type(ParserSemantic* parser_semantic, DataType token_type);
+
+/**
+ *
+ * @param parser_semantic
+ * @param name
+ * @param data_type
+ */
+bool parser_semantic_add_function_parameter(ParserSemantic* parser_semantic, char* name, DataType data_type);
+
+/**
+ *
+ * @param parser_semantic
+ * @return
+ */
+bool parser_semantic_check_count_of_function_arguments(ParserSemantic* parser_semantic);
+
+bool parser_semantic_check_definitions(ParserSemantic* parser_semantic);
 
 #endif //_PARSER_SEMANTIC_H

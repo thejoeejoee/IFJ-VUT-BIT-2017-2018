@@ -4,8 +4,8 @@
 
 size_t hash(const char* str);
 
-SymbolTable* symbol_table_init(size_t size, size_t item_size, init_data_callback_f init_data_callback,
-                               free_data_callback_f free_data_callback) {
+SymbolTable* symbol_table_init(size_t size, size_t item_size, symtable_init_data_callback_f init_data_callback,
+                               symtable_free_data_callback_f free_data_callback) {
     NULL_POINTER_CHECK(free_data_callback, NULL);
     size_t need_memory = sizeof(SymbolTable) + item_size * size;
 
@@ -51,7 +51,12 @@ void symbol_table_clear_buckets(SymbolTable* table) {
         do {
             tmp_item = item_to_free;
             item_to_free = item_to_free->next;
-            memory_free(tmp_item->key);
+            if(table->free_data_callback != NULL) {
+                table->free_data_callback(tmp_item);
+            }
+            if(tmp_item->key != NULL) {
+                memory_free(tmp_item->key);
+            }
             memory_free(tmp_item);
         } while(item_to_free != NULL);
         table->items[i] = NULL;
@@ -112,15 +117,14 @@ SymbolTableBaseItem* symbol_table_get(SymbolTable* table, const char* key) {
     return item;
 }
 
-void symbol_table_foreach(SymbolTable* table,
-                          void(* callback)(const char*, void*)) {
+void symbol_table_foreach(SymbolTable* table, symtable_foreach_callback_f callback, void* static_data) {
     NULL_POINTER_CHECK(table,);
     NULL_POINTER_CHECK(callback,);
 
     for(size_t i = 0; i < table->bucket_count; ++i) {
         SymbolTableBaseItem* item = table->items[i];
         while(item != NULL) {
-            callback(item->key, item);
+            callback(item->key, item, static_data);
             item = item->next;
         }
     }

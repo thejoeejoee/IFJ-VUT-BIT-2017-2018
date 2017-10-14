@@ -29,3 +29,19 @@ char* stack_code_label_head(Stack* stack) {
 
     return ((CodeLabel*) stack->head)->label;
 }
+
+char* stack_code_label_get_by_index(Stack* stack, size_t index) {
+    CodeLabel* label = (CodeLabel*) stack_get_by_index(stack, index);
+    if(label != NULL)
+        return label->label;
+    return NULL;
+}
+
+void code_label_free(CodeLabel** label) {
+    NULL_POINTER_CHECK(label,);
+    NULL_POINTER_CHECK(*label,);
+
+    memory_free((*label)->label);
+    memory_free((*label));
+    *label = NULL;
+}

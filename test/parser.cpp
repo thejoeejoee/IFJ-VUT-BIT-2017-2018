@@ -273,22 +273,26 @@ TEST_F(ParserTestFixture, PrintStatement) {
             parser_parse_print(parser)
     ) << "Error parsing <print> rule";
 
-    parser->lexer->is_token_rewind = false;
+}
 
+TEST_F(ParserTestFixture, PrintStatement2) {
     provider->setString("print 42; 24; 42; \n");
 
     EXPECT_TRUE(
             parser_parse_print(parser)
     ) << "Error parsing <print> rule with concatenation";
 
-    parser->lexer->is_token_rewind = false;
+}
 
+TEST_F(ParserTestFixture, PrintStatement3) {
     provider->setString("print 42;42;42;42;42;42; \n");
 
     EXPECT_TRUE(
             parser_parse_print(parser)
     ) << "Error parsing <print> rule with concatenation";
 }
+
+
 
 TEST_F(ParserTestFixture, BodyStatementSingle) {
     provider->setString("input foo");
@@ -299,24 +303,53 @@ TEST_F(ParserTestFixture, BodyStatementSingle) {
 
 }
 
-TEST_F(ParserTestFixture, IfRule) {
-    provider->setString(R"(if 42 then
-input id
-elseif 43
-input id
-else
-input id
-input id
+TEST_F(ParserTestFixture, IfRule0) {
+    provider->setString(R"(if 714156 then
+print 4658791;
 end if
     )");
 
     EXPECT_TRUE(
             parser_parse_condition(parser)
     ) << "Error parsing <condition> rule";
-
 }
 
-TEST_F(ParserTestFixture, DimRule) {
+TEST_F(ParserTestFixture, IfRule1) {
+    provider->setString(R"(if 46593 then
+print 1254;
+else
+print 23137486;
+print 214687;
+end if
+    )");
+
+    EXPECT_TRUE(
+            parser_parse_condition(parser)
+    ) << "Error parsing <condition> rule";
+}
+
+TEST_F(ParserTestFixture, IfRule2) {
+    provider->setString(R"(if 42 then
+print 23137213546486;
+print 23137213546486;
+elseif 43 then
+if 38 then
+print 23137879486;
+elseif 14 then
+print 23137213546486;
+end if
+else
+print 23137213546486;
+print 23137213546486;
+end if
+    )");
+
+    EXPECT_TRUE(
+            parser_parse_condition(parser)
+    ) << "Error parsing <condition> rule";
+}
+
+TEST_F(ParserTestFixture, DimRuleDeclaration) {
 
     provider->setString("dim param475624 as string");
 
@@ -324,21 +357,97 @@ TEST_F(ParserTestFixture, DimRule) {
             parser_parse_variable_declaration(parser)
     ) << "Error parsing <variable_declaration> rule";
 
+
+}
+
+TEST_F(ParserTestFixture, DimRuleDeclaration2) {
+
     provider->setString("dim param48745 as integer");
-
-    parser_semantic_free(&(parser->parser_semantic));
-
-    parser->parser_semantic = parser_semantic_init();
 
     EXPECT_TRUE(
             parser_parse_variable_declaration(parser)
     ) << "Error parsing <variable_declaration> rule";
+
+
+}
+
+TEST_F(ParserTestFixture, DimRuleDeclaration3) {
+
 
     provider->setString("dim param79541 asc string");
 
     EXPECT_FALSE(
             parser_parse_variable_declaration(parser)
     ) << "Error parsing <variable_declaration> rule";
+
+
+}
+
+TEST_F(ParserTestFixture, DimRuleDeclaration4) {
+
+    provider->setString("dim param475624 as integer = 42");
+
+    EXPECT_TRUE(
+            parser_parse_variable_declaration(parser)
+    ) << "Error parsing <variable_declaration> rule";
+
+
+}
+
+
+TEST_F(ParserTestFixture, DimRuleWithAssignment) {
+
+    provider->setString("dim param475624 as integer = 10");
+
+    EXPECT_TRUE(
+            parser_parse_variable_declaration(parser)
+    ) << "Error parsing <variable_declaration> rule";
+
+
+}
+
+
+TEST_F(ParserTestFixture, AssignmentRule) {
+
+    provider->setString("= 56875687");
+
+    EXPECT_TRUE(
+            parser_parse_assignment(parser)
+    ) << "Error parsing <assignment rule";
+
+
+}
+
+
+TEST_F(ParserTestFixture, DeclarationAssigment) {
+
+    provider->setString(" = 567868");
+
+    EXPECT_TRUE(
+            parser_parse_declaration_assignment(parser)
+    ) << "Error parsing <assignment rule";
+
+
+}
+
+TEST_F(ParserTestFixture, DeclarationAssigment2) {
+
+    provider->setString("");
+
+    EXPECT_TRUE(
+            parser_parse_declaration_assignment(parser)
+    ) << "Error parsing <assignment rule";
+
+
+}
+
+TEST_F(ParserTestFixture, DeclarationAssigment3) {
+
+    provider->setString("= =");
+
+    EXPECT_FALSE(
+            parser_parse_declaration_assignment(parser)
+    ) << "Error parsing <assignment rule";
 
 
 }
@@ -358,7 +467,7 @@ loop
     parser->body_statement = true;
 
     EXPECT_TRUE(
-            parser_parse_while(parser)
+            parser_parse_while_(parser)
     ) << "Error parsing <do_while> rule";
 
     parser->body_statement = false;
@@ -372,7 +481,7 @@ TEST_F(ParserTestFixture, ReturnRule) {
     provider->setString("return 34");
 
     EXPECT_TRUE(
-            parser_parse_return(parser)
+            parser_parse_return_(parser)
     ) << "Error parsing <expression> rule";
 
 }
@@ -431,6 +540,33 @@ END SCOPE
 
 }
 
+TEST_F(ParserTestFixture, ComplexTest3) {
+    provider->setString(R"(
+declare function foo_function(a as integer, b as string) as string
+function bar(b as string, a as integer) as integer
+dim a as integer = 69887
+dim Z6_7890 as integer = 6709890
+input a
+print 42;42;332;
+end function
+
+SCOPE
+
+SCOPE
+if 32 then
+input id
+dim a as string
+end if
+END SCOPE
+
+END SCOPE
+    )");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    ) << "Body parse";
+
+}
+
 TEST_F(ParserTestFixture, ComplexTestWhileInFuncion) {
     provider->setString(R"(
 FUNCTION FOO() AS INTEGER
@@ -458,7 +594,7 @@ FUNCTION FOO() AS INTEGER
 DO WHILE 42
 if 42 then
 input id
-elseif 43
+elseif 43 then
 input id
 else
 input id
@@ -511,7 +647,7 @@ TEST_F(ParserTestFixture, ComplexTestWithCondition) {
 SCOPE
 if 42 then
 input id
-elseif 43
+elseif 43 then
 input id
 else
 input id
@@ -523,12 +659,16 @@ END SCOPE
             parser_parse_program(parser)
     ) << "Body parse";
 
+}
+
+TEST_F(ParserTestFixture, ComplexTestWithCondition1) {
+
     provider->setString(R"(
 SCOPE
 return 32
 if 42 then
 input id
-elseif 43
+elseif 43 then
 input id
 else
 input id
@@ -542,14 +682,53 @@ END SCOPE
 
 }
 
-TEST_F(ParserTestFixture, ComplexTestWithScopeInsideScope) {
+TEST_F(ParserTestFixture, ComplexTestWithConditionWithoutElseif) {
     provider->setString(R"(
 SCOPE
+if 42 then
+input id
+ELSE
+input id
+input id
+end if
+END SCOPE
+    )");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    ) << "Body parse";
+
+}
+
+TEST_F(ParserTestFixture, IdentifAssignment) {
+    provider->setString(R"(
+SCOPE
+if 42 then
+input id
+ELSE
+input id
+input id
+end if
+END SCOPE
+    )");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    ) << "Body parse";
+
+}
+
+TEST_F(ParserTestFixture, SimpleIf) {
+    provider->setString(R"(
+
+scope 'Hlavni telo programu
+
+
+if 42 then
+
+
 input id
 
-SCOPE
-input id
-END SCOPE
+end if
+
 
 END SCOPE
     )");
@@ -558,6 +737,54 @@ END SCOPE
     ) << "Body parse";
 
 }
+
+TEST_F(ParserTestFixture, ComplexTestIdentifAssignement) {
+
+    provider->setString("ahoj = 42");
+
+    EXPECT_TRUE(
+            parser_parse_identif_assignment(parser)
+    ) << "Body parse";
+
+}
+
+TEST_F(ParserTestFixture, ComplexTestFactorial) {
+    provider->setString(R"(
+/' Program 1: Vypocet faktorialu (iterativne) '/
+/' Vcetne ukazky case-insensitive vlastnosti jazyka IFJ17 '/
+
+scope 'Hlavni telo programu
+
+Dim a As Integer
+DIM vysl AS INTEGER
+
+PrinT 42;                ' !"Zadejte cislo pro vypocet faktorialu";
+InpuT A
+
+If 42 THEN               ' a < 0
+print 42;                 ' !"\nFaktorial nelze spocitat\n";
+
+ELSE
+
+Vysl = 1
+
+Do WHile 42              ' A > 0
+VYSL = 42                ' vysl * a
+a = 42                   ' A - 1
+LooP
+
+Print 42;                 ' !"\nVysledek je:" ; vYsl ; !"\n";
+end IF
+
+
+END SCOPE
+    )");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    ) << "Body parse";
+
+}
+
 
 
 

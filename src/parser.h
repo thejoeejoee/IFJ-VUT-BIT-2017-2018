@@ -16,7 +16,7 @@
     token_free(&token);\
     token = lexer_next_token(parser->lexer); \
     token_type = token.type; \
-    } while(false);
+    } while(0);
 
 
 #define INIT_LOCAL_TOKEN_VARS() NULL_POINTER_CHECK(parser, false); Token token = {.data = NULL, .type = TOKEN_UNKNOWN}; TokenType token_type
@@ -37,7 +37,8 @@
 // NEW MACROS
 #define BEFORE(code) do {code} while(false);
 #define AFTER(code) do {code} while(false);
-#define NO_CODE ;, ;
+#define NO_CODE {},{}
+#define REWIND_AND_SUCCESS BEFORE({lexer_rewind_token(parser->lexer, token);}), AFTER({token_free(&token); return true;})
 
 #define RULES(rules) \
     do { \
@@ -48,7 +49,7 @@
         unsigned int conditions_buffer = 0; \
         rules \
         token_free(&token); \
-    } while(false)
+    } while(0)
 
 #define CONDITIONAL_RULES(rules) do { \
         GET_NEXT_TOKEN_TYPE(); \
@@ -56,57 +57,63 @@
         conditional_rules = true; \
         rules \
         conditional_rules = false; \
-    } while(false)
+    } while(0)
 
 #define CHECK_RULE_4(condition, rule_name, before_code, after_code) do { \
         if(conditional_rules) { \
             if(condition) { \
                 conditions_buffer <<= 1; \
                 conditions_buffer |= 1; \
-                { before_code } \
+                before_code \
                 _RAW_CHECK_RULE(rule_name); \
-                { after_code } \
+                after_code \
             } \
         }   \
         else { \
-            { before_code } \
+            before_code \
             _RAW_CHECK_RULE(rule_name); \
-            { after_code } \
+            after_code \
         } \
-    } while(false)
+    } while(0)
 
 #define CHECK_RULE_3(rule_name, before_code, after_code) do { \
     if(conditional_rules) { \
         if(conditions_buffer == 0) { \
-            { before_code } \
+            before_code \
             _RAW_CHECK_RULE(rule_name); \
-            { after_code } \
+            after_code \
         } \
     }   \
     else { \
-        { before_code } \
+        before_code \
         _RAW_CHECK_RULE(rule_name); \
-        { after_code } \
+        after_code \
     } \
-} while(false)
+} while(0)
 
 #define CHECK_RULE_2(rule_name, before_code) CHECK_RULE_3(rule_name, before_code, ;)
 #define CHECK_RULE_1(rule_name) CHECK_RULE_3(rule_name, ;, ;)
 
-#define CHECK_RULE(...) MSVC_EXPAND(GET_OVERLOADED_MACRO34( \
+#define CHECK_RULE(...) MSVC_EXPAND(GET_OVERLOADED_MACRO1234( \
     __VA_ARGS__, CHECK_RULE_4, CHECK_RULE_3, CHECK_RULE_2, CHECK_RULE_1)(__VA_ARGS__))
 
 #define _RAW_CHECK_TOKEN(token_type_literal) do { \
     if(!token_check(token,(token_type_literal))) {\
         token_free(&token); \
+        LOG_INFO("Token test %s fail, %d present.", #token_type_literal, token_type); \
         return false; \
-    }} while(false)
+    } \
+    LOG_INFO("Token test %s success.", #token_type_literal); \
+    } while(0)
 
 #define _RAW_CHECK_RULE(rule_name) do { \
     if(!parser_parse_ ## rule_name(parser)) {\
         token_free(&token);\
+        LOG_INFO("Rule test %s fail.", #rule_name); \
         return false;\
-    }} while(false)
+    } \
+    LOG_INFO("Rule test %s success.", #rule_name); \
+    } while(0)
 
 #define CHECK_TOKEN_4(condition, token_type_literal, before_code, after_code) do { \
         if(conditional_rules) { \
@@ -114,61 +121,59 @@
                 conditions_buffer <<= 1; \
                 conditions_buffer |= 1; \
                 GET_NEXT_TOKEN_TYPE(); \
-                { before_code } \
+                before_code \
                 _RAW_CHECK_TOKEN(token_type_literal); \
-                { after_code } \
+                after_code \
             } \
         } \
         else { \
             GET_NEXT_TOKEN_TYPE(); \
-            { before_code } \
+            before_code \
             _RAW_CHECK_TOKEN(token_type_literal); \
-            { after_code } \
+            after_code \
         }\
-    } while(false)
+    } while(0)
 
 #define CHECK_TOKEN_3(token_type_literal, before_code, after_code) do { \
     if(conditional_rules) { \
         if(conditions_buffer == 0) { \
             GET_NEXT_TOKEN_TYPE(); \
-            { before_code } \
+            before_code \
             _RAW_CHECK_TOKEN(token_type_literal); \
-            { after_code } \
+            after_code \
         } \
     } \
     else { \
         GET_NEXT_TOKEN_TYPE(); \
-        { before_code } \
+        before_code \
         _RAW_CHECK_TOKEN(token_type_literal); \
-        { after_code } \
+        after_code \
     }\
-} while(false)
+} while(0)
 
 #define CHECK_TOKEN_2(token_type_literal, before_code) CHECK_TOKEN_3( \
     token_type_literal, before_code, ;)
 #define CHECK_TOKEN_1(token_type_literal) CHECK_TOKEN_3(token_type_literal, ;, ;)
 
-#define CHECK_TOKEN(...) MSVC_EXPAND(GET_OVERLOADED_MACRO34(\
+#define CHECK_TOKEN(...) MSVC_EXPAND(GET_OVERLOADED_MACRO1234(\
     __VA_ARGS__, CHECK_TOKEN_4, CHECK_TOKEN_3, CHECK_TOKEN_2, CHECK_TOKEN_1)(__VA_ARGS__))
 
-#define SEMANTIC_ANALYSIS(parser, code) do {\
-if ((parser)->run_type & PARSER_RUN_TYPE_SEMANTIC_ANALYSIS) \
-    {code} \
-} while(false)
+#define SEMANTIC_ANALYSIS(code) do { \
+if ((parser)->run_type & PARSER_RUN_TYPE_SEMANTIC_ANALYSIS) { \
+    code \
+}} while(0)
 
-#define CODE_GENERATION(parser, code) do {\
-if ((parser)->run_type & PARSER_RUN_TYPE_SEMANTIC_CODE_GENERATION) \
-    {code} \
-} while(false)
+#define CODE_GENERATION(code) do { \
+if ((parser)->run_type & PARSER_RUN_TYPE_SEMANTIC_CODE_GENERATION) { \
+    code \
+}} while(0)
 
-#define CALL_RULE_STATEMENTS() do {\
-if(parser->body_statement) {\
-    CALL_RULE(body_statements);\
-}\
-else {\
-    CALL_RULE(function_statements);\
-}\
-} while(false)
+#define CALL_RULE_STATEMENTS() do { \
+if(parser->body_statement) { \
+    CALL_RULE(body_statements); \
+} else { \
+    CALL_RULE(function_statements); \
+}} while(0)
 
 typedef enum {
     PARSER_RUN_TYPE_NOTHING = 0,
@@ -296,7 +301,7 @@ bool parser_parse_epsilon(Parser* parser);
 
 bool parser_parse_variable_declaration(Parser* parser);
 
-bool parser_parse_return(Parser* parser);
+bool parser_parse_return_(Parser* parser);
 
 bool parser_parse_input(Parser* parser);
 
@@ -304,7 +309,7 @@ bool parser_parse_print_expression(Parser* parser);
 
 bool parser_parse_print(Parser* parser);
 
-bool parser_parse_while(Parser* parser);
+bool parser_parse_while_(Parser* parser);
 
 bool parser_parse_print_expressions(Parser* parser);
 
@@ -316,6 +321,10 @@ bool parser_parse_condition_elseif(Parser* parser);
 
 bool parser_parse_scope(Parser* parser);
 
+bool parser_parse_assignment(Parser* parser);
 
+bool parser_parse_declaration_assignment(Parser* parser);
+
+bool parser_parse_identif_assignment(Parser* parser);
 
 #endif //_PARSER_H

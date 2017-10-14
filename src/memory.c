@@ -60,7 +60,10 @@ void memory_manager_free(void* address,
     free(target_page);
 }
 
-void memory_manager_free_lazy(void* address, MemoryManager* manager) {}
+void memory_manager_free_lazy(void* address, MemoryManager* manager) {
+    UNUSED(address);
+    UNUSED(manager);
+}
 
 void memory_manager_enter(MemoryManager* manager) {
     if(manager == NULL)

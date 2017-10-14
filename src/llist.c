@@ -28,9 +28,27 @@ void llist_append(LList* list, void* value) {
     list->tail = new_item;
 }
 
-void llist_insert_after(LList * list, LListItem * after, void * value)
+void llist_insert_after(LList* list, LListItem* after, void* value)
 {
-    // TODO : implement!!!
+    NULL_POINTER_CHECK(list, );
+    NULL_POINTER_CHECK(after, );
+    ASSERT(list->tail != NULL);
+
+    LListItem* new_item = (LListItem*)memory_alloc(sizeof(LListItem));
+    new_item->value = value;
+
+    if (after->next == NULL) {
+        ASSERT(after == list->tail);
+        after->next = new_item;
+        list->tail = new_item;
+        new_item->previous = after;
+        new_item->next = NULL;
+    } else {
+        new_item->next = after->next;
+        new_item->previous = after;
+        after->next->previous = new_item;
+        after->next = new_item;
+    }
 }
 
 bool llist_remove_one(LList* list, void* value) {

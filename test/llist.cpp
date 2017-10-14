@@ -160,6 +160,62 @@ TEST_F(LlistTestFixture, SimpleAppend) {
 
 }
 
+TEST_F(LlistTestFixture, SimpleInsert) {
+    int* data[3];
+    data[0] = (int*)memory_alloc(sizeof(int));
+    data[1] = (int*)memory_alloc(sizeof(int));
+    data[2] = (int*)memory_alloc(sizeof(int));
+
+    *data[0] = 42;
+    *data[1] = 43;
+    *data[2] = 44;
+    
+    llist_append(llist, data[0]);
+
+    // TEST tail and head are the same
+    EXPECT_EQ(
+        llist->head,
+        llist->tail
+    ) << "Pointers in head and tail are not the same";
+
+    llist_insert_after(llist, llist->head, data[2]);
+
+    // TEST tail and head are ok
+    EXPECT_EQ(
+        llist->head,
+        llist->tail->previous
+    ) << "Pointers in head and tail are not ok";
+    EXPECT_EQ(
+        llist->head->next,
+        llist->tail
+    ) << "Pointers in head and tail are not ok";
+
+    llist_insert_after(llist, llist->tail->previous, data[1]);
+
+    // Test correct list values
+    EXPECT_EQ(
+        *((int*)llist->head->value),
+        42
+    ) << "The value in head is incorrect";
+
+    EXPECT_EQ(
+        *((int*)llist->head->next->value),
+        43
+    ) << "The value in middle of the list is incorrect";
+
+    EXPECT_EQ(
+        *((int*)llist->head->next->next->value),
+        44
+    ) << "The value in tail is incorrect";
+
+    // Test tail correct pointer
+    EXPECT_EQ(
+        llist->head->next->next,
+        llist->tail
+    ) << "The pointer in tail is incorrect";
+
+}
+
 TEST_F(LlistTestFixture, SimpleRemove) {
 
     /*

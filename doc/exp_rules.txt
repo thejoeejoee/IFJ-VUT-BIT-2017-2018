@@ -1,5 +1,4 @@
-E ->	i
-E ->	fn
+E ->	i	// i could be variable, literal or function call
 E ->	- E
 E ->	( E )
 E ->	E * E

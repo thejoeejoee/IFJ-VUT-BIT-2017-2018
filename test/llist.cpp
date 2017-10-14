@@ -310,7 +310,7 @@ TEST_F(LlistTestFixture, SimpleRemoveItem) {
     // TEST return value of llist_remove_item
     EXPECT_EQ(
         *((int*)next->value),
-        43
+        44
     ) << "Return value of llist_remove_item is not ok";
     // TEST head and tail values of llist
     EXPECT_EQ(

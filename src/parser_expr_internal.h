@@ -28,23 +28,28 @@ typedef enum {
     EXPR_TOKEN_LEFT_BRACKET = 16,
     EXPR_TOKEN_RIGHT_BRACKET = 17,
 
-    EXPR_TOKEN_IDENTIFIER = 18,
-    EXPR_TOKEN_$ = 19,
+    EXPR_TOKEN_FUNCTION_CALL = 18,
+    EXPR_TOKEN_COMMA = 19,
 
-    EXPR_TOKEN_BOOLEAN_LITERAL = 20,
-    EXPR_TOKEN_INTEGER_LITERAL = 21,
-    EXPR_TOKEN_DOUBLE_LITERAL = 22,
-    EXPR_TOKEN_STRING_LITERAL = 23,
+    EXPR_TOKEN_IDENTIFIER = 20,
+    EXPR_TOKEN_$ = 21,
 
+    EXPR_TOKEN_BOOLEAN_LITERAL = 22,
+    EXPR_TOKEN_INTEGER_LITERAL = 23,
+    EXPR_TOKEN_DOUBLE_LITERAL = 24,
+    EXPR_TOKEN_STRING_LITERAL = 25,
+
+    // Mask
     EXPR_TERMINALS_MASK = 127, //for internal usage
 
     // Others
     EXPR_EXPRESSION = 128,    // E
-    EXPR_LEFT_SHARP = 256, EXPR_SHIFT = EXPR_LEFT_SHARP,      // <
-    EXPR_RIGHT_SHARP = 512, EXPR_REDUCE = EXPR_RIGHT_SHARP,   // >
-    EXPR_SAME = 1024,
+    EXPR_LEFT_SHARP = 129, EXPR_SHIFT = EXPR_LEFT_SHARP,      // <
+    EXPR_RIGHT_SHARP = 130, EXPR_REDUCE = EXPR_RIGHT_SHARP,   // >
+    EXPR_SAME = 131,    // =
+    EXPR_TOKENCHANGE = 132, // * so called 'token change', when changing from 'identifier token' and 'left bracket token' to 'function call token'
 
-    EXPR_UNKNOWN = 2048
+    EXPR_UNKNOWN = 133  // unknown token or undefined precedence
 } ExprTokenType;
 
 typedef unsigned ExprIdx;

@@ -58,8 +58,30 @@ bool parser_parse_expression(Parser* parser) {
                 token = create_expr_token(EXPR_TOKEN_$);
                 precedence = expr_get_precedence(expr_last_terminal(buffer), token);
             }
-            
-            expr_llist_append_after_last_terminal(buffer, precedence);
+
+            // Check for function call
+            if (precedence->type == EXPR_TOKENCHANGE) {
+                ExprToken* back = buffer->tail->value;
+                if (back->type == EXPR_TOKEN_IDENTIFIER && token->type == EXPR_TOKEN_LEFT_BRACKET) {
+                    back->type = EXPR_TOKEN_FUNCTION_CALL;
+                    expr_token_free(precedence);
+                    expr_token_free(token);
+                    token = llist_pop_back(buffer);
+                    break;
+                } else {
+                    // Cleanup
+                    token_free(&last_token);
+                    llist_free(&buffer);
+                    return false; // Expression error - unknown token change transition
+                }
+            }
+
+            if (precedence->type != EXPR_SAME) {
+                expr_llist_append_after_last_terminal(buffer, precedence);
+            } else {
+                expr_token_free(precedence);
+            }
+
             if (((ExprToken*)buffer->tail->value)->type == EXPR_REDUCE) {
                 if (!expression_reduce(parser, buffer, &expression_idx)) {
                     // Cleanup

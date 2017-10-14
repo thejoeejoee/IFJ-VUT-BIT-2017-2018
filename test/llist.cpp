@@ -216,6 +216,61 @@ TEST_F(LlistTestFixture, SimpleInsert) {
 
 }
 
+TEST_F(LlistTestFixture, SimplePopBack) {
+    int* data[2];
+    int* tmp;
+    data[0] = (int*)memory_alloc(sizeof(int));
+    data[1] = (int*)memory_alloc(sizeof(int));
+
+    *data[0] = 42;
+    *data[1] = 43;
+
+    llist_append(llist, data[0]);
+    tmp = (int*)llist_pop_back(llist);
+    // TEST return value of pop_back
+    EXPECT_EQ(
+        *tmp,
+        *data[0]
+    ) << "Return value of pop_back is not ok";
+    // TEST tail and head are ok
+    EXPECT_EQ(
+        llist->head,
+        nullptr
+    ) << "Pointers in head and tail are not ok";
+    EXPECT_EQ(
+        llist->tail,
+        nullptr
+    ) << "Pointers in head and tail are not ok";
+
+
+    llist_append(llist, data[0]);
+    llist_append(llist, data[1]);
+
+    tmp = (int*)llist_pop_back(llist);
+    // TEST return value of pop_back
+    EXPECT_EQ(
+        *tmp,
+        *data[1]
+    ) << "Return value of pop_back is not ok";
+
+    tmp = (int*)llist_pop_back(llist);
+    // TEST return value of pop_back
+    EXPECT_EQ(
+        *tmp,
+        *data[0]
+    ) << "Return value of pop_back is not ok";
+    // TEST tail and head are ok
+    EXPECT_EQ(
+        llist->head,
+        nullptr
+    ) << "Pointers in head and tail are not ok";
+    EXPECT_EQ(
+        llist->tail,
+        nullptr
+    ) << "Pointers in head and tail are not ok";
+}
+
+
 TEST_F(LlistTestFixture, SimpleRemove) {
 
     /*

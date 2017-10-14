@@ -28,6 +28,30 @@ void llist_append(LList* list, void* value) {
     list->tail = new_item;
 }
 
+void* llist_pop_back(LList* list)
+{
+    LListItem* tmp;
+    void* ret;
+
+    if (list->tail == NULL) {
+        return NULL;
+    }
+    tmp = list->tail;
+    list->tail = list->tail->previous;
+    if (list->tail == NULL) {
+        list->head = NULL;
+    }
+
+    ret = tmp->value;
+
+    if (list->free_function != NULL) {
+        list->free_function(tmp->value);
+    }
+    memory_free(tmp);
+
+    return ret;
+}
+
 void llist_insert_after(LList* list, LListItem* after, void* value)
 {
     NULL_POINTER_CHECK(list, );

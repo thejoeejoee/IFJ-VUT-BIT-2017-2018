@@ -56,6 +56,13 @@ void llist_init(struct LList** list, llist_free_item_data free_function, llist_i
 void llist_append(struct LList* list, void* value);
 
 /**
+* @brief llist_pop_back Pops item from the end of the list.
+* @param list List from which the item will be popped.
+* @return Value of popped item.
+*/
+void* llist_pop_back(struct LList* list);
+
+/**
 * @brief llist_append Inserts one item with given value after item 'after' of the list.
 * @param list List where item will be inserted.
 * @param after Item from given list after which the item will be inserted.

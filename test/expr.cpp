@@ -106,7 +106,39 @@ TEST_F(ParserExpressionTestFixture, SimpleRelation2) {
 
 TEST_F(ParserExpressionTestFixture, SimpleRelation3) {
 
-    provider->setString("a == b )");
+    provider->setString("a = b )");
+
+    EXPECT_TRUE(
+            parser_parse_expression(parser)
+    ) << "Error parsing <expression> rule";
+
+    EXPECT_EQ(
+            lexer_next_token(parser->lexer).type,
+            TOKEN_RIGHT_BRACKET
+    ) << "Error get token after <expression> rule";
+
+
+}
+
+TEST_F(ParserExpressionTestFixture, SimpleRelation4) {
+
+    provider->setString("a >= b )");
+
+    EXPECT_TRUE(
+            parser_parse_expression(parser)
+    ) << "Error parsing <expression> rule";
+
+    EXPECT_EQ(
+            lexer_next_token(parser->lexer).type,
+            TOKEN_RIGHT_BRACKET
+    ) << "Error get token after <expression> rule";
+
+
+}
+
+TEST_F(ParserExpressionTestFixture, SimpleRelation5) {
+
+    provider->setString("a <> b )");
 
     EXPECT_TRUE(
             parser_parse_expression(parser)
@@ -132,6 +164,20 @@ TEST_F(ParserExpressionTestFixture, AddConstatnts) {
     EXPECT_EQ(
         lexer_next_token(parser->lexer).type,
         TOKEN_SCOPE
+    ) << "Error get token after <expression> rule";
+}
+
+TEST_F(ParserExpressionTestFixture, ConstantsAndBrackets) {
+
+    provider->setString("((30 + 10) * 10) / 32 )" );
+
+    EXPECT_TRUE(
+            parser_parse_expression(parser)
+    ) << "Error parsing <expression> rule";
+
+    EXPECT_EQ(
+            lexer_next_token(parser->lexer).type,
+            TOKEN_SCOPE
     ) << "Error get token after <expression> rule";
 }
 

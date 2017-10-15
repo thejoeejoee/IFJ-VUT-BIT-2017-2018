@@ -27,9 +27,9 @@ class ParserExpressionTestFixture : public ::testing::Test {
         }
 };
 
-TEST_F(ParserExpressionTestFixture, Constant) {
+TEST_F(ParserExpressionTestFixture, Constants) {
 
-    provider->setString("31 begin");
+    provider->setString("33 begin");
 
     EXPECT_TRUE(
             parser_parse_expression(parser)
@@ -38,6 +38,20 @@ TEST_F(ParserExpressionTestFixture, Constant) {
     EXPECT_EQ(
             lexer_next_token(parser->lexer).type,
             TOKEN_SCOPE
+    ) << "Error get token after <expression> rule";
+}
+
+TEST_F(ParserExpressionTestFixture, Constants2) {
+
+    provider->setString("31 + 658 + 67896 + 67876897 )");
+
+    EXPECT_TRUE(
+            parser_parse_expression(parser)
+    ) << "Error parsing <expression> rule";
+
+    EXPECT_EQ(
+            lexer_next_token(parser->lexer).type,
+            TOKEN_RIGHT_BRACKET
     ) << "Error get token after <expression> rule";
 }
 

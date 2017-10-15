@@ -72,6 +72,55 @@ TEST_F(ParserExpressionTestFixture, Variable) {
 
 }
 
+TEST_F(ParserExpressionTestFixture, SimpleRelation1) {
+
+    provider->setString("a >= b )");
+
+    EXPECT_TRUE(
+            parser_parse_expression(parser)
+    ) << "Error parsing <expression> rule";
+
+    EXPECT_EQ(
+            lexer_next_token(parser->lexer).type,
+            TOKEN_RIGHT_BRACKET
+    ) << "Error get token after <expression> rule";
+
+
+}
+
+TEST_F(ParserExpressionTestFixture, SimpleRelation2) {
+
+    provider->setString("a <= b )");
+
+    EXPECT_TRUE(
+            parser_parse_expression(parser)
+    ) << "Error parsing <expression> rule";
+
+    EXPECT_EQ(
+            lexer_next_token(parser->lexer).type,
+            TOKEN_RIGHT_BRACKET
+    ) << "Error get token after <expression> rule";
+
+
+}
+
+TEST_F(ParserExpressionTestFixture, SimpleRelation3) {
+
+    provider->setString("a == b )");
+
+    EXPECT_TRUE(
+            parser_parse_expression(parser)
+    ) << "Error parsing <expression> rule";
+
+    EXPECT_EQ(
+            lexer_next_token(parser->lexer).type,
+            TOKEN_RIGHT_BRACKET
+    ) << "Error get token after <expression> rule";
+
+
+}
+
+
 TEST_F(ParserExpressionTestFixture, AddConstatnts) {
 
     provider->setString("30 + 30 scope" );
@@ -93,9 +142,36 @@ TEST_F(ParserExpressionTestFixture, AddConstatntsFalse) {
     EXPECT_FALSE(
             parser_parse_expression(parser)
     ) << "Error parsing <expression> rule";
+
+}
+
+TEST_F(ParserExpressionTestFixture, SimpleOperations) {
+
+    provider->setString("12-10+213*432/3432 )");
+
+    EXPECT_TRUE(
+            parser_parse_expression(parser)
+    ) << "Error parsing <expression> rule";
+
+    EXPECT_EQ(
+            lexer_next_token(parser->lexer).type,
+            TOKEN_RIGHT_BRACKET
+    ) << "Error get token after <expression> rule";
+
+
 }
 
 TEST_F(ParserExpressionTestFixture, AddVariablesFalse) {
+
+    provider->setString("(sdgjhads+sdjkgsaljkdk");
+
+    EXPECT_FALSE(
+            parser_parse_expression(parser)
+    ) << "Error parsing <expression> rule";
+
+}
+
+TEST_F(ParserExpressionTestFixture, AddVariablesFalse2) {
 
     provider->setString("(djkg+jlkdh7djkljhl");
 

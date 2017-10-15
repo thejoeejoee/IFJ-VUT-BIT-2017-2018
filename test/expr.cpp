@@ -28,7 +28,7 @@ class ParserExpressionTestFixture : public ::testing::Test {
 };
 
 TEST_F(ParserExpressionTestFixture, Constant) {
-    // Rule is Epsilon, it is just demonstration, it will be implemented in future
+
     provider->setString("31 begin");
 
     EXPECT_TRUE(
@@ -43,7 +43,7 @@ TEST_F(ParserExpressionTestFixture, Constant) {
 
 
 TEST_F(ParserExpressionTestFixture, Variable) {
-    // Rule is Epsilon, it is just demonstration, it will be implemented in future
+
     provider->setString("variable )");
 
     EXPECT_TRUE(
@@ -59,7 +59,7 @@ TEST_F(ParserExpressionTestFixture, Variable) {
 }
 
 TEST_F(ParserExpressionTestFixture, AddConstatnts) {
-    // Rule is Epsilon, it is just demonstration, it will be implemented in future
+
     provider->setString("30 + 30 scope" );
 
     EXPECT_TRUE(
@@ -73,7 +73,7 @@ TEST_F(ParserExpressionTestFixture, AddConstatnts) {
 }
 
 TEST_F(ParserExpressionTestFixture, AddConstatntsFalse) {
-    // Rule is Epsilon, it is just demonstration, it will be implemented in future
+
     provider->setString("(30+30");
 
     EXPECT_FALSE(
@@ -82,7 +82,7 @@ TEST_F(ParserExpressionTestFixture, AddConstatntsFalse) {
 }
 
 TEST_F(ParserExpressionTestFixture, AddVariablesFalse) {
-    // Rule is Epsilon, it is just demonstration, it will be implemented in future
+
     provider->setString("(djkg+jlkdh7djkljhl");
 
     EXPECT_FALSE(

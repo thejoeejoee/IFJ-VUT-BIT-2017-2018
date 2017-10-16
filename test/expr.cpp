@@ -255,7 +255,7 @@ TEST_F(ParserExpressionTestFixture, CallFunction) {
     ) << "Error parsing <expression> rule";
 
     EXPECT_EQ(
-            lexer_next_token(parser->lexer).type,
+            (tmp = lexer_next_token(parser->lexer)).type,
             TOKEN_RIGHT_BRACKET
     ) << "Error get token after <expression> rule";
 
@@ -270,7 +270,7 @@ TEST_F(ParserExpressionTestFixture, CallFunctionVariableArgument) {
     ) << "Error parsing <expression> rule";
 
     EXPECT_EQ(
-            lexer_next_token(parser->lexer).type,
+            (tmp = lexer_next_token(parser->lexer)).type,
             TOKEN_EOL
     ) << "Error get token after <expression> rule";
 
@@ -286,7 +286,7 @@ TEST_F(ParserExpressionTestFixture, CallFunctionWithMoreAarguments) {
     ) << "Error parsing <expression> rule";
 
     EXPECT_EQ(
-            lexer_next_token(parser->lexer).type,
+            (tmp = lexer_next_token(parser->lexer)).type,
             TOKEN_RIGHT_BRACKET
     ) << "Error get token after <expression> rule";
 
@@ -301,7 +301,7 @@ TEST_F(ParserExpressionTestFixture, AddFunctions) {
     ) << "Error parsing <expression> rule";
 
     EXPECT_EQ(
-            lexer_next_token(parser->lexer).type,
+            (tmp = lexer_next_token(parser->lexer)).type,
             TOKEN_RIGHT_BRACKET
     ) << "Error get token after <expression> rule";
 
@@ -316,7 +316,7 @@ TEST_F(ParserExpressionTestFixture, MultiplyFunctions) {
     ) << "Error parsing <expression> rule";
 
     EXPECT_EQ(
-            lexer_next_token(parser->lexer).type,
+            (tmp = lexer_next_token(parser->lexer)).type,
             TOKEN_RIGHT_BRACKET
     ) << "Error get token after <expression> rule";
 
@@ -331,7 +331,7 @@ TEST_F(ParserExpressionTestFixture, DivideFunctions) {
     ) << "Error parsing <expression> rule";
 
     EXPECT_EQ(
-            lexer_next_token(parser->lexer).type,
+            (tmp = lexer_next_token(parser->lexer)).type,
             TOKEN_RIGHT_BRACKET
     ) << "Error get token after <expression> rule";
 
@@ -347,7 +347,7 @@ TEST_F(ParserExpressionTestFixture, SooooooooHardcooooooreExpressionI) {
     ) << "Error parsing <expression> rule";
 
     EXPECT_EQ(
-            lexer_next_token(parser->lexer).type,
+            (tmp = lexer_next_token(parser->lexer)).type,
             TOKEN_RIGHT_BRACKET
     ) << "Error get token after <expression> rule";
 
@@ -363,7 +363,7 @@ TEST_F(ParserExpressionTestFixture, StringSimple) {
     ) << "Error parsing <expression> rule";
 
     EXPECT_EQ(
-            lexer_next_token(parser->lexer).type,
+            (tmp = lexer_next_token(parser->lexer)).type,
             TOKEN_RIGHT_BRACKET
     ) << "Error get token after <expression> rule";
 
@@ -381,7 +381,7 @@ TEST_F(ParserExpressionTestFixture, SooooooooHardcooooooreExpressionII) {
     ) << "Error parsing <expression> rule";
 
     EXPECT_EQ(
-            lexer_next_token(parser->lexer).type,
+            (tmp = lexer_next_token(parser->lexer)).type,
             TOKEN_EOL
     ) << "Error get token after <expression> rule";
 }

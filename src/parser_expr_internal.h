@@ -48,8 +48,9 @@ typedef enum {
     EXPR_RIGHT_SHARP = 130, EXPR_REDUCE = EXPR_RIGHT_SHARP,   // >
     EXPR_SAME = 131,    // =
     EXPR_TOKENCHANGE = 132, // * so called 'token change', when changing from 'identifier token' and 'left bracket token' to 'function call token'
+    EXPR_END = 133, // .
 
-    EXPR_UNKNOWN = 133  // unknown token or undefined precedence
+    EXPR_UNKNOWN = 134  // unknown token or undefined precedence
 } ExprTokenType;
 
 typedef unsigned ExprIdx;

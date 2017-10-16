@@ -39,6 +39,9 @@ static ExprTokenType _expr_get_precedence(ExprTokenType a, ExprTokenType b) {
     case '*':
         t = EXPR_TOKENCHANGE;
         break;
+    case '.':
+        t = EXPR_END;
+        break;
     case 'x':
     case '#':
     case ' ':
@@ -204,7 +207,14 @@ void expr_token_update_unary(ExprToken* minus, const ExprToken* previous) {
     //TODO: what about unary + ?
     ASSERT(minus->type == EXPR_TOKEN_MINUS);
     ExprTokenType prev_t = previous->type;
-    if (prev_t != EXPR_EXPRESSION) {
+    if (prev_t != EXPR_EXPRESSION &&
+        prev_t != EXPR_TOKEN_IDENTIFIER &&
+        prev_t != EXPR_TOKEN_BOOLEAN_LITERAL &&
+        prev_t != EXPR_TOKEN_INTEGER_LITERAL &&
+        prev_t != EXPR_TOKEN_DOUBLE_LITERAL &&
+        prev_t != EXPR_TOKEN_STRING_LITERAL &&
+        prev_t != EXPR_TOKEN_RIGHT_BRACKET
+        ) {
         minus->type = EXPR_TOKEN_UNARY_MINUS;
     }
 }

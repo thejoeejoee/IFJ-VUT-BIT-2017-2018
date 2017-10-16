@@ -39,6 +39,7 @@ bool expression_rule_fake(Parser* parser, LList *expr_token_buffer, ExprIdx* exp
         type = tmp->type;
         expr_token_free(tmp);
     } while (type != EXPR_LEFT_SHARP);
+    llist_append(expr_token_buffer, create_expression((*expression_idx)++));
     return true;
 }
 

@@ -32,6 +32,13 @@ bool parser_parse_expression(Parser* parser) {
 
         do {
             precedence = expr_get_precedence(expr_last_terminal(buffer), token);
+
+            if (precedence->type == EXPR_END) {
+                // Cleanup
+                token_free(&last_token);
+                llist_free(&buffer);
+                return true;
+            }
             
             // Check for end of expression
             if (token->type != EXPR_TOKEN_$ && precedence->type == EXPR_UNKNOWN) {
@@ -59,21 +66,34 @@ bool parser_parse_expression(Parser* parser) {
                 }
             }
 
-            if (precedence->type != EXPR_SAME) {
+            if (precedence->type == EXPR_LEFT_SHARP) {
                 expr_llist_append_after_last_terminal(buffer, precedence);
-            } else {
+            } else if (precedence->type == EXPR_RIGHT_SHARP) {
+                llist_append(buffer, precedence);
+            } else if (precedence->type == EXPR_SAME) {
                 expr_token_free(precedence);
+            } else {
+                // Cleanup
+                token_free(&last_token);
+                llist_free(&buffer);
+                return false; // Precedence error - undefined
             }
 
             if (((ExprToken*)buffer->tail->value)->type == EXPR_REDUCE) {
-                if (!expression_reduce(parser, buffer, &expression_idx)) {
+                if (expression_reduce(parser, buffer, &expression_idx)) {
+                    continue;
+                }
+                else {
                     // Cleanup
                     token_free(&last_token);
                     llist_free(&buffer);
                     return false; // Expression reduction error - no rule has been found
                 }
             }
-        } while (((ExprToken*)buffer->tail->value)->type == EXPR_REDUCE);
+            if (((ExprToken*)buffer->tail->value)->type != EXPR_REDUCE) {
+                break;
+            }
+        } while (true);
         llist_append(buffer, token);
 
     } while (token->type != EXPR_TOKEN_$);
@@ -81,5 +101,5 @@ bool parser_parse_expression(Parser* parser) {
     // Cleanup
     token_free(&last_token);
     llist_free(&buffer);
-    return true;
+    return false; //Expression procession error
 }

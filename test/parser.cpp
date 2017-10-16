@@ -811,7 +811,7 @@ If n < 2 Then
 result = 1
 Else
 decremented_n = n - 1
-temp_result = 42                                         'factorial(decremented_n)
+temp_result = factorial(decremented_n)
 result = n * temp_result
 End If
 Return result
@@ -827,7 +827,7 @@ Input a
 If a < 0 Then
 Print !"\nFaktorial nelze spocitat\n";
 else
-vysl = 42                                                'factorial(a)
+vysl = factorial(a)
 Print !"\nVysledek je:" ; vysl ; !"\n";
 End If
 

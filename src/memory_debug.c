@@ -105,7 +105,7 @@ void memory_manager_exit(MemoryManager* manager) {
         size_sum += page->size;
 
         if(page->allocated && !page->lazy_free) {
-            char* string = (char*) page->address;
+            unsigned char* string = (unsigned char*) page->address;
             bool is_string = true;
             if(string[page->size - 1] == 0) {
                 for(int i = 0; i < (int)(page->size) - 1; ++i) {

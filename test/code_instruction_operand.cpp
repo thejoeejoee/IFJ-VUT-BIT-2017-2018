@@ -97,7 +97,7 @@ TEST_F(CodeInstructionOperandTestFixture, StringEscape3
 ) {
     auto string = string_init();
     string_append_c(string,
-                    238);
+                    (char)238);
     char* escaped = code_instruction_operand_escaped_string(string);
 
     EXPECT_STREQ(

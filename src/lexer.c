@@ -22,6 +22,9 @@ void lexer_free(Lexer** lexer) {
     NULL_POINTER_CHECK(*lexer,);
 
     lexer_fsm_free(&((*lexer)->lexer_fsm));
+    if ((*lexer)->is_token_rewind) {
+        token_free(&(*lexer)->rewind_token);
+    }
     memory_free(*lexer);
     *lexer = NULL;
 }

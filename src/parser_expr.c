@@ -61,6 +61,8 @@ bool parser_parse_expression(Parser* parser) {
                     token = llist_pop_back(buffer);
                     break;
                 } else {
+                    expr_token_free(token);
+                    expr_token_free(precedence);
                     // Cleanup
                     token_free(&last_token);
                     llist_free(&buffer);
@@ -75,6 +77,8 @@ bool parser_parse_expression(Parser* parser) {
             } else if (precedence->type == EXPR_SAME) {
                 expr_token_free(precedence);
             } else {
+                expr_token_free(token);
+                expr_token_free(precedence);
                 // Cleanup
                 token_free(&last_token);
                 llist_free(&buffer);
@@ -86,6 +90,7 @@ bool parser_parse_expression(Parser* parser) {
                     continue;
                 }
                 else {
+                    expr_token_free(token);
                     // Cleanup
                     token_free(&last_token);
                     llist_free(&buffer);

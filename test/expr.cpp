@@ -141,6 +141,23 @@ TEST_F(ParserExpressionTestFixture, SimpleRelation4) {
 
 TEST_F(ParserExpressionTestFixture, SimpleRelation5) {
 
+    provider->setString("n < 2 then");
+
+    EXPECT_TRUE(
+            parser_parse_expression(parser)
+    ) << "Error parsing <expression> rule";
+
+    EXPECT_EQ(
+            (tmp = lexer_next_token(parser->lexer)).type,
+            TOKEN_THEN
+    ) << "Error get token after <expression> rule";
+
+
+}
+
+
+TEST_F(ParserExpressionTestFixture, SimpleRelation6) {
+
     provider->setString("a <> b \n");
 
     EXPECT_TRUE(
@@ -240,6 +257,21 @@ TEST_F(ParserExpressionTestFixture, CallFunction) {
     EXPECT_EQ(
             lexer_next_token(parser->lexer).type,
             TOKEN_RIGHT_BRACKET
+    ) << "Error get token after <expression> rule";
+
+}
+
+TEST_F(ParserExpressionTestFixture, CallFunctionVariableArgument) {
+
+    provider->setString("factorial(decremented_n) \n");
+
+    EXPECT_TRUE(
+            parser_parse_expression(parser)
+    ) << "Error parsing <expression> rule";
+
+    EXPECT_EQ(
+            lexer_next_token(parser->lexer).type,
+            TOKEN_EOL
     ) << "Error get token after <expression> rule";
 
 }

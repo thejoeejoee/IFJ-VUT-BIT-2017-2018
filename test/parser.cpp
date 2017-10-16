@@ -774,6 +774,51 @@ END SCOPE
 
 }
 
+TEST_F(ParserTestFixture, ComplexTestFactorialRecursive) {
+    provider->setString(R"(
+/' Program 2: Vypocet faktorialu (rekurzivne) '/
+
+Declare Function factorial (n As Integer) As Integer
+
+Function factorial (n As Integer) As Integer
+
+Dim temp_result As Integer
+Dim decremented_n As Integer
+Dim result As Integer
+
+If n < 2 Then
+result = 1
+Else
+decremented_n = n - 1
+temp_result = 42                                         'factorial(decremented_n)
+result = n * temp_result
+End If
+Return result
+End Function
+
+Scope 'Hlavni telo programu
+Dim a As Integer
+Dim vysl As Integer
+
+Print !"Zadejte cislo pro vypocet faktorialu";
+Input a
+
+If a < 0 Then
+Print !"\nFaktorial nelze spocitat\n";
+else
+vysl = 42                                                'factorial(a)
+Print !"\nVysledek je:" ; vysl ; !"\n";
+End If
+
+End Scope
+    )");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    ) << "Body parse";
+
+}
+
+
 
 
 

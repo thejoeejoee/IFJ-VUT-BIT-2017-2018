@@ -123,6 +123,9 @@ bool expression_rule_fn(Parser* parser, LList *expr_token_buffer, ExprIdx* expre
     EXPR_RULE_CHECK_FINISH();
 
     // NOTE: now we are processing rule regular way - from the left to the right
+
+    char* function_name = ((ExprToken*)tmp->next->value)->data.s;
+
     for (unsigned int i = 0; i < arg_count; i++) {
         ExprIdx idx = EXPR_RULE_NEXT_E_ID();
         (void)idx;

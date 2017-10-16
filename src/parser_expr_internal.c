@@ -118,6 +118,9 @@ ExprToken* load_expr_token(Lexer* lexer, Token* last_token) {
     case TOKEN_RIGHT_BRACKET:
         expr_t->type = EXPR_TOKEN_RIGHT_BRACKET;
         break;
+    case TOKEN_COMMA:
+        expr_t->type = EXPR_TOKEN_COMMA;
+        break;
     case TOKEN_IDENTIFIER:
         expr_t->type = EXPR_TOKEN_IDENTIFIER;
         expr_t->data.s = c_string_copy(last_token->data); //TODO check identifier declaration

@@ -228,3 +228,105 @@ TEST_F(ParserExpressionTestFixture, AddVariablesFalse2) {
             parser_parse_expression(parser)
     ) << "Error parsing <expression> rule";
 }
+
+TEST_F(ParserExpressionTestFixture, CallFunction) {
+
+    provider->setString("GGHKGHHG_56566(42) )");
+
+    EXPECT_TRUE(
+            parser_parse_expression(parser)
+    ) << "Error parsing <expression> rule";
+
+    EXPECT_EQ(
+            lexer_next_token(parser->lexer).type,
+            TOKEN_RIGHT_BRACKET
+    ) << "Error get token after <expression> rule";
+
+}
+
+
+TEST_F(ParserExpressionTestFixture, CallFunctionWithMoreAarguments) {
+
+    provider->setString("GFGFGHGHHK5686867(567, 5677) )");
+
+    EXPECT_TRUE(
+            parser_parse_expression(parser)
+    ) << "Error parsing <expression> rule";
+
+    EXPECT_EQ(
+            lexer_next_token(parser->lexer).type,
+            TOKEN_RIGHT_BRACKET
+    ) << "Error get token after <expression> rule";
+
+}
+
+TEST_F(ParserExpressionTestFixture, AddFunctions) {
+
+    provider->setString("guzghh(43) + hdsghkgh(6767) )");
+
+    EXPECT_TRUE(
+            parser_parse_expression(parser)
+    ) << "Error parsing <expression> rule";
+
+    EXPECT_EQ(
+            lexer_next_token(parser->lexer).type,
+            TOKEN_RIGHT_BRACKET
+    ) << "Error get token after <expression> rule";
+
+}
+
+TEST_F(ParserExpressionTestFixture, MultiplyFunctions) {
+
+    provider->setString("ASDFGHZTGRFTH(43) * jfkdmvnfrjdshkkkjiuudtz(6767) )");
+
+    EXPECT_TRUE(
+            parser_parse_expression(parser)
+    ) << "Error parsing <expression> rule";
+
+    EXPECT_EQ(
+            lexer_next_token(parser->lexer).type,
+            TOKEN_RIGHT_BRACKET
+    ) << "Error get token after <expression> rule";
+
+}
+
+TEST_F(ParserExpressionTestFixture, DivideFunctions) {
+
+    provider->setString("GHKHJ7898L(43) * EWRWT78990kjk(6767) )");
+
+    EXPECT_TRUE(
+            parser_parse_expression(parser)
+    ) << "Error parsing <expression> rule";
+
+    EXPECT_EQ(
+            lexer_next_token(parser->lexer).type,
+            TOKEN_RIGHT_BRACKET
+    ) << "Error get token after <expression> rule";
+
+}
+
+
+TEST_F(ParserExpressionTestFixture, SOOOOOOOHARDCOOOOORE) {
+
+    provider->setString("funkce(hgdk_568(j_(42) * 42) / 42 ) * 10 / GHKGJ67867_568) )");
+
+    EXPECT_TRUE(
+            parser_parse_expression(parser)
+    ) << "Error parsing <expression> rule";
+
+    EXPECT_EQ(
+            lexer_next_token(parser->lexer).type,
+            TOKEN_RIGHT_BRACKET
+    ) << "Error get token after <expression> rule";
+
+
+}
+
+
+
+
+
+
+
+
+

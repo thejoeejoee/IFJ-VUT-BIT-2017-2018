@@ -11,10 +11,12 @@ extern "C" {
 #include "../src/parser_expr.h"
 }
 
+
 class ParserExpressionTestFixture : public ::testing::Test {
     protected:
         Parser* parser;
         StringByCharProvider* provider;
+        Token tmp;
 
         void SetUp() override {
             parser = parser_init(token_stream);
@@ -23,6 +25,7 @@ class ParserExpressionTestFixture : public ::testing::Test {
         }
 
         void TearDown() override {
+            token_free(&tmp);
             parser_free(&parser);
         }
 };
@@ -36,7 +39,7 @@ TEST_F(ParserExpressionTestFixture, Constants) {
     ) << "Error parsing <expression> rule";
 
     EXPECT_EQ(
-            lexer_next_token(parser->lexer).type,
+            (tmp = lexer_next_token(parser->lexer)).type,
             TOKEN_IDENTIFIER
     ) << "Error get token after <expression> rule";
 }
@@ -50,7 +53,7 @@ TEST_F(ParserExpressionTestFixture, Constants2) {
     ) << "Error parsing <expression> rule";
 
     EXPECT_EQ(
-            lexer_next_token(parser->lexer).type,
+            (tmp = lexer_next_token(parser->lexer)).type,
             TOKEN_EOL
     ) << "Error get token after <expression> rule";
 }
@@ -65,7 +68,7 @@ TEST_F(ParserExpressionTestFixture, Variable) {
     ) << "Error parsing <expression> rule";
 
     EXPECT_EQ(
-            lexer_next_token(parser->lexer).type,
+            (tmp = lexer_next_token(parser->lexer)).type,
             TOKEN_EOL
     ) << "Error get token after <expression> rule";
 
@@ -81,7 +84,7 @@ TEST_F(ParserExpressionTestFixture, SimpleRelation1) {
     ) << "Error parsing <expression> rule";
 
     EXPECT_EQ(
-            lexer_next_token(parser->lexer).type,
+            (tmp = lexer_next_token(parser->lexer)).type,
             TOKEN_EOL
     ) << "Error get token after <expression> rule";
 
@@ -97,7 +100,7 @@ TEST_F(ParserExpressionTestFixture, SimpleRelation2) {
     ) << "Error parsing <expression> rule";
 
     EXPECT_EQ(
-            lexer_next_token(parser->lexer).type,
+            (tmp = lexer_next_token(parser->lexer)).type,
             TOKEN_EOL
     ) << "Error get token after <expression> rule";
 
@@ -113,7 +116,7 @@ TEST_F(ParserExpressionTestFixture, SimpleRelation3) {
     ) << "Error parsing <expression> rule";
 
     EXPECT_EQ(
-            lexer_next_token(parser->lexer).type,
+            (tmp = lexer_next_token(parser->lexer)).type,
             TOKEN_EOL
     ) << "Error get token after <expression> rule";
 
@@ -129,7 +132,7 @@ TEST_F(ParserExpressionTestFixture, SimpleRelation4) {
     ) << "Error parsing <expression> rule";
 
     EXPECT_EQ(
-            lexer_next_token(parser->lexer).type,
+            (tmp = lexer_next_token(parser->lexer)).type,
             TOKEN_EOL
     ) << "Error get token after <expression> rule";
 
@@ -145,7 +148,7 @@ TEST_F(ParserExpressionTestFixture, SimpleRelation5) {
     ) << "Error parsing <expression> rule";
 
     EXPECT_EQ(
-            lexer_next_token(parser->lexer).type,
+            (tmp = lexer_next_token(parser->lexer)).type,
             TOKEN_EOL
     ) << "Error get token after <expression> rule";
 
@@ -162,7 +165,7 @@ TEST_F(ParserExpressionTestFixture, AddConstatnts) {
     ) << "Error parsing <expression> rule";
 
     EXPECT_EQ(
-        lexer_next_token(parser->lexer).type,
+        (tmp = lexer_next_token(parser->lexer)).type,
         TOKEN_SCOPE
     ) << "Error get token after <expression> rule";
 }
@@ -176,7 +179,7 @@ TEST_F(ParserExpressionTestFixture, ConstantsAndBrackets) {
     ) << "Error parsing <expression> rule";
 
     EXPECT_EQ(
-            lexer_next_token(parser->lexer).type,
+            (tmp = lexer_next_token(parser->lexer)).type,
             TOKEN_EOL
     ) << "Error get token after <expression> rule";
 }
@@ -200,7 +203,7 @@ TEST_F(ParserExpressionTestFixture, SimpleOperations) {
     ) << "Error parsing <expression> rule";
 
     EXPECT_EQ(
-            lexer_next_token(parser->lexer).type,
+            (tmp = lexer_next_token(parser->lexer)).type,
             TOKEN_EOL
     ) << "Error get token after <expression> rule";
 
@@ -225,9 +228,3 @@ TEST_F(ParserExpressionTestFixture, AddVariablesFalse2) {
             parser_parse_expression(parser)
     ) << "Error parsing <expression> rule";
 }
-
-
-
-
-
-

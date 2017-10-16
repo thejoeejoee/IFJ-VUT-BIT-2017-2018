@@ -3,6 +3,7 @@
 
 #include "lexer.h"
 #include "llist.h"
+#include "data_type.h"
 
 extern const int prec_table_size;
 extern const char* prec_table;
@@ -63,12 +64,14 @@ typedef union expr_data_u {
 typedef struct expr_token_t {
     ExprTokenType type;
     ExprData data;
+
+    DataType data_type;
 } ExprToken;
 
+void expr_token_free(ExprToken* t);
 
 ExprToken* expr_get_precedence(ExprToken *a, ExprToken *b);
 ExprToken* load_expr_token(Lexer* lexer, Token* last_token);
-void expr_token_free(ExprToken *t);
 int expr_llist_type_cmp(void* a, void* b);
 void expr_llist_free(void* data);
 ExprToken* create_expr_token(ExprTokenType type);

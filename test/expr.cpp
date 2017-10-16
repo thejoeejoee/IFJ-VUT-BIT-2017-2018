@@ -342,7 +342,7 @@ TEST_F(ParserExpressionTestFixture, StringSimple) {
 
 TEST_F(ParserExpressionTestFixture, SooooooooHardcooooooreExpressionII) {
     provider->setString(
-"funkce(hgdk_568(j_(42) * hgdk_568(4, 0 + foobar865789) + 2, hgdk_5687745(785)) / hgdk_5687474(hgdk_568(42))) * 10 / GHKGJ67867_568 + 78) \n");
+            "funkce(hgdk_568(j_(42) * hgdk_568(4, 0 + foobar865789) + 2, hgdk_5687745(785)) / hgdk_5687474(hgdk_568(42))) * 10 / GHKGJ67867_568 + 78 \n");
 
     EXPECT_TRUE(
             parser_parse_expression(parser)

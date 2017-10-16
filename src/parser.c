@@ -464,7 +464,6 @@ bool parser_parse_variable_declaration(Parser* parser) {
      */
     RULES(
             char* name = NULL;
-            SymbolVariable* variable = NULL;
             CHECK_TOKEN(TOKEN_DIM);
             CHECK_TOKEN(
                     TOKEN_IDENTIFIER,
@@ -481,13 +480,13 @@ bool parser_parse_variable_declaration(Parser* parser) {
                             SEMANTIC_ANALYSIS(
                                     {
                                             // TODO: resolve token_type -> data_type conversion for boolean
-                                            variable = parser_semantic_add_symbol_variable(
+                                            parser->parser_semantic->actual_variable = parser_semantic_add_symbol_variable(
                                                     parser->parser_semantic,
                                                     name,
                                                     (DataType) token_type
                                             );
 
-                                            if(variable == NULL) {
+                                            if(parser->parser_semantic->actual_variable == NULL) {
                                         return false;
                                     }
                                     }
@@ -497,7 +496,7 @@ bool parser_parse_variable_declaration(Parser* parser) {
                                 code_constructor_variable_declaration(
                                         parser->code_constructor,
                                         parser->parser_semantic->register_->index_of_found_variable,
-                                        variable
+                                        parser->parser_semantic->actual_variable
                                 );
                             }
                     );}
@@ -804,6 +803,15 @@ bool parser_parse_assignment(Parser* parser) {
     RULES(
             CHECK_TOKEN(TOKEN_EQUAL);
             CALL_RULE(expression);
+            CODE_GENERATION(
+                    {
+                            code_constructor_variable_expression_assignment(
+                                    parser->code_constructor,
+                                    parser->parser_semantic->actual_variable
+                            );
+                    }
+            );
+            parser->parser_semantic->actual_variable = NULL;
     );
     return true;
 }

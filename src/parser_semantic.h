@@ -8,7 +8,8 @@
 typedef enum {
     SEMANTIC_ACTION__NONE,
     SEMANTIC_ACTION__FUNCTION_DECLARATION,
-    SEMANTIC_ACTION__FUNCTION_DEFINITION
+    SEMANTIC_ACTION__FUNCTION_DEFINITION,
+    SEMANTIC_ACTION__VARIABLE_ASSIGNMENT
 } SemanticAction;
 
 typedef struct parser_semantic_t {
@@ -19,6 +20,7 @@ typedef struct parser_semantic_t {
     SemanticAction actual_action;
 
     SymbolFunction* actual_function; // Pointer to actual function
+    SymbolVariable* actual_variable; // Pointer to actual variable
 
     size_t argument_index;
 

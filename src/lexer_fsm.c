@@ -163,7 +163,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
                     lexer_fsm->numeric_char_value[3] = '\0';
                     int numeric_char_value = atoi(lexer_fsm->numeric_char_value);
 
-                    if(numeric_char_value >= 0 && numeric_char_value <= 255) {
+                    if(numeric_char_value > 0 && numeric_char_value <= 255) {
                         string_append_c(lexer_fsm->stream_buffer, (char) numeric_char_value);
                         return LEX_FSM__STRING_LOAD;
                     }

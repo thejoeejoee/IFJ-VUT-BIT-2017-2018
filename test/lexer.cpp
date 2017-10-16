@@ -408,6 +408,25 @@ InpuT a
     }
 }
 
+TEST_F(LexerTokenizerTestFixture, StringWithEscapeSequences
+) {
+provider->setString(R"(!"foob\238armanr545")");
+
+Token token = lexer_next_token(lexer);
+EXPECT_EQ(
+        token
+.type,
+TOKEN_STRING_VALUE
+);
+EXPECT_STREQ(
+        token
+.data,
+"foob\356armanr545"
+);
+
+token_free(&token);
+}
+
 TEST_F(LexerTokenizerTestFixture, SecondComplexTest) {
     provider->setString(R"RAW(
 /'Program 2: Vypocet faktorialu (rekurzivne)'/

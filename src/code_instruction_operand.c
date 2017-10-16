@@ -93,7 +93,7 @@ char* code_instruction_operand_render(CodeInstructionOperand* operand) {
 
     size_t length = 1;
     if(operand->type == TYPE_INSTRUCTION_OPERAND_CONSTANT && operand->data.constant.data_type == DATA_TYPE_STRING) {
-        length += string_length(operand->data.constant.data.string);
+        length += string_length(operand->data.constant.data.string) * 4;
     } else if(operand->type == TYPE_INSTRUCTION_OPERAND_LABEL) {
         length += strlen(operand->data.label);
     }
@@ -162,13 +162,13 @@ char* code_instruction_operand_render(CodeInstructionOperand* operand) {
 char* code_instruction_operand_escaped_string(String* source) {
     NULL_POINTER_CHECK(source, NULL);
     size_t source_length = string_length(source);
-    String* escaped = string_init_with_capacity((size_t) (source_length * 1.5));
+    String* escaped = string_init_with_capacity((size_t) (source_length * 4));
     short c;
     char buffer[5];
-    buffer[4] = '\0';
+
     for(size_t i = 0; i < source_length; ++i) {
-        c = source->content[i];
-        if((c >= 0 && c <= 32) || c == 35 || c == 92) {
+        c = (unsigned char) source->content[i];
+        if((c >= 0 && c <= 32) || c == 35 || c == 92 || c > 127) {
             snprintf(buffer, 4 + 1, "\\%03d", c);
             string_append_s(escaped, buffer);
         } else {

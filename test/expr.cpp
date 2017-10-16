@@ -46,7 +46,7 @@ TEST_F(ParserExpressionTestFixture, Constants) {
 
 TEST_F(ParserExpressionTestFixture, Constants2) {
 
-    provider->setString("31 + 658 + 67896 + 67876897 \n");
+    provider->setString("31 + 658 + 67896 + 67876897 )");
 
     EXPECT_TRUE(
             parser_parse_expression(parser)
@@ -54,14 +54,14 @@ TEST_F(ParserExpressionTestFixture, Constants2) {
 
     EXPECT_EQ(
             (tmp = lexer_next_token(parser->lexer)).type,
-            TOKEN_EOL
+            TOKEN_RIGHT_BRACKET
     ) << "Error get token after <expression> rule";
 }
 
 
 TEST_F(ParserExpressionTestFixture, Variable) {
 
-    provider->setString("variable \n");
+    provider->setString("variable )");
 
     EXPECT_TRUE(
             parser_parse_expression(parser)
@@ -69,7 +69,7 @@ TEST_F(ParserExpressionTestFixture, Variable) {
 
     EXPECT_EQ(
             (tmp = lexer_next_token(parser->lexer)).type,
-            TOKEN_EOL
+            TOKEN_RIGHT_BRACKET
     ) << "Error get token after <expression> rule";
 
 

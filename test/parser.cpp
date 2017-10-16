@@ -488,6 +488,11 @@ END SCOPE
             parser_parse_program(parser)
     ) << "Body parse";
 
+
+}
+
+TEST_F(ParserTestFixture, ComplexTest4) {
+
     provider->setString(R"(
 SCOPE
 DO WHILE 42
@@ -497,6 +502,22 @@ loop
 END SCOPE
     )");
     EXPECT_TRUE(
+            parser_parse_program(parser)
+    ) << "Body parse";
+
+
+}
+
+TEST_F(ParserTestFixture, ComplexTestFalse) {
+    provider->setString(R"(
+SCOPE
+
+inpu id
+print 42;
+
+END SCOPE
+    )");
+    EXPECT_FALSE(
             parser_parse_program(parser)
     ) << "Body parse";
 

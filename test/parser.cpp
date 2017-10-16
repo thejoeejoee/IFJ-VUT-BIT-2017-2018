@@ -441,17 +441,6 @@ TEST_F(ParserTestFixture, DeclarationAssigment2) {
 
 }
 
-TEST_F(ParserTestFixture, DeclarationAssigment3) {
-
-    provider->setString("= =");
-
-    EXPECT_FALSE(
-            parser_parse_declaration_assignment(parser)
-    ) << "Error parsing <assignment rule";
-
-
-}
-
 TEST_F(ParserTestFixture, DoWhile) {
 
     provider->setString(R"(DO WHILE 42
@@ -758,22 +747,22 @@ scope 'Hlavni telo programu
 Dim a As Integer
 DIM vysl AS INTEGER
 
-PrinT 42;                ' !"Zadejte cislo pro vypocet faktorialu";
+PrinT !"Zadejte cislo pro vypocet faktorialu";
 InpuT A
 
-If 42 THEN               ' a < 0
-print 42;                 ' !"\nFaktorial nelze spocitat\n";
+If a < 0 THEN
+print !"\nFaktorial nelze spocitat\n";
 
 ELSE
 
 Vysl = 1
 
-Do WHile 42              ' A > 0
-VYSL = 42                ' vysl * a
-a = 42                   ' A - 1
+Do WHile A > 0
+VYSL = vysl * a
+a = A - 1
 LooP
 
-Print 42;                 ' !"\nVysledek je:" ; vYsl ; !"\n";
+Print !"\nVysledek je:" ; vYsl ; !"\n";
 end IF
 
 

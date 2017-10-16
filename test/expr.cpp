@@ -322,6 +322,23 @@ TEST_F(ParserExpressionTestFixture, SooooooooHardcooooooreExpressionI) {
 
 }
 
+TEST_F(ParserExpressionTestFixture, StringSimple) {
+
+    provider->setString(" !\" Vysledek je \" )");
+
+    EXPECT_TRUE(
+            parser_parse_expression(parser)
+    ) << "Error parsing <expression> rule";
+
+    EXPECT_EQ(
+            lexer_next_token(parser->lexer).type,
+            TOKEN_RIGHT_BRACKET
+    ) << "Error get token after <expression> rule";
+
+
+}
+
+
 
 TEST_F(ParserExpressionTestFixture, SooooooooHardcooooooreExpressionII) {
     provider->setString(

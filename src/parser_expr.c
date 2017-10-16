@@ -32,21 +32,21 @@ bool parser_parse_expression(Parser* parser) {
 
         do {
             precedence = expr_get_precedence(expr_last_terminal(buffer), token);
-
-            if (precedence->type == EXPR_END) {
-                // Cleanup
-                token_free(&last_token);
-                llist_free(&buffer);
-                return true;
-            }
             
-            // Check for end of expression
+            // Check for delimiter of expression
             if (token->type != EXPR_TOKEN_$ && precedence->type == EXPR_UNKNOWN) {
                 lexer_rewind_token(parser->lexer, last_token);
                 expr_token_free(token);
                 expr_token_free(precedence);
                 token = create_expr_token(EXPR_TOKEN_$);
                 precedence = expr_get_precedence(expr_last_terminal(buffer), token);
+            }
+
+            if (precedence->type == EXPR_END) {
+                // Cleanup
+                token_free(&last_token);
+                llist_free(&buffer);
+                return true;
             }
 
             // Check for function call

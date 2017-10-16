@@ -43,6 +43,8 @@ bool parser_parse_expression(Parser* parser) {
             }
 
             if (precedence->type == EXPR_END) {
+                expr_token_free(token);
+                expr_token_free(precedence);
                 // Cleanup
                 token_free(&last_token);
                 llist_free(&buffer);

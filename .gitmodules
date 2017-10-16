@@ -1,0 +1,4 @@
+[submodule "VUT-FIT-IFJ-2017-tests"]
+	path = VUT-FIT-IFJ-2017-tests
+	url = https://github.com/thejoeejoee/VUT-FIT-IFJ-2017-tests.git
+	branch = master

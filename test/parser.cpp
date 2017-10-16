@@ -743,7 +743,7 @@ TEST_F(ParserTestFixture, ComplexTestIdentifAssignement) {
     provider->setString("ahoj = 42");
 
     EXPECT_TRUE(
-            parser_parse_identif_assignment(parser)
+            parser_parse_identifier_assignment(parser)
     ) << "Body parse";
 
 }

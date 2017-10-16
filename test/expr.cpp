@@ -158,21 +158,21 @@ TEST_F(ParserExpressionTestFixture, SimpleRelation5) {
 
 TEST_F(ParserExpressionTestFixture, AddConstatnts) {
 
-    provider->setString("30 + 30 scope" );
+    provider->setString("30 + 30 scope");
 
     EXPECT_TRUE(
             parser_parse_expression(parser)
     ) << "Error parsing <expression> rule";
 
     EXPECT_EQ(
-        (tmp = lexer_next_token(parser->lexer)).type,
-        TOKEN_SCOPE
+            (tmp = lexer_next_token(parser->lexer)).type,
+            TOKEN_SCOPE
     ) << "Error get token after <expression> rule";
 }
 
 TEST_F(ParserExpressionTestFixture, ConstantsAndBrackets) {
 
-    provider->setString("((30 + 10) * 10) / 32 \n" );
+    provider->setString("((30 + 10) * 10) / 32 \n");
 
     EXPECT_TRUE(
             parser_parse_expression(parser)
@@ -306,7 +306,7 @@ TEST_F(ParserExpressionTestFixture, DivideFunctions) {
 }
 
 
-TEST_F(ParserExpressionTestFixture, SOOOOOOOHARDCOOOOORE) {
+TEST_F(ParserExpressionTestFixture, SooooooooHardcooooooreExpressionI) {
 
     provider->setString("funkce(hgdk_568(j_(42) * 42) / 42 ) * 10 / GHKGJ67867_568) )");
 
@@ -323,6 +323,19 @@ TEST_F(ParserExpressionTestFixture, SOOOOOOOHARDCOOOOORE) {
 }
 
 
+TEST_F(ParserExpressionTestFixture, SooooooooHardcooooooreExpressionII) {
+    provider->setString(
+            "funkce(hgdk_568(j_(42) * hgdk_568(4, 0 + foobar865789) + 2, hgdk_5687745(785)) / hgdk_5687474(hgdk_568(42))) * 10 / GHKGJ67867_568) \n");
+
+    EXPECT_TRUE(
+            parser_parse_expression(parser)
+    ) << "Error parsing <expression> rule";
+
+    EXPECT_EQ(
+            lexer_next_token(parser->lexer).type,
+            TOKEN_EOL
+    ) << "Error get token after <expression> rule";
+}
 
 
 

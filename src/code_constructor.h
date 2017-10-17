@@ -118,5 +118,7 @@ char* code_constructor_generate_label(CodeConstructor* constructor, const char* 
 
 void code_constructor_variable_expression_assignment(CodeConstructor* constructor, SymbolVariable* variable);
 
+void code_constructor_generate_built_in_function(CodeConstructor* constructor);
+
 
 #endif //_CODE_CONSTRUCTOR_H

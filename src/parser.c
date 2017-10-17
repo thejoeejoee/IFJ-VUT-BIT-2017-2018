@@ -58,6 +58,13 @@ bool parser_parse_program(Parser* parser) {
      * RULE
      * <prog> -> <body> <eols> EOF
      */
+
+    SEMANTIC_ANALYSIS(
+            {
+                parser_semantic_add_built_in_functions(parser->parser_semantic);
+            }
+    );
+
     CODE_GENERATION(
             {
                 parser->parser_semantic->temp_variable = symbol_table_variable_get_or_create(
@@ -65,6 +72,8 @@ bool parser_parse_program(Parser* parser) {
                         "%__temp_print_expression"
                 );
                 code_constructor_start_code(parser->code_constructor, parser->parser_semantic->temp_variable);
+
+                code_constructor_generate_built_in_function(parser->code_constructor);
             }
     );
     // Call rule <body>. If <body> return false => return false

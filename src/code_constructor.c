@@ -277,3 +277,8 @@ void code_constructor_variable_expression_assignment(CodeConstructor* constructo
             code_instruction_operand_init_variable(variable)
     );
 }
+
+void code_constructor_generate_built_in_function(CodeConstructor* constructor) {
+    UNUSED(constructor);
+    // TODO: Add generate code for built-in functions
+}

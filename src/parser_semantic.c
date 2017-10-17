@@ -194,3 +194,7 @@ bool parser_semantic_check_definitions(ParserSemantic* parser_semantic) {
     return true;
 }
 
+void parser_semantic_add_built_in_functions(ParserSemantic* parser_semantic) {
+    UNUSED(parser_semantic);
+    // TODO: ADD built-in function into table
+}

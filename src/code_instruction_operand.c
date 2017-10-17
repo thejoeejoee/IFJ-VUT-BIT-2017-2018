@@ -91,14 +91,14 @@ CodeInstructionOperand* code_instruction_operand_init_data_type(DataType data_ty
 char* code_instruction_operand_render(CodeInstructionOperand* operand) {
     NULL_POINTER_CHECK(operand, NULL);
 
-    size_t length = 1;
+    size_t length = 1; // null terminator
     if(operand->type == TYPE_INSTRUCTION_OPERAND_CONSTANT && operand->data.constant.data_type == DATA_TYPE_STRING) {
         length += string_length(operand->data.constant.data.string) * 4;
     } else if(operand->type == TYPE_INSTRUCTION_OPERAND_LABEL) {
         length += strlen(operand->data.label);
     }
 
-    length += 16; // data type
+    length += 64; // data type + float&integers
     char* rendered = memory_alloc(sizeof(char) * length);
     char* escaped = NULL;
     switch(operand->type) {

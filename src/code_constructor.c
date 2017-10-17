@@ -266,3 +266,10 @@ void code_constructor_while_end(CodeConstructor* constructor) {
     code_label_free(&start_label);
     code_label_free(&end_label);
 }
+
+void code_constructor_variable_expression_assignment(CodeConstructor* constructor, SymbolVariable* variable) {
+    GENERATE_CODE(
+            I_POP_STACK,
+            code_instruction_operand_init_variable(variable)
+    );
+}

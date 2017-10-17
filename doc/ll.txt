@@ -68,6 +68,14 @@
 <else_section> -> ELSE EOL <eols> <statements>
 <do_while> -> DO WHILE <expression> EOL <eols> <statements> LOOP
 
+// volání funkce (pravidlo volané z expression kvůli rekurzi)
+<function> = IDENTIFIER (<function_args>)
+<function_args> -> E
+<function_args> -> <function_arg> <function_n_arg>
+<function_n_arg> -> E
+<function_n_arg> -> , <function_arg> <function_n_arg>
+<function_arg> -> <expression>
+
 // Todo: Bonusové zadání, for
 <for> -> FOR <id> EQUAL <expression> TO <expression> <step>.....?
 

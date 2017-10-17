@@ -441,17 +441,6 @@ TEST_F(ParserTestFixture, DeclarationAssigment2) {
 
 }
 
-TEST_F(ParserTestFixture, DeclarationAssigment3) {
-
-    provider->setString("= =");
-
-    EXPECT_FALSE(
-            parser_parse_declaration_assignment(parser)
-    ) << "Error parsing <assignment rule";
-
-
-}
-
 TEST_F(ParserTestFixture, DoWhile) {
 
     provider->setString(R"(DO WHILE 42
@@ -499,6 +488,11 @@ END SCOPE
             parser_parse_program(parser)
     ) << "Body parse";
 
+
+}
+
+TEST_F(ParserTestFixture, ComplexTest4) {
+
     provider->setString(R"(
 SCOPE
 DO WHILE 42
@@ -508,6 +502,22 @@ loop
 END SCOPE
     )");
     EXPECT_TRUE(
+            parser_parse_program(parser)
+    ) << "Body parse";
+
+
+}
+
+TEST_F(ParserTestFixture, ComplexTestFalse) {
+    provider->setString(R"(
+SCOPE
+
+inpu id
+print 42;
+
+END SCOPE
+    )");
+    EXPECT_FALSE(
             parser_parse_program(parser)
     ) << "Body parse";
 
@@ -743,7 +753,7 @@ TEST_F(ParserTestFixture, ComplexTestIdentifAssignement) {
     provider->setString("ahoj = 42");
 
     EXPECT_TRUE(
-            parser_parse_identif_assignment(parser)
+            parser_parse_identifier_assignment(parser)
     ) << "Body parse";
 
 }
@@ -758,22 +768,22 @@ scope 'Hlavni telo programu
 Dim a As Integer
 DIM vysl AS INTEGER
 
-PrinT 42;                ' !"Zadejte cislo pro vypocet faktorialu";
+PrinT !"Zadejte cislo pro vypocet faktorialu";
 InpuT A
 
-If 42 THEN               ' a < 0
-print 42;                 ' !"\nFaktorial nelze spocitat\n";
+If a < 0 THEN
+print !"\nFaktorial nelze spocitat\n";
 
 ELSE
 
 Vysl = 1
 
-Do WHile 42              ' A > 0
-VYSL = 42                ' vysl * a
-a = 42                   ' A - 1
+Do WHile A > 0
+VYSL = vysl * a
+a = A - 1
 LooP
 
-Print 42;                 ' !"\nVysledek je:" ; vYsl ; !"\n";
+Print !"\nVysledek je:" ; vYsl ; !"\n";
 end IF
 
 
@@ -784,6 +794,51 @@ END SCOPE
     ) << "Body parse";
 
 }
+
+TEST_F(ParserTestFixture, ComplexTestFactorialRecursive) {
+    provider->setString(R"(
+/' Program 2: Vypocet faktorialu (rekurzivne) '/
+
+Declare Function factorial (n As Integer) As Integer
+
+Function factorial (n As Integer) As Integer
+
+Dim temp_result As Integer
+Dim decremented_n As Integer
+Dim result As Integer
+
+If n < 2 Then
+result = 1
+Else
+decremented_n = n - 1
+temp_result = factorial(decremented_n)
+result = n * temp_result
+End If
+Return result
+End Function
+
+Scope 'Hlavni telo programu
+Dim a As Integer
+Dim vysl As Integer
+
+Print !"Zadejte cislo pro vypocet faktorialu";
+Input a
+
+If a < 0 Then
+Print !"\nFaktorial nelze spocitat\n";
+else
+vysl = factorial(a)
+Print !"\nVysledek je:" ; vysl ; !"\n";
+End If
+
+End Scope
+    )");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    ) << "Body parse";
+
+}
+
 
 
 

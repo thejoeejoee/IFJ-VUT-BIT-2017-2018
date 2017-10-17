@@ -6,6 +6,8 @@ ParserSemantic* parser_semantic_init() {
 
     parser_semantic->register_ = symbol_register_init();
     parser_semantic->actual_action = SEMANTIC_ACTION__NONE;
+    parser_semantic->actual_variable = NULL;
+    parser_semantic->actual_function = NULL;
     return parser_semantic;
 }
 

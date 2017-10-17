@@ -14,6 +14,7 @@ typedef enum {
     TOKEN_MULTIPLY = LEX_FSM__MULTIPLY,
     TOKEN_ADD = LEX_FSM__ADD,
     TOKEN_DIVIDE = LEX_FSM__DIVIDE,
+    TOKEN_INTEGER_DIVIDE = LEX_FSM__INTEGER_DIVIDE,
     TOKEN_SUBTRACT = LEX_FSM__SUBTRACT,
     TOKEN_LEFT_BRACKET = LEX_FSM__LEFT_BRACKET,
     TOKEN_RIGHT_BRACKET = LEX_FSM__RIGHT_BRACKET,
@@ -81,6 +82,11 @@ typedef struct token_t {
     TokenType type; // Type of token
     char* data;
 } Token;
+
+/**
+* @brief Checks type of token
+*/
+bool token_check(Token token, TokenType type);
 
 /**
 * @brief Performs deep copy of token.

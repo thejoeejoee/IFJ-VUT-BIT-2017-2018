@@ -93,6 +93,38 @@ TEST_F(CodeInstructionOperandTestFixture, StringEscape2) {
     memory_free(escaped);
 }
 
+TEST_F(CodeInstructionOperandTestFixture, StringEscape3
+) {
+    auto string = string_init();
+    string_append_c(string,
+                    (char)238);
+    char* escaped = code_instruction_operand_escaped_string(string);
+
+    EXPECT_STREQ(
+            escaped,
+            "\\238"
+    );
+
+    string_free(&string);
+    memory_free(escaped);
+}
+
+TEST_F(CodeInstructionOperandTestFixture, StringRender
+) {
+    auto string = string_init();
+    string_append_s(string,
+                    "foobarman\xfe");
+    auto operand = code_instruction_operand_init_string(string);
+    auto rendered = code_instruction_operand_render(operand);
+    EXPECT_STREQ(
+            rendered,
+            "string@foobarman\\254"
+    );
+
+    string_free(&string);
+    memory_free(rendered);
+}
+
 
 TEST_F(CodeInstructionOperandTestFixture, Integer) {
 

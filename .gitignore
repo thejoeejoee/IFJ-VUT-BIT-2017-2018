@@ -35,3 +35,4 @@ doc/build
 .idea/**/dynamic.xml
 .idea/**/uiDesigner.xml
 *.pyc
+cmake-build-release/

@@ -726,6 +726,48 @@ END SCOPE
 
 }
 
+TEST_F(ParserTestFixture, ComplexTestWithConditionEOLS) {
+
+    provider->setString(R"(
+SCOPE
+
+
+return 32
+
+
+if 42 then
+
+
+input id
+
+
+elseif 43 then
+
+
+input id
+
+
+else
+
+
+input id
+
+
+input id
+
+
+end if
+
+
+END SCOPE
+    )");
+    EXPECT_FALSE(
+            parser_parse_program(parser)
+    ) << "Body parse";
+
+}
+
+
 TEST_F(ParserTestFixture, SimpleIf) {
     provider->setString(R"(
 
@@ -758,7 +800,7 @@ TEST_F(ParserTestFixture, ComplexTestIdentifAssignement) {
 
 }
 
-TEST_F(ParserTestFixture, ComplexTestFactorial) {
+TEST_F(ParserTestFixture, ComplexTestFactorialIterativeEOLS) {
     provider->setString(R"(
 /' Program 1: Vypocet faktorialu (iterativne) '/
 /' Vcetne ukazky case-insensitive vlastnosti jazyka IFJ17 '/
@@ -838,10 +880,3 @@ End Scope
     ) << "Body parse";
 
 }
-
-
-
-
-
-
-

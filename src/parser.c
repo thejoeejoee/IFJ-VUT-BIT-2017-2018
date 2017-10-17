@@ -60,7 +60,11 @@ bool parser_parse_program(Parser* parser) {
      */
     CODE_GENERATION(
             {
-                code_constructor_start_code(parser->code_constructor);
+                parser->parser_semantic->print_variable = symbol_table_variable_get_or_create(
+                        parser->parser_semantic->register_->variables->symbol_table,
+                        "%__temp_print_expression"
+                );
+                code_constructor_start_code(parser->code_constructor, parser->parser_semantic->print_variable);
             }
     );
     // Call rule <body>. If <body> return false => return false
@@ -578,7 +582,10 @@ bool parser_parse_print_expression(Parser* parser) {
             CALL_RULE(expression);
             CODE_GENERATION(
                     {
-                            code_constructor_print_expression(parser->code_constructor);
+                            code_constructor_print_expression(
+                                    parser->code_constructor,
+                                    parser->parser_semantic->print_variable
+                            );
                     }
             );
             CHECK_TOKEN(TOKEN_SEMICOLON);

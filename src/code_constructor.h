@@ -34,7 +34,7 @@ void code_constructor_free(CodeConstructor** constructor);
  * Starts three address block with jump to main scope.
  * @param constructor
  */
-void code_constructor_start_code(CodeConstructor* constructor);
+void code_constructor_start_code(CodeConstructor* constructor, SymbolVariable* print_tmp);
 
 /**
  * Generates target label for jump into main scope.
@@ -112,7 +112,7 @@ void code_constructor_while_after_condition(CodeConstructor* constructor);
  */
 void code_constructor_while_end(CodeConstructor* constructor);
 
-void code_constructor_print_expression(CodeConstructor* constructor);
+void code_constructor_print_expression(CodeConstructor* constructor, SymbolVariable* print_variable);
 
 char* code_constructor_generate_label(CodeConstructor* constructor, const char* type);
 

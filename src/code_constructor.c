@@ -1,5 +1,6 @@
 #include "code_constructor.h"
 
+
 CodeConstructor* code_constructor_init() {
     CodeConstructor* constructor = memory_alloc(sizeof(CodeConstructor));
 
@@ -26,8 +27,11 @@ void code_constructor_free(CodeConstructor** constructor) {
     *constructor = NULL;
 }
 
-void code_constructor_start_code(CodeConstructor* constructor) {
+void code_constructor_start_code(CodeConstructor* constructor, SymbolVariable* print_tmp) {
     NULL_POINTER_CHECK(constructor,);
+    NULL_POINTER_CHECK(print_tmp,);
+
+    code_constructor_variable_declaration(constructor, 0, print_tmp);
 
     // TODO: random labels? hashed?
     stack_code_label_push(constructor->code_label_stack, "%__main__scope");
@@ -60,12 +64,6 @@ void code_constructor_variable_declaration(CodeConstructor* constructor, int fra
     GENERATE_CODE(
             I_DEF_VAR,
             code_instruction_operand_init_variable(symbol_variable)
-    );
-
-    GENERATE_CODE(
-            I_MOVE,
-            code_instruction_operand_init_variable(symbol_variable),
-            code_instruction_operand_init_integer(0)
     );
 }
 
@@ -205,12 +203,18 @@ char* code_constructor_generate_label(CodeConstructor* constructor, const char* 
     return label;
 }
 
-void code_constructor_print_expression(CodeConstructor* constructor) {
+void code_constructor_print_expression(CodeConstructor* constructor, SymbolVariable* print_variable) {
     NULL_POINTER_CHECK(constructor,);
-    // TODO: load expression
+    NULL_POINTER_CHECK(print_variable,);
+
+    GENERATE_CODE(
+            I_POP_STACK,
+            code_instruction_operand_init_variable(print_variable)
+    );
+
     GENERATE_CODE(
             I_WRITE,
-            code_instruction_operand_init_integer(42)
+            code_instruction_operand_init_variable(print_variable)
     );
 }
 

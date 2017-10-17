@@ -19,13 +19,12 @@ typedef struct parser_semantic_t {
 
     SemanticAction actual_action;
 
+    // metadata
     SymbolFunction* actual_function; // Pointer to actual function
     SymbolVariable* actual_variable; // Pointer to actual variable
-
     size_t argument_index;
-
     bool function_declared;
-
+    SymbolVariable* print_variable;
 } ParserSemantic;
 
 /**

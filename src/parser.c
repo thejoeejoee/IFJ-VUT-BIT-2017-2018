@@ -647,6 +647,7 @@ bool parser_parse_input(Parser* parser) {
                                                     token.data
                                             );
                                             if(NULL == symbol_variable) {
+                                        parser->parser_semantic->error_report.error_code = 3;
                                         token_free(&token);
                                         return false;
                                     }

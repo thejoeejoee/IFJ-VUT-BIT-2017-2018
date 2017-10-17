@@ -4,6 +4,7 @@ const expression_rule_function expr_rule_table[EXPR_RULE_TABLE_SIZE] = {
         expression_rule_id,
         expression_rule_fn,
         expression_rule_add,
+        expression_rule_unary_minus,
         expression_rule_fake
 };
 
@@ -169,27 +170,36 @@ bool expression_rule_add(Parser* parser, LList* expr_token_buffer, ExprIdx* expr
     * RULE
     * E -> E + E
     */
-
-    // NOTE: we are processing rule backwards!
+    // backward
     EXPR_RULE_CHECK_START();
     EXPR_RULE_CHECK_TYPE(EXPR_EXPRESSION);
     EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_PLUS);
     EXPR_RULE_CHECK_TYPE(EXPR_EXPRESSION);
     EXPR_RULE_CHECK_FINISH();
 
-    // NOTE: now we are processing rule regular way - from the left to the right
-    ExprIdx a = EXPR_RULE_NEXT_E_ID();
-    ExprIdx b = EXPR_RULE_NEXT_E_ID();
-
-    (void) a;
-    (void) b;
-
     CodeConstructor* constructor = parser->code_constructor;
     GENERATE_CODE(I_ADD_STACK);
+    ExprToken* e = create_expression((*expression_idx)++);
+    EXPR_RULE_REPLACE(e);
+    return true;
+}
+
+bool expression_rule_unary_minus(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx) {
+    /*
+    * RULE
+    * E -> - E
+    */
+    // backward
+    EXPR_RULE_CHECK_START();
+    EXPR_RULE_CHECK_TYPE(EXPR_EXPRESSION);
+    EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_UNARY_MINUS);
+    EXPR_RULE_CHECK_FINISH();
+
+    CodeConstructor* constructor = parser->code_constructor;
+    GENERATE_CODE(I_PUSH_STACK, code_instruction_operand_init_integer(-1));
+    GENERATE_CODE(I_MUL_STACK);
 
     ExprToken* e = create_expression((*expression_idx)++);
-
     EXPR_RULE_REPLACE(e);
-
     return true;
 }

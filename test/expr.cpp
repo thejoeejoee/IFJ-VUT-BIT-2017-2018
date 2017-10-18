@@ -334,13 +334,11 @@ TEST_F(ParserExpressionTestFixture, DivideFunctions) {
             (tmp = lexer_next_token(parser->lexer)).type,
             TOKEN_RIGHT_BRACKET
     ) << "Error get token after <expression> rule";
-
 }
 
+TEST_F(ParserExpressionTestFixture, StringSimple) {
 
-TEST_F(ParserExpressionTestFixture, SooooooooHardcooooooreExpressionI) {
-
-    provider->setString("funkce(hgdk_568(j_(42) * 42) / 42 ) * 10 / GHKGJ67867_568) )");
+    provider->setString(" !\" Vysledek je \" )");
 
     EXPECT_TRUE(
             parser_parse_expression(parser)
@@ -350,13 +348,27 @@ TEST_F(ParserExpressionTestFixture, SooooooooHardcooooooreExpressionI) {
             (tmp = lexer_next_token(parser->lexer)).type,
             TOKEN_RIGHT_BRACKET
     ) << "Error get token after <expression> rule";
-
-
 }
 
-TEST_F(ParserExpressionTestFixture, StringSimple) {
 
-    provider->setString(" !\" Vysledek je \" )");
+TEST_F(ParserExpressionTestFixture, UnaryMinus0) {
+
+    provider->setString(" -48 \n");
+
+    EXPECT_TRUE(
+            parser_parse_expression(parser)
+    ) << "Error parsing <expression> rule";
+
+    EXPECT_EQ(
+            (tmp = lexer_next_token(parser->lexer)).type,
+            TOKEN_EOL
+    ) << "Error get token after <expression> rule";
+}
+
+
+TEST_F(ParserExpressionTestFixture, SooooooooHardcooooooreExpressionI) {
+
+    provider->setString("funkce(hgdk_568(j_(42) * 42) / 42 ) * 10 / GHKGJ67867_568) )");
 
     EXPECT_TRUE(
             parser_parse_expression(parser)

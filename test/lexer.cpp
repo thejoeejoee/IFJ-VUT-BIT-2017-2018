@@ -408,23 +408,36 @@ InpuT a
     }
 }
 
-TEST_F(LexerTokenizerTestFixture, StringWithEscapeSequences
-) {
-provider->setString(R"(!"foob\238armanr545")");
+TEST_F(LexerTokenizerTestFixture, StringWithEscapeSequences) {
+    provider->setString(R"(!"foob\238armanr545")");
 
-Token token = lexer_next_token(lexer);
-EXPECT_EQ(
-        token
-.type,
-TOKEN_STRING_VALUE
-);
-EXPECT_STREQ(
-        token
-.data,
-"foob\356armanr545"
-);
+    Token token = lexer_next_token(lexer);
+    EXPECT_EQ(
+            token.type,
+            TOKEN_STRING_VALUE
+    );
+    EXPECT_STREQ(
+            token.data,
+            "foob\356armanr545"
+    );
 
-token_free(&token);
+    token_free(&token);
+}
+
+TEST_F(LexerTokenizerTestFixture, EmptyString) {
+    provider->setString(R"(!"")");
+
+    Token token = lexer_next_token(lexer);
+    EXPECT_EQ(
+            token.type,
+            TOKEN_STRING_VALUE
+    );
+    EXPECT_STREQ(
+            token.data,
+            ""
+    );
+
+    token_free(&token);
 }
 
 TEST_F(LexerTokenizerTestFixture, SecondComplexTest) {

@@ -87,6 +87,14 @@ bool expression_rule_id(Parser* parser, LList* expr_token_buffer, ExprIdx* expre
     } else if(i->type == EXPR_TOKEN_BOOLEAN_LITERAL) {
         CodeConstructor* constructor = parser->code_constructor;
         GENERATE_CODE(I_PUSH_STACK, code_instruction_operand_init_boolean(0 == strcmp(i->data.s, "true")));
+    } else if(i->type == EXPR_TOKEN_IDENTIFIER) {
+        CodeConstructor* constructor = parser->code_constructor;
+        GENERATE_CODE(
+                I_PUSH_STACK,
+                code_instruction_operand_init_variable(
+                        symbol_register_find_variable_recursive(parser->parser_semantic->register_, i->data.s)
+                )
+        );
     }
 
     ExprToken* e = create_expression((*expression_idx)++);

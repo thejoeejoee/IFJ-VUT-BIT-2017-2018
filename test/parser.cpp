@@ -293,7 +293,6 @@ TEST_F(ParserTestFixture, PrintStatement3) {
 }
 
 
-
 TEST_F(ParserTestFixture, BodyStatementSingle) {
     provider->setString("input foo");
 
@@ -396,44 +395,37 @@ TEST_F(ParserTestFixture, DimRuleDeclaration4) {
 
 
 TEST_F(ParserTestFixture, DimRuleWithAssignment) {
-
     provider->setString("dim param475624 as integer = 10");
-
     EXPECT_TRUE(
             parser_parse_variable_declaration(parser)
     ) << "Error parsing <variable_declaration> rule";
+}
 
-
+TEST_F(ParserTestFixture, DimRuleWithAssignmentInvalid) {
+    provider->setString("dim param4756248754 as integer =");
+    EXPECT_FALSE(
+            parser_parse_variable_declaration(parser)
+    ) << "Error parsing <variable_declaration> rule";
 }
 
 
 TEST_F(ParserTestFixture, AssignmentRule) {
-
     provider->setString("= 56875687");
-
     EXPECT_TRUE(
             parser_parse_assignment(parser)
     ) << "Error parsing <assignment rule";
-
-
 }
 
 
 TEST_F(ParserTestFixture, DeclarationAssigment) {
-
     provider->setString(" = 567868");
-
     EXPECT_TRUE(
             parser_parse_declaration_assignment(parser)
     ) << "Error parsing <assignment rule";
-
-
 }
 
 TEST_F(ParserTestFixture, DeclarationAssigment2) {
-
     provider->setString("");
-
     EXPECT_TRUE(
             parser_parse_declaration_assignment(parser)
     ) << "Error parsing <assignment rule";
@@ -442,7 +434,6 @@ TEST_F(ParserTestFixture, DeclarationAssigment2) {
 }
 
 TEST_F(ParserTestFixture, DoWhile) {
-
     provider->setString(R"(DO WHILE 42
 input id
 DO WHILE 42
@@ -452,27 +443,18 @@ loop
 input id
 loop
     )");
-
     parser->body_statement = true;
-
     EXPECT_TRUE(
             parser_parse_while_(parser)
     ) << "Error parsing <do_while> rule";
-
     parser->body_statement = false;
-
-
 }
 
 TEST_F(ParserTestFixture, ReturnRule) {
-
-
     provider->setString("return 34");
-
     EXPECT_TRUE(
             parser_parse_return_(parser)
     ) << "Error parsing <expression> rule";
-
 }
 
 TEST_F(ParserTestFixture, ComplexTest) {
@@ -487,12 +469,9 @@ END SCOPE
     EXPECT_TRUE(
             parser_parse_program(parser)
     ) << "Body parse";
-
-
 }
 
 TEST_F(ParserTestFixture, ComplexTest4) {
-
     provider->setString(R"(
 SCOPE
 DO WHILE 42
@@ -504,8 +483,6 @@ END SCOPE
     EXPECT_TRUE(
             parser_parse_program(parser)
     ) << "Body parse";
-
-
 }
 
 TEST_F(ParserTestFixture, ComplexTestFalse) {
@@ -520,8 +497,6 @@ END SCOPE
     EXPECT_FALSE(
             parser_parse_program(parser)
     ) << "Body parse";
-
-
 }
 
 TEST_F(ParserTestFixture, ComplexTest2) {
@@ -547,7 +522,6 @@ END SCOPE
     EXPECT_TRUE(
             parser_parse_program(parser)
     ) << "Body parse";
-
 }
 
 TEST_F(ParserTestFixture, ComplexTest3) {
@@ -574,7 +548,6 @@ END SCOPE
     EXPECT_TRUE(
             parser_parse_program(parser)
     ) << "Body parse";
-
 }
 
 TEST_F(ParserTestFixture, ComplexTestWhileInFuncion) {
@@ -595,10 +568,9 @@ END SCOPE
     EXPECT_TRUE(
             parser_parse_program(parser)
     ) << "Body parse";
-
 }
 
-TEST_F(ParserTestFixture, ComplexTestConditionInFuncion) {
+TEST_F(ParserTestFixture, ComplexTestConditionInFunction0) {
     provider->setString(R"(
 FUNCTION FOO() AS INTEGER
 DO WHILE 42
@@ -622,7 +594,9 @@ END SCOPE
     EXPECT_TRUE(
             parser_parse_program(parser)
     ) << "Body parse";
+}
 
+TEST_F(ParserTestFixture, ComplexTestConditionInFunction1) {
     provider->setString(R"(
 FUNCTION FOO() AS INTEGER
 DO WHILE 42
@@ -647,9 +621,6 @@ END SCOPE
     EXPECT_FALSE(
             parser_parse_program(parser)
     ) << "Body parse";
-
-
-
 }
 
 TEST_F(ParserTestFixture, ComplexTestWithCondition) {
@@ -668,11 +639,9 @@ END SCOPE
     EXPECT_TRUE(
             parser_parse_program(parser)
     ) << "Body parse";
-
 }
 
 TEST_F(ParserTestFixture, ComplexTestWithCondition1) {
-
     provider->setString(R"(
 SCOPE
 return 32
@@ -689,7 +658,6 @@ END SCOPE
     EXPECT_FALSE(
             parser_parse_program(parser)
     ) << "Body parse";
-
 }
 
 TEST_F(ParserTestFixture, ComplexTestWithConditionWithoutElseif) {
@@ -706,7 +674,6 @@ END SCOPE
     EXPECT_TRUE(
             parser_parse_program(parser)
     ) << "Body parse";
-
 }
 
 TEST_F(ParserTestFixture, IdentifAssignment) {
@@ -723,7 +690,6 @@ END SCOPE
     EXPECT_TRUE(
             parser_parse_program(parser)
     ) << "Body parse";
-
 }
 
 TEST_F(ParserTestFixture, ComplexTestWithConditionEOLS) {
@@ -764,7 +730,6 @@ END SCOPE
     EXPECT_FALSE(
             parser_parse_program(parser)
     ) << "Body parse";
-
 }
 
 
@@ -787,13 +752,10 @@ END SCOPE
     EXPECT_TRUE(
             parser_parse_program(parser)
     ) << "Body parse";
-
 }
 
 TEST_F(ParserTestFixture, ComplexTestIdentifAssignement) {
-
-    provider->setString("ahoj = 42");
-
+    provider->setString("ahoj879546 = 42");
     EXPECT_TRUE(
             parser_parse_identifier_assignment(parser)
     ) << "Body parse";

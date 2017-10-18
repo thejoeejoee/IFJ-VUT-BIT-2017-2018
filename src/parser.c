@@ -69,7 +69,7 @@ bool parser_parse_program(Parser* parser) {
             {
                 parser->parser_semantic->temp_variable = symbol_table_variable_get_or_create(
                         parser->parser_semantic->register_->variables->symbol_table,
-                        "%__temp_print_expression"
+                        "%__temp_variable"
                 );
                 code_constructor_start_code(parser->code_constructor, parser->parser_semantic->temp_variable);
 

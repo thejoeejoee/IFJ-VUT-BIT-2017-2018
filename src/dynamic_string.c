@@ -5,12 +5,12 @@
 
 
 String* string_init_with_capacity(size_t initial_capacity) {
-    ASSERT(initial_capacity > 1); //smaller capacity than 2 makes no sense
+    ASSERT(initial_capacity >= 1); //smaller capacity than 2 makes no sense
     String* string = (String*) memory_alloc(sizeof(String));
-    string->content = (char*) memory_alloc(sizeof(char) * initial_capacity);
+    string->content = (char*) memory_alloc(sizeof(char) * initial_capacity + 1);
     string->content[0] = 0; //c-string terminator
     string->size = 1;
-    string->capacity = initial_capacity;
+    string->capacity = initial_capacity + 1;
     return string;
 }
 
@@ -43,6 +43,7 @@ static inline void string_update_capacity(String* string, size_t needed_size) {
 }
 
 void string_append_c(String* string, char c) {
+    NULL_POINTER_CHECK(string,);
     size_t new_size = string->size + 1;
     string_update_capacity(string, new_size);
     ASSERT(string->capacity >= new_size);
@@ -53,6 +54,8 @@ void string_append_c(String* string, char c) {
 }
 
 void string_append_s(String* string, const char* s) {
+    NULL_POINTER_CHECK(string,);
+    NULL_POINTER_CHECK(s,);
     size_t new_size = string->size + strlen(s);
     string_update_capacity(string, new_size);
     ASSERT(string->capacity >= new_size);
@@ -63,6 +66,8 @@ void string_append_s(String* string, const char* s) {
 }
 
 void string_append(String* string, const String* b) {
+    NULL_POINTER_CHECK(string,);
+    NULL_POINTER_CHECK(b,);
     size_t new_size = string->size + b->size - 1;
     string_update_capacity(string, new_size);
     ASSERT(string->capacity >= new_size);
@@ -73,16 +78,19 @@ void string_append(String* string, const String* b) {
 }
 
 void string_clear(String* string) {
+    NULL_POINTER_CHECK(string,);
     ASSERT(string->capacity >= 1);
     string->size = 1;
     string->content[0] = 0;
 }
 
 char* string_content(String* string) {
+    NULL_POINTER_CHECK(string, NULL);
     return string->content;
 }
 
-size_t string_length(String* string) { //excluding null terminator 
+size_t string_length(String* string) { //excluding null terminator
+    NULL_POINTER_CHECK(string, 0);
     ASSERT(string->size >= 1);
     return string->size - 1;
 }

@@ -79,12 +79,11 @@ char* lexer_store_token_data(const Lexer* lexer, Token token) {
     NULL_POINTER_CHECK(lexer, NULL);
 
     size_t data_length = string_length(lexer->lexer_fsm->stream_buffer);
-    if(data_length >= 0 && (
-            token.type == TOKEN_IDENTIFIER ||
+    if(token.type == TOKEN_IDENTIFIER ||
             token.type == TOKEN_STRING_VALUE ||
             token.type == TOKEN_INTEGER_LITERAL ||
             token.type == TOKEN_DOUBLE_LITERAL
-    )) {
+    ) {
         char* data = memory_alloc(sizeof(char) * (data_length + 1));
 
         if (NULL == strcpy(data, string_content(lexer->lexer_fsm->stream_buffer))) {

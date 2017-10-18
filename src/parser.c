@@ -97,7 +97,7 @@ bool parser_parse_body(Parser* parser) {
 
             SEMANTIC_ANALYSIS(
                     {
-                            if(!parser_semantic_check_definitions(parser->parser_semantic))
+                            if(!parser_semantic_check_count_of_function_arguments(parser->parser_semantic))
                             return false;
                     }
             );

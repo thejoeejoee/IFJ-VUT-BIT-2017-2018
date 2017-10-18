@@ -102,7 +102,7 @@ bool parser_semantic_add_function_parameter(ParserSemantic* parser_semantic, cha
  */
 bool parser_semantic_check_count_of_function_arguments(ParserSemantic* parser_semantic);
 
-bool parser_semantic_check_definitions(ParserSemantic* parser_semantic);
+bool parser_semantic_check_function_definitions(ParserSemantic* parser_semantic);
 
 void parser_semantic_add_built_in_functions(ParserSemantic* parser_semantic);
 

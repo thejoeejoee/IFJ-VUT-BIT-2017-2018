@@ -40,9 +40,6 @@ static ExprTokenType _expr_get_precedence(ExprTokenType a, ExprTokenType b) {
         case '*':
             t = EXPR_TOKENCHANGE;
             break;
-        case '.':
-            t = EXPR_END;
-            break;
         case 'x':
         case '#':
         case ' ':
@@ -57,6 +54,19 @@ ExprToken* expr_get_precedence(ExprToken* a, ExprToken* b) {
     ExprToken* r = create_expr_token(EXPR_UNKNOWN);
     r->type = _expr_get_precedence(a->type, b->type);
     return r;
+}
+
+bool is_expr_parsing_complete(LList* expr_token_buffer, ExprToken* token) {
+    LListItem* tmp = expr_token_buffer->head;
+    if (((ExprToken*)tmp->value)->type == EXPR_TOKEN_$ &&
+        (tmp = tmp->next) != NULL &&
+        ((ExprToken*)tmp->value)->type == EXPR_EXPRESSION &&
+        tmp->next == NULL &&
+        token->type == EXPR_TOKEN_$) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 ExprToken* load_expr_token(Lexer* lexer, Token* last_token) {

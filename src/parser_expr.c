@@ -42,7 +42,8 @@ bool parser_parse_expression(Parser* parser) {
                 precedence = expr_get_precedence(expr_last_terminal(buffer), token);
             }
 
-            if (precedence->type == EXPR_END) {
+            // Check completion of expression parsing
+            if (is_expr_parsing_complete(buffer, token)) {
                 expr_token_free(token);
                 expr_token_free(precedence);
                 // Cleanup

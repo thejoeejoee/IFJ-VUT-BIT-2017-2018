@@ -209,6 +209,7 @@ bool expression_rule_unary_minus(Parser* parser, LList* expr_token_buffer, ExprI
     GENERATE_CODE(I_MUL_STACK);
 
     ExprToken* e = create_expression((*expression_idx)++);
+	e->data_type = DATA_TYPE_INTEGER;
     EXPR_RULE_REPLACE(e);
     return true;
 }

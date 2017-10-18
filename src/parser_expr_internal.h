@@ -78,7 +78,7 @@ ExprToken* create_expression(ExprIdx index);
 ExprToken* expr_last_terminal(LList *expr_token_buffer);
 void expr_llist_append_after_last_terminal(LList *expr_token_buffer, ExprToken* token);
 void expr_token_update_unary(ExprToken* minus, const ExprToken* previous);
-ExprIdx get_next_expr_idx(LListItem** expr_token_buffer_item);
+ExprToken *get_next_expr(LListItem** expr_token_buffer_item);
 void expr_replace(LList *expr_token_buffer, LListItem* expr_token_buffer_left_sharp, ExprToken* single_expression);
 
 

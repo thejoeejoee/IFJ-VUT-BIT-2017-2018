@@ -233,12 +233,12 @@ void expr_token_update_unary(ExprToken* minus, const ExprToken* previous) {
     }
 }
 
-ExprIdx get_next_expr_idx(LListItem** expr_token_buffer_item) {
+ExprToken* get_next_expr(LListItem** expr_token_buffer_item) {
     while(((ExprToken*) ((*expr_token_buffer_item)->value))->type != EXPR_EXPRESSION) {
         (*expr_token_buffer_item) = (*expr_token_buffer_item)->next;
         ASSERT((*expr_token_buffer_item) != NULL);
     }
-    return ((ExprToken*) ((*expr_token_buffer_item)->value))->data.idx;
+    return (*expr_token_buffer_item)->value;
 }
 
 void expr_replace(LList* expr_token_buffer, LListItem* expr_token_buffer_left_sharp, ExprToken* single_expression) {

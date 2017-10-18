@@ -66,4 +66,6 @@ void code_instruction_operand_free(CodeInstructionOperand** operand);
 
 char* code_instruction_operand_render(CodeInstructionOperand* operand);
 
+CodeInstructionOperand* code_instruction_operand_implicit_value(DataType data_type);
+
 #endif //_CODE_INSTRUCTION_OPERAND_H

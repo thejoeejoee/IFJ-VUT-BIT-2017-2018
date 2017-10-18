@@ -480,10 +480,12 @@ bool parser_parse_variable_declaration(Parser* parser) {
             CHECK_TOKEN(TOKEN_DIM);
             CHECK_TOKEN(
                     TOKEN_IDENTIFIER,
-                    BEFORE({
-                                   name = c_string_copy(token.data);
-                                   memory_free_lazy(name);
-                           })
+                    BEFORE(
+                            {
+                                    name = c_string_copy(token.data);
+                                    memory_free_lazy(name);
+                            }
+                    )
             );
             CHECK_TOKEN(TOKEN_AS);
             CHECK_TOKEN(

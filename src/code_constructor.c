@@ -55,16 +55,21 @@ void code_constructor_main_scope_start(CodeConstructor* constructor) {
 
 void code_constructor_variable_declaration(CodeConstructor* constructor, int frame, SymbolVariable* symbol_variable) {
     NULL_POINTER_CHECK(constructor,);
-
     UNUSED(frame);
 
-    // TODO: Add generationg symbol with corresponding frame
-    // TODO: Add add inicialization on LF
-
+    // TODO: Add generating symbol with corresponding frame
     GENERATE_CODE(
             I_DEF_VAR,
             code_instruction_operand_init_variable(symbol_variable)
     );
+    CodeInstructionOperand* operand = code_instruction_operand_implicit_value(symbol_variable->data_type);
+    // variables not defined by user have not implicit value 
+    if(operand != NULL)
+        GENERATE_CODE(
+                I_MOVE,
+                code_instruction_operand_init_variable(symbol_variable),
+                operand
+        );
 }
 
 void code_constructor_input(CodeConstructor* constructor, int frame, SymbolVariable* symbol_variable) {

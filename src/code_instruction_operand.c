@@ -179,3 +179,23 @@ char* code_instruction_operand_escaped_string(String* source) {
     string_free(&escaped);
     return escaped_c_string;
 }
+
+CodeInstructionOperand* code_instruction_operand_implicit_value(DataType data_type) {
+    switch(data_type) {
+        case DATA_TYPE_DOUBLE:
+            return code_instruction_operand_init_double(0);
+        case DATA_TYPE_INTEGER:
+            return code_instruction_operand_init_integer(0);
+        case DATA_TYPE_STRING: {
+            String* string = string_init_with_capacity(0);
+            return code_instruction_operand_init_string(string);
+        }
+        case DATA_TYPE_BOOLEAN:
+            return code_instruction_operand_init_boolean(false);
+        case DATA_TYPE_NONE:
+            return NULL;
+        default:
+            LOG_WARNING("Unknown data type %d.", data_type);
+            return NULL;
+    }
+}

@@ -13,6 +13,7 @@ bool expression_rule_example(Parser* parser, LList* expr_token_buffer, ExprIdx* 
     * RULE
     * E -> E
     */
+    UNUSED(parser);
 
     // NOTE: we are processing rule backwards!
     EXPR_RULE_CHECK_START();
@@ -32,6 +33,8 @@ bool expression_rule_example(Parser* parser, LList* expr_token_buffer, ExprIdx* 
 
 bool expression_rule_fake(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx) {
     // ***FAKE Reduction***
+    UNUSED(parser);
+
     ExprToken* tmp;
     ExprTokenType type;
     do {
@@ -117,6 +120,7 @@ bool expression_rule_fn(Parser* parser, LList* expr_token_buffer, ExprIdx* expre
     * E -> fn E, E )
     * E -> fn E, E, ... )
     */
+    UNUSED(parser);
 
     // NOTE: we are processing rule backwards!
     EXPR_RULE_CHECK_START();
@@ -209,12 +213,12 @@ bool expression_rule_unary_minus(Parser* parser, LList* expr_token_buffer, ExprI
     EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_UNARY_MINUS);
     EXPR_RULE_CHECK_FINISH();
 
+    // TODO add type cast
     CodeConstructor* constructor = parser->code_constructor;
     GENERATE_CODE(I_PUSH_STACK, code_instruction_operand_init_integer(-1));
     GENERATE_CODE(I_MUL_STACK);
 
     ExprToken* e = create_expression((*expression_idx)++);
-    e->data_type = DATA_TYPE_INTEGER;
     EXPR_RULE_REPLACE(e);
     return true;
 }

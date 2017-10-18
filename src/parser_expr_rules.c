@@ -125,7 +125,7 @@ bool expression_rule_fn(Parser* parser, LList* expr_token_buffer, ExprIdx* expre
         tt = ((ExprToken*) it->value)->type;
     } else { return false; }
     if(it->value != NULL) {
-        if(tt != EXPR_TOKEN_FUNCTION_CALL &&
+        if(tt != EXPR_TOKEN_LEFT_BRACKET &&
            tt != EXPR_EXPRESSION) { return false; }
         if(tt == EXPR_EXPRESSION) { arg_count++; }
     } else { return false; }
@@ -137,7 +137,7 @@ bool expression_rule_fn(Parser* parser, LList* expr_token_buffer, ExprIdx* expre
             tt = ((ExprToken*) it->value)->type;
         } else { return false; }
         if(it->value != NULL) {
-            if(tt == EXPR_TOKEN_FUNCTION_CALL) { break; }
+            if(tt == EXPR_TOKEN_LEFT_BRACKET) { break; }
             if(tt != EXPR_TOKEN_COMMA) { return false; }
         } else { return false; }
 
@@ -154,6 +154,7 @@ bool expression_rule_fn(Parser* parser, LList* expr_token_buffer, ExprIdx* expre
         } else { return false; }
     }
 
+    EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_IDENTIFIER);
     EXPR_RULE_CHECK_FINISH();
 
     // NOTE: now we are processing rule regular way - from the left to the right

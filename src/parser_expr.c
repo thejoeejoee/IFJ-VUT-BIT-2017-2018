@@ -52,25 +52,6 @@ bool parser_parse_expression(Parser* parser) {
                 return true;
             }
 
-            // Check for function call
-            if (precedence->type == EXPR_TOKENCHANGE) {
-                ExprToken* back = buffer->tail->value;
-                if (back->type == EXPR_TOKEN_IDENTIFIER && token->type == EXPR_TOKEN_LEFT_BRACKET) {
-                    back->type = EXPR_TOKEN_FUNCTION_CALL;
-                    expr_token_free(precedence);
-                    expr_token_free(token);
-                    token = llist_pop_back(buffer);
-                    break;
-                } else {
-                    expr_token_free(token);
-                    expr_token_free(precedence);
-                    // Cleanup
-                    token_free(&last_token);
-                    llist_free(&buffer);
-                    return false; // Expression error - unknown token change transition
-                }
-            }
-
             if (precedence->type == EXPR_LEFT_SHARP) {
                 expr_llist_append_after_last_terminal(buffer, precedence);
             } else if (precedence->type == EXPR_RIGHT_SHARP) {

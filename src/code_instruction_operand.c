@@ -24,6 +24,8 @@ void code_instruction_operand_free(CodeInstructionOperand** operand_) {
                 string_free(&(operand->data.constant.data.string));
             break;
         case TYPE_INSTRUCTION_OPERAND_VARIABLE:
+            symbol_variable_free_data((SymbolTableBaseItem*) operand->data.variable);
+            memory_free(operand->data.variable);
             break;
         case TYPE_INSTRUCTION_OPERAND_LABEL:
             memory_free((void*) operand->data.label);

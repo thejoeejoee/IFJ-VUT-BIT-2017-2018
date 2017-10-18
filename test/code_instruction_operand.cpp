@@ -30,8 +30,9 @@ TEST_F(CodeInstructionOperandTestFixture, Label) {
 }
 
 TEST_F(CodeInstructionOperandTestFixture, Variable) {
-    auto symbol = static_cast<SymbolVariable*>(memory_alloc(sizeof(SymbolVariable)));
-    auto key = "my_variable_789";
+    auto symbol = (SymbolVariable*) memory_alloc(sizeof(SymbolVariable));
+    symbol->base.next = nullptr;
+    auto key = "my_variable_78987987";
     symbol->base.key = const_cast<char*>(key);
 
     operand = code_instruction_operand_init_variable(symbol);
@@ -44,7 +45,6 @@ TEST_F(CodeInstructionOperandTestFixture, Variable) {
             operand->data.variable->base.key,
             symbol->base.key
     );
-    memory_free(symbol);
 }
 
 TEST_F(CodeInstructionOperandTestFixture, String) {
@@ -99,7 +99,7 @@ TEST_F(CodeInstructionOperandTestFixture, StringEscape3
 ) {
     auto string = string_init();
     string_append_c(string,
-                    (char)238);
+                    (char) 238);
     char* escaped = code_instruction_operand_escaped_string(string);
 
     EXPECT_STREQ(
@@ -116,7 +116,7 @@ TEST_F(CodeInstructionOperandTestFixture, StringRender
     auto string = string_init();
     string_append_s(string,
                     "foobarman\xfe");
-    auto operand = code_instruction_operand_init_string(string);
+    operand = code_instruction_operand_init_string(string);
     auto rendered = code_instruction_operand_render(operand);
     EXPECT_STREQ(
             rendered,

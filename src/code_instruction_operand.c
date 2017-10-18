@@ -37,8 +37,8 @@ void code_instruction_operand_free(CodeInstructionOperand** operand_) {
 }
 
 CodeInstructionOperand* code_instruction_operand_init_variable(SymbolVariable* variable) {
-    NULL_POINTER_CHECK(variable, NULL);
-    CodeInstructionOperandData data = {.variable=variable};
+    CodeInstructionOperandData data = {.variable=symbol_variable_copy(variable)};
+    NULL_POINTER_CHECK(data.variable, NULL);
     return code_instruction_operand_init(TYPE_INSTRUCTION_OPERAND_VARIABLE, data);
 }
 

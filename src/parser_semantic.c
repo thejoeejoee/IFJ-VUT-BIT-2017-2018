@@ -184,11 +184,9 @@ bool parser_semantic_check_count_of_function_arguments(ParserSemantic* parser_se
 bool parser_semantic_check_function_definitions(ParserSemantic* parser_semantic) {
     NULL_POINTER_CHECK(parser_semantic, false);
 
-    SymbolFunction* symbol_function = NULL;
-
-    symbol_function = symbol_function_find_declared_function_without_definition(parser_semantic->register_->functions);
-
-    return symbol_function == NULL;
+    return symbol_function_find_declared_function_without_definition(
+            parser_semantic->register_->functions
+    ) == NULL;
 }
 
 void parser_semantic_add_built_in_functions(ParserSemantic* parser_semantic) {

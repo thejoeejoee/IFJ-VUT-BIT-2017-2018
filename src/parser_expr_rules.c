@@ -89,12 +89,17 @@ bool expression_rule_id(Parser* parser, LList* expr_token_buffer, ExprIdx* expre
         GENERATE_CODE(I_PUSH_STACK, code_instruction_operand_init_boolean(0 == strcmp(i->data.s, "true")));
     } else if(i->type == EXPR_TOKEN_IDENTIFIER) {
         CodeConstructor* constructor = parser->code_constructor;
-        GENERATE_CODE(
-                I_PUSH_STACK,
-                code_instruction_operand_init_variable(
-                        symbol_register_find_variable_recursive(parser->parser_semantic->register_, i->data.s)
-                )
+        SymbolVariable* variable = symbol_register_find_variable_recursive(
+                parser->parser_semantic->register_,
+                i->data.s
         );
+        if(variable != NULL) {
+            // TODO: unknown variable, semantic error
+            GENERATE_CODE(
+                    I_PUSH_STACK,
+                    code_instruction_operand_init_variable(variable)
+            );
+        }
     }
 
     ExprToken* e = create_expression((*expression_idx)++);
@@ -209,7 +214,7 @@ bool expression_rule_unary_minus(Parser* parser, LList* expr_token_buffer, ExprI
     GENERATE_CODE(I_MUL_STACK);
 
     ExprToken* e = create_expression((*expression_idx)++);
-	e->data_type = DATA_TYPE_INTEGER;
+    e->data_type = DATA_TYPE_INTEGER;
     EXPR_RULE_REPLACE(e);
     return true;
 }

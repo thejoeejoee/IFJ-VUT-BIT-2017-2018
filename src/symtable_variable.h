@@ -20,6 +20,8 @@ void symbol_variable_init_data(SymbolTableBaseItem* item);
 
 void symbol_variable_free_data(SymbolTableBaseItem* item);
 
+SymbolVariable* symbol_variable_copy(SymbolVariable* variable);
+
 #define symbol_table_variable_init(bucket_count) symbol_table_init( \
     bucket_count, \
     sizeof(SymbolVariable), \

@@ -424,7 +424,22 @@ TEST_F(LlistTestFixture, MultipleRemove) {
 
 }
 
+TEST_F(LlistTestFixture, Length) {
 
+    EXPECT_EQ(
+            llist_length(llist),
+            0
+    ) << "Error in empty list length";
+
+    llist_append(llist, nullptr);
+    llist_append(llist, nullptr);
+    llist_append(llist, nullptr);
+
+    EXPECT_EQ(
+            llist_length(llist),
+            3
+    ) << "Error in list length";
+}
 
 
 

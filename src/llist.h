@@ -92,4 +92,11 @@ bool llist_remove_one(struct LList* list, void* value);
  */
 void llist_free(struct LList** list);
 
+/**
+ * @brief llist_length Return items count in list.
+ * @param list List whose items will be counted.
+ * @return Items count in list.
+ */
+size_t llist_length(LList* list);
+
 #endif //_LLIST_H

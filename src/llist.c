@@ -156,3 +156,16 @@ void llist_free(LList** list) {
     memory_free(*list);
     *list = NULL;
 }
+
+size_t llist_length(LList* list)
+{
+    LListItem* item = list->head;
+    size_t count = 0;
+
+    while(item != NULL) {
+        item = item->next;
+        count++;
+    }
+
+    return count;
+}

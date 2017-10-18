@@ -16,7 +16,8 @@
 } while(false)
 #define EXPR_RULE_CHECK_FINISH() EXPR_RULE_CHECK_TYPE(EXPR_LEFT_SHARP); tmp = it;
 #define EXPR_RULE_NEXT_E_ID() get_next_expr(&tmp)->data.idx
-#define EXPR_RULE_NEXT_E_DATA_TYPE() get_next_expr(&tmp)->data_type
+#define EXPR_RULE_NEXT_E() get_next_expr(&tmp)
+#define EXPR_RULE_NEXT_E_ITEM() get_next_expr_item(&tmp)
 #define EXPR_RULE_REPLACE(single_expression) expr_replace(expr_token_buffer, it, (single_expression))
 
 // --------------------------

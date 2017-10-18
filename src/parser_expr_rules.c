@@ -75,37 +75,54 @@ bool expression_rule_id(Parser* parser, LList* expr_token_buffer, ExprIdx* expre
     ExprToken* i = (ExprToken*) tmp->next->value;
     (void) i->type;
     (void) i->data.s;
+    i->data_type = DATA_TYPE_NONE;
     if(i->type == EXPR_TOKEN_INTEGER_LITERAL) {
+        i->data_type = DATA_TYPE_INTEGER;
+
         CodeConstructor* constructor = parser->code_constructor;
         GENERATE_CODE(I_PUSH_STACK, code_instruction_operand_init_integer(atoi(i->data.s)));
+
     } else if(i->type == EXPR_TOKEN_DOUBLE_LITERAL) {
+        i->data_type = DATA_TYPE_DOUBLE;
+
         CodeConstructor* constructor = parser->code_constructor;
         GENERATE_CODE(I_PUSH_STACK, code_instruction_operand_init_double(atof(i->data.s)));
+
     } else if(i->type == EXPR_TOKEN_STRING_LITERAL) {
+        i->data_type = DATA_TYPE_STRING;
+
         CodeConstructor* constructor = parser->code_constructor;
         String* string = string_init();
         string_append_s(string, i->data.s);
         GENERATE_CODE(I_PUSH_STACK, code_instruction_operand_init_string(string));
         string_free(&string);
+
     } else if(i->type == EXPR_TOKEN_BOOLEAN_LITERAL) {
+        i->data_type = DATA_TYPE_BOOLEAN;
+
         CodeConstructor* constructor = parser->code_constructor;
         GENERATE_CODE(I_PUSH_STACK, code_instruction_operand_init_boolean(0 == strcmp(i->data.s, "true")));
+
     } else if(i->type == EXPR_TOKEN_IDENTIFIER) {
-        CodeConstructor* constructor = parser->code_constructor;
         SymbolVariable* variable = symbol_register_find_variable_recursive(
-                parser->parser_semantic->register_,
-                i->data.s
+                                       parser->parser_semantic->register_, i->data.s);
+
+        // TODO add some semantic error
+        if(variable == NULL)
+            return false;
+        i->data_type = variable->data_type;
+
+        CodeConstructor* constructor = parser->code_constructor;
+
+        // TODO: unknown variable, semantic error
+        GENERATE_CODE(
+                I_PUSH_STACK,
+                code_instruction_operand_init_variable(variable)
         );
-        if(variable != NULL) {
-            // TODO: unknown variable, semantic error
-            GENERATE_CODE(
-                    I_PUSH_STACK,
-                    code_instruction_operand_init_variable(variable)
-            );
-        }
     }
 
     ExprToken* e = create_expression((*expression_idx)++);
+    e->data_type = i->data_type;
 
     EXPR_RULE_REPLACE(e);
 

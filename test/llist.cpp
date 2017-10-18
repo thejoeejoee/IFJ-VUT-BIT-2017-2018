@@ -5,19 +5,18 @@ extern "C" {
 }
 
 void free_item_int_data_func(void* data) {
-    memory_free((int*)data);
+    if(data != NULL)
+        memory_free(data);
 }
 
 int cmp_function(void* a, void* b) {
-    int A = *((int*)a);
-    int B = *((int*)b);
-    if ( A < B ) {
+    int A = *((int*) a);
+    int B = *((int*) b);
+    if(A < B) {
         return -1;
-    }
-    else if ( A == B ) {
+    } else if(A == B) {
         return 0;
-    }
-    else {
+    } else {
         return 1;
     }
 }
@@ -66,14 +65,14 @@ TEST_F(LlistTestFixture, Initialization) {
     ) << "Error tail pointer";
 
     // Free memory
-	llist_free(&llist);
+    llist_free(&llist);
 }
 
 TEST_F(LlistTestFixture, Destruction) {
     /*
      * Test destructor for list with one item
      */
-    int* data = (int*)memory_alloc(sizeof(int));
+    int* data = (int*) memory_alloc(sizeof(int));
     *data = 24;
     // Add one number
     llist_append(llist, data);
@@ -97,7 +96,7 @@ TEST_F(LlistTestFixture, DestructionWithMultipleItems) {
 
     // Add ten elements to the list
     for(int i = 0; i < 2; i++) {
-        int* data = (int*)memory_alloc(sizeof(int));
+        int* data = (int*) memory_alloc(sizeof(int));
         *data = i;
         llist_append(llist, data);
     }
@@ -114,20 +113,20 @@ TEST_F(LlistTestFixture, DestructionWithMultipleItems) {
 TEST_F(LlistTestFixture, SimpleAppend) {
     constexpr int number = 42;
 
-    int* data = (int*)memory_alloc(sizeof(int));
+    int* data = (int*) memory_alloc(sizeof(int));
     *data = number;
     // Add one number
     llist_append(llist, data);
 
     // Test correct head value
     EXPECT_EQ(
-            *((int*)llist->head->value),
+            *((int*) llist->head->value),
             number
     ) << "The value in head is incorrect";
 
     // Test correct tail value
     EXPECT_EQ(
-            *((int*)llist->tail->value),
+            *((int*) llist->tail->value),
             number
     ) << "The value in tail is incorrect";
 
@@ -162,56 +161,56 @@ TEST_F(LlistTestFixture, SimpleAppend) {
 
 TEST_F(LlistTestFixture, SimpleInsert) {
     int* data[3];
-    data[0] = (int*)memory_alloc(sizeof(int));
-    data[1] = (int*)memory_alloc(sizeof(int));
-    data[2] = (int*)memory_alloc(sizeof(int));
+    data[0] = (int*) memory_alloc(sizeof(int));
+    data[1] = (int*) memory_alloc(sizeof(int));
+    data[2] = (int*) memory_alloc(sizeof(int));
 
     *data[0] = 42;
     *data[1] = 43;
     *data[2] = 44;
-    
+
     llist_append(llist, data[0]);
 
     // TEST tail and head are the same
     EXPECT_EQ(
-        llist->head,
-        llist->tail
+            llist->head,
+            llist->tail
     ) << "Pointers in head and tail are not the same";
 
     llist_insert_after(llist, llist->head, data[2]);
 
     // TEST tail and head are ok
     EXPECT_EQ(
-        llist->head,
-        llist->tail->previous
+            llist->head,
+            llist->tail->previous
     ) << "Pointers in head and tail are not ok";
     EXPECT_EQ(
-        llist->head->next,
-        llist->tail
+            llist->head->next,
+            llist->tail
     ) << "Pointers in head and tail are not ok";
 
     llist_insert_after(llist, llist->tail->previous, data[1]);
 
     // Test correct list values
     EXPECT_EQ(
-        *((int*)llist->head->value),
-        42
+            *((int*) llist->head->value),
+            42
     ) << "The value in head is incorrect";
 
     EXPECT_EQ(
-        *((int*)llist->head->next->value),
-        43
+            *((int*) llist->head->next->value),
+            43
     ) << "The value in middle of the list is incorrect";
 
     EXPECT_EQ(
-        *((int*)llist->head->next->next->value),
-        44
+            *((int*) llist->head->next->next->value),
+            44
     ) << "The value in tail is incorrect";
 
     // Test tail correct pointer
     EXPECT_EQ(
-        llist->head->next->next,
-        llist->tail
+            llist->head->next->next,
+            llist->tail
     ) << "The pointer in tail is incorrect";
 
 }
@@ -219,54 +218,54 @@ TEST_F(LlistTestFixture, SimpleInsert) {
 TEST_F(LlistTestFixture, SimplePopBack) {
     int* data[2];
     int* tmp;
-    data[0] = (int*)memory_alloc(sizeof(int));
-    data[1] = (int*)memory_alloc(sizeof(int));
+    data[0] = (int*) memory_alloc(sizeof(int));
+    data[1] = (int*) memory_alloc(sizeof(int));
 
     *data[0] = 42;
     *data[1] = 43;
 
     llist_append(llist, data[0]);
-    tmp = (int*)llist_pop_back(llist);
+    tmp = (int*) llist_pop_back(llist);
     // TEST return value of pop_back
     EXPECT_EQ(
-        *tmp,
-        *data[0]
+            *tmp,
+            *data[0]
     ) << "Return value of pop_back is not ok";
     // TEST tail and head are ok
     EXPECT_EQ(
-        llist->head,
-        nullptr
+            llist->head,
+            nullptr
     ) << "Pointers in head and tail are not ok";
     EXPECT_EQ(
-        llist->tail,
-        nullptr
+            llist->tail,
+            nullptr
     ) << "Pointers in head and tail are not ok";
 
 
     llist_append(llist, data[0]);
     llist_append(llist, data[1]);
 
-    tmp = (int*)llist_pop_back(llist);
+    tmp = (int*) llist_pop_back(llist);
     // TEST return value of pop_back
     EXPECT_EQ(
-        *tmp,
-        *data[1]
+            *tmp,
+            *data[1]
     ) << "Return value of pop_back is not ok";
 
-    tmp = (int*)llist_pop_back(llist);
+    tmp = (int*) llist_pop_back(llist);
     // TEST return value of pop_back
     EXPECT_EQ(
-        *tmp,
-        *data[0]
+            *tmp,
+            *data[0]
     ) << "Return value of pop_back is not ok";
     // TEST tail and head are ok
     EXPECT_EQ(
-        llist->head,
-        nullptr
+            llist->head,
+            nullptr
     ) << "Pointers in head and tail are not ok";
     EXPECT_EQ(
-        llist->tail,
-        nullptr
+            llist->tail,
+            nullptr
     ) << "Pointers in head and tail are not ok";
 
     memory_free(data[0]);
@@ -276,9 +275,9 @@ TEST_F(LlistTestFixture, SimplePopBack) {
 TEST_F(LlistTestFixture, SimpleRemoveItem) {
     LListItem* next;
     int* data[3];
-    data[0] = (int*)memory_alloc(sizeof(int));
-    data[1] = (int*)memory_alloc(sizeof(int));
-    data[2] = (int*)memory_alloc(sizeof(int));
+    data[0] = (int*) memory_alloc(sizeof(int));
+    data[1] = (int*) memory_alloc(sizeof(int));
+    data[2] = (int*) memory_alloc(sizeof(int));
 
     *data[0] = 42;
     *data[1] = 43;
@@ -292,51 +291,51 @@ TEST_F(LlistTestFixture, SimpleRemoveItem) {
 
     // TEST return value of llist_remove_item
     EXPECT_EQ(
-        *((int*)next->value),
-        44
+            *((int*) next->value),
+            44
     ) << "Return value of llist_remove_item is not ok";
     // TEST head and tail values of llist
     EXPECT_EQ(
-        *((int*)llist->head->value),
-        42
+            *((int*) llist->head->value),
+            42
     ) << "Head value of llist is not ok";
     EXPECT_EQ(
-        *((int*)llist->tail->value),
-        44
+            *((int*) llist->tail->value),
+            44
     ) << "Tail value of llist is not ok";
 
     next = llist_remove_item(llist, llist->head);
 
     // TEST return value of llist_remove_item
     EXPECT_EQ(
-        *((int*)next->value),
-        44
+            *((int*) next->value),
+            44
     ) << "Return value of llist_remove_item is not ok";
     // TEST head and tail values of llist
     EXPECT_EQ(
-        *((int*)llist->head->value),
-        44
+            *((int*) llist->head->value),
+            44
     ) << "Head value of llist is not ok";
     EXPECT_EQ(
-        *((int*)llist->tail->value),
-        44
+            *((int*) llist->tail->value),
+            44
     ) << "Tail value of llist is not ok";
 
     next = llist_remove_item(llist, llist->tail);
 
     // TEST return value of llist_remove_item
     EXPECT_EQ(
-        next,
-        nullptr
+            next,
+            nullptr
     ) << "Return value of llist_remove_item is not ok";
     // TEST head and tail values of llist
     EXPECT_EQ(
-        llist->head,
-        nullptr
+            llist->head,
+            nullptr
     ) << "Head value of llist is not ok";
     EXPECT_EQ(
-        llist->tail,
-        nullptr
+            llist->tail,
+            nullptr
     ) << "Tail value of llist is not ok";
 }
 
@@ -347,14 +346,14 @@ TEST_F(LlistTestFixture, SimpleRemove) {
      */
     const int number = 42;
 
-    int* data = (int*)memory_alloc(sizeof(int));
+    int* data = (int*) memory_alloc(sizeof(int));
     *data = number;
 
     // Add one number
     llist_append(llist, data);
 
     // Remove number
-    llist_remove_one(llist, (void*)(&number));
+    llist_remove_one(llist, (void*) (&number));
 
     EXPECT_EQ(
             llist->head,
@@ -376,7 +375,7 @@ TEST_F(LlistTestFixture, MultipleRemove) {
 
     // Add testing data to the list
     for(int i = 0; i <= 2; i++) {
-        int* data = (int*)memory_alloc(sizeof(int));
+        int* data = (int*) memory_alloc(sizeof(int));
         *data = i;
         llist_append(llist, data);
     }
@@ -391,12 +390,12 @@ TEST_F(LlistTestFixture, MultipleRemove) {
 
     // Test values in items
     EXPECT_EQ(
-            *((int*)first->value),
+            *((int*) first->value),
             0
     ) << "Error value in first item";
 
     EXPECT_EQ(
-            *((int*)second->value),
+            *((int*) second->value),
             2
     ) << "Error value in second item";
 

@@ -3,6 +3,7 @@
 
 #include "code_generator.h"
 #include "stack_code_label.h"
+#include "symtable_function.h"
 
 #define _GENERATE_CODE_1(name) _GENERATE_CODE_4(name, NULL, NULL, NULL)
 #define _GENERATE_CODE_2(name, op0) _GENERATE_CODE_4(name, op0, NULL, NULL)
@@ -29,6 +30,8 @@ typedef struct code_constructor_t {
 CodeConstructor* code_constructor_init();
 
 void code_constructor_free(CodeConstructor** constructor);
+
+char* code_constructor_generate_label(CodeConstructor* constructor, const char* type);
 
 /**
  * Starts three address block with jump to main scope.
@@ -114,11 +117,15 @@ void code_constructor_while_end(CodeConstructor* constructor);
 
 void code_constructor_print_expression(CodeConstructor* constructor, SymbolVariable* print_variable);
 
-char* code_constructor_generate_label(CodeConstructor* constructor, const char* type);
-
 void code_constructor_variable_expression_assignment(CodeConstructor* constructor, SymbolVariable* variable);
 
 void code_constructor_generate_built_in_function(CodeConstructor* constructor);
+
+void code_constructor_function_header(CodeConstructor* constructor, SymbolFunction* function);
+
+void code_constructor_implicit_function_return(CodeConstructor* constructor, SymbolFunction* function);
+
+void code_constructor_return(CodeConstructor* constructor);
 
 
 #endif //_CODE_CONSTRUCTOR_H

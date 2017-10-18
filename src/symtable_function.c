@@ -90,3 +90,17 @@ SymbolFunction* symbol_function_find_declared_function_without_definition(Symbol
         return NULL;
     return symbol_table_function_get(table, function_name);
 }
+
+String* symbol_function_generate_function_label(SymbolFunction* function) {
+    NULL_POINTER_CHECK(function, NULL);
+    String* string = string_init();
+    string_append_s(
+            string,
+            "%__function__"
+    );
+    string_append_s(
+            string,
+            function->base.key
+    );
+    return string;
+}

@@ -287,3 +287,32 @@ void code_constructor_generate_built_in_function(CodeConstructor* constructor) {
     UNUSED(constructor);
     // TODO: Add generate code for built-in functions
 }
+
+void code_constructor_function_header(CodeConstructor* constructor, SymbolFunction* function) {
+    NULL_POINTER_CHECK(constructor,);
+    NULL_POINTER_CHECK(function,);
+
+    String* label = symbol_function_generate_function_label(function);
+    GENERATE_CODE(
+            I_LABEL,
+            code_instruction_operand_init_label(string_content(label))
+    );
+    string_free(&label);
+}
+
+void code_constructor_implicit_function_return(CodeConstructor* constructor, SymbolFunction* function) {
+    NULL_POINTER_CHECK(constructor,);
+    NULL_POINTER_CHECK(function,);
+
+    GENERATE_CODE(
+            I_PUSH_STACK,
+            code_instruction_operand_implicit_value(function->return_data_type)
+    );
+    GENERATE_CODE(I_RETURN);
+}
+
+void code_constructor_return(CodeConstructor* constructor) {
+    NULL_POINTER_CHECK(constructor,);
+
+    GENERATE_CODE(I_RETURN);
+}

@@ -185,11 +185,23 @@ bool parser_parse_function_definition(Parser* parser) {
                     }
             );
             CHECK_RULE(function_header);
+            CODE_GENERATION(
+                    {
+                            code_constructor_function_header(parser->code_constructor,
+                                                             parser->parser_semantic->actual_function);
+                    }
+            );
             CHECK_TOKEN(TOKEN_EOL);
             CHECK_RULE(eols);
             CHECK_RULE(function_statements);
             CHECK_TOKEN(TOKEN_END);
             CHECK_TOKEN(TOKEN_FUNCTION);
+            CODE_GENERATION(
+                    {
+                            code_constructor_implicit_function_return(parser->code_constructor,
+                                                                      parser->parser_semantic->actual_function);
+                    }
+            );
     );
     return true;
 }
@@ -529,6 +541,11 @@ bool parser_parse_return_(Parser* parser) {
     RULES(
             CHECK_TOKEN(TOKEN_RETURN);
             CALL_RULE(expression);
+            CODE_GENERATION(
+                    {
+                            code_constructor_return(parser->code_constructor);
+                    }
+            );
     );
     return true;
 }

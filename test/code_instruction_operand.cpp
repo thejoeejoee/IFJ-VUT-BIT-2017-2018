@@ -111,8 +111,7 @@ TEST_F(CodeInstructionOperandTestFixture, StringEscape3
     memory_free(escaped);
 }
 
-TEST_F(CodeInstructionOperandTestFixture, StringRender
-) {
+TEST_F(CodeInstructionOperandTestFixture, StringRender) {
     auto string = string_init();
     string_append_s(string,
                     "foobarman\xfe");
@@ -124,6 +123,43 @@ TEST_F(CodeInstructionOperandTestFixture, StringRender
     );
 
     string_free(&string);
+    memory_free(rendered);
+}
+
+TEST_F(CodeInstructionOperandTestFixture, DataTypeRender) {
+    operand = code_instruction_operand_init_data_type(DATA_TYPE_STRING);
+    auto rendered = code_instruction_operand_render(operand);
+    EXPECT_STREQ(
+            rendered,
+            "string"
+    );
+    memory_free(rendered);
+
+    code_instruction_operand_free(&operand);
+    operand = code_instruction_operand_init_data_type(DATA_TYPE_INTEGER);
+    rendered = code_instruction_operand_render(operand);
+    EXPECT_STREQ(
+            rendered,
+            "int"
+    );
+    memory_free(rendered);
+
+    code_instruction_operand_free(&operand);
+    operand = code_instruction_operand_init_data_type(DATA_TYPE_DOUBLE);
+    rendered = code_instruction_operand_render(operand);
+    EXPECT_STREQ(
+            rendered,
+            "float"
+    );
+    memory_free(rendered);
+
+    code_instruction_operand_free(&operand);
+    operand = code_instruction_operand_init_data_type(DATA_TYPE_BOOLEAN);
+    rendered = code_instruction_operand_render(operand);
+    EXPECT_STREQ(
+            rendered,
+            "bool"
+    );
     memory_free(rendered);
 }
 

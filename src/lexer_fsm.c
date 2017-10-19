@@ -113,14 +113,12 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
 
         case LEX_FSM__STRING_LOAD:
             if(c < 32) {
+                lexer_fsm->lexer_error = LEXER_ERROR__STRING_FORMAT;
                 return LEX_FSM__ERROR;
             }
             switch(c) {
                 case '"':
                     return LEX_FSM__STRING_VALUE;
-                case '\n':
-                    lexer_fsm->lexer_error = LEXER_ERROR__STRING_FORMAT;
-                    return LEX_FSM__ERROR;
                 case '\\':
                     return LEX_FSM__STRING_SLASH;
                 default:

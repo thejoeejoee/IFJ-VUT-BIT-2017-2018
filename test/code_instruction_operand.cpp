@@ -163,9 +163,7 @@ TEST_F(CodeInstructionOperandTestFixture, DataTypeRender) {
     memory_free(rendered);
 }
 
-
 TEST_F(CodeInstructionOperandTestFixture, Integer) {
-
     auto value = 142;
     operand = code_instruction_operand_init_integer(value);
 
@@ -181,6 +179,17 @@ TEST_F(CodeInstructionOperandTestFixture, Integer) {
             operand->data.constant.data_type,
             DATA_TYPE_INTEGER
     );
+}
+
+TEST_F(CodeInstructionOperandTestFixture, IntegerRender) {
+    auto value = 123456789;
+    operand = code_instruction_operand_init_integer(value);
+    auto rendered = code_instruction_operand_render(operand);
+    EXPECT_STREQ(
+            rendered,
+            "int@123456789"
+    );
+    memory_free(rendered);
 }
 
 TEST_F(CodeInstructionOperandTestFixture, Double) {
@@ -202,6 +211,28 @@ TEST_F(CodeInstructionOperandTestFixture, Double) {
     );
 }
 
+TEST_F(CodeInstructionOperandTestFixture, DoubleRender0) {
+    auto value = 12471254.89765456;
+    operand = code_instruction_operand_init_double(value);
+    auto rendered = code_instruction_operand_render(operand);
+    EXPECT_STREQ(
+            rendered,
+            "float@1.24713e+07"
+    );
+    memory_free(rendered);
+}
+
+TEST_F(CodeInstructionOperandTestFixture, DoubleRender1) {
+    auto value = -15.54;
+    operand = code_instruction_operand_init_double(value);
+    auto rendered = code_instruction_operand_render(operand);
+    EXPECT_STREQ(
+            rendered,
+            "float@-15.54"
+    );
+    memory_free(rendered);
+}
+
 TEST_F(CodeInstructionOperandTestFixture, Boolean) {
     auto value = false;
     operand = code_instruction_operand_init_boolean(value);
@@ -218,4 +249,25 @@ TEST_F(CodeInstructionOperandTestFixture, Boolean) {
             operand->data.constant.data_type,
             DATA_TYPE_BOOLEAN
     );
+}
+
+TEST_F(CodeInstructionOperandTestFixture, BooleanRender0) {
+    auto value = false;
+    operand = code_instruction_operand_init_boolean(value);
+    auto rendered = code_instruction_operand_render(operand);
+    EXPECT_STREQ(
+            rendered,
+            "bool@false"
+    );
+    memory_free(rendered);
+    code_instruction_operand_free(&operand);
+
+    value = true;
+    operand = code_instruction_operand_init_boolean(value);
+    rendered = code_instruction_operand_render(operand);
+    EXPECT_STREQ(
+            rendered,
+            "bool@true"
+    );
+    memory_free(rendered);
 }

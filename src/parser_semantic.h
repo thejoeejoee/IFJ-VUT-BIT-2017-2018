@@ -24,7 +24,9 @@ typedef struct parser_semantic_t {
     SymbolVariable* actual_variable; // Pointer to actual variable
     size_t argument_index;
     bool function_declared;
-    SymbolVariable* temp_variable;
+    SymbolVariable* temp_variable1;
+    SymbolVariable* temp_variable2;
+    SymbolVariable* temp_variable3;
 } ParserSemantic;
 
 /**

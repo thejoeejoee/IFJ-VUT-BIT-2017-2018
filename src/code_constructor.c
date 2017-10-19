@@ -27,11 +27,8 @@ void code_constructor_free(CodeConstructor** constructor) {
     *constructor = NULL;
 }
 
-void code_constructor_start_code(CodeConstructor* constructor, SymbolVariable* print_tmp) {
+void code_constructor_start_code(CodeConstructor* constructor) {
     NULL_POINTER_CHECK(constructor,);
-    NULL_POINTER_CHECK(print_tmp,);
-
-    code_constructor_variable_declaration(constructor, 0, print_tmp);
 
     char* label = code_constructor_generate_label(constructor, "%__main__scope");
     stack_code_label_push(constructor->code_label_stack, label);
@@ -283,7 +280,7 @@ void code_constructor_variable_expression_assignment(CodeConstructor* constructo
     );
 }
 
-void code_constructor_generate_built_in_function(CodeConstructor* constructor) {
+void code_constructor_generate_builtin_functions(CodeConstructor* constructor) {
     UNUSED(constructor);
     // TODO: Add generate code for built-in functions
 }

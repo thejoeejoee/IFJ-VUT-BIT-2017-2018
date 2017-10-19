@@ -8,7 +8,9 @@ ParserSemantic* parser_semantic_init() {
     parser_semantic->actual_action = SEMANTIC_ACTION__NONE;
     parser_semantic->actual_variable = NULL;
     parser_semantic->actual_function = NULL;
-    parser_semantic->temp_variable = NULL;
+    parser_semantic->temp_variable1 = NULL;
+    parser_semantic->temp_variable2 = NULL;
+    parser_semantic->temp_variable3 = NULL;
     return parser_semantic;
 }
 

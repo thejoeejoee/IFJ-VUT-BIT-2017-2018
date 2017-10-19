@@ -67,13 +67,37 @@ bool parser_parse_program(Parser* parser) {
 
     CODE_GENERATION(
             {
-                parser->parser_semantic->temp_variable = symbol_table_variable_get_or_create(
+                parser->parser_semantic->temp_variable1 = symbol_table_variable_get_or_create(
                         parser->parser_semantic->register_->variables->symbol_table,
-                        "%__temp_variable"
+                        "%__temp_variable_1"
                 );
-                code_constructor_start_code(parser->code_constructor, parser->parser_semantic->temp_variable);
+                parser->parser_semantic->temp_variable2 = symbol_table_variable_get_or_create(
+                        parser->parser_semantic->register_->variables->symbol_table,
+                        "%__temp_variable_2"
+                );
+                parser->parser_semantic->temp_variable3 = symbol_table_variable_get_or_create(
+                        parser->parser_semantic->register_->variables->symbol_table,
+                        "%__temp_variable_3"
+                );
 
-                code_constructor_generate_built_in_function(parser->code_constructor);
+                code_constructor_variable_declaration(
+                        parser->code_constructor,
+                        0,
+                        parser->parser_semantic->temp_variable1
+                );
+                code_constructor_variable_declaration(
+                        parser->code_constructor,
+                        0,
+                        parser->parser_semantic->temp_variable2
+                );
+                code_constructor_variable_declaration(
+                        parser->code_constructor,
+                        0,
+                        parser->parser_semantic->temp_variable3
+                );
+
+                code_constructor_start_code(parser->code_constructor);
+                code_constructor_generate_builtin_functions(parser->code_constructor);
             }
     );
     // Call rule <body>. If <body> return false => return false
@@ -612,7 +636,7 @@ bool parser_parse_print_expression(Parser* parser) {
                     {
                             code_constructor_print_expression(
                                     parser->code_constructor,
-                                    parser->parser_semantic->temp_variable
+                                    parser->parser_semantic->temp_variable1
                             );
                     }
             );
@@ -822,9 +846,19 @@ bool parser_parse_identifier_assignment(Parser* parser) {
      */
 
     RULES(
-
-            CHECK_TOKEN(TOKEN_IDENTIFIER);
+            CHECK_TOKEN(
+                    TOKEN_IDENTIFIER,
+                    BEFORE(
+                            {
+                                    parser->parser_semantic->actual_variable = symbol_register_find_variable_recursive(
+                                            parser->parser_semantic->register_,
+                                            token.data
+                                    );
+                            }
+                    )
+            );
             CHECK_RULE(assignment);
+            parser->parser_semantic->actual_variable = NULL;
     );
 
     return true;

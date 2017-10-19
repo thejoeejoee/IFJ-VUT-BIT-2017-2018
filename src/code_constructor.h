@@ -37,7 +37,7 @@ char* code_constructor_generate_label(CodeConstructor* constructor, const char* 
  * Starts three address block with jump to main scope.
  * @param constructor
  */
-void code_constructor_start_code(CodeConstructor* constructor, SymbolVariable* print_tmp);
+void code_constructor_start_code(CodeConstructor* constructor);
 
 /**
  * Generates target label for jump into main scope.
@@ -119,7 +119,7 @@ void code_constructor_print_expression(CodeConstructor* constructor, SymbolVaria
 
 void code_constructor_variable_expression_assignment(CodeConstructor* constructor, SymbolVariable* variable);
 
-void code_constructor_generate_built_in_function(CodeConstructor* constructor);
+void code_constructor_generate_builtin_functions(CodeConstructor* constructor);
 
 void code_constructor_function_header(CodeConstructor* constructor, SymbolFunction* function);
 

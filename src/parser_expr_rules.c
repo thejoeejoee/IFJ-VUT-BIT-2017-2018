@@ -38,14 +38,14 @@ bool expression_rule_fake(Parser* parser, LList* expr_token_buffer, ExprIdx* exp
     ExprToken* tmp;
     ExprTokenType type;
     do {
-        tmp = llist_pop_back(expr_token_buffer);
+        tmp = (ExprToken*)llist_pop_back(expr_token_buffer);
         if(tmp == NULL) {
             return false;
         }
         type = tmp->type;
         expr_token_free(tmp);
     } while(type != EXPR_LEFT_SHARP);
-    llist_append(expr_token_buffer, create_expression((*expression_idx)++));
+    llist_append_item(expr_token_buffer, (LListBaseItem*)create_expression((*expression_idx)++));
     return true;
 }
 
@@ -59,8 +59,8 @@ bool expression_rule_id(Parser* parser, LList* expr_token_buffer, ExprIdx* expre
     // NOTE: we are processing rule backwards!
     EXPR_RULE_CHECK_START();
     if(it->previous != NULL) { it = it->previous; } else { return false; }
-    if(it != NULL && it->value != NULL) {
-        ExprTokenType tt = ((ExprToken*) it->value)->type;
+    if(it != NULL) {
+        ExprTokenType tt = ((ExprToken*)it)->type;
         if(tt != EXPR_TOKEN_IDENTIFIER &&
            tt != EXPR_TOKEN_BOOLEAN_LITERAL &&
            tt != EXPR_TOKEN_INTEGER_LITERAL &&
@@ -72,7 +72,7 @@ bool expression_rule_id(Parser* parser, LList* expr_token_buffer, ExprIdx* expre
     EXPR_RULE_CHECK_FINISH();
 
     // NOTE: now we are processing rule regular way - from the left to the right
-    ExprToken* i = (ExprToken*) tmp->next->value;
+    ExprToken* i = (ExprToken*) tmp->next;
     (void) i->type;
     (void) i->data.s;
     i->data_type = DATA_TYPE_NONE;
@@ -148,36 +148,39 @@ bool expression_rule_fn(Parser* parser, LList* expr_token_buffer, ExprIdx* expre
 
     if(it->previous != NULL) {
         it = it->previous;
-        tt = ((ExprToken*) it->value)->type;
+        tt = ((ExprToken*) it)->type;
     } else { return false; }
-    if(it->value != NULL) {
+    // TODO check
+//    if(it->value != NULL) {
         if(tt != EXPR_TOKEN_LEFT_BRACKET &&
            tt != EXPR_EXPRESSION) { return false; }
         if(tt == EXPR_EXPRESSION) { arg_count++; }
-    } else { return false; }
+//    } else { return false; }
 
     // arg_count in while condition is only for entering infinite while, if arg_count > 0
     while(arg_count) {
         if(it->previous != NULL) {
             it = it->previous;
-            tt = ((ExprToken*) it->value)->type;
+            tt = ((ExprToken*) it)->type;
         } else { return false; }
-        if(it->value != NULL) {
+//        if(it->value != NULL) {
+            // TODO check
             if(tt == EXPR_TOKEN_LEFT_BRACKET) { break; }
             if(tt != EXPR_TOKEN_COMMA) { return false; }
-        } else { return false; }
+//        } else { return false; }
 
         if(it->previous != NULL) {
             it = it->previous;
-            tt = ((ExprToken*) it->value)->type;
+            tt = ((ExprToken*) it)->type;
         } else { return false; }
-        if(it->value != NULL) {
+        // TODO check
+//        if(it->value != NULL) {
             if(tt == EXPR_EXPRESSION) {
                 arg_count++;
             } else {
                 return false;
             }
-        } else { return false; }
+//        } else { return false; }
     }
 
     EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_IDENTIFIER);
@@ -185,7 +188,7 @@ bool expression_rule_fn(Parser* parser, LList* expr_token_buffer, ExprIdx* expre
 
     // NOTE: now we are processing rule regular way - from the left to the right
 
-    char* function_name = ((ExprToken*) tmp->next->value)->data.s;
+    char* function_name = ((ExprToken*) tmp->next)->data.s;
     UNUSED(function_name);
 
     for(unsigned int i = 0; i < arg_count; i++) {
@@ -211,6 +214,14 @@ bool expression_rule_add(Parser* parser, LList* expr_token_buffer, ExprIdx* expr
     EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_PLUS);
     EXPR_RULE_CHECK_TYPE(EXPR_EXPRESSION);
     EXPR_RULE_CHECK_FINISH();
+
+    DataType higher_operand_data_type = ((ExprToken*)llist_get_n_from_end(
+                                          expr_token_buffer, 1))->data_type;
+    DataType lower_operand_data_type = ((ExprToken*)llist_get_n_from_end(
+                                          expr_token_buffer, 3))->data_type;
+    if(higher_operand_data_type != lower_operand_data_type) {
+
+    }
 
     CodeConstructor* constructor = parser->code_constructor;
     GENERATE_CODE(I_ADD_STACK);

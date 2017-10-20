@@ -2,36 +2,50 @@
 #include "llist.h"
 #include <stdlib.h>
 
-void llist_init(LList** list, llist_free_item_data free_function, llist_item_compare_function cmp_function) {
+void llist_init(LList** list, size_t item_size, llist_init_item_data init_function, llist_free_item_data free_function, llist_item_compare_function cmp_function) {
     *list = (LList*) memory_alloc(sizeof(LList));
     (*list)->head = NULL;
     (*list)->tail = NULL;
+    (*list)->init_function = init_function;
     (*list)->free_function = free_function;
     (*list)->cmp_function = cmp_function;
+    (*list)->item_size = item_size;
 }
 
-void llist_append(LList* list, void* value) {
-    NULL_POINTER_CHECK(list,);
+LListBaseItem* llist_new_tail_item(LList* list) {
+    NULL_POINTER_CHECK(list, NULL);
 
-    LListItem* new_item = (LListItem*) memory_alloc(sizeof(LListItem));
-    LListItem* last_item = list->tail;
+    LListBaseItem* new_item = (LListBaseItem*) memory_alloc(list->item_size);
+
+    return llist_append_item(list, new_item);
+}
+
+
+LListBaseItem* llist_append_item(LList* list, LListBaseItem* new_item)
+{
+    NULL_POINTER_CHECK(list, NULL);
+    NULL_POINTER_CHECK(new_item, NULL);
+
+    LListBaseItem* last_item = list->tail;
 
     if(list->head == NULL)
         list->head = new_item;
 
-    new_item->value = value;
+    if(list->init_function != NULL)
+        list->init_function(new_item);
 
     if(last_item != NULL)
         last_item->next = new_item;
     new_item->previous = last_item;
     new_item->next = NULL;
     list->tail = new_item;
+
+    return new_item;
 }
 
-void* llist_pop_back(LList* list)
+LListBaseItem* llist_pop_back(LList* list)
 {
-    LListItem* tmp;
-    void* ret;
+    LListBaseItem* tmp;
 
     if (list->tail == NULL) {
         return NULL;
@@ -42,21 +56,15 @@ void* llist_pop_back(LList* list)
         list->head = NULL;
     }
 
-    ret = tmp->value;
-
-    memory_free(tmp);
-
-    return ret;
+    tmp->previous = NULL;
+    return tmp;
 }
 
-void llist_insert_after(LList* list, LListItem* after, void* value)
+void llist_insert_after(LList* list, LListBaseItem* after, LListBaseItem* new_item)
 {
     NULL_POINTER_CHECK(list, );
     NULL_POINTER_CHECK(after, );
     ASSERT(list->tail != NULL);
-
-    LListItem* new_item = (LListItem*)memory_alloc(sizeof(LListItem));
-    new_item->value = value;
 
     if (after->next == NULL) {
         ASSERT(after == list->tail);
@@ -72,12 +80,12 @@ void llist_insert_after(LList* list, LListItem* after, void* value)
     }
 }
 
-LListItem* llist_remove_item(LList* list, LListItem* item)
+LListBaseItem* llist_remove_item(LList* list, LListBaseItem* item)
 {
     NULL_POINTER_CHECK(list, NULL);
     NULL_POINTER_CHECK(item, NULL);
 
-    LListItem* next = item->next;
+    LListBaseItem* next = item->next;
     
     if (item->previous == NULL) {
         if (list->head == item) {
@@ -95,58 +103,25 @@ LListItem* llist_remove_item(LList* list, LListItem* item)
     }
 
     if (list->free_function != NULL) {
-        list->free_function(item->value);
+        list->free_function(item);
     }
     memory_free(item);
 
     return next;
 }
 
-bool llist_remove_one(LList* list, void* value) {
-    NULL_POINTER_CHECK(list, false);
-    if (list->cmp_function == NULL) { return false; }
-
-    LListItem* current_item = list->head;
-    if(current_item == NULL)
-        return false;
-
-    do {
-        if(list->cmp_function(current_item->value,value) == 0) {
-            LListItem* previous_item = current_item->previous;
-            LListItem* next_item = current_item->next;
-
-            if(current_item == list->head)      // check whether new head need to be set
-                list->head = next_item;
-            if(current_item == list->tail) // check whether new tail need to be set
-                list->tail = previous_item;
-
-            if(previous_item != NULL)
-                previous_item->next = current_item->next;
-            if(next_item != NULL)
-                next_item->previous = current_item->previous;
-
-            if (list->free_function != NULL) {
-                list->free_function(current_item->value);
-            }
-            memory_free(current_item);
-            return true;
-        }
-    } while((current_item = current_item->next) != NULL);
-    return false;
-}
-
 void llist_free(LList** list) {
     NULL_POINTER_CHECK(list,);
     NULL_POINTER_CHECK(*list,);
 
-    LListItem* current_item = (*list)->head;
-    LListItem* next_item = NULL;
+    LListBaseItem* current_item = (*list)->head;
+    LListBaseItem* next_item = NULL;
 
     if(current_item != NULL) {
         do {
             next_item = current_item->next;
             if ((*list)->free_function != NULL) {
-                (*list)->free_function(current_item->value);
+                (*list)->free_function(current_item);
             }
             memory_free(current_item);
             current_item = next_item;
@@ -159,7 +134,7 @@ void llist_free(LList** list) {
 
 size_t llist_length(LList* list)
 {
-    LListItem* item = list->head;
+    LListBaseItem* item = list->head;
     size_t count = 0;
 
     while(item != NULL) {
@@ -169,3 +144,18 @@ size_t llist_length(LList* list)
 
     return count;
 }
+
+LListBaseItem* llist_get_n_from_end(LList* list, size_t n)
+{
+    LListBaseItem* item = list->tail;
+
+    for(size_t i = 0; i < n; i++) {
+        if(item == NULL)
+            return NULL;
+
+        item = item->previous;
+    }
+
+    return item;
+}
+

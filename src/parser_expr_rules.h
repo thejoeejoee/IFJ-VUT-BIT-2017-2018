@@ -7,10 +7,10 @@
 
 // Helper macros
 
-#define EXPR_RULE_CHECK_START() LListItem *tmp = NULL, *it = expr_token_buffer->tail
+#define EXPR_RULE_CHECK_START() LListBaseItem *tmp = NULL, *it = expr_token_buffer->tail
 #define EXPR_RULE_CHECK_TYPE(expr_token_type) do {\
     if (it->previous != NULL) { it = it->previous; } else { return false; }\
-    if (!(it != NULL && it->value != NULL && ((ExprToken*)it->value)->type == (expr_token_type))) { return false; }\
+    if (!(it != NULL && ((ExprToken*)it)->type == (expr_token_type))) { return false; }\
     UNUSED(tmp); \
     UNUSED(it); \
 } while(false)

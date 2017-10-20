@@ -60,27 +60,31 @@ typedef union expr_data_u {
 } ExprData;
 
 typedef struct expr_token_t {
+    LListBaseItem base;
+
     ExprTokenType type;
     ExprData data;
 
     DataType data_type;
 } ExprToken;
 
+ExprToken* expr_token_init();
 void expr_token_free(ExprToken* t);
+
+int expr_llist_type_cmp(LListBaseItem* a, LListBaseItem* b);
+void expr_llist_free(LListBaseItem* item);
 
 ExprToken* expr_get_precedence(ExprToken *a, ExprToken *b);
 bool is_expr_parsing_complete(LList* expr_token_buffer, ExprToken* token);
 ExprToken* load_expr_token(Lexer* lexer, Token* last_token);
-int expr_llist_type_cmp(void* a, void* b);
-void expr_llist_free(void* data);
 ExprToken* create_expr_token(ExprTokenType type);
 ExprToken* create_expression(ExprIdx index);
 ExprToken* expr_last_terminal(LList *expr_token_buffer);
 void expr_llist_append_after_last_terminal(LList *expr_token_buffer, ExprToken* token);
 void expr_token_update_unary(ExprToken* minus, const ExprToken* previous);
-ExprToken* get_next_expr(LListItem** expr_token_buffer_item);
-LListItem* get_next_expr_item(LListItem** expr_token_buffer_item);
-void expr_replace(LList *expr_token_buffer, LListItem* expr_token_buffer_left_sharp, ExprToken* single_expression);
+ExprToken* get_next_expr(LListBaseItem** expr_token_buffer_item);
+LListBaseItem* get_next_expr_item(LListBaseItem** expr_token_buffer_item);
+void expr_replace(LList *expr_token_buffer, LListBaseItem* expr_token_buffer_left_sharp, ExprToken* single_expression);
 
 
 #endif //_PARSER_EXPR_INTERNAL_H

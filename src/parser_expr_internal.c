@@ -57,10 +57,10 @@ ExprToken* expr_get_precedence(ExprToken* a, ExprToken* b) {
 }
 
 bool is_expr_parsing_complete(LList* expr_token_buffer, ExprToken* token) {
-    LListItem* tmp = expr_token_buffer->head;
-    if (((ExprToken*)tmp->value)->type == EXPR_TOKEN_$ &&
+    LListBaseItem* tmp = expr_token_buffer->head;
+    if (((ExprToken*)tmp)->type == EXPR_TOKEN_$ &&
         (tmp = tmp->next) != NULL &&
-        ((ExprToken*)tmp->value)->type == EXPR_EXPRESSION &&
+        ((ExprToken*)tmp)->type == EXPR_EXPRESSION &&
         tmp->next == NULL &&
         token->type == EXPR_TOKEN_$) {
         return true;
@@ -76,7 +76,7 @@ ExprToken* load_expr_token(Lexer* lexer, Token* last_token) {
     token_free(last_token);
 
     *last_token = lexer_next_token(lexer);
-    ExprToken* expr_t = memory_alloc(sizeof(ExprToken));
+    ExprToken* expr_t = expr_token_init();
     expr_t->data.s = NULL;
 
     switch(last_token->type) {
@@ -166,11 +166,12 @@ void expr_token_free(ExprToken* t) {
            ) && t->data.s != NULL) {
             memory_free(t->data.s);
         }
+//         TODO check free
         memory_free(t);
     }
 }
 
-int expr_llist_type_cmp(void* a, void* b) {
+int expr_llist_type_cmp(LListBaseItem* a, LListBaseItem* b) {
     ASSERT(a != NULL && b != NULL);
     if(((ExprToken*) a)->type == ((ExprToken*) b)->type) {
         return 0;
@@ -179,14 +180,24 @@ int expr_llist_type_cmp(void* a, void* b) {
     }
 }
 
-void expr_llist_free(void* data) {
-    ASSERT(data != NULL);
-    expr_token_free((ExprToken*) data);
+void expr_llist_free(LListBaseItem* item) {
+    ASSERT(item != NULL);
+    ExprToken* t = (ExprToken*) item;
+
+    if(t != NULL) {
+        if((t->type == EXPR_TOKEN_IDENTIFIER ||
+            t->type == EXPR_TOKEN_BOOLEAN_LITERAL ||
+            t->type == EXPR_TOKEN_INTEGER_LITERAL ||
+            t->type == EXPR_TOKEN_DOUBLE_LITERAL ||
+            t->type == EXPR_TOKEN_STRING_LITERAL
+           ) && t->data.s != NULL) {
+            memory_free(t->data.s);
+        }
+    }
 }
 
 ExprToken* create_expr_token(ExprTokenType type) {
-    ExprToken* t;
-    t = memory_alloc(sizeof(ExprToken));
+    ExprToken* t = expr_token_init();
     t->type = type;
     return t;
 }
@@ -200,20 +211,20 @@ ExprToken* create_expression(ExprIdx index) {
 }
 
 ExprToken* expr_last_terminal(LList* expr_token_buffer) {
-    LListItem* it = expr_token_buffer->tail;
-    while(!(((ExprToken*) it->value)->type & EXPR_TERMINALS_MASK)) {
+    LListBaseItem* it = expr_token_buffer->tail;
+    while(!(((ExprToken*)it)->type & EXPR_TERMINALS_MASK)) {
         it = it->previous;
     }
-    return it->value;
+    return (ExprToken*)it;
 }
 
 void expr_llist_append_after_last_terminal(LList* expr_token_buffer, ExprToken* token) {
-    LListItem* it = expr_token_buffer->tail;
-    while(!(((ExprToken*) it->value)->type & EXPR_TERMINALS_MASK)) {
+    LListBaseItem* it = expr_token_buffer->tail;
+    while(!(((ExprToken*) it)->type & EXPR_TERMINALS_MASK)) {
         it = it->previous;
         ASSERT(it != NULL);
     }
-    llist_insert_after(expr_token_buffer, it, token);
+    llist_insert_after(expr_token_buffer, it, (LListBaseItem*)token);
 }
 
 void expr_token_update_unary(ExprToken* minus, const ExprToken* previous) {
@@ -233,21 +244,30 @@ void expr_token_update_unary(ExprToken* minus, const ExprToken* previous) {
     }
 }
 
-void expr_replace(LList* expr_token_buffer, LListItem* expr_token_buffer_left_sharp, ExprToken* single_expression) {
-    LListItem* i = expr_token_buffer_left_sharp;
+void expr_replace(LList* expr_token_buffer, LListBaseItem* expr_token_buffer_left_sharp, ExprToken* single_expression) {
+    LListBaseItem* i = expr_token_buffer_left_sharp;
     while((i = llist_remove_item(expr_token_buffer, i)) != NULL);
-    llist_append(expr_token_buffer, single_expression);
+    llist_append_item(expr_token_buffer, (LListBaseItem*)single_expression);
 }
-ExprToken* get_next_expr(LListItem** expr_token_buffer_item)
+ExprToken* get_next_expr(LListBaseItem** expr_token_buffer_item)
 {
-    return ((ExprToken*) (get_next_expr_item(expr_token_buffer_item)->value));
+    return ((ExprToken*) (get_next_expr_item(expr_token_buffer_item)));
 }
 
-LListItem* get_next_expr_item(LListItem** expr_token_buffer_item)
+LListBaseItem* get_next_expr_item(LListBaseItem** expr_token_buffer_item)
 {
-    while(((ExprToken*) ((*expr_token_buffer_item)->value))->type != EXPR_EXPRESSION) {
+    while(((ExprToken*) ((*expr_token_buffer_item)))->type != EXPR_EXPRESSION) {
         (*expr_token_buffer_item) = (*expr_token_buffer_item)->next;
         ASSERT((*expr_token_buffer_item) != NULL);
     }
     return (*expr_token_buffer_item);
+}
+
+ExprToken* expr_token_init()
+{
+    ExprToken* et = memory_alloc(sizeof(ExprToken));
+    et->base.next = NULL;
+    et->base.previous = NULL;
+
+    return et;
 }

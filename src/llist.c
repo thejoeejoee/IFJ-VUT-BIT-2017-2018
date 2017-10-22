@@ -2,12 +2,12 @@
 #include "llist.h"
 #include <stdlib.h>
 
-void llist_init(LList** list, size_t item_size, llist_init_item_data init_function, llist_free_item_data free_function, llist_item_compare_function cmp_function) {
+void llist_init(LList** list, size_t item_size, llist_init_item_data_callback_f init_function, llist_free_item_data_callback_f free_function, llist_item_compare_function cmp_function) {
     *list = (LList*) memory_alloc(sizeof(LList));
     (*list)->head = NULL;
     (*list)->tail = NULL;
-    (*list)->init_function = init_function;
-    (*list)->free_function = free_function;
+    (*list)->init_data_callback = init_function;
+    (*list)->free_data_callback = free_function;
     (*list)->cmp_function = cmp_function;
     (*list)->item_size = item_size;
 }
@@ -31,8 +31,8 @@ LListBaseItem* llist_append_item(LList* list, LListBaseItem* new_item)
     if(list->head == NULL)
         list->head = new_item;
 
-    if(list->init_function != NULL)
-        list->init_function(new_item);
+    if(list->init_data_callback != NULL)
+        list->init_data_callback(new_item);
 
     if(last_item != NULL)
         last_item->next = new_item;
@@ -102,8 +102,8 @@ LListBaseItem* llist_remove_item(LList* list, LListBaseItem* item)
         item->next->previous = item->previous;
     }
 
-    if (list->free_function != NULL) {
-        list->free_function(item);
+    if (list->free_data_callback != NULL) {
+        list->free_data_callback(item);
     }
     memory_free(item);
 
@@ -120,8 +120,8 @@ void llist_free(LList** list) {
     if(current_item != NULL) {
         do {
             next_item = current_item->next;
-            if ((*list)->free_function != NULL) {
-                (*list)->free_function(current_item);
+            if ((*list)->free_data_callback != NULL) {
+                (*list)->free_data_callback(current_item);
             }
             memory_free(current_item);
             current_item = next_item;

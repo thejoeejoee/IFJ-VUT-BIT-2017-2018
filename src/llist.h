@@ -11,8 +11,8 @@ typedef struct LListBaseItem LListBaseItem;
 /**
 * @brief Function to free LListItem data
 */
-typedef void (*llist_free_item_data)(LListBaseItem*);
-typedef void (*llist_init_item_data)(LListBaseItem*);
+typedef void (*llist_free_item_data_callback_f)(LListBaseItem*);
+typedef void (*llist_init_item_data_callback_f)(LListBaseItem*);
 
 /**
 * @brief Comparison function for comparing LListItem datas
@@ -31,8 +31,8 @@ typedef struct LList {
     /// The end of list.
     struct LListBaseItem* tail;
     /// Function used to free item.
-    llist_free_item_data free_function;
-    llist_init_item_data init_function;
+    llist_free_item_data_callback_f free_data_callback;
+    llist_init_item_data_callback_f init_data_callback;
     llist_item_compare_function cmp_function;
 } LList;
 
@@ -49,7 +49,7 @@ struct LListBaseItem {
  * @brief llist_init Allocates memory for list and null head and tail.
  * @param list Address of pointer which will point to llist structure.
  */
-void llist_init(struct LList** list, size_t item_size, llist_init_item_data init_function, llist_free_item_data free_function, llist_item_compare_function cmp_function);
+void llist_init(struct LList** list, size_t item_size, llist_init_item_data_callback_f init_function, llist_free_item_data_callback_f free_function, llist_item_compare_function cmp_function);
 
 /**
  * @brief llist_append Appends one item with given value to the end of the list.

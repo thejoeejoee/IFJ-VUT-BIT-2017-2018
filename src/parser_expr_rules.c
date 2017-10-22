@@ -189,7 +189,7 @@ bool expression_rule_fn(Parser* parser, LList* expr_token_buffer, ExprIdx* expre
 
     // NOTE: now we are processing rule regular way - from the left to the right
 
-    char* function_name = ((ExprToken*) tmp->next->value)->data.s;
+    char* function_name = ((ExprToken*) tmp->next)->data.s;
     SymbolFunction* function = symbol_table_function_get(
             parser->parser_semantic->register_->functions,
             function_name

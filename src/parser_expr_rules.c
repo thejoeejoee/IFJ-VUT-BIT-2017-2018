@@ -151,12 +151,9 @@ bool expression_rule_fn(Parser* parser, LList* expr_token_buffer, ExprIdx* expre
         it = it->previous;
         tt = ((ExprToken*) it)->type;
     } else { return false; }
-    // TODO check
-//    if(it->value != NULL) {
-        if(tt != EXPR_TOKEN_LEFT_BRACKET &&
-           tt != EXPR_EXPRESSION) { return false; }
-        if(tt == EXPR_EXPRESSION) { arg_count++; }
-//    } else { return false; }
+    if(tt != EXPR_TOKEN_LEFT_BRACKET &&
+       tt != EXPR_EXPRESSION) { return false; }
+    if(tt == EXPR_EXPRESSION) { arg_count++; }
 
     // arg_count in while condition is only for entering infinite while, if arg_count > 0
     while(arg_count) {
@@ -164,24 +161,18 @@ bool expression_rule_fn(Parser* parser, LList* expr_token_buffer, ExprIdx* expre
             it = it->previous;
             tt = ((ExprToken*) it)->type;
         } else { return false; }
-//        if(it->value != NULL) {
-            // TODO check
-            if(tt == EXPR_TOKEN_LEFT_BRACKET) { break; }
-            if(tt != EXPR_TOKEN_COMMA) { return false; }
-//        } else { return false; }
+        if(tt == EXPR_TOKEN_LEFT_BRACKET) { break; }
+        if(tt != EXPR_TOKEN_COMMA) { return false; }
 
         if(it->previous != NULL) {
             it = it->previous;
             tt = ((ExprToken*) it)->type;
         } else { return false; }
-        // TODO check
-//        if(it->value != NULL) {
-            if(tt == EXPR_EXPRESSION) {
-                arg_count++;
-            } else {
-                return false;
-            }
-//        } else { return false; }
+        if(tt == EXPR_EXPRESSION) {
+            arg_count++;
+        } else {
+            return false;
+        }
     }
 
     EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_IDENTIFIER);

@@ -5,30 +5,34 @@
 #include "debug.h"
 #include "memory.h"
 
-struct LListItem;
+struct LListBaseItem;
+typedef struct LListBaseItem LListBaseItem;
 
 /**
 * @brief Function to free LListItem data
 */
-typedef void (*llist_free_item_data)(void* data);
+typedef void (*llist_free_item_data_callback_f)(LListBaseItem*);
+typedef void (*llist_init_item_data_callback_f)(LListBaseItem*);
 
 /**
 * @brief Comparison function for comparing LListItem datas
 * @return -1 if a < b, 0 if a == b, 1 if a > b
 */
-typedef int (*llist_item_compare_function)(void* a, void* b);
+typedef int (*llist_item_compare_function)(LListBaseItem* a, LListBaseItem* b);
 
 /**
  * @brief The LList structure contains the beginning and the end of linear list. An empty list
  * has null end and beginning.
  */
 typedef struct LList {
+    size_t item_size;
     /// The beginning of list.
-    struct LListItem* head;
+    struct LListBaseItem* head;
     /// The end of list.
-    struct LListItem* tail;
+    struct LListBaseItem* tail;
     /// Function used to free item.
-    llist_free_item_data free_function;
+    llist_free_item_data_callback_f free_data_callback;
+    llist_init_item_data_callback_f init_data_callback;
     llist_item_compare_function cmp_function;
 } LList;
 
@@ -36,31 +40,32 @@ typedef struct LList {
  * @brief The LListItem structure is single item of linear list which contains single integer
  * value.
  */
-typedef struct LListItem {
-    void* value;
-    struct LListItem* next;
-    struct LListItem* previous;
-} LListItem;
+struct LListBaseItem {
+    struct LListBaseItem* next;
+    struct LListBaseItem* previous;
+};
 
 /**
  * @brief llist_init Allocates memory for list and null head and tail.
  * @param list Address of pointer which will point to llist structure.
  */
-void llist_init(struct LList** list, llist_free_item_data free_function, llist_item_compare_function cmp_function);
+void llist_init(struct LList** list, size_t item_size, llist_init_item_data_callback_f init_function, llist_free_item_data_callback_f free_function, llist_item_compare_function cmp_function);
 
 /**
  * @brief llist_append Appends one item with given value to the end of the list.
  * @param list List where item will be appended.
  * @param value Value of appended item.
  */
-void llist_append(struct LList* list, void* value);
+// TODO use init
+LListBaseItem* llist_new_tail_item(struct LList* list);
+LListBaseItem* llist_append_item(LList* list, LListBaseItem* new_item);
 
 /**
 * @brief llist_pop_back Pops item from the end of the list.
 * @param list List from which the item will be popped.
 * @return Value of popped item.
 */
-void* llist_pop_back(struct LList* list);
+LListBaseItem* llist_pop_back(struct LList* list);
 
 /**
 * @brief llist_append Inserts one item with given value after item 'after' of the list.
@@ -68,7 +73,8 @@ void* llist_pop_back(struct LList* list);
 * @param after Item from given list after which the item will be inserted.
 * @param value Value of inserted item.
 */
-void llist_insert_after(struct LList* list, struct LListItem* after, void* value);
+// TODO passed already created data
+void llist_insert_after(struct LList* list, LListBaseItem* after, LListBaseItem* new_item);
 
 /**
 * @brief llist_remove_item Removes one item from the list.
@@ -76,15 +82,7 @@ void llist_insert_after(struct LList* list, struct LListItem* after, void* value
 * @param item Item which will be removed.
 * @return Next item after removed one.
 */
-struct LListItem* llist_remove_item(struct LList* list, struct LListItem* item);
-
-/**
- * @brief llist_remove_one Remove first occurrence of item with given value.
- * @param list List where item will be searched.
- * @param value Value of deleting item.
- * @return false, when no item was removed.
- */
-bool llist_remove_one(struct LList* list, void* value);
+struct LListBaseItem* llist_remove_item(struct LList* list, struct LListBaseItem* item);
 
 /**
  * @brief llist_free  all items and list and set pointer to null.
@@ -98,5 +96,8 @@ void llist_free(struct LList** list);
  * @return Items count in list.
  */
 size_t llist_length(LList* list);
+
+// TODO doc and test
+LListBaseItem* llist_get_n_from_end(LList* list, size_t n);
 
 #endif //_LLIST_H

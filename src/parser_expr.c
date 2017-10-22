@@ -20,14 +20,15 @@ bool parser_parse_expression(Parser* parser) {
     ExprToken *token, *precedence;
     ExprIdx expression_idx = 0; //TODO: maybe should be static in expression_reduce, because of function calls
     LList *buffer;
-    llist_init(&buffer, expr_llist_free, expr_llist_type_cmp);
+    llist_init(&buffer, sizeof(ExprToken), NULL, expr_llist_free, expr_llist_type_cmp);
 
-    llist_append(buffer, create_expr_token(EXPR_TOKEN_$));
+    token = (ExprToken*)llist_new_tail_item(buffer);
+    token->type = EXPR_TOKEN_$;
 
     do {
         token = load_expr_token(parser->lexer, &last_token);
         if (token->type == EXPR_TOKEN_MINUS) {
-            expr_token_update_unary(token, buffer->tail->value); // check if minus is unary and update
+            expr_token_update_unary(token, (ExprToken*)buffer->tail); // check if minus is unary and update
         }
 
         do {
@@ -55,7 +56,7 @@ bool parser_parse_expression(Parser* parser) {
             if (precedence->type == EXPR_LEFT_SHARP) {
                 expr_llist_append_after_last_terminal(buffer, precedence);
             } else if (precedence->type == EXPR_RIGHT_SHARP) {
-                llist_append(buffer, precedence);
+                llist_append_item(buffer, (LListBaseItem*)precedence);
             } else if (precedence->type == EXPR_SAME) {
                 expr_token_free(precedence);
             } else {
@@ -67,7 +68,7 @@ bool parser_parse_expression(Parser* parser) {
                 return false; // Precedence error - undefined
             }
 
-            if (((ExprToken*)buffer->tail->value)->type == EXPR_REDUCE) {
+            if (((ExprToken*)buffer->tail)->type == EXPR_REDUCE) {
                 if (expression_reduce(parser, buffer, &expression_idx)) {
                     continue;
                 }
@@ -79,11 +80,11 @@ bool parser_parse_expression(Parser* parser) {
                     return false; // Expression reduction error - no rule has been found
                 }
             }
-            if (((ExprToken*)buffer->tail->value)->type != EXPR_REDUCE) {
+            if (((ExprToken*)buffer->tail)->type != EXPR_REDUCE) {
                 break;
             }
         } while (true);
-        llist_append(buffer, token);
+        llist_append_item(buffer, (LListBaseItem*)token);
 
     } while (token->type != EXPR_TOKEN_$);
 

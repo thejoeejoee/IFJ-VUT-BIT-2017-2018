@@ -40,10 +40,10 @@ typedef struct LList {
  * @brief The LListItem structure is single item of linear list which contains single integer
  * value.
  */
-typedef struct LListBaseItem {
+struct LListBaseItem {
     struct LListBaseItem* next;
     struct LListBaseItem* previous;
-} LListBaseItem;
+};
 
 /**
  * @brief llist_init Allocates memory for list and null head and tail.

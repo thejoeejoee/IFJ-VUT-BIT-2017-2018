@@ -839,6 +839,30 @@ End Scope
     )");
     EXPECT_TRUE(
             parser_parse_program(parser)
-    ) << "Body parse";
+    );
 
+}
+
+TEST_F(ParserTestFixture, LongStringInProgram) {
+    provider->setString(R"(
+' valid strlen
+scope
+	dim len as integer
+
+	len = strlen(!"")
+	print len;
+
+	len = strlen(!"foobar")
+	print len;
+
+	dim str as string
+	cokolivjennestring = !"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+	len = strlen(cokolivjennestring)
+	print len;
+
+end scope
+)");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    );
 }

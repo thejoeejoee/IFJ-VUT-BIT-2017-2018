@@ -74,14 +74,14 @@ TEST_F(LexerFSMTestFixture, IsFinalStateTest) {
             LEX_FSM__STRING_EXC, LEX_FSM__STRING_LOAD, LEX_FSM__STRING_SLASH,
     };
 
-    for (const LexerFSMState state: final_states) {
+    for(const LexerFSMState state: final_states) {
 
         EXPECT_TRUE(
-            lexer_fsm_is_final_state(state)
+                lexer_fsm_is_final_state(state)
         ) << "Error testing final state";
     }
 
-    for (const LexerFSMState state: non_final_states) {
+    for(const LexerFSMState state: non_final_states) {
 
         EXPECT_FALSE(
                 lexer_fsm_is_final_state(state)
@@ -202,10 +202,23 @@ TEST_F(LexerFSMTestFixture, StringNumericChar) {
     ) << "Error transition";
 
     EXPECT_EQ(
-        lexer_fsm->stream_buffer->content[0],
-        114
+            lexer_fsm->stream_buffer->content[0],
+            114
     ) << "Error result";
 
+}
+
+TEST_F(LexerFSMTestFixture, StringValue) {
+    provider->setString("\n");
+    EXPECT_EQ(
+            lexer_fsm_next_state(lexer_fsm, LEX_FSM__STRING_LOAD),
+            LEX_FSM__ERROR
+    );
+
+    EXPECT_EQ(
+            lexer_fsm->lexer_error,
+            LEXER_ERROR__STRING_FORMAT
+    );
 }
 
 TEST_F(LexerFSMTestFixture, BlockComment) {
@@ -286,7 +299,6 @@ TEST_F(LexerFSMTestFixture, Identifier) {
             lexer_fsm_next_state(lexer_fsm, LEX_FSM__IDENTIFIER_UNFINISHED),
             LEX_FSM__IDENTIFIER_FINISHED
     ) << "Quote select line comment from init state.";
-
 }
 
 

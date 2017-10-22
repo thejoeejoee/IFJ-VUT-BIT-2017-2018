@@ -21,8 +21,7 @@ int cmp_function(LListBaseItem* a, LListBaseItem* b) {
     }
     else if ( A->value == B->value ) {
         return 0;
-    }
-    else {
+    } else {
         return 1;
     }
 }
@@ -113,6 +112,7 @@ TEST_F(LlistTestFixture, SimpleAppend) {
 
     TestListItem* item = new TestListItem;
     item->value = number;
+
     // Add one number
     llist_append_item(llist, (LListBaseItem*)item);
 
@@ -169,20 +169,20 @@ TEST_F(LlistTestFixture, SimpleInsert) {
 
     // TEST tail and head are the same
     EXPECT_EQ(
-        llist->head,
-        llist->tail
+            llist->head,
+            llist->tail
     ) << "Pointers in head and tail are not the same";
 
     llist_insert_after(llist, llist->head, (LListBaseItem*)items.at(2));
 
     // TEST tail and head are ok
     EXPECT_EQ(
-        llist->head,
-        llist->tail->previous
+            llist->head,
+            llist->tail->previous
     ) << "Pointers in head and tail are not ok";
     EXPECT_EQ(
-        llist->head->next,
-        llist->tail
+            llist->head->next,
+            llist->tail
     ) << "Pointers in head and tail are not ok";
 
     llist_insert_after(llist, llist->tail->previous, (LListBaseItem*)items.at(1));
@@ -205,8 +205,8 @@ TEST_F(LlistTestFixture, SimpleInsert) {
 
     // Test tail correct pointer
     EXPECT_EQ(
-        llist->head->next->next,
-        llist->tail
+            llist->head->next->next,
+            llist->tail
     ) << "The pointer in tail is incorrect";
 
 }
@@ -229,12 +229,12 @@ TEST_F(LlistTestFixture, SimplePopBack) {
     ) << "Return value of pop_back is not ok";
     // TEST tail and head are ok
     EXPECT_EQ(
-        llist->head,
-        nullptr
+            llist->head,
+            nullptr
     ) << "Pointers in head and tail are not ok";
     EXPECT_EQ(
-        llist->tail,
-        nullptr
+            llist->tail,
+            nullptr
     ) << "Pointers in head and tail are not ok";
 
 
@@ -256,12 +256,12 @@ TEST_F(LlistTestFixture, SimplePopBack) {
     ) << "Return value of pop_back is not ok";
     // TEST tail and head are ok
     EXPECT_EQ(
-        llist->head,
-        nullptr
+            llist->head,
+            nullptr
     ) << "Pointers in head and tail are not ok";
     EXPECT_EQ(
-        llist->tail,
-        nullptr
+            llist->tail,
+            nullptr
     ) << "Pointers in head and tail are not ok";
 }
 
@@ -314,17 +314,17 @@ TEST_F(LlistTestFixture, SimpleRemoveItem) {
 
     // TEST return value of llist_remove_item
     EXPECT_EQ(
-        next,
-        nullptr
+            next,
+            nullptr
     ) << "Return value of llist_remove_item is not ok";
     // TEST head and tail values of llist
     EXPECT_EQ(
-        llist->head,
-        nullptr
+            llist->head,
+            nullptr
     ) << "Head value of llist is not ok";
     EXPECT_EQ(
-        llist->tail,
-        nullptr
+            llist->tail,
+            nullptr
     ) << "Tail value of llist is not ok";
 }
 

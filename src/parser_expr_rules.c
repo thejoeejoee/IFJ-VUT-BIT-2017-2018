@@ -105,7 +105,7 @@ bool expression_rule_id(Parser* parser, LList* expr_token_buffer, ExprIdx* expre
 
     } else if(i->type == EXPR_TOKEN_IDENTIFIER) {
         SymbolVariable* variable = symbol_register_find_variable_recursive(
-                                       parser->parser_semantic->register_, i->data.s);
+                parser->parser_semantic->register_, i->data.s);
 
         // TODO add some semantic error
         if(variable == NULL)
@@ -137,6 +137,7 @@ bool expression_rule_fn(Parser* parser, LList* expr_token_buffer, ExprIdx* expre
     * E -> fn E, E )
     * E -> fn E, E, ... )
     */
+    CodeConstructor* constructor = parser->code_constructor;
     UNUSED(parser);
 
     // NOTE: we are processing rule backwards!
@@ -188,8 +189,21 @@ bool expression_rule_fn(Parser* parser, LList* expr_token_buffer, ExprIdx* expre
 
     // NOTE: now we are processing rule regular way - from the left to the right
 
-    char* function_name = ((ExprToken*) tmp->next)->data.s;
-    UNUSED(function_name);
+    char* function_name = ((ExprToken*) tmp->next->value)->data.s;
+    SymbolFunction* function = symbol_table_function_get(
+            parser->parser_semantic->register_->functions,
+            function_name
+    );
+    if(function == NULL) {
+        // TODO reaction to undefined function
+        return false;
+    }
+    String* function_label = symbol_function_generate_function_label(function);
+    GENERATE_CODE(
+            I_CALL,
+            code_instruction_operand_init_label(string_content(function_label))
+    );
+    string_free(&function_label);
 
     for(unsigned int i = 0; i < arg_count; i++) {
         ExprIdx idx = EXPR_RULE_NEXT_E_ID();

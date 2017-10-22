@@ -4,6 +4,7 @@
 #include "common.h"
 #include "symtable.h"
 #include "data_type.h"
+#include "dynamic_string.h"
 
 #define symbol_table_function_init(bucket_count) symbol_table_init( \
     bucket_count, \
@@ -41,5 +42,7 @@ SymbolFunctionParam* symbol_function_add_param(SymbolFunction* function, char* n
 SymbolFunctionParam* symbol_function_get_param(SymbolFunction* function, size_t index);
 
 SymbolFunction* symbol_function_find_declared_function_without_definition(SymbolTable* table);
+
+String* symbol_function_generate_function_label(SymbolFunction* function);
 
 #endif // _SYMTABLE_FUNCTION_H

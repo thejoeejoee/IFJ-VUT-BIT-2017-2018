@@ -27,14 +27,11 @@ void code_constructor_free(CodeConstructor** constructor) {
     *constructor = NULL;
 }
 
-void code_constructor_start_code(CodeConstructor* constructor, SymbolVariable* print_tmp) {
+void code_constructor_start_code(CodeConstructor* constructor) {
     NULL_POINTER_CHECK(constructor,);
-    NULL_POINTER_CHECK(print_tmp,);
 
-    code_constructor_variable_declaration(constructor, 0, print_tmp);
-
-    // TODO: random labels? hashed?
-    stack_code_label_push(constructor->code_label_stack, "%__main__scope");
+    char* label = code_constructor_generate_label(constructor, "%__main__scope");
+    stack_code_label_push(constructor->code_label_stack, label);
     GENERATE_CODE(I_JUMP, code_instruction_operand_init_label(stack_code_label_head(constructor->code_label_stack)));
 }
 
@@ -55,16 +52,21 @@ void code_constructor_main_scope_start(CodeConstructor* constructor) {
 
 void code_constructor_variable_declaration(CodeConstructor* constructor, int frame, SymbolVariable* symbol_variable) {
     NULL_POINTER_CHECK(constructor,);
-
     UNUSED(frame);
 
-    // TODO: Add generationg symbol with corresponding frame
-    // TODO: Add add inicialization on LF
-
+    // TODO: Add generating symbol with corresponding frame
     GENERATE_CODE(
             I_DEF_VAR,
             code_instruction_operand_init_variable(symbol_variable)
     );
+    CodeInstructionOperand* operand = code_instruction_operand_implicit_value(symbol_variable->data_type);
+    // variables not defined by user have not implicit value 
+    if(operand != NULL)
+        GENERATE_CODE(
+                I_MOVE,
+                code_instruction_operand_init_variable(symbol_variable),
+                operand
+        );
 }
 
 void code_constructor_input(CodeConstructor* constructor, int frame, SymbolVariable* symbol_variable) {
@@ -189,12 +191,12 @@ char* code_constructor_generate_label(CodeConstructor* constructor, const char* 
     NULL_POINTER_CHECK(constructor, NULL);
     NULL_POINTER_CHECK(type, NULL);
 
-    size_t len = strlen(type) + 16 + 10;
+    size_t len = strlen(type) + 16 + 16;
     char* label = memory_alloc(len * sizeof(char));
     snprintf(
             label,
             len,
-            "%%_LABEL%03zd_%s_DEPTH%03zd",
+            "%%_LABEL_%03zd_%s_DEPTH_%03zd",
             constructor->label_counter++,
             type,
             constructor->control_statement_depth
@@ -278,7 +280,36 @@ void code_constructor_variable_expression_assignment(CodeConstructor* constructo
     );
 }
 
-void code_constructor_generate_built_in_function(CodeConstructor* constructor) {
+void code_constructor_generate_builtin_functions(CodeConstructor* constructor) {
     UNUSED(constructor);
     // TODO: Add generate code for built-in functions
+}
+
+void code_constructor_function_header(CodeConstructor* constructor, SymbolFunction* function) {
+    NULL_POINTER_CHECK(constructor,);
+    NULL_POINTER_CHECK(function,);
+
+    String* label = symbol_function_generate_function_label(function);
+    GENERATE_CODE(
+            I_LABEL,
+            code_instruction_operand_init_label(string_content(label))
+    );
+    string_free(&label);
+}
+
+void code_constructor_implicit_function_return(CodeConstructor* constructor, SymbolFunction* function) {
+    NULL_POINTER_CHECK(constructor,);
+    NULL_POINTER_CHECK(function,);
+
+    GENERATE_CODE(
+            I_PUSH_STACK,
+            code_instruction_operand_implicit_value(function->return_data_type)
+    );
+    GENERATE_CODE(I_RETURN);
+}
+
+void code_constructor_return(CodeConstructor* constructor) {
+    NULL_POINTER_CHECK(constructor,);
+
+    GENERATE_CODE(I_RETURN);
 }

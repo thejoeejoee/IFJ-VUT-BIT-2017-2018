@@ -24,6 +24,8 @@ void code_instruction_operand_free(CodeInstructionOperand** operand_) {
                 string_free(&(operand->data.constant.data.string));
             break;
         case TYPE_INSTRUCTION_OPERAND_VARIABLE:
+            symbol_variable_free_data((SymbolTableBaseItem*) operand->data.variable);
+            memory_free(operand->data.variable);
             break;
         case TYPE_INSTRUCTION_OPERAND_LABEL:
             memory_free((void*) operand->data.label);
@@ -178,4 +180,24 @@ char* code_instruction_operand_escaped_string(String* source) {
     char* escaped_c_string = c_string_copy(string_content(escaped));
     string_free(&escaped);
     return escaped_c_string;
+}
+
+CodeInstructionOperand* code_instruction_operand_implicit_value(DataType data_type) {
+    switch(data_type) {
+        case DATA_TYPE_DOUBLE:
+            return code_instruction_operand_init_double(0);
+        case DATA_TYPE_INTEGER:
+            return code_instruction_operand_init_integer(0);
+        case DATA_TYPE_STRING: {
+            String* string = string_init_with_capacity(0);
+            return code_instruction_operand_init_string(string);
+        }
+        case DATA_TYPE_BOOLEAN:
+            return code_instruction_operand_init_boolean(false);
+        case DATA_TYPE_NONE:
+            return NULL;
+        default:
+            LOG_WARNING("Unknown data type %d.", data_type);
+            return NULL;
+    }
 }

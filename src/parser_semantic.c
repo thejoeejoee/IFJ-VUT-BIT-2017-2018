@@ -168,7 +168,7 @@ bool parser_semantic_add_function_parameter(ParserSemantic* parser_semantic, cha
     if(parser_semantic->actual_action == SEMANTIC_ACTION__FUNCTION_DECLARATION || !parser_semantic->function_declared) {
 
         // Check duplicity name
-        for(int i = 1; i <= (int)parser_semantic->actual_function->arguments_count; i++) {
+        for(size_t i = 1; i <= (size_t) parser_semantic->actual_function->arguments_count; i++) {
             SymbolFunctionParam* param = symbol_function_get_param(parser_semantic->actual_function, i - 1);
             if(strcmp(param->name, name) == 0) {
                 parser_semantic->error_report.error_code = ERROR_SEMANTIC_DEFINITION;

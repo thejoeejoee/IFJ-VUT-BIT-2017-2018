@@ -74,6 +74,8 @@ void expr_token_free(ExprToken* t);
 int expr_llist_type_cmp(LListBaseItem* a, LListBaseItem* b);
 void expr_llist_free(LListBaseItem* item);
 
+ExprToken* get_n_expr(LList* expression_list, size_t n);
+
 ExprToken* expr_get_precedence(ExprToken *a, ExprToken *b);
 bool is_expr_parsing_complete(LList* expr_token_buffer, ExprToken* token);
 ExprToken* load_expr_token(Lexer* lexer, Token* last_token);

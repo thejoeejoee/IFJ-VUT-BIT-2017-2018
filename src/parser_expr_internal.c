@@ -271,3 +271,9 @@ ExprToken* expr_token_init()
 
     return et;
 }
+
+ExprToken* get_n_expr(LList* expression_list, size_t n)
+{
+    NULL_POINTER_CHECK(expression_list, NULL);
+    return ((ExprToken*)llist_get_n_from_end(expression_list, n));
+}

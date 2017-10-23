@@ -5,7 +5,6 @@
 
 
 String* string_init_with_capacity(size_t initial_capacity) {
-    ASSERT(initial_capacity >= 0);
     String* string = (String*) memory_alloc(sizeof(String));
     string->content = (char*) memory_alloc(sizeof(char) * initial_capacity + 1);
     string->content[0] = 0; //c-string terminator

@@ -228,9 +228,24 @@ bool expression_rule_add(Parser* parser, LList* expr_token_buffer, ExprIdx* expr
 
     }
 
+
+
+    const DataType operand_1_type = get_n_expr(expr_token_buffer, 3)->data_type;
+    const DataType operand_2_type = get_n_expr(expr_token_buffer, 1)->data_type;
+    const DataType result_type = parser_semantic_resolve_implicit_data_type_conversion(
+                                     parser->parser_semantic,
+                                     OPERATION_ADD, operand_1_type, operand_2_type);
+    if(result_type == DATA_TYPE_NONE)
+        return false;
+
     CodeConstructor* constructor = parser->code_constructor;
+    // generate conversion
+    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(operand_1_type, operand_2_type, result_type);
     GENERATE_CODE(I_ADD_STACK);
+
     ExprToken* e = create_expression((*expression_idx)++);
+    e->data_type = result_type;
+
     EXPR_RULE_REPLACE(e);
     return true;
 }

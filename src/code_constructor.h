@@ -12,7 +12,16 @@
 #define _GENERATE_CODE_4(name, op0, op1, op2) code_generator_instruction(constructor->generator, name, op0, op1, op2)
 #define GENERATE_CODE(...) MSVC_EXPAND(GET_OVERLOADED_MACRO1234(__VA_ARGS__, _GENERATE_CODE_4, _GENERATE_CODE_3, \
     _GENERATE_CODE_2, _GENERATE_CODE_1)(__VA_ARGS__))
-#define GENERATE_CONVERSION_CODE()
+
+#define _GENERATE_STACK_DATA_TYPE_CONVERSION_CODE_2(operand_1_type, result_type) \
+        code_constructor_unary_operation_stack_type_conversion(constructor, (operand_1_type), (result_type)
+
+#define _GENERATE_STACK_DATA_TYPE_CONVERSION_CODE_3(operand_1_type, operand_2_type, result_type) do{ \
+        SymbolVariable* temp_var = parser->parser_semantic->temp_variable1; \
+        code_constructor_binary_operation_stack_type_conversion(constructor, (operand_1_type), (operand_2_type), (result_type), temp_var); \
+    } while(false)
+
+#define GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(...) MSVC_EXPAND(GET_OVERLOADED_MACRO123(__VA_ARGS__, _GENERATE_STACK_DATA_TYPE_CONVERSION_CODE_3, _GENERATE_STACK_DATA_TYPE_CONVERSION_CODE_2)(__VA_ARGS__))
 
 typedef struct type_conversion_instruction_t {
     LListBaseItem base;
@@ -141,5 +150,9 @@ void code_constructor_implicit_function_return(CodeConstructor* constructor, Sym
 void code_constructor_return(CodeConstructor* constructor);
 
 void code_constructor_stack_type_conversion(CodeConstructor* constructor, DataType current_type, DataType target_type);
+
+void code_constructor_unary_operation_stack_type_conversion(CodeConstructor* constructor, DataType operand_1_type, DataType result_type);
+
+void code_constructor_binary_operation_stack_type_conversion(CodeConstructor* constructor, DataType operand_1_type, DataType operand_2_type, DataType result_type, SymbolVariable* temp_var);
 
 #endif //_CODE_CONSTRUCTOR_H

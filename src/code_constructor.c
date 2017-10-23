@@ -352,3 +352,22 @@ void code_constructor_add_conversion_instruction(CodeConstructor* constructor, T
     conversion_instruction->target_type = target_type;
     conversion_instruction->is_stack_instruction = is_stack_instruction;
 }
+
+void code_constructor_binary_operation_stack_type_conversion(CodeConstructor* constructor, DataType operand_1_type, DataType operand_2_type, DataType result_type, SymbolVariable* temp_var)
+{
+    if(operand_1_type != result_type) {
+        GENERATE_CODE(I_POP_STACK, code_instruction_operand_init_variable(temp_var));
+        code_constructor_stack_type_conversion(constructor, operand_1_type, result_type);
+        GENERATE_CODE(I_PUSH_STACK, code_instruction_operand_init_variable(temp_var));
+    }
+
+    else if(operand_2_type != result_type) {
+        code_constructor_stack_type_conversion(constructor, operand_2_type, result_type);
+    }
+}
+
+void code_constructor_unary_operation_stack_type_conversion(CodeConstructor* constructor, DataType operand_1_type, DataType result_type)
+{
+    if(operand_1_type != result_type)
+        code_constructor_stack_type_conversion(constructor, operand_1_type, result_type);
+}

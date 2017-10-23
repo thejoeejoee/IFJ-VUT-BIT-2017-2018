@@ -17,12 +17,25 @@ ParserSemantic* parser_semantic_init() {
         llist_init(&(parser_semantic->operations_signatures[i]), sizeof(OperationSignature), NULL, NULL, NULL);
 
     // Operation add signatures
+    // TODO add string in add operation
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_ADD,
                                             DATA_TYPE_INTEGER, DATA_TYPE_INTEGER, DATA_TYPE_INTEGER);
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_ADD,
                                             DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE);
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_ADD,
                                             DATA_TYPE_STRING, DATA_TYPE_STRING, DATA_TYPE_STRING);
+
+    // TODO add boolean, string, double in greater operation
+    parser_semantic_add_operation_signature(parser_semantic, OPERATION_GREATER,
+                                            DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE);
+    parser_semantic_add_operation_signature(parser_semantic, OPERATION_GREATER,
+                                            DATA_TYPE_INTEGER, DATA_TYPE_INTEGER, DATA_TYPE_INTEGER);
+
+    // TODO add boolean, string, double in greater equal operation
+    parser_semantic_add_operation_signature(parser_semantic, OPERATION_GREATER_OR_EQUAL,
+                                            DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE);
+    parser_semantic_add_operation_signature(parser_semantic, OPERATION_GREATER_OR_EQUAL,
+                                            DATA_TYPE_INTEGER, DATA_TYPE_INTEGER, DATA_TYPE_INTEGER);
 
     return parser_semantic;
 }

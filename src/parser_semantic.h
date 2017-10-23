@@ -20,6 +20,10 @@ typedef enum {
     OPERATION_INT_DIVIDE,
     OPERATION_DIVIDE,
 
+    // Bool operations
+    OPERATION_GREATER,
+    OPERATION_GREATER_OR_EQUAL,
+
     OPERATION__LAST
 } Operations;
 

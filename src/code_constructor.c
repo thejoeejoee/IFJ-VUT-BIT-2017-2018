@@ -32,6 +32,7 @@ void code_constructor_free(CodeConstructor** constructor) {
     stack_free(&(*constructor)->code_label_stack);
     stack_free(&(*constructor)->conditions_label_stack);
     stack_free(&(*constructor)->loops_label_stack);
+    llist_free(&(*constructor)->conversion_instructions);
     code_generator_free(&((*constructor)->generator));
     memory_free(*constructor);
     *constructor = NULL;

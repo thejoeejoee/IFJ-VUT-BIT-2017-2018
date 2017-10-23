@@ -31,6 +31,9 @@ void parser_semantic_free(ParserSemantic** parser) {
     NULL_POINTER_CHECK(parser,);
     NULL_POINTER_CHECK(*parser,);
 
+    for(int i = 0; i < (int)OPERATION__LAST; i++)
+        llist_free(&((*parser)->operations_signatures[i]));
+
     symbol_register_free(&(*parser)->register_);
     memory_free(*parser);
     *parser = NULL;

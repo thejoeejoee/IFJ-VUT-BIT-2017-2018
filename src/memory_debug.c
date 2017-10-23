@@ -44,6 +44,9 @@ void* memory_manager_malloc(
 }
 
 void memory_manager_free(void* address,
+                         const char* file,
+                         unsigned line,
+                         const char* func,
                          MemoryManager* manager) {
     NULL_POINTER_CHECK(address,);
     if(manager == NULL)
@@ -54,7 +57,13 @@ void memory_manager_free(void* address,
         page = page->next;
     }
     if(page == NULL) {
-        LOG_WARNING("Allocated memory with address %p to free not found.", address);
+        LOG_WARNING(
+                "Allocated memory with address %p to free not found (%s:%d:%s()).",
+                address,
+                file,
+                line,
+                func
+        );
         return;
     }
     page->allocated = false;
@@ -108,7 +117,7 @@ void memory_manager_exit(MemoryManager* manager) {
             unsigned char* string = (unsigned char*) page->address;
             bool is_string = true;
             if(string[page->size - 1] == 0) {
-                for(int i = 0; i < (int)(page->size) - 1; ++i) {
+                for(int i = 0; i < (int) (page->size) - 1; ++i) {
                     if(!isprint(string[i])) {
                         is_string = false;
                         break;

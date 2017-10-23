@@ -107,8 +107,8 @@ TEST_F(MemoryManagerTestFixture, Stats) {
     DISABLE_LOG(
             memory_manager_log_stats(&memory_manager);
     );
-    memory_manager_free(first_memory, &memory_manager);
-    memory_manager_free(second_memory, &memory_manager);
+    memory_manager_free(first_memory, "", 0, "", &memory_manager);
+    memory_manager_free(second_memory, "", 0, "", &memory_manager);
 }
 
 #endif

@@ -41,8 +41,14 @@ void* memory_manager_malloc(
 }
 
 void memory_manager_free(void* address,
+                         const char* file,
+                         unsigned line,
+                         const char* func,
                          MemoryManager* manager) {
     NULL_POINTER_CHECK(address,);
+    UNUSED(file);
+    UNUSED(line);
+    UNUSED(func);
     if(manager == NULL)
         manager = &memory_manager;
 

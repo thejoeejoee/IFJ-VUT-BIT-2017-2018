@@ -215,9 +215,16 @@ TEST_F(CodeInstructionOperandTestFixture, DoubleRender0) {
     auto value = 12471254.89765456;
     operand = code_instruction_operand_init_double(value);
     auto rendered = code_instruction_operand_render(operand);
+
+#ifdef __MINGW32__
+    const char* expected_value = "float@1.24713e+007";
+#else
+    const char* expected_value = "float@1.24713e+07";
+#endif
+
     EXPECT_STREQ(
             rendered,
-            "float@1.24713e+07"
+            expected_value
     );
     memory_free(rendered);
 }

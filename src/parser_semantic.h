@@ -20,7 +20,7 @@ typedef enum {
     OPERATION_INT_DIVIDE,
     OPERATION_DIVIDE,
 
-    OPERATION_LAST
+    OPERATION__LAST
 } Operations;
 
 typedef struct operation_signature_t {
@@ -46,7 +46,7 @@ typedef struct parser_semantic_t {
     SymbolVariable* temp_variable1;
     SymbolVariable* temp_variable2;
     SymbolVariable* temp_variable3;
-    LList* operations_signatures[OPERATION_LAST];
+    LList* operations_signatures[OPERATION__LAST];
 } ParserSemantic;
 
 /**
@@ -135,5 +135,7 @@ DataType parser_semantic_resolve_implicit_data_type_conversion(ParserSemantic* p
 
 // TODO doc and test
 bool operands_match_data_type_combination(DataType first_operand, DataType second_operand, DataType expected_operand_data_type_1, DataType expected_operand_data_type_2);
+
+void parser_semantic_setup_temp_variables(ParserSemantic* parser_semantic);
 
 #endif //_PARSER_SEMANTIC_H

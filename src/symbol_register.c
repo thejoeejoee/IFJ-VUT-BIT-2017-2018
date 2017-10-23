@@ -102,3 +102,18 @@ SymbolVariable* symbol_register_find_variable_recursive(SymbolRegister* register
     register_->index_of_found_variable = -1;
     return NULL;
 }
+
+SymbolVariable* symbol_register_new_variable(SymbolRegister* register_, const char* key) {
+    NULL_POINTER_CHECK(register_, NULL);
+    NULL_POINTER_CHECK(key, NULL);
+
+    SymbolVariable* variable = symbol_register_find_variable(register_, key);
+    if(variable != NULL) {
+        LOG_WARNING("Variable %s in scope %zd already exists, cannot create new.", key, register_->variables->index);
+        return variable;
+    }
+
+    variable = symbol_table_variable_get_or_create(register_->variables->symbol_table, key);
+    variable->scope_depth = register_->variables->index;
+    return variable;
+}

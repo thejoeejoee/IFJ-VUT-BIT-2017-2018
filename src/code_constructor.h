@@ -62,10 +62,15 @@ char* code_constructor_generate_label(CodeConstructor* constructor, const char* 
 void code_constructor_start_code(CodeConstructor* constructor);
 
 /**
- * Generates target label for jump into main scope.
+ * For root scope generates jump target into main program, always increment scope counter.
+ */
+void code_constructor_scope_start(CodeConstructor* constructor);
+
+/**
+ * Exits actual scope with decrementing scope counter.
  * @param constructor
  */
-void code_constructor_main_scope_start(CodeConstructor* constructor);
+void code_constructor_scope_end(CodeConstructor* constructor);
 
 /**
  * Define variable in corresponding frame with correct data type.
@@ -73,7 +78,7 @@ void code_constructor_main_scope_start(CodeConstructor* constructor);
  * @param frame
  * @param symbol_variable
  */
-void code_constructor_variable_declaration(CodeConstructor* constructor, int frame, SymbolVariable* symbol_variable);
+void code_constructor_variable_declaration(CodeConstructor* constructor, SymbolVariable* symbol_variable);
 
 /**
  * Read from stdin into given variable.

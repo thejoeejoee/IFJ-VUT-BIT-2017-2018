@@ -63,4 +63,12 @@ SymbolVariable* symbol_register_find_variable(SymbolRegister* register_, const c
  */
 SymbolVariable* symbol_register_find_variable_recursive(SymbolRegister* register_, const char* key);
 
+/**
+ * Create variable in current scope (controlled by stack depth), with assign to correct scope.
+ * @param register_ Symbol register
+ * @param key name of variable
+ * @return created SymbolVariable
+ */
+SymbolVariable* symbol_register_new_variable(SymbolRegister* register_, const char* key);
+
 #endif //_SYMBOL_REGISTER_H

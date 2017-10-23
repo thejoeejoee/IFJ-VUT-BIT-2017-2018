@@ -126,9 +126,42 @@ char* code_instruction_operand_render(CodeInstructionOperand* operand) {
                     LOG_WARNING("Unknown data type to render: %d.", operand->data.constant.data_type);
             }
             break;
-        case TYPE_INSTRUCTION_OPERAND_VARIABLE:
-            // TODO: resolve frame
-            snprintf(rendered, length, "GF@%s", operand->data.variable->base.key);
+        case TYPE_INSTRUCTION_OPERAND_VARIABLE: {
+            const char* frame = NULL;
+            switch(operand->data.variable->frame) {
+                case VARIABLE_FRAME_LOCAL:
+                    frame = "LF";
+                    break;
+                case VARIABLE_FRAME_GLOBAL:
+                    frame = "GF";
+                    if(operand->data.variable->scope_depth > 0)
+                        LOG_WARNING(
+                                "Variable %s on global frame has non-zero scope depth: %zd.",
+                                operand->data.variable->base.key,
+                                operand->data.variable->scope_depth
+                        );
+                    break;
+                case VARIABLE_FRAME_TEMP:
+                    frame = "TF";
+                    if(operand->data.variable->scope_depth > 0)
+                        LOG_WARNING(
+                                "Variable %s on temp frame has non-zero scope depth: %zd.",
+                                operand->data.variable->base.key,
+                                operand->data.variable->scope_depth
+                        );
+                    break;
+                default:
+                    LOG_WARNING("Unknown variable frame %d.", operand->data.variable->frame);
+            }
+            snprintf(
+                    rendered,
+                    length,
+                    "%s@%%%05zd_%s",
+                    frame,
+                    operand->data.variable->scope_depth,
+                    operand->data.variable->base.key
+            );
+        }
             break;
         case TYPE_INSTRUCTION_OPERAND_CONSTANT:
             switch(operand->data.constant.data_type) {

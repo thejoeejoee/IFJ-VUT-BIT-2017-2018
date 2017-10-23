@@ -13,7 +13,7 @@ ParserSemantic* parser_semantic_init() {
     parser_semantic->temp_variable3 = NULL;
 
     // Add allowed operations signatures
-    for(int i = 0; i < (int)OPERATION_LAST; i++)
+    for(int i = 0; i < (int) OPERATION__LAST; i++)
         llist_init(&(parser_semantic->operations_signatures[i]), sizeof(OperationSignature), NULL, NULL, NULL);
 
     // Operation add signatures
@@ -73,8 +73,8 @@ SymbolVariable* parser_semantic_add_symbol_variable(ParserSemantic* parser_seman
         return false;
     }
 
-    SymbolVariable* symbol_variable = symbol_table_variable_get_or_create(
-            parser_semantic->register_->variables->symbol_table,
+    SymbolVariable* symbol_variable = symbol_register_new_variable(
+            parser_semantic->register_,
             name
     );
 
@@ -207,6 +207,26 @@ bool parser_semantic_check_function_definitions(ParserSemantic* parser_semantic)
 void parser_semantic_add_built_in_functions(ParserSemantic* parser_semantic) {
     UNUSED(parser_semantic);
     // TODO: ADD built-in function into table
+}
+
+void parser_semantic_setup_temp_variables(ParserSemantic* parser_semantic) {
+    NULL_POINTER_CHECK(parser_semantic,);
+
+    parser_semantic->temp_variable1 = symbol_table_variable_get_or_create(
+            parser_semantic->register_->variables->symbol_table,
+            "%__temp_variable_1"
+    );
+    parser_semantic->temp_variable2 = symbol_table_variable_get_or_create(
+            parser_semantic->register_->variables->symbol_table,
+            "%__temp_variable_2"
+    );
+    parser_semantic->temp_variable3 = symbol_table_variable_get_or_create(
+            parser_semantic->register_->variables->symbol_table,
+            "%__temp_variable_3"
+    );
+    parser_semantic->temp_variable1->frame =
+    parser_semantic->temp_variable2->frame =
+    parser_semantic->temp_variable3->frame = VARIABLE_FRAME_GLOBAL;
 }
 
 DataType parser_semantic_resolve_implicit_data_type_conversion(

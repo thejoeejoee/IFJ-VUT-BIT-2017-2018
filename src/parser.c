@@ -64,35 +64,20 @@ bool parser_parse_program(Parser* parser) {
                 parser_semantic_add_built_in_functions(parser->parser_semantic);
             }
     );
-
     CODE_GENERATION(
             {
-                parser->parser_semantic->temp_variable1 = symbol_table_variable_get_or_create(
-                        parser->parser_semantic->register_->variables->symbol_table,
-                        "%__temp_variable_1"
-                );
-                parser->parser_semantic->temp_variable2 = symbol_table_variable_get_or_create(
-                        parser->parser_semantic->register_->variables->symbol_table,
-                        "%__temp_variable_2"
-                );
-                parser->parser_semantic->temp_variable3 = symbol_table_variable_get_or_create(
-                        parser->parser_semantic->register_->variables->symbol_table,
-                        "%__temp_variable_3"
-                );
+                parser_semantic_setup_temp_variables(parser->parser_semantic);
 
                 code_constructor_variable_declaration(
                         parser->code_constructor,
-                        0,
                         parser->parser_semantic->temp_variable1
                 );
                 code_constructor_variable_declaration(
                         parser->code_constructor,
-                        0,
                         parser->parser_semantic->temp_variable2
                 );
                 code_constructor_variable_declaration(
                         parser->code_constructor,
-                        0,
                         parser->parser_semantic->temp_variable3
                 );
 
@@ -142,7 +127,8 @@ bool parser_parse_scope(Parser* parser) {
             CHECK_TOKEN(TOKEN_SCOPE);
             CODE_GENERATION(
                     {
-                            code_constructor_main_scope_start(parser->code_constructor);
+                            code_constructor_scope_start(parser->code_constructor);
+                            symbol_register_push_variables_table(parser->parser_semantic->register_);
                     }
             );
             CHECK_TOKEN(TOKEN_EOL);
@@ -150,6 +136,12 @@ bool parser_parse_scope(Parser* parser) {
             CHECK_RULE(body_statements);
             CHECK_TOKEN(TOKEN_END);
             CHECK_TOKEN(TOKEN_SCOPE);
+            CODE_GENERATION(
+                    {
+                            code_constructor_scope_end(parser->code_constructor);
+                            symbol_register_pop_variables_table(parser->parser_semantic->register_);
+                    }
+            );
     );
     return true;
 }
@@ -511,8 +503,9 @@ bool parser_parse_variable_declaration(Parser* parser) {
      * RULES
      * <variable_declaration> -> DIM IDENTIFIER AS <type>
      */
+
+    char* name = NULL;
     RULES(
-            char* name = NULL;
             CHECK_TOKEN(TOKEN_DIM);
             CHECK_TOKEN(
                     TOKEN_IDENTIFIER,
@@ -524,33 +517,31 @@ bool parser_parse_variable_declaration(Parser* parser) {
                     )
             );
             CHECK_TOKEN(TOKEN_AS);
-            CHECK_TOKEN(
-                    TOKEN_DATA_TYPE_CLASS,
-                    BEFORE({}),
+            CHECK_TOKEN(TOKEN_DATA_TYPE_CLASS);
+            SEMANTIC_ANALYSIS(
                     {
-                            SEMANTIC_ANALYSIS(
-                                    {
-                                            // TODO: resolve token_type -> data_type conversion for boolean
-                                            parser->parser_semantic->actual_variable = parser_semantic_add_symbol_variable(
-                                                    parser->parser_semantic,
-                                                    name,
-                                                    (DataType) token_type
-                                            );
-
-                                            if(parser->parser_semantic->actual_variable == NULL) {
-                                        return false;
-                                    }
-                                    }
+                            // TODO: resolve token_type -> data_type conversion for boolean
+                            parser->parser_semantic->actual_variable = parser_semantic_add_symbol_variable(
+                                    parser->parser_semantic,
+                                    name,
+                                    (DataType) token_type
                             );
-                            CODE_GENERATION(
-                            {
-                                code_constructor_variable_declaration(
-                                        parser->code_constructor,
-                                        parser->parser_semantic->register_->index_of_found_variable,
-                                        parser->parser_semantic->actual_variable
-                                );
-                            }
-                    );}
+
+                            if(parser->parser_semantic->actual_variable == NULL) {
+                        token_free(&token);
+                        return false;
+                    }
+                    }
+            );
+            CODE_GENERATION(
+                    {
+
+                            parser->parser_semantic->actual_variable->frame = VARIABLE_FRAME_LOCAL;
+                            code_constructor_variable_declaration(
+                            parser->code_constructor,
+                            parser->parser_semantic->actual_variable
+                    );
+                    }
             );
             CALL_RULE(declaration_assignment);
     );

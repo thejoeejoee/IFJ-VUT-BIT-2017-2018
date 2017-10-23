@@ -40,29 +40,29 @@ void code_constructor_free(CodeConstructor** constructor) {
 void code_constructor_start_code(CodeConstructor* constructor) {
     NULL_POINTER_CHECK(constructor,);
 
-    char* label = code_constructor_generate_label(constructor, "%__main__scope");
+    char* label = code_constructor_generate_label(constructor, "main_scope");
     stack_code_label_push(constructor->code_label_stack, label);
     GENERATE_CODE(I_JUMP, code_instruction_operand_init_label(stack_code_label_head(constructor->code_label_stack)));
 }
 
-void code_constructor_main_scope_start(CodeConstructor* constructor) {
+void code_constructor_scope_start(CodeConstructor* constructor) {
     NULL_POINTER_CHECK(constructor,);
 
-    if(constructor->in_function_definition) {
-        // inc depth counter to declare variables with correct name in local frame
-        constructor->scope_depth++;
-    } else {
+    if(constructor->scope_depth == 0) {
         // main program scope, generate label for jump from start of this file
         CodeLabel* scope_label = stack_code_label_pop(constructor->code_label_stack);
         ASSERT(scope_label != NULL);
         GENERATE_CODE(I_LABEL, code_instruction_operand_init_label(scope_label->label));
+        GENERATE_CODE(I_CREATE_FRAME);
+        GENERATE_CODE(I_PUSH_FRAME);
     }
+
+    constructor->scope_depth++;
 }
 
 
-void code_constructor_variable_declaration(CodeConstructor* constructor, int frame, SymbolVariable* symbol_variable) {
+void code_constructor_variable_declaration(CodeConstructor* constructor, SymbolVariable* symbol_variable) {
     NULL_POINTER_CHECK(constructor,);
-    UNUSED(frame);
 
     // TODO: Add generating symbol with corresponding frame
     GENERATE_CODE(
@@ -322,6 +322,15 @@ void code_constructor_return(CodeConstructor* constructor) {
     NULL_POINTER_CHECK(constructor,);
 
     GENERATE_CODE(I_RETURN);
+}
+
+void code_constructor_scope_end(CodeConstructor* constructor) {
+    NULL_POINTER_CHECK(constructor,);
+
+    constructor->scope_depth--;
+    if(constructor->scope_depth == 0) {
+        GENERATE_CODE(I_POP_FRAME);
+    }
 }
 
 void code_constructor_stack_type_conversion(CodeConstructor* constructor, DataType current_type, DataType target_type)

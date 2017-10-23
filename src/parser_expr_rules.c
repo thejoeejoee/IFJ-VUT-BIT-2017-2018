@@ -222,8 +222,8 @@ bool expression_rule_add(Parser* parser, LList* expr_token_buffer, ExprIdx* expr
     EXPR_RULE_CHECK_TYPE(EXPR_EXPRESSION);
     EXPR_RULE_CHECK_FINISH();
 
-    const DataType operand_1_type = get_n_expr(expr_token_buffer, 3)->data_type;
-    const DataType operand_2_type = get_n_expr(expr_token_buffer, 1)->data_type;
+    const DataType operand_1_type = EXPR_LOWER_OPERAND->data_type;
+    const DataType operand_2_type = EXPR_HIGHER_OPERAND->data_type;
     const DataType result_type = parser_semantic_resolve_implicit_data_type_conversion(
                                      parser->parser_semantic,
                                      OPERATION_ADD, operand_1_type, operand_2_type);
@@ -276,8 +276,8 @@ bool expression_rule_greater(Parser* parser, LList* expr_token_buffer, ExprIdx* 
     EXPR_RULE_CHECK_TYPE(EXPR_EXPRESSION);
     EXPR_RULE_CHECK_FINISH();
 
-    const DataType operand_1_type = get_n_expr(expr_token_buffer, 3)->data_type;
-    const DataType operand_2_type = get_n_expr(expr_token_buffer, 1)->data_type;
+    const DataType operand_1_type = EXPR_LOWER_OPERAND->data_type;
+    const DataType operand_2_type = EXPR_HIGHER_OPERAND->data_type;
     const DataType result_type = parser_semantic_resolve_implicit_data_type_conversion(
                                      parser->parser_semantic,
                                      OPERATION_GREATER, operand_1_type, operand_2_type);
@@ -309,8 +309,8 @@ bool expression_rule_greater_or_equal(Parser* parser, LList* expr_token_buffer, 
     EXPR_RULE_CHECK_TYPE(EXPR_EXPRESSION);
     EXPR_RULE_CHECK_FINISH();
 
-    const DataType operand_1_type = get_n_expr(expr_token_buffer, 3)->data_type;
-    const DataType operand_2_type = get_n_expr(expr_token_buffer, 1)->data_type;
+    const DataType operand_1_type = EXPR_LOWER_OPERAND->data_type;
+    const DataType operand_2_type = EXPR_HIGHER_OPERAND->data_type;
     const DataType result_type = parser_semantic_resolve_implicit_data_type_conversion(
                                      parser->parser_semantic,
                                      OPERATION_GREATER_OR_EQUAL, operand_1_type, operand_2_type);

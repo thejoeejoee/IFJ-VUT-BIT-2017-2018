@@ -19,6 +19,8 @@
 #define EXPR_RULE_NEXT_E() get_next_expr(&tmp)
 #define EXPR_RULE_NEXT_E_ITEM() get_next_expr_item(&tmp)
 #define EXPR_RULE_REPLACE(single_expression) expr_replace(expr_token_buffer, it, (single_expression))
+#define EXPR_LOWER_OPERAND get_n_expr(expr_token_buffer, 3)
+#define EXPR_HIGHER_OPERAND get_n_expr(expr_token_buffer, 1)
 
 // --------------------------
 

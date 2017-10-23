@@ -64,6 +64,11 @@ void code_generator_register_signatures(const CodeGenerator* generator) {
     ADD_INSTRUCTION_SIGNATURE(
             I_NOT, "NOT",
             TYPE_INSTRUCTION_OPERAND_VARIABLE, TYPE_INSTRUCTION_OPERAND_SYMBOL);
+    // boolean on stack
+    ADD_INSTRUCTION_SIGNATURE(I_AND_STACK, "ANDS");
+    ADD_INSTRUCTION_SIGNATURE(I_OR_STACK, "ORS");
+    ADD_INSTRUCTION_SIGNATURE(I_NOT_STACK, "NOTS");
+
 
     // conversions
     ADD_INSTRUCTION_SIGNATURE(

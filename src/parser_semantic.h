@@ -133,9 +133,6 @@ void parser_semantic_add_operation_signature(ParserSemantic* parser_semantic, Op
 
 DataType parser_semantic_resolve_implicit_data_type_conversion(ParserSemantic* parser_semantic, Operations operation_type, DataType operand_1_type, DataType operand_2_type);
 
-// TODO doc and test
-bool operands_match_data_type_combination(DataType first_operand, DataType second_operand, DataType expected_operand_data_type_1, DataType expected_operand_data_type_2);
-
 void parser_semantic_setup_temp_variables(ParserSemantic* parser_semantic);
 
 #endif //_PARSER_SEMANTIC_H

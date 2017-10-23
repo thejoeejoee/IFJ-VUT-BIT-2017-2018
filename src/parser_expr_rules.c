@@ -220,16 +220,6 @@ bool expression_rule_add(Parser* parser, LList* expr_token_buffer, ExprIdx* expr
     EXPR_RULE_CHECK_TYPE(EXPR_EXPRESSION);
     EXPR_RULE_CHECK_FINISH();
 
-    DataType higher_operand_data_type = ((ExprToken*)llist_get_n_from_end(
-                                          expr_token_buffer, 1))->data_type;
-    DataType lower_operand_data_type = ((ExprToken*)llist_get_n_from_end(
-                                          expr_token_buffer, 3))->data_type;
-    if(higher_operand_data_type != lower_operand_data_type) {
-
-    }
-
-
-
     const DataType operand_1_type = get_n_expr(expr_token_buffer, 3)->data_type;
     const DataType operand_2_type = get_n_expr(expr_token_buffer, 1)->data_type;
     const DataType result_type = parser_semantic_resolve_implicit_data_type_conversion(

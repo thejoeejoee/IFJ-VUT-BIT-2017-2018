@@ -254,16 +254,6 @@ DataType parser_semantic_resolve_implicit_data_type_conversion(
     return DATA_TYPE_NONE;
 }
 
-bool operands_match_data_type_combination(DataType first_operand, DataType second_operand, DataType expected_operand_data_type_1, DataType expected_operand_data_type_2)
-{
-    if((first_operand == expected_operand_data_type_1 &&
-            second_operand == expected_operand_data_type_2) ||
-            (first_operand == expected_operand_data_type_2 &&
-             second_operand == expected_operand_data_type_1))
-        return true;
-    return false;
-}
-
 void parser_semantic_add_operation_signature(ParserSemantic* parser_semantic, Operations operation, DataType operand_1_type, DataType operand_2_type, DataType result_type)
 {
     OperationSignature* operation_signature =  (OperationSignature*)llist_new_tail_item(

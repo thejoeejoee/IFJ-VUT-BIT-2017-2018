@@ -4,6 +4,7 @@
 #include "code_generator.h"
 #include "stack_code_label.h"
 #include "symtable_function.h"
+#include "llist.h"
 
 #define _GENERATE_CODE_1(name) _GENERATE_CODE_4(name, NULL, NULL, NULL)
 #define _GENERATE_CODE_2(name, op0) _GENERATE_CODE_4(name, op0, NULL, NULL)
@@ -11,6 +12,15 @@
 #define _GENERATE_CODE_4(name, op0, op1, op2) code_generator_instruction(constructor->generator, name, op0, op1, op2)
 #define GENERATE_CODE(...) MSVC_EXPAND(GET_OVERLOADED_MACRO1234(__VA_ARGS__, _GENERATE_CODE_4, _GENERATE_CODE_3, \
     _GENERATE_CODE_2, _GENERATE_CODE_1)(__VA_ARGS__))
+#define GENERATE_CONVERSION_CODE()
+
+typedef struct type_conversion_instruction_t {
+    LListBaseItem base;
+    TypeInstruction instruction;
+    DataType current_type;
+    DataType target_type;
+    bool is_stack_instruction;
+} TypeConversionInstruction;
 
 typedef struct code_constructor_t {
     // generator for raw target code
@@ -25,11 +35,14 @@ typedef struct code_constructor_t {
 
     size_t label_counter;
     size_t control_statement_depth;
+    LList* conversion_instructions;
 } CodeConstructor;
 
 CodeConstructor* code_constructor_init();
 
 void code_constructor_free(CodeConstructor** constructor);
+
+void code_constructor_add_conversion_instruction(CodeConstructor* constructor, TypeInstruction instruction, DataType current_type, DataType target_type, bool is_stack_instruction);
 
 char* code_constructor_generate_label(CodeConstructor* constructor, const char* type);
 
@@ -127,5 +140,6 @@ void code_constructor_implicit_function_return(CodeConstructor* constructor, Sym
 
 void code_constructor_return(CodeConstructor* constructor);
 
+void code_constructor_stack_type_conversion(CodeConstructor* constructor, DataType current_type, DataType target_type);
 
 #endif //_CODE_CONSTRUCTOR_H

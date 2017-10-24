@@ -25,6 +25,11 @@ ParserSemantic* parser_semantic_init() {
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_ADD,
                                             DATA_TYPE_STRING, DATA_TYPE_STRING, DATA_TYPE_STRING);
 
+    parser_semantic_add_operation_signature(parser_semantic, OPERATION_SUB,
+                                            DATA_TYPE_INTEGER, DATA_TYPE_INTEGER, DATA_TYPE_INTEGER);
+    parser_semantic_add_operation_signature(parser_semantic, OPERATION_SUB,
+                                            DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE);
+
     // TODO add boolean, string, double in greater operation
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_GREATER,
                                             DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE);

@@ -30,7 +30,7 @@ typedef enum {
     OPERATION__LAST
 } TypeExpressionOperation;
 
-typedef struct operation_signature_t {
+typedef struct expr_operation_signature_t {
     LListBaseItem base;
     TypeExpressionOperation operation_type;
     DataType operand_1_type;

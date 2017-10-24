@@ -76,7 +76,7 @@ typedef enum type_instruction_t {
 
     // strings
 
-    I_CONCAT,
+    I_CONCAT_STRING,
     I_STRING_LENGTH,
     I_GET_CHAR,
     I_SET_CHAR,

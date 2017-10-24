@@ -108,7 +108,7 @@ void code_generator_register_signatures(const CodeGenerator* generator) {
 
     // strings
     ADD_INSTRUCTION_SIGNATURE(
-            I_CONCAT, "CONCAT",
+            I_CONCAT_STRING, "CONCAT",
             TYPE_INSTRUCTION_OPERAND_VARIABLE, TYPE_INSTRUCTION_OPERAND_SYMBOL, TYPE_INSTRUCTION_OPERAND_SYMBOL);
     ADD_INSTRUCTION_SIGNATURE(
             I_STRING_LENGTH, "STRLEN",

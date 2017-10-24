@@ -269,15 +269,35 @@ bool expression_rule_add(Parser* parser, LList* expr_token_buffer, ExprIdx* expr
     EXPR_CHECK_BINARY_OPERATION_IMPLICIT_CONVERSION(OPERATION_ADD);
 
     const OperationSignature* operation_signature = parser_semantic_get_operation_signature(
-            parser->parser_semantic, OPERATION_ADD,
-            EXPR_LOWER_OPERAND->data_type, EXPR_HIGHER_OPERAND->data_type);
+            parser->parser_semantic,
+            OPERATION_ADD,
+            EXPR_LOWER_OPERAND->data_type,
+            EXPR_HIGHER_OPERAND->data_type
+    );
 
     CodeConstructor* constructor = parser->code_constructor;
     // generate conversion
-    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(EXPR_LOWER_OPERAND->data_type, EXPR_HIGHER_OPERAND->data_type,
-                                             operation_signature->conversion_target_type);
-    GENERATE_CODE(I_ADD_STACK);
-
+    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(
+            EXPR_LOWER_OPERAND->data_type,
+            EXPR_HIGHER_OPERAND->data_type,
+            operation_signature->conversion_target_type
+    );
+    if(EXPR_LOWER_OPERAND->data_type == DATA_TYPE_STRING && EXPR_HIGHER_OPERAND->data_type == DATA_TYPE_STRING) {
+        GENERATE_CODE(I_POP_STACK, code_instruction_operand_init_variable(parser->parser_semantic->temp_variable1));
+        GENERATE_CODE(I_POP_STACK, code_instruction_operand_init_variable(parser->parser_semantic->temp_variable2));
+        GENERATE_CODE(
+                I_CONCAT_STRING,
+                code_instruction_operand_init_variable(parser->parser_semantic->temp_variable1),
+                code_instruction_operand_init_variable(parser->parser_semantic->temp_variable1),
+                code_instruction_operand_init_variable(parser->parser_semantic->temp_variable2)
+        );
+        GENERATE_CODE(
+                I_PUSH_STACK,
+                code_instruction_operand_init_variable(parser->parser_semantic->temp_variable1)
+        );
+    } else {
+        GENERATE_CODE(I_ADD_STACK);
+    }
     ExprToken* e = create_expression((*expression_idx)++);
     e->data_type = operation_signature->result_type;
 
@@ -288,7 +308,7 @@ bool expression_rule_add(Parser* parser, LList* expr_token_buffer, ExprIdx* expr
 bool expression_rule_sub(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx) {
     /*
     * RULE
-    * E -> E + E
+    * E -> E - E
     */
     // backward
     EXPR_RULE_CHECK_START();
@@ -304,8 +324,11 @@ bool expression_rule_sub(Parser* parser, LList* expr_token_buffer, ExprIdx* expr
 
     CodeConstructor* constructor = parser->code_constructor;
     // generate conversion
-    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(EXPR_LOWER_OPERAND->data_type, EXPR_HIGHER_OPERAND->data_type,
-                                             operation_signature->conversion_target_type);
+    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(
+            EXPR_LOWER_OPERAND->data_type,
+            EXPR_HIGHER_OPERAND->data_type,
+            operation_signature->conversion_target_type
+    );
     GENERATE_CODE(I_SUB_STACK);
 
     ExprToken* e = create_expression((*expression_idx)++);

@@ -14,7 +14,7 @@
     _GENERATE_CODE_2, _GENERATE_CODE_1)(__VA_ARGS__))
 
 #define _GENERATE_STACK_DATA_TYPE_CONVERSION_CODE_2(operand_1_type, target_type) \
-        code_constructor_unary_operation_stack_type_conversion(constructor, (operand_1_type), (target_type)
+        code_constructor_unary_operation_stack_type_conversion(constructor, (operand_1_type), (target_type))
 
 #define _GENERATE_STACK_DATA_TYPE_CONVERSION_CODE_3(operand_1_type, operand_2_type, target_type) do{ \
         SymbolVariable* temp_var = parser->parser_semantic->temp_variable1; \

@@ -18,7 +18,7 @@ ParserSemantic* parser_semantic_init() {
         llist_init(&(parser_semantic->operations_signatures[i]), sizeof(OperationSignature), NULL, NULL, NULL);
 
     // Operation add signatures
-    // TODO add string in add operation
+    // MATH OPERATIONS
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_ADD,
                                             DATA_TYPE_INTEGER, DATA_TYPE_INTEGER,
                                             DATA_TYPE_INTEGER, DATA_TYPE_INTEGER);
@@ -42,30 +42,28 @@ ParserSemantic* parser_semantic_init() {
                                             DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE);
 
     // TODO add boolean, string, double in greater operation
-    parser_semantic_add_operation_signature(parser_semantic, OPERATION_GREATER,
-                                            DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER,
-                                            DATA_TYPE_DOUBLE, DATA_TYPE_BOOLEAN);
-    parser_semantic_add_operation_signature(parser_semantic, OPERATION_GREATER,
-                                            DATA_TYPE_INTEGER, DATA_TYPE_INTEGER,
-                                            DATA_TYPE_INTEGER, DATA_TYPE_BOOLEAN);
-
-    // TODO add boolean, string, double in greater equal operation
-    parser_semantic_add_operation_signature(parser_semantic, OPERATION_GREATER_OR_EQUAL,
-                                            DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER,
-                                            DATA_TYPE_DOUBLE, DATA_TYPE_BOOLEAN);
-    parser_semantic_add_operation_signature(parser_semantic, OPERATION_GREATER_OR_EQUAL,
-                                            DATA_TYPE_INTEGER, DATA_TYPE_INTEGER,
-                                            DATA_TYPE_INTEGER, DATA_TYPE_BOOLEAN);
-
-    parser_semantic_add_operation_signature(parser_semantic, OPERATION_EQUAL,
-                                            DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER,
-                                            DATA_TYPE_DOUBLE, DATA_TYPE_BOOLEAN);
-    parser_semantic_add_operation_signature(parser_semantic, OPERATION_EQUAL,
-                                            DATA_TYPE_INTEGER, DATA_TYPE_INTEGER,
-                                            DATA_TYPE_INTEGER, DATA_TYPE_BOOLEAN);
-    parser_semantic_add_operation_signature(parser_semantic, OPERATION_EQUAL,
-                                            DATA_TYPE_STRING, DATA_TYPE_STRING, DATA_TYPE_STRING,
-                                            DATA_TYPE_BOOLEAN);
+    const TypeExpressionOperation compare_operations[] = {
+            OPERATION_GREATER,
+            OPERATION_GREATER_OR_EQUAL,
+            OPERATION_EQUAL,
+            OPERATION_LESSER_OR_EQUAL,
+            OPERATION_LESSER,
+    };
+    // comparing
+    for(int j = 0; j < (sizeof(compare_operations) / sizeof(*compare_operations)); ++j) {
+        parser_semantic_add_operation_signature(parser_semantic, compare_operations[j],
+                                                DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER,
+                                                DATA_TYPE_DOUBLE, DATA_TYPE_BOOLEAN);
+        parser_semantic_add_operation_signature(parser_semantic, compare_operations[j],
+                                                DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE,
+                                                DATA_TYPE_DOUBLE, DATA_TYPE_BOOLEAN);
+        parser_semantic_add_operation_signature(parser_semantic, compare_operations[j],
+                                                DATA_TYPE_INTEGER, DATA_TYPE_INTEGER,
+                                                DATA_TYPE_INTEGER, DATA_TYPE_BOOLEAN);
+        parser_semantic_add_operation_signature(parser_semantic, compare_operations[j],
+                                                DATA_TYPE_STRING, DATA_TYPE_STRING,
+                                                DATA_TYPE_STRING, DATA_TYPE_BOOLEAN);
+    }
 
     return parser_semantic;
 }
@@ -74,7 +72,7 @@ void parser_semantic_free(ParserSemantic** parser) {
     NULL_POINTER_CHECK(parser,);
     NULL_POINTER_CHECK(*parser,);
 
-    for(int i = 0; i < (int)OPERATION__LAST; i++)
+    for(int i = 0; i < (int) OPERATION__LAST; i++)
         llist_free(&((*parser)->operations_signatures[i]));
 
     symbol_register_free(&(*parser)->register_);
@@ -166,7 +164,7 @@ bool parser_semantic_set_function_name(ParserSemantic* parser_semantic, char* na
         if(!parser_semantic->actual_function->declared)
             parser_semantic->actual_function->arguments_count = 0;
 
-        parser_semantic->actual_function->declared  = true;
+        parser_semantic->actual_function->declared = true;
         parser_semantic->actual_function->defined = true;
     }
 
@@ -275,10 +273,11 @@ void parser_semantic_setup_temp_variables(ParserSemantic* parser_semantic) {
     parser_semantic->temp_variable3->frame = VARIABLE_FRAME_GLOBAL;
 }
 
-OperationSignature* parser_semantic_operation_signature(ParserSemantic* parser_semantic, Operations operation_type, DataType operand_1_type, DataType operand_2_type)
-{
+OperationSignature*
+parser_semantic_get_operation_signature(ParserSemantic* parser_semantic, TypeExpressionOperation operation_type,
+                                        DataType operand_1_type, DataType operand_2_type) {
     LList* operation_signatures = parser_semantic->operations_signatures[operation_type];
-    OperationSignature* single_operation_signature = (OperationSignature*)operation_signatures->head;
+    OperationSignature* single_operation_signature = (OperationSignature*) operation_signatures->head;
 
     while(single_operation_signature != NULL) {
         if(operands_match_data_type_combination(operand_1_type, operand_2_type,
@@ -287,27 +286,29 @@ OperationSignature* parser_semantic_operation_signature(ParserSemantic* parser_s
             return single_operation_signature;
         }
 
-        single_operation_signature = (OperationSignature*)single_operation_signature->base.next;
+        single_operation_signature = (OperationSignature*) single_operation_signature->base.next;
     }
 
     return NULL;
 }
 
 
-DataType parser_semantic_resolve_implicit_data_type_conversion(ParserSemantic* parser_semantic, Operations operation_type, DataType operand_1_type, DataType operand_2_type)
-{
-    OperationSignature* op_signature = parser_semantic_operation_signature(
-                                           parser_semantic, operation_type, operand_1_type, operand_2_type);
+DataType parser_semantic_resolve_implicit_data_type_conversion(ParserSemantic* parser_semantic,
+                                                               TypeExpressionOperation operation_type,
+                                                               DataType operand_1_type, DataType operand_2_type) {
+    OperationSignature* op_signature = parser_semantic_get_operation_signature(
+            parser_semantic, operation_type, operand_1_type, operand_2_type);
 
     if(op_signature == NULL)
         return DATA_TYPE_NONE;
     return op_signature->conversion_target_type;
 }
 
-void parser_semantic_add_operation_signature(ParserSemantic* parser_semantic, Operations operation, DataType operand_1_type, DataType operand_2_type, DataType target_type, DataType result_type)
-{
-    OperationSignature* operation_signature =  (OperationSignature*)llist_new_tail_item(
-                                                   parser_semantic->operations_signatures[operation]);
+void parser_semantic_add_operation_signature(ParserSemantic* parser_semantic, TypeExpressionOperation operation,
+                                             DataType operand_1_type, DataType operand_2_type, DataType target_type,
+                                             DataType result_type) {
+    OperationSignature* operation_signature = (OperationSignature*) llist_new_tail_item(
+            parser_semantic->operations_signatures[operation]);
     operation_signature->operation_type = operation;
     operation_signature->operand_1_type = operand_1_type;
     operation_signature->operand_2_type = operand_2_type;

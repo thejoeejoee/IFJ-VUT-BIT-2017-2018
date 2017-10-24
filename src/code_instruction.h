@@ -36,10 +36,10 @@ typedef enum type_instruction_t {
 
     // comparing
 
-    I_LESS_THEN,
+    I_LESSER_THEN,
     I_GREATER_THEN,
     I_EQUAL,
-    I_LESS_THEN_STACK,
+    I_LESSER_THEN_STACK,
     I_GREATER_THEN_STACK,
     I_EQUAL_STACK,
 

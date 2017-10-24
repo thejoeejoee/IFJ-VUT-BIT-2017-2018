@@ -9,6 +9,8 @@ const expression_rule_function expr_rule_table[EXPR_RULE_TABLE_SIZE] = {
         expression_rule_greater,
         expression_rule_greater_or_equal,
         expression_rule_equal,
+        expression_rule_lesser_or_equal,
+        expression_rule_lesser,
         expression_rule_fake
 };
 
@@ -266,7 +268,7 @@ bool expression_rule_add(Parser* parser, LList* expr_token_buffer, ExprIdx* expr
     EXPR_RULE_CHECK_FINISH();
     EXPR_CHECK_BINARY_OPERATION_IMPLICIT_CONVERSION(OPERATION_ADD);
 
-    const OperationSignature* operation_signature = parser_semantic_operation_signature(
+    const OperationSignature* operation_signature = parser_semantic_get_operation_signature(
             parser->parser_semantic, OPERATION_ADD,
             EXPR_LOWER_OPERAND->data_type, EXPR_HIGHER_OPERAND->data_type);
 
@@ -296,7 +298,7 @@ bool expression_rule_sub(Parser* parser, LList* expr_token_buffer, ExprIdx* expr
     EXPR_RULE_CHECK_FINISH();
     EXPR_CHECK_BINARY_OPERATION_IMPLICIT_CONVERSION(OPERATION_SUB);
 
-    const OperationSignature* operation_signature = parser_semantic_operation_signature(
+    const OperationSignature* operation_signature = parser_semantic_get_operation_signature(
             parser->parser_semantic, OPERATION_SUB,
             EXPR_LOWER_OPERAND->data_type, EXPR_HIGHER_OPERAND->data_type);
 
@@ -355,38 +357,6 @@ bool expression_rule_unary_minus(Parser* parser, LList* expr_token_buffer, ExprI
     return true;
 }
 
-bool expression_rule_greater(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx) {
-    /*
-     * RULE
-     * E -> E > E
-     */
-
-    EXPR_RULE_CHECK_START();
-    EXPR_RULE_CHECK_TYPE(EXPR_EXPRESSION);
-    EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_GREATHER);
-    EXPR_RULE_CHECK_TYPE(EXPR_EXPRESSION);
-    EXPR_RULE_CHECK_FINISH();
-    EXPR_CHECK_BINARY_OPERATION_IMPLICIT_CONVERSION(OPERATION_GREATER);
-
-    const OperationSignature* operation_signature = parser_semantic_operation_signature(
-            parser->parser_semantic, OPERATION_GREATER,
-            EXPR_LOWER_OPERAND->data_type, EXPR_HIGHER_OPERAND->data_type);
-
-    CodeConstructor* constructor = parser->code_constructor;
-    // generate conversion
-    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(
-            EXPR_LOWER_OPERAND->data_type,
-            EXPR_HIGHER_OPERAND->data_type,
-            operation_signature->conversion_target_type
-    );
-    GENERATE_CODE(I_GREATER_THEN_STACK);
-
-    ExprToken* e = create_expression((*expression_idx)++);
-    e->data_type = operation_signature->result_type;
-    EXPR_RULE_REPLACE(e);
-
-    return true;
-}
 
 bool expression_rule_equal(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx) {
     /*
@@ -401,7 +371,7 @@ bool expression_rule_equal(Parser* parser, LList* expr_token_buffer, ExprIdx* ex
     EXPR_RULE_CHECK_FINISH();
     EXPR_CHECK_BINARY_OPERATION_IMPLICIT_CONVERSION(OPERATION_EQUAL);
 
-    const OperationSignature* operation_signature = parser_semantic_operation_signature(
+    const OperationSignature* operation_signature = parser_semantic_get_operation_signature(
             parser->parser_semantic, OPERATION_EQUAL,
             EXPR_LOWER_OPERAND->data_type, EXPR_HIGHER_OPERAND->data_type);
 
@@ -421,6 +391,42 @@ bool expression_rule_equal(Parser* parser, LList* expr_token_buffer, ExprIdx* ex
     return true;
 }
 
+bool expression_rule_greater(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx) {
+    /*
+     * RULE
+     * E -> E > E
+     */
+
+    EXPR_RULE_CHECK_START();
+    EXPR_RULE_CHECK_TYPE(EXPR_EXPRESSION);
+    EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_GREATHER);
+    EXPR_RULE_CHECK_TYPE(EXPR_EXPRESSION);
+    EXPR_RULE_CHECK_FINISH();
+    EXPR_CHECK_BINARY_OPERATION_IMPLICIT_CONVERSION(OPERATION_GREATER);
+
+    const OperationSignature* operation_signature = parser_semantic_get_operation_signature(
+            parser->parser_semantic,
+            OPERATION_GREATER,
+            EXPR_LOWER_OPERAND->data_type,
+            EXPR_HIGHER_OPERAND->data_type
+    );
+
+    CodeConstructor* constructor = parser->code_constructor;
+    // generate conversion
+    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(
+            EXPR_LOWER_OPERAND->data_type,
+            EXPR_HIGHER_OPERAND->data_type,
+            operation_signature->conversion_target_type
+    );
+    GENERATE_CODE(I_GREATER_THEN_STACK);
+
+    ExprToken* e = create_expression((*expression_idx)++);
+    e->data_type = operation_signature->result_type;
+    EXPR_RULE_REPLACE(e);
+
+    return true;
+}
+
 bool expression_rule_greater_or_equal(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx) {
     /*
      * RULE
@@ -434,9 +440,12 @@ bool expression_rule_greater_or_equal(Parser* parser, LList* expr_token_buffer, 
     EXPR_RULE_CHECK_FINISH();
     EXPR_CHECK_BINARY_OPERATION_IMPLICIT_CONVERSION(OPERATION_GREATER_OR_EQUAL);
 
-    const OperationSignature* operation_signature = parser_semantic_operation_signature(
-            parser->parser_semantic, OPERATION_GREATER_OR_EQUAL,
-            EXPR_LOWER_OPERAND->data_type, EXPR_HIGHER_OPERAND->data_type);
+    const OperationSignature* operation_signature = parser_semantic_get_operation_signature(
+            parser->parser_semantic,
+            OPERATION_GREATER_OR_EQUAL,
+            EXPR_LOWER_OPERAND->data_type,
+            EXPR_HIGHER_OPERAND->data_type
+    );
 
     CodeConstructor* constructor = parser->code_constructor;
     // generate conversion
@@ -446,7 +455,7 @@ bool expression_rule_greater_or_equal(Parser* parser, LList* expr_token_buffer, 
             operation_signature->conversion_target_type
     );
 
-    GENERATE_CODE(I_LESS_THEN_STACK);
+    GENERATE_CODE(I_LESSER_THEN_STACK);
     GENERATE_CODE(I_NOT_STACK);
 
     ExprToken* e = create_expression((*expression_idx)++);
@@ -455,3 +464,79 @@ bool expression_rule_greater_or_equal(Parser* parser, LList* expr_token_buffer, 
 
     return true;
 }
+
+
+bool expression_rule_lesser(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx) {
+    /*
+     * RULE
+     * E -> E > E
+     */
+
+    EXPR_RULE_CHECK_START();
+    EXPR_RULE_CHECK_TYPE(EXPR_EXPRESSION);
+    EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_LESSER);
+    EXPR_RULE_CHECK_TYPE(EXPR_EXPRESSION);
+    EXPR_RULE_CHECK_FINISH();
+    EXPR_CHECK_BINARY_OPERATION_IMPLICIT_CONVERSION(OPERATION_LESSER);
+
+    const OperationSignature* operation_signature = parser_semantic_get_operation_signature(
+            parser->parser_semantic,
+            OPERATION_LESSER,
+            EXPR_LOWER_OPERAND->data_type,
+            EXPR_HIGHER_OPERAND->data_type
+    );
+
+    CodeConstructor* constructor = parser->code_constructor;
+    // generate conversion
+    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(
+            EXPR_LOWER_OPERAND->data_type,
+            EXPR_HIGHER_OPERAND->data_type,
+            operation_signature->conversion_target_type
+    );
+    GENERATE_CODE(I_LESSER_THEN_STACK);
+
+    ExprToken* e = create_expression((*expression_idx)++);
+    e->data_type = operation_signature->result_type;
+    EXPR_RULE_REPLACE(e);
+
+    return true;
+}
+
+bool expression_rule_lesser_or_equal(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx) {
+    /*
+     * RULE
+     * E -> E >= E
+     */
+
+    EXPR_RULE_CHECK_START();
+    EXPR_RULE_CHECK_TYPE(EXPR_EXPRESSION);
+    EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_LESSER_OR_EQUAL);
+    EXPR_RULE_CHECK_TYPE(EXPR_EXPRESSION);
+    EXPR_RULE_CHECK_FINISH();
+    EXPR_CHECK_BINARY_OPERATION_IMPLICIT_CONVERSION(OPERATION_LESSER_OR_EQUAL);
+
+    const OperationSignature* operation_signature = parser_semantic_get_operation_signature(
+            parser->parser_semantic,
+            OPERATION_LESSER_OR_EQUAL,
+            EXPR_LOWER_OPERAND->data_type,
+            EXPR_HIGHER_OPERAND->data_type
+    );
+
+    CodeConstructor* constructor = parser->code_constructor;
+    // generate conversion
+    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(
+            EXPR_LOWER_OPERAND->data_type,
+            EXPR_HIGHER_OPERAND->data_type,
+            operation_signature->conversion_target_type
+    );
+
+    GENERATE_CODE(I_GREATER_THEN_STACK);
+    GENERATE_CODE(I_NOT_STACK);
+
+    ExprToken* e = create_expression((*expression_idx)++);
+    e->data_type = operation_signature->result_type;
+    EXPR_RULE_REPLACE(e);
+
+    return true;
+}
+

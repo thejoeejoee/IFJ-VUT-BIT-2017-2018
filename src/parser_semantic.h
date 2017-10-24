@@ -23,14 +23,16 @@ typedef enum {
     // Bool operations
     OPERATION_GREATER,
     OPERATION_GREATER_OR_EQUAL,
+    OPERATION_LESSER,
+    OPERATION_LESSER_OR_EQUAL,
     OPERATION_EQUAL,
 
     OPERATION__LAST
-} Operations;
+} TypeExpressionOperation;
 
 typedef struct operation_signature_t {
     LListBaseItem base;
-    Operations operation_type;
+    TypeExpressionOperation operation_type;
     DataType operand_1_type;
     DataType operand_2_type;
     DataType conversion_target_type;
@@ -136,11 +138,17 @@ bool parser_semantic_check_function_definitions(ParserSemantic* parser_semantic)
 void parser_semantic_add_built_in_functions(ParserSemantic* parser_semantic);
 
 // TODO doc and test
-void parser_semantic_add_operation_signature(ParserSemantic* parser_semantic, Operations operation, DataType operand_1_type, DataType operand_2_type, DataType target_type, DataType result_type);
+void parser_semantic_add_operation_signature(ParserSemantic* parser_semantic, TypeExpressionOperation operation,
+                                             DataType operand_1_type, DataType operand_2_type, DataType target_type,
+                                             DataType result_type);
 
-OperationSignature* parser_semantic_operation_signature(ParserSemantic* parser_semantic, Operations operation_type, DataType operand_1_type, DataType operand_2_type);
+OperationSignature*
+parser_semantic_get_operation_signature(ParserSemantic* parser_semantic, TypeExpressionOperation operation_type,
+                                        DataType operand_1_type, DataType operand_2_type);
 
-DataType parser_semantic_resolve_implicit_data_type_conversion(ParserSemantic* parser_semantic, Operations operation_type, DataType operand_1_type, DataType operand_2_type);
+DataType parser_semantic_resolve_implicit_data_type_conversion(ParserSemantic* parser_semantic,
+                                                               TypeExpressionOperation operation_type,
+                                                               DataType operand_1_type, DataType operand_2_type);
 
 void parser_semantic_setup_temp_variables(ParserSemantic* parser_semantic);
 

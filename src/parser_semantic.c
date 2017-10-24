@@ -11,6 +11,7 @@ ParserSemantic* parser_semantic_init() {
     parser_semantic->temp_variable1 = NULL;
     parser_semantic->temp_variable2 = NULL;
     parser_semantic->temp_variable3 = NULL;
+    parser_semantic->error_report.error_code = ERROR_NONE;
 
     // Add allowed operations signatures
     for(int i = 0; i < (int) OPERATION__LAST; i++)

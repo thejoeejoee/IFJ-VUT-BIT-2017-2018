@@ -56,7 +56,7 @@ bool expression_rule_fake(Parser* parser, LList* expr_token_buffer, ExprIdx* exp
     ExprToken* new_token = create_expression((*expression_idx)++);
     new_token->data_type = expr_data_type;
 
-    llist_append_item(expr_token_buffer, (LListBaseItem*)new_token);
+    llist_append_item(expr_token_buffer, (LListBaseItem*) new_token);
 
     return true;
 }
@@ -120,17 +120,26 @@ bool expression_rule_id(Parser* parser, LList* expr_token_buffer, ExprIdx* expre
                 parser->parser_semantic->register_,
                 i->data.s
         );
+        SEMANTIC_ANALYSIS(
+                {
 
-        if(variable == NULL) {
-            parser->parser_semantic->error_report.error_code = ERROR_SEMANTIC_DEFINITION;
-            return false;
-        }
-        i->data_type = variable->data_type;
+                    if(variable == NULL) {
+                        parser->parser_semantic->error_report.error_code = ERROR_SEMANTIC_DEFINITION;
+                        return false;
+                    }
 
-        CodeConstructor* constructor = parser->code_constructor;
-        GENERATE_CODE(
-                I_PUSH_STACK,
-                code_instruction_operand_init_variable(variable)
+                    i->data_type = variable->data_type;
+                }
+        );
+
+        CODE_GENERATION(
+                {
+                    CodeConstructor* constructor = parser->code_constructor;
+                    GENERATE_CODE(
+                            I_PUSH_STACK,
+                            code_instruction_operand_init_variable(variable)
+                    );
+                }
         );
     }
 
@@ -198,16 +207,24 @@ bool expression_rule_fn(Parser* parser, LList* expr_token_buffer, ExprIdx* expre
             parser->parser_semantic->register_->functions,
             function_name
     );
-    if(function == NULL) {
-        parser->parser_semantic->error_report.error_code = ERROR_SEMANTIC_DEFINITION;
-        return false;
-    }
-    String* function_label = symbol_function_generate_function_label(function);
-    GENERATE_CODE(
-            I_CALL,
-            code_instruction_operand_init_label(string_content(function_label))
+    SEMANTIC_ANALYSIS(
+            {
+                if(function == NULL) {
+                    parser->parser_semantic->error_report.error_code = ERROR_SEMANTIC_DEFINITION;
+                    return false;
+                }
+            }
     );
-    string_free(&function_label);
+    CODE_GENERATION(
+            {
+                String* function_label = symbol_function_generate_function_label(function);
+                GENERATE_CODE(
+                        I_CALL,
+                        code_instruction_operand_init_label(string_content(function_label))
+                );
+                string_free(&function_label);
+            }
+    );
 
     for(unsigned int i = 0; i < arg_count; i++) {
         ExprIdx idx = EXPR_RULE_NEXT_E_ID();

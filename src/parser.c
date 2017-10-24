@@ -16,6 +16,7 @@ Parser* parser_init(lexer_input_stream_f input_stream) {
     parser->code_constructor = code_constructor_init();
     parser->run_type = PARSER_RUN_TYPE_ALL;
     parser->body_statement = false;
+    parser->error_report.error_code = ERROR_NONE;
     return parser;
 }
 

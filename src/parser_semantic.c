@@ -50,7 +50,7 @@ ParserSemantic* parser_semantic_init() {
             OPERATION_LESSER,
     };
     // comparing
-    for(int j = 0; j < (sizeof(compare_operations) / sizeof(*compare_operations)); ++j) {
+    for(unsigned int j = 0; j < (sizeof(compare_operations) / sizeof(*compare_operations)); ++j) {
         parser_semantic_add_operation_signature(parser_semantic, compare_operations[j],
                                                 DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER,
                                                 DATA_TYPE_DOUBLE, DATA_TYPE_BOOLEAN);

@@ -23,6 +23,7 @@ typedef enum {
     // Bool operations
     OPERATION_GREATER,
     OPERATION_GREATER_OR_EQUAL,
+    OPERATION_EQUAL,
 
     OPERATION__LAST
 } Operations;

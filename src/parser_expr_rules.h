@@ -24,7 +24,7 @@
 
 // --------------------------
 
-#define EXPR_RULE_TABLE_SIZE 8
+#define EXPR_RULE_TABLE_SIZE 9
 
 typedef bool(*expression_rule_function)(Parser* parser, LList *expr_token_buffer, ExprIdx* expression_idx);
 extern const expression_rule_function expr_rule_table[EXPR_RULE_TABLE_SIZE];
@@ -45,5 +45,7 @@ bool expression_rule_unary_minus(Parser* parser, LList* expr_token_buffer, ExprI
 // Boolshit
 bool expression_rule_greater(Parser* parser, LList *expr_token_buffer, ExprIdx* expression_idx);
 bool expression_rule_greater_or_equal(Parser* parser, LList *expr_token_buffer, ExprIdx* expression_idx);
+
+bool expression_rule_equal(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx);
 
 #endif //_PARSER_EXPR_RULES_H

@@ -554,9 +554,11 @@ bool parser_parse_return_(Parser* parser) {
      * RULE
      * <statement> -> return <expr>
      */
+    DataType expression_data_type;
+
     RULES(
             CHECK_TOKEN(TOKEN_RETURN);
-            CALL_RULE(expression);
+            CALL_EXPRESSION_RULE(expression_data_type);
             CODE_GENERATION(
                     {
                             code_constructor_return(parser->code_constructor);
@@ -622,8 +624,10 @@ bool parser_parse_print_expression(Parser* parser) {
      * RULE
      * <print_expression> -> <expression> SEMICOLON
      */
+    DataType expression_data_type;
+
     RULES(
-            CALL_RULE(expression);
+            CALL_EXPRESSION_RULE(expression_data_type);
             CODE_GENERATION(
                     {
                             code_constructor_print_expression(
@@ -642,6 +646,8 @@ bool parser_parse_while_(Parser* parser) {
      * RULE
      * <do_while> -> DO WHILE <expression> EOL <eols> <statements> LOOP
      */
+    DataType expression_data_type;
+
     RULES(
             CHECK_TOKEN(TOKEN_DO);
             CHECK_TOKEN(TOKEN_WHILE);
@@ -650,7 +656,7 @@ bool parser_parse_while_(Parser* parser) {
                             code_constructor_while_before_condition(parser->code_constructor);
                     }
             );
-            CALL_RULE(expression);
+            CALL_EXPRESSION_RULE(expression_data_type);
             CODE_GENERATION(
                     {
                             code_constructor_while_after_condition(parser->code_constructor);
@@ -712,9 +718,11 @@ bool parser_parse_input(Parser* parser) {
 }
 
 bool parser_parse_condition(Parser* parser) {
+    DataType expression_data_type;
+
     RULES(
             CHECK_TOKEN(TOKEN_IF);
-            CALL_RULE(expression);
+            CALL_EXPRESSION_RULE(expression_data_type);
             CODE_GENERATION(
                     {
                             code_constructor_if_after_expression(parser->code_constructor);
@@ -743,6 +751,8 @@ bool parser_parse_condition(Parser* parser) {
 }
 
 bool parser_parse_condition_elseif(Parser* parser) {
+    DataType expression_data_type;
+
     RULES(
             CONDITIONAL_RULES(
                     CHECK_RULE(
@@ -765,7 +775,7 @@ bool parser_parse_condition_elseif(Parser* parser) {
                             code_constructor_if_else_if_before_expression(parser->code_constructor);
                     }
             );
-            CALL_RULE(expression);
+            CALL_EXPRESSION_RULE(expression_data_type);
             CODE_GENERATION(
                     {
                             code_constructor_if_else_if_after_expression(parser->code_constructor);
@@ -862,9 +872,10 @@ bool parser_parse_assignment(Parser* parser) {
      * RULE
      * <assignment> -> = <expression>
      */
+
+    DataType expression_data_type;
     RULES(
             CHECK_TOKEN(TOKEN_EQUAL);
-            CALL_RULE(expression);
             CODE_GENERATION(
                     {
                             code_constructor_variable_expression_assignment(
@@ -874,6 +885,7 @@ bool parser_parse_assignment(Parser* parser) {
                     }
             );
             parser->parser_semantic->actual_variable = NULL;
+            CALL_EXPRESSION_RULE(expression_data_type);
     );
     return true;
 }

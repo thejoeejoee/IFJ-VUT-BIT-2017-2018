@@ -19,20 +19,8 @@
     } while(0);
 
 
-#define INIT_LOCAL_TOKEN_VARS() NULL_POINTER_CHECK(parser, false); Token token = {.data = NULL, .type = TOKEN_UNKNOWN}; TokenType token_type
-
 #define CALL_RULE(Rule) if (!parser_parse_##Rule(parser)) { token_free(&token); return false; }
-
-//#define RULE_RETURN_OK() token_free(&token); return true
-
-//#define RULE_RETURN_BAD() token_free(&token); return false
-
-#define TEST_TOKEN_TYPE(Type) if(token_type != (Type)) { token_free(&token); return false; }
-
-#define TEST_TOKEN_IS_DATA_TYPE() if(token_type != TOKEN_INTEGER && token_type != TOKEN_STRING && token_type != TOKEN_DOUBLE) {token_free(&token); return false;}
-
-
-
+#define CALL_EXPRESSION_RULE(data_type_var) do {if (!parser_parse_expression(parser, &data_type_var)) { token_free(&token); return false; }} while(false)
 
 // NEW MACROS
 #define BEFORE(code) do {code} while(false);

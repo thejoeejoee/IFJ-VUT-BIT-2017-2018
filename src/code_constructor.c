@@ -20,9 +20,9 @@ CodeConstructor* code_constructor_init() {
     code_constructor_add_conversion_instruction(constructor, I_INT_TO_FLOAT_STACK, DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE,
                                                 true);
 
-    code_constructor_add_conversion_instruction(constructor, I_FLOAT_TO_INT, DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER,
+    code_constructor_add_conversion_instruction(constructor, I_FLOAT_ROUND_TO_EVEN_INT, DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER,
                                                 false);
-    code_constructor_add_conversion_instruction(constructor, I_FLOAT_TO_INT_STACK, DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER,
+    code_constructor_add_conversion_instruction(constructor, I_FLOAT_ROUND_TO_EVEN_INT_STACK, DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER,
                                                 true);
     // TODO add more data type conversions
 

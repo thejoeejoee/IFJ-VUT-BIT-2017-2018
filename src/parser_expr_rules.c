@@ -168,29 +168,43 @@ bool expression_rule_fn(Parser* parser, LList* expr_token_buffer, ExprIdx* expre
     EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_RIGHT_BRACKET);
 
     ExprTokenType tt;
-    unsigned int arg_count = 0;
+    size_t arg_count = 0;
 
     if(it->previous != NULL) {
         it = it->previous;
         tt = ((ExprToken*) it)->type;
-    } else { return false; }
+    } else {
+        return false;
+    }
     if(tt != EXPR_TOKEN_LEFT_BRACKET &&
-       tt != EXPR_EXPRESSION) { return false; }
-    if(tt == EXPR_EXPRESSION) { arg_count++; }
+       tt != EXPR_EXPRESSION) {
+        return false;
+    }
+    if(tt == EXPR_EXPRESSION) {
+        arg_count++;
+    }
 
     // arg_count in while condition is only for entering infinite while, if arg_count > 0
     while(arg_count) {
         if(it->previous != NULL) {
             it = it->previous;
             tt = ((ExprToken*) it)->type;
-        } else { return false; }
-        if(tt == EXPR_TOKEN_LEFT_BRACKET) { break; }
-        if(tt != EXPR_TOKEN_COMMA) { return false; }
+        } else {
+            return false;
+        }
+        if(tt == EXPR_TOKEN_LEFT_BRACKET) {
+            break;
+        }
+        if(tt != EXPR_TOKEN_COMMA) {
+            return false;
+        }
 
         if(it->previous != NULL) {
             it = it->previous;
             tt = ((ExprToken*) it)->type;
-        } else { return false; }
+        } else {
+            return false;
+        }
         if(tt == EXPR_EXPRESSION) {
             arg_count++;
         } else {
@@ -227,9 +241,9 @@ bool expression_rule_fn(Parser* parser, LList* expr_token_buffer, ExprIdx* expre
             }
     );
 
-    for(unsigned int i = 0; i < arg_count; i++) {
-        ExprIdx idx = EXPR_RULE_NEXT_E_ID();
-        (void) idx;
+    for(size_t i = 1; i <= arg_count; i++) {
+        ExprToken* token = get_n_expr(expr_token_buffer, 2 * i);
+        LOG_WARNING("data type: %d", token->data_type);
     }
 
     ExprToken* e = create_expression((*expression_idx)++);
@@ -258,7 +272,8 @@ bool expression_rule_add(Parser* parser, LList* expr_token_buffer, ExprIdx* expr
 
     CodeConstructor* constructor = parser->code_constructor;
     // generate conversion
-    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(EXPR_LOWER_OPERAND->data_type, EXPR_HIGHER_OPERAND->data_type, operation_signature->conversion_target_type);
+    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(EXPR_LOWER_OPERAND->data_type, EXPR_HIGHER_OPERAND->data_type,
+                                             operation_signature->conversion_target_type);
     GENERATE_CODE(I_ADD_STACK);
 
     ExprToken* e = create_expression((*expression_idx)++);
@@ -287,7 +302,8 @@ bool expression_rule_sub(Parser* parser, LList* expr_token_buffer, ExprIdx* expr
 
     CodeConstructor* constructor = parser->code_constructor;
     // generate conversion
-    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(EXPR_LOWER_OPERAND->data_type, EXPR_HIGHER_OPERAND->data_type, operation_signature->conversion_target_type);
+    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(EXPR_LOWER_OPERAND->data_type, EXPR_HIGHER_OPERAND->data_type,
+                                             operation_signature->conversion_target_type);
     GENERATE_CODE(I_SUB_STACK);
 
     ExprToken* e = create_expression((*expression_idx)++);
@@ -308,10 +324,31 @@ bool expression_rule_unary_minus(Parser* parser, LList* expr_token_buffer, ExprI
     EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_UNARY_MINUS);
     EXPR_RULE_CHECK_FINISH();
 
-    // TODO add type cast
-    CodeConstructor* constructor = parser->code_constructor;
-    GENERATE_CODE(I_PUSH_STACK, code_instruction_operand_init_integer(-1));
-    GENERATE_CODE(I_MUL_STACK);
+    CodeInstructionOperand* inverse_operand = NULL;
+    switch(EXPR_HIGHER_OPERAND->data_type) {
+        case DATA_TYPE_INTEGER:
+            inverse_operand = code_instruction_operand_init_integer(-1);
+            break;
+        case DATA_TYPE_DOUBLE:
+            inverse_operand = code_instruction_operand_init_double(-1);
+            break;
+        default:
+            // unknown operand to unary minus
+            SEMANTIC_ANALYSIS(
+                    {
+                        parser->parser_semantic->error_report.error_code = ERROR_SEMANTIC_TYPE;
+                        return false;
+                    }
+            );
+
+    }
+    CODE_GENERATION(
+            {
+                CodeConstructor* constructor = parser->code_constructor;
+                GENERATE_CODE(I_PUSH_STACK, inverse_operand);
+                GENERATE_CODE(I_MUL_STACK);
+            }
+    );
 
     ExprToken* e = create_expression((*expression_idx)++);
     EXPR_RULE_REPLACE(e);
@@ -337,7 +374,11 @@ bool expression_rule_greater(Parser* parser, LList* expr_token_buffer, ExprIdx* 
 
     CodeConstructor* constructor = parser->code_constructor;
     // generate conversion
-    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(EXPR_LOWER_OPERAND->data_type, EXPR_HIGHER_OPERAND->data_type, operation_signature->conversion_target_type);
+    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(
+            EXPR_LOWER_OPERAND->data_type,
+            EXPR_HIGHER_OPERAND->data_type,
+            operation_signature->conversion_target_type
+    );
     GENERATE_CODE(I_GREATER_THEN_STACK);
 
     ExprToken* e = create_expression((*expression_idx)++);
@@ -366,7 +407,11 @@ bool expression_rule_equal(Parser* parser, LList* expr_token_buffer, ExprIdx* ex
 
     CodeConstructor* constructor = parser->code_constructor;
     // generate conversion
-    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(EXPR_LOWER_OPERAND->data_type, EXPR_HIGHER_OPERAND->data_type, operation_signature->conversion_target_type);
+    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(
+            EXPR_LOWER_OPERAND->data_type,
+            EXPR_HIGHER_OPERAND->data_type,
+            operation_signature->conversion_target_type
+    );
     GENERATE_CODE(I_EQUAL_STACK);
 
     ExprToken* e = create_expression((*expression_idx)++);
@@ -395,7 +440,11 @@ bool expression_rule_greater_or_equal(Parser* parser, LList* expr_token_buffer, 
 
     CodeConstructor* constructor = parser->code_constructor;
     // generate conversion
-    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(EXPR_LOWER_OPERAND->data_type, EXPR_HIGHER_OPERAND->data_type, operation_signature->conversion_target_type);
+    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(
+            EXPR_LOWER_OPERAND->data_type,
+            EXPR_HIGHER_OPERAND->data_type,
+            operation_signature->conversion_target_type
+    );
 
     GENERATE_CODE(I_LESS_THEN_STACK);
     GENERATE_CODE(I_NOT_STACK);

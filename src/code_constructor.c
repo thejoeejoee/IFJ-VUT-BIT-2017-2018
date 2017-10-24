@@ -15,11 +15,15 @@ CodeConstructor* code_constructor_init() {
 
     llist_init(&constructor->conversion_instructions, sizeof(TypeConversionInstruction), NULL, NULL, NULL);
 
-    code_constructor_add_conversion_instruction(constructor, I_INT_TO_FLOAT, DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE, false);
-    code_constructor_add_conversion_instruction(constructor, I_INT_TO_FLOAT_STACK, DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE, true);
+    code_constructor_add_conversion_instruction(constructor, I_INT_TO_FLOAT, DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE,
+                                                false);
+    code_constructor_add_conversion_instruction(constructor, I_INT_TO_FLOAT_STACK, DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE,
+                                                true);
 
-    code_constructor_add_conversion_instruction(constructor, I_FLOAT_TO_INT, DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER, false);
-    code_constructor_add_conversion_instruction(constructor, I_FLOAT_TO_INT_STACK,DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER, true);
+    code_constructor_add_conversion_instruction(constructor, I_FLOAT_TO_INT, DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER,
+                                                false);
+    code_constructor_add_conversion_instruction(constructor, I_FLOAT_TO_INT_STACK, DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER,
+                                                true);
     // TODO add more data type conversions
 
     return constructor;
@@ -339,28 +343,31 @@ void code_constructor_scope_end(CodeConstructor* constructor) {
     }
 }
 
-void code_constructor_stack_type_conversion(CodeConstructor* constructor, DataType current_type, DataType target_type)
-{
+void code_constructor_stack_type_conversion(CodeConstructor* constructor, DataType current_type, DataType target_type) {
+    NULL_POINTER_CHECK(constructor,);
+
     // TODO add bool in future
-    TypeConversionInstruction* conversion_instruction = (TypeConversionInstruction*)constructor->conversion_instructions->head;
+    TypeConversionInstruction* conversion_instruction = (TypeConversionInstruction*) constructor->conversion_instructions->head;
 
     while(conversion_instruction != NULL) {
         if(conversion_instruction->is_stack_instruction &&
-                current_type == conversion_instruction->current_type &&
-                target_type == conversion_instruction->target_type) {
+           current_type == conversion_instruction->current_type &&
+           target_type == conversion_instruction->target_type) {
             GENERATE_CODE(conversion_instruction->instruction);
             return;
         }
 
-        conversion_instruction = (TypeConversionInstruction*)conversion_instruction->base.next;
+        conversion_instruction = (TypeConversionInstruction*) conversion_instruction->base.next;
     }
 
-    LOG_WARNING("Undefined data type conversion.");
+    LOG_WARNING("Undefined data type conversion for %d to %d.", current_type, target_type);
 }
 
-void code_constructor_add_conversion_instruction(CodeConstructor* constructor, TypeInstruction instruction, DataType current_type, DataType target_type, bool is_stack_instruction)
-{
-    TypeConversionInstruction* conversion_instruction = (TypeConversionInstruction*)llist_new_tail_item(constructor->conversion_instructions);
+void code_constructor_add_conversion_instruction(CodeConstructor* constructor, TypeInstruction instruction,
+                                                 DataType current_type, DataType target_type,
+                                                 bool is_stack_instruction) {
+    TypeConversionInstruction* conversion_instruction = (TypeConversionInstruction*) llist_new_tail_item(
+            constructor->conversion_instructions);
 
     conversion_instruction->instruction = instruction;
     conversion_instruction->current_type = current_type;
@@ -368,21 +375,21 @@ void code_constructor_add_conversion_instruction(CodeConstructor* constructor, T
     conversion_instruction->is_stack_instruction = is_stack_instruction;
 }
 
-void code_constructor_binary_operation_stack_type_conversion(CodeConstructor* constructor, DataType operand_1_type, DataType operand_2_type, DataType target_type, SymbolVariable* temp_var)
-{
+void code_constructor_binary_operation_stack_type_conversion(CodeConstructor* constructor, DataType operand_1_type,
+                                                             DataType operand_2_type, DataType target_type,
+                                                             SymbolVariable* temp_var) {
     if(operand_1_type != target_type) {
         GENERATE_CODE(I_POP_STACK, code_instruction_operand_init_variable(temp_var));
         code_constructor_stack_type_conversion(constructor, operand_1_type, target_type);
         GENERATE_CODE(I_PUSH_STACK, code_instruction_operand_init_variable(temp_var));
-    }
 
-    else if(operand_2_type != target_type) {
+    } else if(operand_2_type != target_type) {
         code_constructor_stack_type_conversion(constructor, operand_2_type, target_type);
     }
 }
 
-void code_constructor_unary_operation_stack_type_conversion(CodeConstructor* constructor, DataType operand_1_type, DataType target_type)
-{
+void code_constructor_unary_operation_stack_type_conversion(CodeConstructor* constructor, DataType operand_1_type,
+                                                            DataType target_type) {
     if(operand_1_type != target_type)
         code_constructor_stack_type_conversion(constructor, operand_1_type, target_type);
 }

@@ -8,7 +8,7 @@ typedef enum {
     DATA_TYPE_INTEGER = TOKEN_INTEGER,
     DATA_TYPE_DOUBLE = TOKEN_DOUBLE,
     DATA_TYPE_STRING = TOKEN_STRING,
-    DATA_TYPE_BOOLEAN, // TODO: assign to one of tokens
+    DATA_TYPE_BOOLEAN = TOKEN_BOOLEAN
 } DataType;
 
 // TODO doc and test

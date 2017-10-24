@@ -4,6 +4,7 @@
 #include "lexer_fsm.h"
 #include "token.h"
 #include "parser_expr.h"
+#include "parser_expr_rules.h"
 
 
 Parser* parser_init(lexer_input_stream_f input_stream) {
@@ -876,16 +877,28 @@ bool parser_parse_assignment(Parser* parser) {
     DataType expression_data_type;
     RULES(
             CHECK_TOKEN(TOKEN_EQUAL);
-            CODE_GENERATION(
-                    {
-                            code_constructor_variable_expression_assignment(
-                                    parser->code_constructor,
-                                    parser->parser_semantic->actual_variable
-                            );
-                    }
-            );
-            parser->parser_semantic->actual_variable = NULL;
             CALL_EXPRESSION_RULE(expression_data_type);
     );
+
+    SymbolVariable* current_variable = parser->parser_semantic->actual_variable;
+    CHECK_IMPLICIT_CONVERSION(current_variable->data_type, expression_data_type);
+
+    CODE_GENERATION({
+        CodeConstructor* constructor = parser->code_constructor;
+
+        GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(
+            expression_data_type,
+            current_variable->data_type
+        );
+
+        code_constructor_variable_expression_assignment(
+                parser->code_constructor,
+                parser->parser_semantic->actual_variable
+        );
+    });
+
+    parser->parser_semantic->actual_variable = NULL;
+
+            printf("fuck you %d\n", expression_data_type);
     return true;
 }

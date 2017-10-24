@@ -65,6 +65,14 @@ ParserSemantic* parser_semantic_init() {
                                                 DATA_TYPE_STRING, DATA_TYPE_BOOLEAN);
     }
 
+    // implicit conversions
+    parser_semantic_add_operation_signature(parser_semantic, OPERATION_IMPLICIT_CONVERSION,
+                                            DATA_TYPE_DOUBLE, DATA_TYPE_NONE,
+                                            DATA_TYPE_INTEGER, DATA_TYPE_INTEGER);
+    parser_semantic_add_operation_signature(parser_semantic, OPERATION_IMPLICIT_CONVERSION,
+                                            DATA_TYPE_INTEGER, DATA_TYPE_NONE,
+                                            DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE);
+
     return parser_semantic;
 }
 

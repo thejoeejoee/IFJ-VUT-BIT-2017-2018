@@ -27,6 +27,8 @@ typedef enum {
     OPERATION_LESSER_OR_EQUAL,
     OPERATION_EQUAL,
 
+    OPERATION_IMPLICIT_CONVERSION,
+
     OPERATION__LAST
 } TypeExpressionOperation;
 

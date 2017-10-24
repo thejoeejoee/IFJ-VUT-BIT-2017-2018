@@ -163,6 +163,16 @@ if(parser->body_statement) { \
     CALL_RULE(function_statements); \
 }} while(0)
 
+#define CHECK_IMPLICIT_CONVERSION(variable_data_type, expr_data_type) do { \
+        if(variable_data_type != expr_data_type) {\
+        const DataType target_type = parser_semantic_resolve_implicit_data_type_conversion( \
+        parser->parser_semantic, \
+        OPERATION_IMPLICIT_CONVERSION, DATA_TYPE_NONE, expr_data_type); \
+        if(target_type == DATA_TYPE_NONE || target_type != variable_data_type) \
+            return false; \
+        } \
+    } while(false)
+
 typedef enum {
     PARSER_RUN_TYPE_NOTHING = 0,
     PARSER_RUN_TYPE_SEMANTIC_ANALYSIS = 1,

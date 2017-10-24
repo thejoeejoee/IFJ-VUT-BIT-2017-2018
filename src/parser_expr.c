@@ -9,6 +9,9 @@ bool expression_reduce(Parser* parser, LList *expr_token_buffer, ExprIdx* expres
     const int table_size = sizeof(expr_rule_table) / sizeof(*expr_rule_table);
     for (int i = 0; i < table_size; i++) {
         pass |= expr_rule_table[i](parser, expr_token_buffer, expression_idx);
+        if(parser->parser_semantic->error_report.error_code != ERROR_NONE) {
+            return false;
+        }
         if (pass == true) { break; }
     }
     return pass;

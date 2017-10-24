@@ -12,13 +12,13 @@ void exit_with_code(ErrorCode code) {
             fprintf(stderr, "Error during syntax analyse.\n");
             break;
         case ERROR_SEMANTIC_DEFINITION:
-            fprintf(stderr, "Error in semantic definitions.\n");
+            fprintf(stderr, "Error during semantic definition.\n");
             break;
         case ERROR_SEMANTIC_TYPE:
-            fprintf(stderr, "Error semantic type definitions.\n");
+            fprintf(stderr, "Error in type definition.\n");
             break;
         case ERROR_SEMANTIC_OTHER:
-            fprintf(stderr, "Error in semantic.\n");
+            fprintf(stderr, "Error unknown semantic.\n");
             break;
         case ERROR_INTERNAL:
             fprintf(stderr, "Internal compiler error.\n");
@@ -54,10 +54,10 @@ void exit_with_detail_information(ErrorReport error_report) {
             fprintf(stderr, "Error during syntax analyse on the line %zd.", error_report.line);
             break;
         case ERROR_SEMANTIC_DEFINITION:
-            fprintf(stderr, "Error in semantic definitions on the line %zd.", error_report.line);
+            fprintf(stderr, "Error in semantic definition on the line %zd.", error_report.line);
             break;
         case ERROR_SEMANTIC_TYPE:
-            fprintf(stderr, "Error semantic type definitions on the line %zd.", error_report.line);
+            fprintf(stderr, "Error semantic type definition on the line %zd.", error_report.line);
             break;
         case ERROR_SEMANTIC_OTHER:
             fprintf(stderr, "Error in semantic on the line %zd.", error_report.line);

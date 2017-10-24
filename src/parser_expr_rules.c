@@ -40,14 +40,14 @@ bool expression_rule_fake(Parser* parser, LList* expr_token_buffer, ExprIdx* exp
     ExprToken* tmp;
     ExprTokenType type;
     do {
-        tmp = (ExprToken*)llist_pop_back(expr_token_buffer);
+        tmp = (ExprToken*) llist_pop_back(expr_token_buffer);
         if(tmp == NULL) {
             return false;
         }
         type = tmp->type;
         expr_token_free(tmp);
     } while(type != EXPR_LEFT_SHARP);
-    llist_append_item(expr_token_buffer, (LListBaseItem*)create_expression((*expression_idx)++));
+    llist_append_item(expr_token_buffer, (LListBaseItem*) create_expression((*expression_idx)++));
     return true;
 }
 
@@ -62,7 +62,7 @@ bool expression_rule_id(Parser* parser, LList* expr_token_buffer, ExprIdx* expre
     EXPR_RULE_CHECK_START();
     if(it->previous != NULL) { it = it->previous; } else { return false; }
     if(it != NULL) {
-        ExprTokenType tt = ((ExprToken*)it)->type;
+        ExprTokenType tt = ((ExprToken*) it)->type;
         if(tt != EXPR_TOKEN_IDENTIFIER &&
            tt != EXPR_TOKEN_BOOLEAN_LITERAL &&
            tt != EXPR_TOKEN_INTEGER_LITERAL &&
@@ -107,16 +107,17 @@ bool expression_rule_id(Parser* parser, LList* expr_token_buffer, ExprIdx* expre
 
     } else if(i->type == EXPR_TOKEN_IDENTIFIER) {
         SymbolVariable* variable = symbol_register_find_variable_recursive(
-                parser->parser_semantic->register_, i->data.s);
+                parser->parser_semantic->register_,
+                i->data.s
+        );
 
-        // TODO add some semantic error
-        if(variable == NULL)
+        if(variable == NULL) {
+            parser->parser_semantic->error_report.error_code = ERROR_SEMANTIC_DEFINITION;
             return false;
+        }
         i->data_type = variable->data_type;
 
         CodeConstructor* constructor = parser->code_constructor;
-
-        // TODO: unknown variable, semantic error
         GENERATE_CODE(
                 I_PUSH_STACK,
                 code_instruction_operand_init_variable(variable)
@@ -188,7 +189,7 @@ bool expression_rule_fn(Parser* parser, LList* expr_token_buffer, ExprIdx* expre
             function_name
     );
     if(function == NULL) {
-        // TODO reaction to undefined function
+        parser->parser_semantic->error_report.error_code = ERROR_SEMANTIC_DEFINITION;
         return false;
     }
     String* function_label = symbol_function_generate_function_label(function);
@@ -225,8 +226,8 @@ bool expression_rule_add(Parser* parser, LList* expr_token_buffer, ExprIdx* expr
     const DataType operand_1_type = EXPR_LOWER_OPERAND->data_type;
     const DataType operand_2_type = EXPR_HIGHER_OPERAND->data_type;
     const DataType result_type = parser_semantic_resolve_implicit_data_type_conversion(
-                                     parser->parser_semantic,
-                                     OPERATION_ADD, operand_1_type, operand_2_type);
+            parser->parser_semantic,
+            OPERATION_ADD, operand_1_type, operand_2_type);
     if(result_type == DATA_TYPE_NONE)
         return false;
 
@@ -263,8 +264,7 @@ bool expression_rule_unary_minus(Parser* parser, LList* expr_token_buffer, ExprI
     return true;
 }
 
-bool expression_rule_greater(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx)
-{
+bool expression_rule_greater(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx) {
     /*
      * RULE
      * E -> E > E
@@ -279,8 +279,8 @@ bool expression_rule_greater(Parser* parser, LList* expr_token_buffer, ExprIdx* 
     const DataType operand_1_type = EXPR_LOWER_OPERAND->data_type;
     const DataType operand_2_type = EXPR_HIGHER_OPERAND->data_type;
     const DataType result_type = parser_semantic_resolve_implicit_data_type_conversion(
-                                     parser->parser_semantic,
-                                     OPERATION_GREATER, operand_1_type, operand_2_type);
+            parser->parser_semantic,
+            OPERATION_GREATER, operand_1_type, operand_2_type);
     if(result_type == DATA_TYPE_NONE)
         return false;
 
@@ -296,8 +296,7 @@ bool expression_rule_greater(Parser* parser, LList* expr_token_buffer, ExprIdx* 
     return true;
 }
 
-bool expression_rule_greater_or_equal(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx)
-{
+bool expression_rule_greater_or_equal(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx) {
     /*
      * RULE
      * E -> E >= E
@@ -312,8 +311,8 @@ bool expression_rule_greater_or_equal(Parser* parser, LList* expr_token_buffer, 
     const DataType operand_1_type = EXPR_LOWER_OPERAND->data_type;
     const DataType operand_2_type = EXPR_HIGHER_OPERAND->data_type;
     const DataType result_type = parser_semantic_resolve_implicit_data_type_conversion(
-                                     parser->parser_semantic,
-                                     OPERATION_GREATER_OR_EQUAL, operand_1_type, operand_2_type);
+            parser->parser_semantic,
+            OPERATION_GREATER_OR_EQUAL, operand_1_type, operand_2_type);
     if(result_type == DATA_TYPE_NONE)
         return false;
 

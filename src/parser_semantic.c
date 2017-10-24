@@ -32,12 +32,14 @@ ParserSemantic* parser_semantic_init() {
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_SUB,
                                             DATA_TYPE_INTEGER, DATA_TYPE_INTEGER,
                                             DATA_TYPE_INTEGER, DATA_TYPE_INTEGER);
+
+    parser_semantic_add_operation_signature(parser_semantic, OPERATION_SUB,
+                                            DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE,
+                                            DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE);
+
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_SUB,
                                             DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE,
                                             DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE);
-                                            DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE);
-    parser_semantic_add_operation_signature(parser_semantic, OPERATION_SUB,
-                                            DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE);
 
     // TODO add boolean, string, double in greater operation
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_GREATER,
@@ -56,11 +58,14 @@ ParserSemantic* parser_semantic_init() {
                                             DATA_TYPE_INTEGER, DATA_TYPE_BOOLEAN);
 
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_EQUAL,
-                                            DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE);
+                                            DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER,
+                                            DATA_TYPE_DOUBLE, DATA_TYPE_BOOLEAN);
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_EQUAL,
-                                            DATA_TYPE_INTEGER, DATA_TYPE_INTEGER, DATA_TYPE_INTEGER);
+                                            DATA_TYPE_INTEGER, DATA_TYPE_INTEGER,
+                                            DATA_TYPE_INTEGER, DATA_TYPE_BOOLEAN);
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_EQUAL,
-                                            DATA_TYPE_STRING, DATA_TYPE_STRING, DATA_TYPE_STRING);
+                                            DATA_TYPE_STRING, DATA_TYPE_STRING, DATA_TYPE_STRING,
+                                            DATA_TYPE_BOOLEAN);
 
     return parser_semantic;
 }

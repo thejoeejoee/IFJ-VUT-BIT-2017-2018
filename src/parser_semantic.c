@@ -20,30 +20,40 @@ ParserSemantic* parser_semantic_init() {
     // Operation add signatures
     // TODO add string in add operation
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_ADD,
-                                            DATA_TYPE_INTEGER, DATA_TYPE_INTEGER, DATA_TYPE_INTEGER);
+                                            DATA_TYPE_INTEGER, DATA_TYPE_INTEGER,
+                                            DATA_TYPE_INTEGER, DATA_TYPE_INTEGER);
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_ADD,
-                                            DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE);
+                                            DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE,
+                                            DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE);
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_ADD,
-                                            DATA_TYPE_STRING, DATA_TYPE_STRING, DATA_TYPE_STRING);
+                                            DATA_TYPE_STRING, DATA_TYPE_STRING,
+                                            DATA_TYPE_STRING, DATA_TYPE_STRING);
 
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_SUB,
-                                            DATA_TYPE_INTEGER, DATA_TYPE_INTEGER, DATA_TYPE_INTEGER);
+                                            DATA_TYPE_INTEGER, DATA_TYPE_INTEGER,
+                                            DATA_TYPE_INTEGER, DATA_TYPE_INTEGER);
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_SUB,
+                                            DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE,
+                                            DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE);
                                             DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE);
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_SUB,
                                             DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE);
 
     // TODO add boolean, string, double in greater operation
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_GREATER,
-                                            DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE);
+                                            DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER,
+                                            DATA_TYPE_DOUBLE, DATA_TYPE_BOOLEAN);
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_GREATER,
-                                            DATA_TYPE_INTEGER, DATA_TYPE_INTEGER, DATA_TYPE_INTEGER);
+                                            DATA_TYPE_INTEGER, DATA_TYPE_INTEGER,
+                                            DATA_TYPE_INTEGER, DATA_TYPE_BOOLEAN);
 
     // TODO add boolean, string, double in greater equal operation
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_GREATER_OR_EQUAL,
-                                            DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE);
+                                            DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER,
+                                            DATA_TYPE_DOUBLE, DATA_TYPE_BOOLEAN);
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_GREATER_OR_EQUAL,
-                                            DATA_TYPE_INTEGER, DATA_TYPE_INTEGER, DATA_TYPE_INTEGER);
+                                            DATA_TYPE_INTEGER, DATA_TYPE_INTEGER,
+                                            DATA_TYPE_INTEGER, DATA_TYPE_BOOLEAN);
 
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_EQUAL,
                                             DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE);
@@ -260,11 +270,7 @@ void parser_semantic_setup_temp_variables(ParserSemantic* parser_semantic) {
     parser_semantic->temp_variable3->frame = VARIABLE_FRAME_GLOBAL;
 }
 
-DataType parser_semantic_resolve_implicit_data_type_conversion(
-        ParserSemantic* parser_semantic,
-        Operations operation_type,
-        DataType operand_1_type,
-        DataType operand_2_type)
+OperationSignature* parser_semantic_operation_signature(ParserSemantic* parser_semantic, Operations operation_type, DataType operand_1_type, DataType operand_2_type)
 {
     LList* operation_signatures = parser_semantic->operations_signatures[operation_type];
     OperationSignature* single_operation_signature = (OperationSignature*)operation_signatures->head;
@@ -273,21 +279,34 @@ DataType parser_semantic_resolve_implicit_data_type_conversion(
         if(operands_match_data_type_combination(operand_1_type, operand_2_type,
                                                 single_operation_signature->operand_1_type,
                                                 single_operation_signature->operand_2_type)) {
-            return single_operation_signature->result_type;
+            return single_operation_signature;
         }
 
         single_operation_signature = (OperationSignature*)single_operation_signature->base.next;
     }
 
-    return DATA_TYPE_NONE;
+    return NULL;
 }
 
-void parser_semantic_add_operation_signature(ParserSemantic* parser_semantic, Operations operation, DataType operand_1_type, DataType operand_2_type, DataType result_type)
+
+DataType parser_semantic_resolve_implicit_data_type_conversion(ParserSemantic* parser_semantic, Operations operation_type, DataType operand_1_type, DataType operand_2_type)
+{
+    OperationSignature* op_signature = parser_semantic_operation_signature(
+                                           parser_semantic, operation_type, operand_1_type, operand_2_type);
+
+    if(op_signature == NULL)
+        return DATA_TYPE_NONE;
+    return op_signature->conversion_target_type;
+}
+
+void parser_semantic_add_operation_signature(ParserSemantic* parser_semantic, Operations operation, DataType operand_1_type, DataType operand_2_type, DataType target_type, DataType result_type)
 {
     OperationSignature* operation_signature =  (OperationSignature*)llist_new_tail_item(
                                                    parser_semantic->operations_signatures[operation]);
     operation_signature->operation_type = operation;
     operation_signature->operand_1_type = operand_1_type;
     operation_signature->operand_2_type = operand_2_type;
+    operation_signature->conversion_target_type = target_type;
     operation_signature->result_type = result_type;
 }
+

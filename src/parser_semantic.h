@@ -33,6 +33,7 @@ typedef struct operation_signature_t {
     Operations operation_type;
     DataType operand_1_type;
     DataType operand_2_type;
+    DataType conversion_target_type;
     DataType result_type;
 } OperationSignature;
 
@@ -135,7 +136,9 @@ bool parser_semantic_check_function_definitions(ParserSemantic* parser_semantic)
 void parser_semantic_add_built_in_functions(ParserSemantic* parser_semantic);
 
 // TODO doc and test
-void parser_semantic_add_operation_signature(ParserSemantic* parser_semantic, Operations operation, DataType operand_1_type, DataType operand_2_type, DataType result_type);
+void parser_semantic_add_operation_signature(ParserSemantic* parser_semantic, Operations operation, DataType operand_1_type, DataType operand_2_type, DataType target_type, DataType result_type);
+
+OperationSignature* parser_semantic_operation_signature(ParserSemantic* parser_semantic, Operations operation_type, DataType operand_1_type, DataType operand_2_type);
 
 DataType parser_semantic_resolve_implicit_data_type_conversion(ParserSemantic* parser_semantic, Operations operation_type, DataType operand_1_type, DataType operand_2_type);
 

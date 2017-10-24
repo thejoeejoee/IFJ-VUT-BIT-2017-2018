@@ -21,6 +21,14 @@
 #define EXPR_RULE_REPLACE(single_expression) expr_replace(expr_token_buffer, it, (single_expression))
 #define EXPR_LOWER_OPERAND get_n_expr(expr_token_buffer, 3)
 #define EXPR_HIGHER_OPERAND get_n_expr(expr_token_buffer, 1)
+#define EXPR_CHECK_BINARY_OPERATION_IMPLICIT_CONVERSION(operation) do { \
+        const DataType target_type = parser_semantic_resolve_implicit_data_type_conversion( \
+        parser->parser_semantic, \
+        operation, EXPR_LOWER_OPERAND->data_type, EXPR_HIGHER_OPERAND->data_type); \
+        if(target_type == DATA_TYPE_NONE) \
+            return false; \
+    } while(false)
+
 
 // --------------------------
 

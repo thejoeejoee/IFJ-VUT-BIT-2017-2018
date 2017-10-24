@@ -39,15 +39,24 @@ bool expression_rule_fake(Parser* parser, LList* expr_token_buffer, ExprIdx* exp
 
     ExprToken* tmp;
     ExprTokenType type;
+    DataType expr_data_type;
+
     do {
         tmp = (ExprToken*) llist_pop_back(expr_token_buffer);
         if(tmp == NULL) {
             return false;
         }
         type = tmp->type;
+        if(tmp->type == EXPR_EXPRESSION)
+            expr_data_type = tmp->data_type;
         expr_token_free(tmp);
     } while(type != EXPR_LEFT_SHARP);
-    llist_append_item(expr_token_buffer, (LListBaseItem*) create_expression((*expression_idx)++));
+
+    ExprToken* new_token = create_expression((*expression_idx)++);
+    new_token->data_type = expr_data_type;
+
+    llist_append_item(expr_token_buffer, (LListBaseItem*)new_token);
+
     return true;
 }
 

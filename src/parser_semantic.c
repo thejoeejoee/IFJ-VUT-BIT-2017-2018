@@ -23,29 +23,54 @@ ParserSemantic* parser_semantic_init() {
                                             DATA_TYPE_INTEGER, DATA_TYPE_INTEGER,
                                             DATA_TYPE_INTEGER, DATA_TYPE_INTEGER);
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_ADD,
+                                            DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE,
+                                            DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE);
+    parser_semantic_add_operation_signature(parser_semantic, OPERATION_ADD,
                                             DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE,
                                             DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE);
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_ADD,
                                             DATA_TYPE_STRING, DATA_TYPE_STRING,
                                             DATA_TYPE_STRING, DATA_TYPE_STRING);
-
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_SUB,
                                             DATA_TYPE_INTEGER, DATA_TYPE_INTEGER,
                                             DATA_TYPE_INTEGER, DATA_TYPE_INTEGER);
-
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_SUB,
                                             DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE,
                                             DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE);
-
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_SUB,
                                             DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE,
                                             DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE);
+    parser_semantic_add_operation_signature(parser_semantic, OPERATION_MULTIPLY,
+                                            DATA_TYPE_INTEGER, DATA_TYPE_INTEGER,
+                                            DATA_TYPE_INTEGER, DATA_TYPE_INTEGER);
+    parser_semantic_add_operation_signature(parser_semantic, OPERATION_MULTIPLY,
+                                            DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE,
+                                            DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE);
+    parser_semantic_add_operation_signature(parser_semantic, OPERATION_MULTIPLY,
+                                            DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE,
+                                            DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE);
+
+    parser_semantic_add_operation_signature(parser_semantic, OPERATION_DIVIDE,
+                                            DATA_TYPE_INTEGER, DATA_TYPE_INTEGER,
+                                            DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE);
+    parser_semantic_add_operation_signature(parser_semantic, OPERATION_DIVIDE,
+                                            DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE,
+                                            DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE);
+    parser_semantic_add_operation_signature(parser_semantic, OPERATION_DIVIDE,
+                                            DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE,
+                                            DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE);
+
+    parser_semantic_add_operation_signature(parser_semantic, OPERATION_INT_DIVIDE,
+                                            DATA_TYPE_INTEGER, DATA_TYPE_INTEGER,
+                                            DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER);
+
 
     // TODO add boolean, string, double in greater operation
     const TypeExpressionOperation compare_operations[] = {
             OPERATION_GREATER,
             OPERATION_GREATER_OR_EQUAL,
             OPERATION_EQUAL,
+            OPERATION_NOT_EQUAL,
             OPERATION_LESSER_OR_EQUAL,
             OPERATION_LESSER,
     };
@@ -71,6 +96,13 @@ ParserSemantic* parser_semantic_init() {
                                             DATA_TYPE_INTEGER, DATA_TYPE_INTEGER);
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_IMPLICIT_CONVERSION,
                                             DATA_TYPE_INTEGER, DATA_TYPE_NONE,
+                                            DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE);
+
+    parser_semantic_add_operation_signature(parser_semantic, OPERATION_UNARY_MINUS,
+                                            DATA_TYPE_INTEGER, DATA_TYPE_NONE,
+                                            DATA_TYPE_INTEGER, DATA_TYPE_INTEGER);
+    parser_semantic_add_operation_signature(parser_semantic, OPERATION_UNARY_MINUS,
+                                            DATA_TYPE_DOUBLE, DATA_TYPE_NONE,
                                             DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE);
 
     return parser_semantic;

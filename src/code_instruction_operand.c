@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <ctype.h>
 #include "memory.h"
 #include "code_instruction.h"
 #include "code_instruction_operand.h"
@@ -203,7 +204,7 @@ char* code_instruction_operand_escaped_string(String* source) {
 
     for(size_t i = 0; i < source_length; ++i) {
         c = (unsigned char) source->content[i];
-        if((c >= 0 && c <= 32) || c == 35 || c == 92 || c > 127) {
+        if(isspace(c) || (c >= 0 && c <= 32) || c == 35 || c == 92 || c > 127) {
             snprintf(buffer, 4 + 1, "\\%03d", c);
             string_append_s(escaped, buffer);
         } else {

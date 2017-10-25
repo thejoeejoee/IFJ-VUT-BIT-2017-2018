@@ -31,10 +31,20 @@
         } \
     } while(false)
 
+#define EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION(operation) do { \
+        const DataType target_type = parser_semantic_resolve_implicit_data_type_conversion( \
+        parser->parser_semantic, \
+        operation, DATA_TYPE_NONE, EXPR_HIGHER_OPERAND->data_type); \
+        if(target_type == DATA_TYPE_NONE) {\
+            parser->parser_semantic->error_report.error_code = ERROR_SEMANTIC_TYPE; \
+            return false; \
+        } \
+    } while(false)
+
 
 // --------------------------
 
-#define EXPR_RULE_TABLE_SIZE 12
+#define EXPR_RULE_TABLE_SIZE 16
 
 typedef bool(*expression_rule_function)(Parser* parser, LList *expr_token_buffer, ExprIdx* expression_idx);
 extern const expression_rule_function expr_rule_table[EXPR_RULE_TABLE_SIZE];
@@ -47,20 +57,27 @@ bool expression_rule_example(Parser* parser, LList *expr_token_buffer, ExprIdx* 
 bool expression_rule_id(Parser* parser, LList *expr_token_buffer, ExprIdx* expression_idx);
 bool expression_rule_brackets(Parser* parser, LList *expr_token_buffer, ExprIdx* expression_idx);
 bool expression_rule_fn(Parser* parser, LList *expr_token_buffer, ExprIdx* expression_idx);
-bool expression_rule_add(Parser* parser, LList *expr_token_buffer, ExprIdx* expression_idx);
 
+bool expression_rule_add(Parser* parser, LList *expr_token_buffer, ExprIdx* expression_idx);
 bool expression_rule_sub(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx);
+
+bool expression_rule_mul(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx);
+
+bool expression_rule_div(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx);
+
+bool expression_rule_div_int(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx);
 
 bool expression_rule_unary_minus(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx);
 
 // Boolshit
 bool expression_rule_greater(Parser* parser, LList *expr_token_buffer, ExprIdx* expression_idx);
 bool expression_rule_greater_or_equal(Parser* parser, LList *expr_token_buffer, ExprIdx* expression_idx);
+bool expression_rule_equal(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx);
 
-bool expression_rule_lesser(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx);
+bool expression_rule_not_equal(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx);
 
 bool expression_rule_lesser_or_equal(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx);
 
-bool expression_rule_equal(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx);
+bool expression_rule_lesser(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx);
 
 #endif //_PARSER_EXPR_RULES_H

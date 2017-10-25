@@ -20,9 +20,11 @@ CodeConstructor* code_constructor_init() {
     code_constructor_add_conversion_instruction(constructor, I_INT_TO_FLOAT_STACK, DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE,
                                                 true);
 
-    code_constructor_add_conversion_instruction(constructor, I_FLOAT_ROUND_TO_EVEN_INT, DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER,
+    code_constructor_add_conversion_instruction(constructor, I_FLOAT_ROUND_TO_EVEN_INT, DATA_TYPE_DOUBLE,
+                                                DATA_TYPE_INTEGER,
                                                 false);
-    code_constructor_add_conversion_instruction(constructor, I_FLOAT_ROUND_TO_EVEN_INT_STACK, DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER,
+    code_constructor_add_conversion_instruction(constructor, I_FLOAT_ROUND_TO_EVEN_INT_STACK, DATA_TYPE_DOUBLE,
+                                                DATA_TYPE_INTEGER,
                                                 true);
     // TODO add more data type conversions
 
@@ -383,7 +385,9 @@ void code_constructor_binary_operation_stack_type_conversion(CodeConstructor* co
         code_constructor_stack_type_conversion(constructor, operand_1_type, target_type);
         GENERATE_CODE(I_PUSH_STACK, code_instruction_operand_init_variable(temp_var));
 
-    } else if(operand_2_type != target_type) {
+    }
+
+    if(operand_2_type != target_type) {
         code_constructor_stack_type_conversion(constructor, operand_2_type, target_type);
     }
 }

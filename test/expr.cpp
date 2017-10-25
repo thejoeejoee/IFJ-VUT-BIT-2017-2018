@@ -125,7 +125,7 @@ TEST_F(ParserExpressionTestFixture, SimpleRelation2) {
 
 TEST_F(ParserExpressionTestFixture, SimpleRelation3) {
 
-    provider->setString("a = b \n");
+    provider->setString("3 = 3 \n");
 
     EXPECT_TRUE(
             parser_parse_expression(parser, &data_type)
@@ -146,7 +146,7 @@ TEST_F(ParserExpressionTestFixture, SimpleRelation3) {
 
 TEST_F(ParserExpressionTestFixture, SimpleRelation4) {
 
-    provider->setString("a >= b \n");
+    provider->setString("4 >= 3 \n");
 
     EXPECT_TRUE(
             parser_parse_expression(parser, &data_type)
@@ -167,7 +167,7 @@ TEST_F(ParserExpressionTestFixture, SimpleRelation4) {
 
 TEST_F(ParserExpressionTestFixture, SimpleRelation5) {
 
-    provider->setString("n < 2 then");
+    provider->setString("1 < 2 then");
 
     EXPECT_TRUE(
             parser_parse_expression(parser, &data_type)
@@ -189,7 +189,7 @@ TEST_F(ParserExpressionTestFixture, SimpleRelation5) {
 
 TEST_F(ParserExpressionTestFixture, SimpleRelation6) {
 
-    provider->setString("a <> b \n");
+    provider->setString("3 <> 4 \n");
 
     EXPECT_TRUE(
             parser_parse_expression(parser, &data_type)

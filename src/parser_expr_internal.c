@@ -58,15 +58,11 @@ ExprToken* expr_get_precedence(ExprToken* a, ExprToken* b) {
 
 bool is_expr_parsing_complete(LList* expr_token_buffer, ExprToken* token) {
     LListBaseItem* tmp = expr_token_buffer->head;
-    if(((ExprToken*) tmp)->type == EXPR_TOKEN_$ &&
-       (tmp = tmp->next) != NULL &&
-       ((ExprToken*) tmp)->type == EXPR_EXPRESSION &&
-       tmp->next == NULL &&
-       token->type == EXPR_TOKEN_$) {
-        return true;
-    } else {
-        return false;
-    }
+    return ((ExprToken*) tmp)->type == EXPR_TOKEN_$ &&
+           (tmp = tmp->next) != NULL &&
+           ((ExprToken*) tmp)->type == EXPR_EXPRESSION &&
+           tmp->next == NULL &&
+           token->type == EXPR_TOKEN_$;
 }
 
 ExprToken* load_expr_token(Lexer* lexer, Token* last_token) {

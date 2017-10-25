@@ -546,7 +546,7 @@ bool expression_rule_equal(Parser* parser, LList* expr_token_buffer, ExprIdx* ex
     GENERATE_CODE(I_EQUAL_STACK);
 
     ExprToken* e = create_expression((*expression_idx)++);
-    e->data_type = DATA_TYPE_BOOLEAN;
+    e->data_type = operation_signature->result_type;
     EXPR_RULE_REPLACE(e);
 
     return true;
@@ -583,7 +583,7 @@ bool expression_rule_not_equal(Parser* parser, LList* expr_token_buffer, ExprIdx
     GENERATE_CODE(I_NOT_STACK);
 
     ExprToken* e = create_expression((*expression_idx)++);
-    e->data_type = DATA_TYPE_BOOLEAN;
+    e->data_type = operation_signature->result_type;
     EXPR_RULE_REPLACE(e);
 
     return true;

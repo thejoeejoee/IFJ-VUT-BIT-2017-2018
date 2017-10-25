@@ -22,7 +22,8 @@ bool expression_reduce(Parser* parser, LList* expr_token_buffer, ExprIdx* expres
 }
 
 bool parser_parse_expression(Parser* parser, DataType* expression_data_type) {
-
+    NULL_POINTER_CHECK(parser, false);
+    NULL_POINTER_CHECK(expression_data_type, false);
 
     Token last_token;
     last_token.data = NULL;

@@ -3,6 +3,7 @@
 const expression_rule_function expr_rule_table[EXPR_RULE_TABLE_SIZE] = {
         expression_rule_id,
         expression_rule_fn,
+        expression_rule_brackets,
         expression_rule_add,
         expression_rule_sub,
         expression_rule_unary_minus,
@@ -149,6 +150,24 @@ bool expression_rule_id(Parser* parser, LList* expr_token_buffer, ExprIdx* expre
     ExprToken* e = create_expression((*expression_idx)++);
     e->data_type = i->data_type;
 
+    EXPR_RULE_REPLACE(e);
+
+    return true;
+}
+
+bool expression_rule_brackets(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx)
+{
+    UNUSED(parser);
+
+    EXPR_RULE_CHECK_START();
+    EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_RIGHT_BRACKET);
+    EXPR_RULE_CHECK_TYPE(EXPR_EXPRESSION);
+    EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_LEFT_BRACKET);
+    EXPR_RULE_CHECK_FINISH();
+
+    ExprToken* e = create_expression((*expression_idx)++);
+    // 2 because 0 is right sharp and 1 is bracket
+    e->data_type = get_n_expr(expr_token_buffer, 2)->data_type;
     EXPR_RULE_REPLACE(e);
 
     return true;

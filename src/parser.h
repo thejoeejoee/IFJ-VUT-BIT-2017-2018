@@ -168,8 +168,10 @@ if(parser->body_statement) { \
         const DataType target_type = parser_semantic_resolve_implicit_data_type_conversion( \
         parser->parser_semantic, \
         OPERATION_IMPLICIT_CONVERSION, DATA_TYPE_NONE, expr_data_type); \
-        if(target_type == DATA_TYPE_NONE || target_type != variable_data_type) \
+        if(target_type == DATA_TYPE_NONE || target_type != variable_data_type) {\
+            parser->parser_semantic->error_report.error_code = ERROR_SEMANTIC_TYPE; \
             return false; \
+        } \
         } \
     } while(false)
 

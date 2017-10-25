@@ -25,8 +25,10 @@
         const DataType target_type = parser_semantic_resolve_implicit_data_type_conversion( \
         parser->parser_semantic, \
         operation, EXPR_LOWER_OPERAND->data_type, EXPR_HIGHER_OPERAND->data_type); \
-        if(target_type == DATA_TYPE_NONE) \
+        if(target_type == DATA_TYPE_NONE) {\
+            parser->parser_semantic->error_report.error_code = ERROR_SEMANTIC_TYPE; \
             return false; \
+        } \
     } while(false)
 
 

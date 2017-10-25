@@ -300,6 +300,8 @@ OperationSignature* parser_semantic_get_operation_signature(
         single_operation_signature = (OperationSignature*) single_operation_signature->base.next;
     }
 
+    LOG_WARNING("Undefined %d operation signature with operands %d and %d.\n", operation_type, operand_1_type, operand_2_type);
+
     return NULL;
 }
 

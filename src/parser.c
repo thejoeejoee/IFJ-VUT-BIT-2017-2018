@@ -898,7 +898,5 @@ bool parser_parse_assignment(Parser* parser) {
     });
 
     parser->parser_semantic->actual_variable = NULL;
-
-            printf("fuck you %d\n", expression_data_type);
     return true;
 }

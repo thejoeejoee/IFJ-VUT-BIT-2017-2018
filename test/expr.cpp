@@ -88,7 +88,7 @@ TEST_F(ParserExpressionTestFixture, Variable) {
 
 TEST_F(ParserExpressionTestFixture, SimpleRelation1) {
 
-    provider->setString("a >= b \n");
+    provider->setString("4 >= 4.4 \n");
 
     EXPECT_TRUE(
             parser_parse_expression(parser, &data_type)

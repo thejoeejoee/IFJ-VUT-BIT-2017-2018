@@ -30,11 +30,9 @@ TEST_F(CodeInstructionOperandTestFixture, Label) {
 }
 
 TEST_F(CodeInstructionOperandTestFixture, Variable) {
-    auto symbol = (SymbolVariable*) memory_alloc(sizeof(SymbolVariable));
-    symbol->base.next = nullptr;
     auto key = "my_variable_78987987";
-    symbol->base.key = const_cast<char*>(key);
-
+    auto symbol = symbol_variable_init(key);
+    symbol_variable_init_data(reinterpret_cast<SymbolTableBaseItem*>(symbol));
     operand = code_instruction_operand_init_variable(symbol);
 
     EXPECT_EQ(

@@ -273,7 +273,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
             }
 
         case LEX_FSM__COMMENT_LINE:
-            if(c != '\n')
+            if(c != '\n' && c != EOF)
                 return LEX_FSM__COMMENT_LINE;
             REWIND_CHAR(tolower(c));
             return LEX_FSM__INIT;

@@ -21,7 +21,7 @@ typedef enum {
     OPERATION_DIVIDE,
 
     // Bool operations
-    OPERATION_GREATER,
+            OPERATION_GREATER,
     OPERATION_GREATER_OR_EQUAL,
     OPERATION_LESSER,
     OPERATION_LESSER_OR_EQUAL,
@@ -54,8 +54,8 @@ typedef struct parser_semantic_t {
     SymbolFunction* actual_function; // Pointer to actual function
     SymbolVariable* actual_variable; // Pointer to actual variable
     size_t argument_index;
-    // TODO: is function_declared needed here? why is not controlled by scenarios or actual_function->declared?
-    bool function_declared;
+    // TODO: is was_actual_function_declared needed here? why is not controlled by scenarios or actual_function->declared?
+    bool was_actual_function_declared;
     SymbolVariable* temp_variable1;
     SymbolVariable* temp_variable2;
     SymbolVariable* temp_variable3;
@@ -93,14 +93,6 @@ void parser_semantic_set_action(ParserSemantic* parser_semantic, SemanticAction 
  */
 bool parser_semantic_set_function_name(ParserSemantic* parser_semantic, char* name);
 
-/**
- * @brief Find variable in symbol variable
- *
- * @param parser_semantic
- * @param token
- * @return SymbolVariable*
- */
-SymbolVariable* parser_semantic_expect_symbol_variable(ParserSemantic* parser_semantic, Token token);
 
 /**
  * @brief Add Variable to the actual symbol table
@@ -140,6 +132,10 @@ bool parser_semantic_check_count_of_function_arguments(ParserSemantic* parser_se
 bool parser_semantic_check_function_definitions(ParserSemantic* parser_semantic);
 
 void parser_semantic_add_built_in_functions(ParserSemantic* parser_semantic);
+
+void parser_semantic_function_start(ParserSemantic* parser_semantic, SymbolFunction* function);
+
+void parser_semantic_function_end(ParserSemantic* parser_semantic);
 
 // TODO doc and test
 void parser_semantic_add_operation_signature(ParserSemantic* parser_semantic, TypeExpressionOperation operation,

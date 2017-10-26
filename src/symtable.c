@@ -67,7 +67,7 @@ void symbol_table_clear_buckets(SymbolTable* table) {
 SymbolTableBaseItem* symbol_table_new_item(const char* key, size_t item_size) {
     NULL_POINTER_CHECK(key, NULL);
     SymbolTableBaseItem* new_item = memory_alloc(item_size);
-    char* copied_key = (char*) memory_alloc(sizeof(char) * (strlen(key) + 1));
+    char* copied_key = c_string_copy(key);
 
     if(NULL == strcpy(copied_key, key)) {
         memory_free(new_item);

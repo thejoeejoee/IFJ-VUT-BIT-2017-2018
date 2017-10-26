@@ -129,7 +129,7 @@ ExprToken* load_expr_token(Lexer* lexer, Token* last_token) {
             break;
         case TOKEN_IDENTIFIER:
             expr_t->type = EXPR_TOKEN_IDENTIFIER;
-            expr_t->data.s = c_string_copy(last_token->data); //TODO check identifier declaration
+            expr_t->data.s = c_string_copy(last_token->data);
             break;
             // Literals
         case TOKEN_DOUBLE_LITERAL:

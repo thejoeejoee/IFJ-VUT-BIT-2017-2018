@@ -90,6 +90,18 @@ CodeInstructionOperand* code_instruction_operand_init_data_type(DataType data_ty
     return code_instruction_operand_init(TYPE_INSTRUCTION_OPERAND_DATA_TYPE, data);
 }
 
+CodeInstructionOperand* code_instruction_operand_init_variable_from_param(SymbolFunction* function,
+                                                                          SymbolFunctionParam* param) {
+    NULL_POINTER_CHECK(function, NULL);
+    NULL_POINTER_CHECK(param, NULL);
+
+    SymbolVariable* variable = symbol_variable_init_from_function_param(function, param);
+
+    CodeInstructionOperand* operand = code_instruction_operand_init_variable(variable);
+
+    symbol_variable_single_free(&variable);
+    return operand;
+}
 
 char* code_instruction_operand_render(CodeInstructionOperand* operand) {
     NULL_POINTER_CHECK(operand, NULL);
@@ -144,9 +156,9 @@ char* code_instruction_operand_render(CodeInstructionOperand* operand) {
                     break;
                 case VARIABLE_FRAME_TEMP:
                     frame = "TF";
-                    if(operand->data.variable->scope_depth > 0)
+                    if(operand->data.variable->scope_depth != 1)
                         LOG_WARNING(
-                                "Variable %s on temp frame has non-zero scope depth: %zd.",
+                                "Variable %s on temp frame has non-parameter scope depth: %zd.",
                                 operand->data.variable->base.key,
                                 operand->data.variable->scope_depth
                         );
@@ -160,7 +172,8 @@ char* code_instruction_operand_render(CodeInstructionOperand* operand) {
                     "%s@%%%05zd_%s",
                     frame,
                     operand->data.variable->scope_depth,
-                    operand->data.variable->base.key
+                    operand->data.variable->alias_name == NULL ?
+                    operand->data.variable->base.key : operand->data.variable->alias_name
             );
         }
             break;

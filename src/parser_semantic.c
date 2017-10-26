@@ -40,6 +40,7 @@ ParserSemantic* parser_semantic_init() {
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_SUB,
                                             DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE,
                                             DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE);
+
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_MULTIPLY,
                                             DATA_TYPE_INTEGER, DATA_TYPE_INTEGER,
                                             DATA_TYPE_INTEGER, DATA_TYPE_INTEGER);
@@ -97,6 +98,18 @@ ParserSemantic* parser_semantic_init() {
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_IMPLICIT_CONVERSION,
                                             DATA_TYPE_INTEGER, DATA_TYPE_NONE,
                                             DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE);
+    parser_semantic_add_operation_signature(parser_semantic, OPERATION_IMPLICIT_CONVERSION,
+                                            DATA_TYPE_INTEGER, DATA_TYPE_NONE,
+                                            DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE);
+    parser_semantic_add_operation_signature(parser_semantic, OPERATION_IMPLICIT_CONVERSION,
+                                            DATA_TYPE_DOUBLE, DATA_TYPE_NONE,
+                                            DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER);
+    parser_semantic_add_operation_signature(parser_semantic, OPERATION_IMPLICIT_CONVERSION,
+                                            DATA_TYPE_STRING, DATA_TYPE_NONE,
+                                            DATA_TYPE_STRING, DATA_TYPE_STRING);
+    parser_semantic_add_operation_signature(parser_semantic, OPERATION_IMPLICIT_CONVERSION,
+                                            DATA_TYPE_BOOLEAN, DATA_TYPE_NONE,
+                                            DATA_TYPE_BOOLEAN, DATA_TYPE_BOOLEAN);
 
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_UNARY_MINUS,
                                             DATA_TYPE_INTEGER, DATA_TYPE_NONE,
@@ -126,20 +139,6 @@ void parser_semantic_set_action(ParserSemantic* parser_semantic, SemanticAction 
 
     if(actual_action == SEMANTIC_ACTION__FUNCTION_DEFINITION)
         parser_semantic->argument_index = 0;
-}
-
-SymbolVariable* parser_semantic_expect_symbol_variable(ParserSemantic* parser_semantic, Token token) {
-    NULL_POINTER_CHECK(parser_semantic, NULL);
-    NULL_POINTER_CHECK(token.data, NULL);
-    SymbolVariable* symbol_variable = symbol_register_find_variable_recursive(
-            parser_semantic->register_,
-            token.data
-    );
-    if(symbol_variable == NULL) {
-        parser_semantic->error_report.error_code = ERROR_SEMANTIC_DEFINITION;
-    }
-
-    return symbol_variable;
 }
 
 SymbolVariable* parser_semantic_add_symbol_variable(ParserSemantic* parser_semantic, char* name, DataType data_type) {
@@ -185,11 +184,10 @@ bool parser_semantic_set_function_name(ParserSemantic* parser_semantic, char* na
         parser_semantic->actual_function->declared = true;
 
     } else if(parser_semantic->actual_action == SEMANTIC_ACTION__FUNCTION_DEFINITION) {
-
         if(symbol_table_function_get(parser_semantic->register_->functions, name) == NULL)
-            parser_semantic->function_declared = false;
+            parser_semantic->was_actual_function_declared = false;
         else
-            parser_semantic->function_declared = true;
+            parser_semantic->was_actual_function_declared = true;
 
         parser_semantic->actual_function = symbol_table_function_get_or_create(
                 parser_semantic->register_->functions,
@@ -232,8 +230,10 @@ bool parser_semantic_set_function_return_data_type(ParserSemantic* parser_semant
 
 bool parser_semantic_add_function_parameter(ParserSemantic* parser_semantic, char* name, DataType data_type) {
     NULL_POINTER_CHECK(parser_semantic, false);
+    NULL_POINTER_CHECK(name, false);
 
-    if(parser_semantic->actual_action == SEMANTIC_ACTION__FUNCTION_DECLARATION || !parser_semantic->function_declared) {
+    if(parser_semantic->actual_action == SEMANTIC_ACTION__FUNCTION_DECLARATION ||
+       !parser_semantic->was_actual_function_declared) {
 
         // Check duplicity name
         for(size_t i = 1; i <= (size_t) parser_semantic->actual_function->arguments_count; i++) {
@@ -250,7 +250,6 @@ bool parser_semantic_add_function_parameter(ParserSemantic* parser_semantic, cha
         parser_semantic->actual_function->arguments_count++;
 
     } else if(parser_semantic->actual_action == SEMANTIC_ACTION__FUNCTION_DEFINITION) {
-
         // Function definition, check argument on actual index
         SymbolFunctionParam* parameter = symbol_function_get_param(
                 parser_semantic->actual_function,
@@ -260,6 +259,10 @@ bool parser_semantic_add_function_parameter(ParserSemantic* parser_semantic, cha
         if(parameter == NULL || data_type != parameter->data_type) {
             parser_semantic->error_report.error_code = ERROR_SEMANTIC_DEFINITION;
             return false;
+        }
+        if(0 != strcmp(parameter->name, name)) {
+            memory_free(parameter->name);
+            parameter->name = c_string_copy(name);
         }
     }
 
@@ -272,7 +275,7 @@ bool parser_semantic_check_count_of_function_arguments(ParserSemantic* parser_se
 
     if(parser_semantic->actual_action == SEMANTIC_ACTION__FUNCTION_DEFINITION &&
        parser_semantic->actual_function->arguments_count != parser_semantic->argument_index &&
-       parser_semantic->function_declared) {
+       parser_semantic->was_actual_function_declared) {
         parser_semantic->error_report.error_code = ERROR_SEMANTIC_TYPE;
         return false;
     }
@@ -318,7 +321,7 @@ OperationSignature* parser_semantic_get_operation_signature(
         TypeExpressionOperation operation_type,
         DataType operand_1_type,
         DataType operand_2_type
-        ) {
+) {
     LList* operation_signatures = parser_semantic->operations_signatures[operation_type];
     OperationSignature* single_operation_signature = (OperationSignature*) operation_signatures->head;
 
@@ -332,7 +335,12 @@ OperationSignature* parser_semantic_get_operation_signature(
         single_operation_signature = (OperationSignature*) single_operation_signature->base.next;
     }
 
-    LOG_WARNING("Undefined %d operation signature with operands %d and %d.\n", operation_type, operand_1_type, operand_2_type);
+    LOG_WARNING(
+            "Undefined %d operation signature with operands %d and %d.",
+            operation_type,
+            operand_1_type,
+            operand_2_type
+    );
 
     return NULL;
 }
@@ -343,9 +351,13 @@ DataType parser_semantic_resolve_implicit_data_type_conversion(
         TypeExpressionOperation operation_type,
         DataType operand_1_type,
         DataType operand_2_type
-        ) {
+) {
     OperationSignature* op_signature = parser_semantic_get_operation_signature(
-            parser_semantic, operation_type, operand_1_type, operand_2_type);
+            parser_semantic,
+            operation_type,
+            operand_1_type,
+            operand_2_type
+    );
     if(op_signature == NULL)
         return DATA_TYPE_NONE;
     return op_signature->conversion_target_type;
@@ -361,5 +373,33 @@ void parser_semantic_add_operation_signature(ParserSemantic* parser_semantic, Ty
     operation_signature->operand_2_type = operand_2_type;
     operation_signature->conversion_target_type = target_type;
     operation_signature->result_type = result_type;
+}
+
+void parser_semantic_function_start(ParserSemantic* parser_semantic, SymbolFunction* function) {
+    NULL_POINTER_CHECK(parser_semantic,);
+    NULL_POINTER_CHECK(function,);
+
+    symbol_register_push_variables_table(parser_semantic->register_);
+
+    SymbolFunctionParam* param = function->param;
+    while(param != NULL) {
+        SymbolVariable* variable = symbol_register_new_variable(parser_semantic->register_, param->name);
+
+        String* param_name = symbol_function_get_param_name_alias(function, param);
+        variable->alias_name = c_string_copy(string_content(param_name));
+        variable->frame = VARIABLE_FRAME_LOCAL;
+        variable->data_type = param->data_type;
+
+        string_free(&param_name);
+
+        param = param->next;
+    }
+}
+
+
+void parser_semantic_function_end(ParserSemantic* parser_semantic) {
+    NULL_POINTER_CHECK(parser_semantic,);
+
+    symbol_register_pop_variables_table(parser_semantic->register_);
 }
 

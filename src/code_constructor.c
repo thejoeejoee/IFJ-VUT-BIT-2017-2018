@@ -319,7 +319,7 @@ void code_constructor_function_header(CodeConstructor* constructor, SymbolFuncti
     string_free(&label);
 }
 
-void code_constructor_implicit_function_return(CodeConstructor* constructor, SymbolFunction* function) {
+void code_constructor_function_end(CodeConstructor* constructor, SymbolFunction* function) {
     NULL_POINTER_CHECK(constructor,);
     NULL_POINTER_CHECK(function,);
 

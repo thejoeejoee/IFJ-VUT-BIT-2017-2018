@@ -6,6 +6,7 @@
 #include "dynamic_string.h"
 #include "data_type.h"
 #include "symtable_variable.h"
+#include "symtable_function.h"
 
 typedef enum type_instruction_operand_t {
     TYPE_INSTRUCTION_OPERAND_NONE = 0,
@@ -57,6 +58,9 @@ CodeInstructionOperand* code_instruction_operand_init_label(const char* label);
 CodeInstructionOperand* code_instruction_operand_init_variable(SymbolVariable* variable);
 
 CodeInstructionOperand* code_instruction_operand_init_data_type(DataType data_type);
+
+CodeInstructionOperand* code_instruction_operand_init_variable_from_param(SymbolFunction* function,
+                                                                          SymbolFunctionParam* param);
 
 CodeInstructionOperand* code_instruction_operand_init(TypeInstructionOperand type, CodeInstructionOperandData data);
 

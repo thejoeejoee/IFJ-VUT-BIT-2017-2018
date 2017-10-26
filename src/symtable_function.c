@@ -26,6 +26,7 @@ void symbol_function_init_data(SymbolTableBaseItem* item) {
 
     function->return_data_type = DATA_TYPE_NONE;
     function->param = NULL;
+    function->param_tail = NULL;
     function->declared = false;
     function->defined = false;
 }
@@ -37,15 +38,19 @@ SymbolFunctionParam* symbol_function_add_param(SymbolFunction* function, char* n
     param->data_type = data_type;
     param->name = c_string_copy(name);
     param->next = NULL;
+    param->prev = NULL;
 
     SymbolFunctionParam* actual = function->param;
     if(actual == NULL) {
         function->param = param;
+        function->param_tail = param;
     } else {
         while(actual->next != NULL) {
             actual = actual->next;
         }
         actual->next = param;
+        param->prev = actual;
+        function->param_tail = param;
     }
 
     return param;
@@ -102,5 +107,32 @@ String* symbol_function_generate_function_label(SymbolFunction* function) {
             string,
             function->base.key
     );
+    return string;
+}
+
+String* symbol_function_get_param_name_alias(SymbolFunction* function, SymbolFunctionParam* param) {
+    NULL_POINTER_CHECK(function, NULL);
+    String* string = string_init();
+    string_append_s(
+            string,
+            "%__param__"
+    );
+    size_t index = 0;
+    SymbolFunctionParam* actual = function->param;
+    while(actual != NULL) {
+        if(0 == strcmp(param->name, actual->name))
+            break;
+        index++;
+        actual = actual->next;
+    }
+    NULL_POINTER_CHECK(actual, NULL);
+
+    char* tmp = memory_alloc(sizeof(char) * 16);
+    snprintf(tmp, 15, "%05zd", index);
+    string_append_s(
+            string,
+            tmp
+    );
+    memory_free(tmp);
     return string;
 }

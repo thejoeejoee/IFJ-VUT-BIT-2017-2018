@@ -79,6 +79,13 @@ SymbolTableBaseItem* symbol_table_get_or_create(SymbolTable* table, const char* 
 SymbolTableBaseItem* symbol_table_get(SymbolTable* table, const char* key);
 
 /**
+ * Create new item with copied key, non linked to table.
+ * @param key key to copy
+ * @param item_size bytes to allocated
+ */
+SymbolTableBaseItem* symbol_table_new_item(const char* key, size_t item_size);
+
+/**
  * Call given function on all items in hash table.
  */
 void symbol_table_foreach(SymbolTable* table, symtable_foreach_callback_f, void* static_data);

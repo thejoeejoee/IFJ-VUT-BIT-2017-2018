@@ -13,13 +13,23 @@
 #define GENERATE_CODE(...) MSVC_EXPAND(GET_OVERLOADED_MACRO1234(__VA_ARGS__, _GENERATE_CODE_4, _GENERATE_CODE_3, \
     _GENERATE_CODE_2, _GENERATE_CODE_1)(__VA_ARGS__))
 
-#define _GENERATE_STACK_DATA_TYPE_CONVERSION_CODE_2(operand_1_type, target_type) \
-        code_constructor_unary_operation_stack_type_conversion(constructor, (operand_1_type), (target_type))
+#define _GENERATE_STACK_DATA_TYPE_CONVERSION_CODE_2(operand_1_type, target_type) SEMANTIC_ANALYSIS({ \
+        code_constructor_unary_operation_stack_type_conversion( \
+            constructor, \
+            (operand_1_type), \
+            (target_type) \
+        ); \
+})
 
-#define _GENERATE_STACK_DATA_TYPE_CONVERSION_CODE_3(operand_1_type, operand_2_type, target_type) do{ \
-        SymbolVariable* temp_var = parser->parser_semantic->temp_variable1; \
-        code_constructor_binary_operation_stack_type_conversion(constructor, (operand_1_type), (operand_2_type), (target_type), temp_var); \
-    } while(false)
+#define _GENERATE_STACK_DATA_TYPE_CONVERSION_CODE_3(operand_1_type, operand_2_type, target_type) SEMANTIC_ANALYSIS({ \
+    code_constructor_binary_operation_stack_type_conversion( \
+        constructor, \
+        (operand_1_type), \
+        (operand_2_type), \
+        (target_type), \
+        parser->parser_semantic->temp_variable1 \
+    ); \
+})
 
 #define GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(...) MSVC_EXPAND(GET_OVERLOADED_MACRO123(__VA_ARGS__, _GENERATE_STACK_DATA_TYPE_CONVERSION_CODE_3, _GENERATE_STACK_DATA_TYPE_CONVERSION_CODE_2)(__VA_ARGS__))
 
@@ -150,7 +160,7 @@ void code_constructor_generate_builtin_functions(CodeConstructor* constructor);
 
 void code_constructor_function_header(CodeConstructor* constructor, SymbolFunction* function);
 
-void code_constructor_implicit_function_return(CodeConstructor* constructor, SymbolFunction* function);
+void code_constructor_function_end(CodeConstructor* constructor, SymbolFunction* function);
 
 void code_constructor_return(CodeConstructor* constructor);
 

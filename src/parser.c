@@ -205,8 +205,18 @@ bool parser_parse_function_definition(Parser* parser) {
             CHECK_RULE(function_header);
             CODE_GENERATION(
                     {
-                            code_constructor_function_header(parser->code_constructor,
-                                                             parser->parser_semantic->actual_function);
+                            code_constructor_function_header(
+                                    parser->code_constructor,
+                                    parser->parser_semantic->actual_function
+                            );
+                    }
+            );
+            SEMANTIC_ANALYSIS(
+                    {
+                            parser_semantic_function_start(
+                                    parser->parser_semantic,
+                                    parser->parser_semantic->actual_function
+                            );
                     }
             );
             CHECK_TOKEN(TOKEN_EOL);
@@ -214,13 +224,22 @@ bool parser_parse_function_definition(Parser* parser) {
             CHECK_RULE(function_statements);
             CHECK_TOKEN(TOKEN_END);
             CHECK_TOKEN(TOKEN_FUNCTION);
+            SEMANTIC_ANALYSIS(
+                    {
+                            parser_semantic_function_end(parser->parser_semantic);
+                    }
+            );
             CODE_GENERATION(
                     {
-                            code_constructor_implicit_function_return(parser->code_constructor,
-                                                                      parser->parser_semantic->actual_function);
+                            code_constructor_function_end(
+                                    parser->code_constructor,
+                                    parser->parser_semantic->actual_function
+                            );
+
                     }
             );
     );
+    parser->parser_semantic->actual_function = NULL;
     return true;
 }
 
@@ -556,11 +575,19 @@ bool parser_parse_return_(Parser* parser) {
      * <statement> -> return <expr>
      */
     DataType expression_data_type;
-
+    CodeConstructor* constructor;
     RULES(
             CHECK_TOKEN(TOKEN_RETURN);
             CALL_EXPRESSION_RULE(expression_data_type);
-            // TODO: implicit conversion to return data type
+            CODE_GENERATION(
+                    {
+                            constructor = parser->code_constructor;
+                            GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(
+                            expression_data_type,
+                            parser->parser_semantic->actual_function->return_data_type
+                    );
+                    }
+            );
             CODE_GENERATION(
                     {
                             code_constructor_return(parser->code_constructor);

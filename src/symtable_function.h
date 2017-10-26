@@ -14,9 +14,11 @@
 )
 
 typedef struct symbol_function_param_t {
+    // inherit from symbolvariable
     char* name;
     DataType data_type;
     struct symbol_function_param_t* next;
+    struct symbol_function_param_t* prev;
 } SymbolFunctionParam;
 
 typedef struct symbol_function_t {
@@ -27,6 +29,7 @@ typedef struct symbol_function_t {
     DataType return_data_type;
     size_t arguments_count;
     SymbolFunctionParam* param;
+    SymbolFunctionParam* param_tail;
 } SymbolFunction;
 
 SymbolFunction* symbol_table_function_get_or_create(SymbolTable* table, const char* key);
@@ -44,5 +47,7 @@ SymbolFunctionParam* symbol_function_get_param(SymbolFunction* function, size_t 
 SymbolFunction* symbol_function_find_declared_function_without_definition(SymbolTable* table);
 
 String* symbol_function_generate_function_label(SymbolFunction* function);
+
+String* symbol_function_get_param_name_alias(SymbolFunction* function, SymbolFunctionParam* param);
 
 #endif // _SYMTABLE_FUNCTION_H

@@ -21,7 +21,7 @@
 #define EXPR_RULE_REPLACE(single_expression) expr_replace(expr_token_buffer, it, (single_expression))
 #define EXPR_LOWER_OPERAND get_n_expr(expr_token_buffer, 3)
 #define EXPR_HIGHER_OPERAND get_n_expr(expr_token_buffer, 1)
-#define EXPR_CHECK_BINARY_OPERATION_IMPLICIT_CONVERSION(operation) do { \
+#define EXPR_CHECK_BINARY_OPERATION_IMPLICIT_CONVERSION(operation) SEMANTIC_ANALYSIS({ \
         const DataType target_type = parser_semantic_resolve_implicit_data_type_conversion( \
         parser->parser_semantic, \
         operation, EXPR_LOWER_OPERAND->data_type, EXPR_HIGHER_OPERAND->data_type); \
@@ -29,9 +29,9 @@
             parser->parser_semantic->error_report.error_code = ERROR_SEMANTIC_TYPE; \
             return false; \
         } \
-    } while(false)
+    })
 
-#define EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION(operation) do { \
+#define EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION(operation) SEMANTIC_ANALYSIS({ \
         const DataType target_type = parser_semantic_resolve_implicit_data_type_conversion( \
         parser->parser_semantic, \
         operation, DATA_TYPE_NONE, EXPR_HIGHER_OPERAND->data_type); \
@@ -39,7 +39,42 @@
             parser->parser_semantic->error_report.error_code = ERROR_SEMANTIC_TYPE; \
             return false; \
         } \
-    } while(false)
+    })
+
+#define EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION_FROM_DATA_TYPE(operation, source_data_type) SEMANTIC_ANALYSIS({ \
+        const DataType target_type = parser_semantic_resolve_implicit_data_type_conversion( \
+        parser->parser_semantic, \
+        operation, DATA_TYPE_NONE, source_data_type); \
+        if(target_type == DATA_TYPE_NONE) {\
+            parser->parser_semantic->error_report.error_code = ERROR_SEMANTIC_TYPE; \
+            return false; \
+        } \
+    })
+
+
+#define CREATE_EXPR_RESULT_OF_BINARY_OPERATION(operation) \
+    ExprToken* e = create_expression((*expression_idx)++); \
+    const OperationSignature* operation_signature = NULL; \
+    SEMANTIC_ANALYSIS({ \
+        operation_signature = parser_semantic_get_operation_signature( \
+                parser->parser_semantic, \
+                (operation), \
+                EXPR_LOWER_OPERAND->data_type, \
+                EXPR_HIGHER_OPERAND->data_type \
+        ); \
+        if (operation_signature != NULL)    \
+            e->data_type = operation_signature->result_type; \
+    }); \
+
+#define GENERATE_IMPLICIT_CONVERSIONS_FOR_BINARY_OPERATION_SIGNATURE() do {\
+        if(operation_signature != NULL) \
+            GENERATE_STACK_DATA_TYPE_CONVERSION_CODE( \
+                    EXPR_LOWER_OPERAND->data_type, \
+                    EXPR_HIGHER_OPERAND->data_type, \
+                    operation_signature->conversion_target_type \
+            ); \
+    } while(0)
+
 
 
 // --------------------------

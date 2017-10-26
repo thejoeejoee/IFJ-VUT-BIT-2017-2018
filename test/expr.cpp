@@ -16,7 +16,7 @@ class ParserExpressionTestFixture : public ::testing::Test {
     protected:
         Parser* parser;
         StringByCharProvider* provider;
-        DataType data_type;
+        DataType data_type = DATA_TYPE_NONE;
         Token tmp;
 
         void SetUp() override {
@@ -59,11 +59,6 @@ TEST_F(ParserExpressionTestFixture, Constants2) {
     ) << "Error parsing <expression> rule";
 
     EXPECT_EQ(
-            data_type,
-            DATA_TYPE_INTEGER
-    );
-
-    EXPECT_EQ(
             (tmp = lexer_next_token(parser->lexer)).type,
             TOKEN_RIGHT_BRACKET
     ) << "Error get token after <expression> rule";
@@ -94,10 +89,6 @@ TEST_F(ParserExpressionTestFixture, SimpleRelation1) {
             parser_parse_expression(parser, &data_type)
     ) << "Error parsing <expression> rule";
 
-    EXPECT_EQ(
-            data_type,
-            DATA_TYPE_BOOLEAN
-    );
 
     EXPECT_EQ(
             (tmp = lexer_next_token(parser->lexer)).type,
@@ -124,7 +115,6 @@ TEST_F(ParserExpressionTestFixture, SimpleRelation2) {
 }
 
 TEST_F(ParserExpressionTestFixture, SimpleRelation3) {
-
     provider->setString("3 = 3 \n");
 
     EXPECT_TRUE(
@@ -132,41 +122,23 @@ TEST_F(ParserExpressionTestFixture, SimpleRelation3) {
     ) << "Error parsing <expression> rule";
 
     EXPECT_EQ(
-            data_type,
-            DATA_TYPE_BOOLEAN
-    );
-
-    EXPECT_EQ(
             (tmp = lexer_next_token(parser->lexer)).type,
             TOKEN_EOL
     ) << "Error get token after <expression> rule";
-
-
 }
 
 TEST_F(ParserExpressionTestFixture, SimpleRelation4) {
-
     provider->setString("4 >= 3 \n");
-
     EXPECT_TRUE(
             parser_parse_expression(parser, &data_type)
     ) << "Error parsing <expression> rule";
-
-    EXPECT_EQ(
-            data_type,
-            DATA_TYPE_BOOLEAN
-    );
-
     EXPECT_EQ(
             (tmp = lexer_next_token(parser->lexer)).type,
             TOKEN_EOL
     ) << "Error get token after <expression> rule";
-
-
 }
 
 TEST_F(ParserExpressionTestFixture, SimpleRelation5) {
-
     provider->setString("1 < 2 then");
 
     EXPECT_TRUE(
@@ -174,54 +146,29 @@ TEST_F(ParserExpressionTestFixture, SimpleRelation5) {
     ) << "Error parsing <expression> rule";
 
     EXPECT_EQ(
-            data_type,
-            DATA_TYPE_BOOLEAN
-    );
-
-    EXPECT_EQ(
             (tmp = lexer_next_token(parser->lexer)).type,
             TOKEN_THEN
     ) << "Error get token after <expression> rule";
-
-
 }
 
 
 TEST_F(ParserExpressionTestFixture, SimpleRelation6) {
-
     provider->setString("3 <> 4 \n");
-
     EXPECT_TRUE(
             parser_parse_expression(parser, &data_type)
     ) << "Error parsing <expression> rule";
-
-    EXPECT_EQ(
-            data_type,
-            DATA_TYPE_BOOLEAN
-    );
-
     EXPECT_EQ(
             (tmp = lexer_next_token(parser->lexer)).type,
             TOKEN_EOL
     ) << "Error get token after <expression> rule";
-
-
 }
 
 
-TEST_F(ParserExpressionTestFixture, AddConstatnts) {
-
+TEST_F(ParserExpressionTestFixture, AddConstants) {
     provider->setString("30 + 30 scope");
-
     EXPECT_TRUE(
             parser_parse_expression(parser, &data_type)
     ) << "Error parsing <expression> rule";
-
-    EXPECT_EQ(
-            data_type,
-            DATA_TYPE_INTEGER
-    );
-
     EXPECT_EQ(
             (tmp = lexer_next_token(parser->lexer)).type,
             TOKEN_SCOPE
@@ -229,18 +176,10 @@ TEST_F(ParserExpressionTestFixture, AddConstatnts) {
 }
 
 TEST_F(ParserExpressionTestFixture, ConstantsAndBrackets) {
-
     provider->setString("((30 + 10) * 10) / 32 \n");
-
     EXPECT_TRUE(
             parser_parse_expression(parser, &data_type)
     ) << "Error parsing <expression> rule";
-
-    EXPECT_EQ(
-            data_type,
-            DATA_TYPE_DOUBLE
-    );
-
     EXPECT_EQ(
             (tmp = lexer_next_token(parser->lexer)).type,
             TOKEN_EOL
@@ -248,9 +187,7 @@ TEST_F(ParserExpressionTestFixture, ConstantsAndBrackets) {
 }
 
 TEST_F(ParserExpressionTestFixture, AddConstatntsFalse) {
-
     provider->setString("(30+30");
-
     EXPECT_FALSE(
             parser_parse_expression(parser, &data_type)
     ) << "Error parsing <expression> rule";

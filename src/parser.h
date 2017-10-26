@@ -20,7 +20,12 @@
 
 
 #define CALL_RULE(Rule) if (!parser_parse_##Rule(parser)) { token_free(&token); return false; }
-#define CALL_EXPRESSION_RULE(data_type_var) do {if (!parser_parse_expression(parser, &(data_type_var))) { token_free(&token); return false; }} while(false)
+#define CALL_EXPRESSION_RULE(data_type_var) do { \
+    if (!parser_parse_expression(parser, &(data_type_var))) { \
+        token_free(&token); \
+        return false; \
+    } \
+} while(0)
 
 // NEW MACROS
 #define BEFORE(code) do {code} while(false);

@@ -24,5 +24,7 @@ int main(int argc, char** argv) {
 
     parser_free(&parser);
 
+    memory_manager_exit(&memory_manager);
+
     return EXIT_SUCCESS;
 }

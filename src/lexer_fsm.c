@@ -279,10 +279,11 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
             return LEX_FSM__INIT;
 
         case LEX_FSM__COMMENT_BLOCK:
+            if(c == EOF)
+                return LEX_FSM__ERROR;
             if(c == '\'')
                 return LEX_FSM__COMMENT_BLOCK_END;
-            else
-                return LEX_FSM__COMMENT_BLOCK;
+            return LEX_FSM__COMMENT_BLOCK;
 
         case LEX_FSM__COMMENT_BLOCK_END:
             if(c == '/')

@@ -34,7 +34,9 @@
 
 #define MALLOC_CHECK(address) \
     if ((address) == NULL) {\
+        LOG_WARNING("Malloc-like function returned NULL, exiting."); \
         exit_with_code(ERROR_MEMORY);\
+        return NULL; \
     }\
 
 #define MEMORY_MANAGER_INFO_MAX_LENGTH 128

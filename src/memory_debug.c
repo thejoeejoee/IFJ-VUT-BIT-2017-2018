@@ -28,14 +28,15 @@ void* memory_manager_malloc(
     new_page->lazy_free = false;
     new_page->info = (char*) malloc(MEMORY_MANAGER_INFO_MAX_LENGTH + 1);
     MALLOC_CHECK(new_page->info);
+    snprintf(new_page->info, MEMORY_MANAGER_INFO_MAX_LENGTH, MEMORY_MANAGER_INFO_FORMAT, file, line, func);
+
     new_page->address = malloc(new_page->size);
     if(new_page->address == NULL) {
         // at first free allocated info
         free(new_page->info);
         MALLOC_CHECK(new_page->address);
     }
-
-    snprintf(new_page->info, MEMORY_MANAGER_INFO_MAX_LENGTH, MEMORY_MANAGER_INFO_FORMAT, file, line, func);
+    memset(new_page->address, 0, new_page->size); // reset memory block to suppress valgrind's warnings
 
     new_page->next = manager->head;
     manager->head = new_page;

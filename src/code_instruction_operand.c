@@ -147,21 +147,23 @@ char* code_instruction_operand_render(CodeInstructionOperand* operand) {
                     break;
                 case VARIABLE_FRAME_GLOBAL:
                     frame = "GF";
-                    if(operand->data.variable->scope_depth > 0)
+                    if(operand->data.variable->scope_depth > 0) {
                         LOG_WARNING(
                                 "Variable %s on global frame has non-zero scope depth: %zd.",
                                 operand->data.variable->base.key,
                                 operand->data.variable->scope_depth
                         );
+                    }
                     break;
                 case VARIABLE_FRAME_TEMP:
                     frame = "TF";
-                    if(operand->data.variable->scope_depth != 1)
+                    if(operand->data.variable->scope_depth != 1) {
                         LOG_WARNING(
-                                "Variable %s on temp frame has non-parameter scope depth: %zd.",
+                                "Variable %s on temp frame (function parameter) has non-parameter scope depth: %zd.",
                                 operand->data.variable->base.key,
                                 operand->data.variable->scope_depth
                         );
+                    }
                     break;
                 default:
                     LOG_WARNING("Unknown variable frame %d.", operand->data.variable->frame);

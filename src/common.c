@@ -6,7 +6,10 @@ char* c_string_copy(const char* string) {
 
     char* copied = memory_alloc(sizeof(char) * (strlen(string) + 1));
 
-    MALLOC_CHECK(strcpy(copied, string));
+    if(NULL == strcpy(copied, string)) {
+        LOG_WARNING("C-string copy failed, source: '%s'.", string);
+        return NULL;
+    }
 
     return copied;
 }

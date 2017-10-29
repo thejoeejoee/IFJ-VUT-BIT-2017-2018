@@ -1,4 +1,6 @@
-PUSHS i
+#GLOBALS: temp_1, temp_2
+#LABELS: 
+
 #START INLINE Chr(i)
 POPS GF@temp_1
 INT2CHAR GF@temp_2 GF@temp_1

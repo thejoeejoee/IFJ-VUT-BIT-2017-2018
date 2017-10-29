@@ -4,6 +4,10 @@
 const expression_rule_function expr_rule_table[EXPR_RULE_TABLE_SIZE] = {
         expression_rule_id,
         expression_rule_fn,
+		expression_rule_fn_length,
+		expression_rule_fn_substr,
+		expression_rule_fn_asc,
+		expression_rule_fn_chr,
         expression_rule_brackets,
         expression_rule_add,
         expression_rule_sub,
@@ -16,8 +20,7 @@ const expression_rule_function expr_rule_table[EXPR_RULE_TABLE_SIZE] = {
         expression_rule_equal,
         expression_rule_not_equal,
         expression_rule_lesser_or_equal,
-        expression_rule_lesser,
-        expression_rule_fake
+        expression_rule_lesser
 };
 
 bool expression_rule_example(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx) {
@@ -179,11 +182,11 @@ bool expression_rule_brackets(Parser* parser, LList* expr_token_buffer, ExprIdx*
 
 bool expression_rule_fn(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx) {
     /*
-    * RULE  // Note: fn token includes right bracket token
-    * E -> fn )
-    * E -> fn E )
-    * E -> fn E, E )
-    * E -> fn E, E, ... )
+    * RULE
+    * E -> id ( )
+    * E -> id ( E )
+    * E -> id ( E, E )
+    * E -> id ( E, E, ... )
     */
     CodeConstructor* constructor = parser->code_constructor;
     UNUSED(parser);
@@ -648,3 +651,150 @@ bool expression_rule_lesser_or_equal(Parser* parser, LList* expr_token_buffer, E
     return true;
 }
 
+bool expression_rule_fn_length(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx) {
+	/*
+	* RULE
+	* E -> length ( E )
+	*/
+	CodeConstructor* constructor = parser->code_constructor;
+	UNUSED(parser); UNUSED(constructor);
+
+	// NOTE: we are processing rule backwards!
+	EXPR_RULE_CHECK_START();
+	EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_RIGHT_BRACKET);
+	EXPR_RULE_CHECK_TYPE(EXPR_EXPRESSION);
+	EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_LEFT_BRACKET);
+	EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_FN_LENGTH);
+	EXPR_RULE_CHECK_FINISH();
+
+	// NOTE: now we are processing rule regular way - from the left to the right
+
+	// Length(s As String) As Integer
+
+	/* TODO Check:
+	SEMANTIC_ANALYSIS(
+	{
+		ExprToken* token = EXPR_RULE_NEXT_E();
+		token->data_type == DATA_TYPE_STRING;
+	});*/
+	
+	ExprToken* e = create_expression((*expression_idx)++);
+	e->data_type = DATA_TYPE_INTEGER;
+	EXPR_RULE_REPLACE(e);
+	return true;
+
+}
+
+bool expression_rule_fn_substr(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx) {
+	/*
+	* RULE
+	* E -> substr ( E, E, E )
+	*/
+	CodeConstructor* constructor = parser->code_constructor;
+	UNUSED(parser); UNUSED(constructor);
+
+	// NOTE: we are processing rule backwards!
+	EXPR_RULE_CHECK_START();
+	EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_RIGHT_BRACKET);
+	EXPR_RULE_CHECK_TYPE(EXPR_EXPRESSION);
+	EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_COMMA);
+	EXPR_RULE_CHECK_TYPE(EXPR_EXPRESSION);
+	EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_COMMA);
+	EXPR_RULE_CHECK_TYPE(EXPR_EXPRESSION);
+	EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_LEFT_BRACKET);
+	EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_FN_SUBSTR);
+	EXPR_RULE_CHECK_FINISH();
+
+	// NOTE: now we are processing rule regular way - from the left to the right
+
+	// SubStr(s As String, i As Integer, n As Integer) As String
+
+	/* TODO Check:
+	SEMANTIC_ANALYSIS(
+	{
+	ExprToken* token = EXPR_RULE_NEXT_E();
+	token->data_type == DATA_TYPE_STRING;
+	ExprToken* token = EXPR_RULE_NEXT_E();
+	token->data_type == DATA_TYPE_INTEGER;
+	ExprToken* token = EXPR_RULE_NEXT_E();
+	token->data_type == DATA_TYPE_INTEGER;
+	});*/
+
+	ExprToken* e = create_expression((*expression_idx)++);
+	e->data_type = DATA_TYPE_STRING;
+	EXPR_RULE_REPLACE(e);
+	return true;
+
+}
+
+bool expression_rule_fn_asc(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx) {
+	/*
+	* RULE
+	* E -> asc ( E, E )
+	*/
+	CodeConstructor* constructor = parser->code_constructor;
+	UNUSED(parser); UNUSED(constructor);
+
+	// NOTE: we are processing rule backwards!
+	EXPR_RULE_CHECK_START();
+	EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_RIGHT_BRACKET);
+	EXPR_RULE_CHECK_TYPE(EXPR_EXPRESSION);
+	EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_COMMA);
+	EXPR_RULE_CHECK_TYPE(EXPR_EXPRESSION);
+	EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_LEFT_BRACKET);
+	EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_FN_ASC);
+	EXPR_RULE_CHECK_FINISH();
+
+	// NOTE: now we are processing rule regular way - from the left to the right
+
+	// Asc(s As String, i As Integer) As Integer
+
+	/* TODO Check:
+	SEMANTIC_ANALYSIS(
+	{
+	ExprToken* token = EXPR_RULE_NEXT_E();
+	token->data_type == DATA_TYPE_STRING;
+	ExprToken* token = EXPR_RULE_NEXT_E();
+	token->data_type == DATA_TYPE_INTEGER;
+	});*/
+
+	ExprToken* e = create_expression((*expression_idx)++);
+	e->data_type = DATA_TYPE_INTEGER;
+	EXPR_RULE_REPLACE(e);
+	return true;
+
+}
+
+bool expression_rule_fn_chr(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx) {
+	/*
+	* RULE
+	* E -> chr ( E )
+	*/
+	CodeConstructor* constructor = parser->code_constructor;
+	UNUSED(parser); UNUSED(constructor);
+
+	// NOTE: we are processing rule backwards!
+	EXPR_RULE_CHECK_START();
+	EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_RIGHT_BRACKET);
+	EXPR_RULE_CHECK_TYPE(EXPR_EXPRESSION);
+	EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_LEFT_BRACKET);
+	EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_FN_CHR);
+	EXPR_RULE_CHECK_FINISH();
+
+	// NOTE: now we are processing rule regular way - from the left to the right
+
+	// Chr(i As Integer) As String
+
+	/* TODO Check:
+	SEMANTIC_ANALYSIS(
+	{
+	ExprToken* token = EXPR_RULE_NEXT_E();
+	token->data_type == DATA_TYPE_INTEGER;
+	});*/
+
+	ExprToken* e = create_expression((*expression_idx)++);
+	e->data_type = DATA_TYPE_STRING;
+	EXPR_RULE_REPLACE(e);
+	return true;
+
+}

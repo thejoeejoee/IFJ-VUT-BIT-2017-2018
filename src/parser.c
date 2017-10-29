@@ -720,33 +720,25 @@ bool parser_parse_input(Parser* parser) {
 
     RULES(
             CHECK_TOKEN(TOKEN_INPUT);
-            CHECK_TOKEN(
-                    TOKEN_IDENTIFIER,
-                    BEFORE({}),
-                    AFTER(
-                            SEMANTIC_ANALYSIS(
-                                    {
-                                            symbol_variable = symbol_register_find_variable_recursive(
-                                                    parser->parser_semantic->register_,
-                                                    token.data
-                                            );
-                                            if(NULL == symbol_variable) {
-                                        parser->parser_semantic->error_report.error_code = ERROR_SEMANTIC_DEFINITION;
-                                        token_free(&token);
-                                        return false;
-                                    }
-                                    }
-                            );
-            CODE_GENERATION(
+            CHECK_TOKEN(TOKEN_IDENTIFIER);
+            SEMANTIC_ANALYSIS(
                     {
-                            code_constructor_input(
-                                    parser->code_constructor,
-                                    parser->parser_semantic->register_->index_of_found_variable,
-                                    symbol_variable
+                            symbol_variable = symbol_register_find_variable_recursive(
+                                    parser->parser_semantic->register_,
+                                    token.data
                             );
+                            if(NULL == symbol_variable) {
+                        parser->parser_semantic->error_report.error_code = ERROR_SEMANTIC_DEFINITION;
+                        token_free(&token);
+                        return false;
+                    }
                     }
             );
-    ));
+            CODE_GENERATION(
+                    {
+                            code_constructor_input(parser->code_constructor, symbol_variable);
+                    }
+            );
     );
     return true;
 }

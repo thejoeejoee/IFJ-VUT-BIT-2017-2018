@@ -70,6 +70,7 @@ void code_constructor_scope_start(CodeConstructor* constructor) {
 
 void code_constructor_variable_declaration(CodeConstructor* constructor, SymbolVariable* symbol_variable) {
     NULL_POINTER_CHECK(constructor,);
+    NULL_POINTER_CHECK(symbol_variable,);
 
     // TODO: Add generating symbol with corresponding frame
     GENERATE_CODE(
@@ -86,13 +87,11 @@ void code_constructor_variable_declaration(CodeConstructor* constructor, SymbolV
         );
 }
 
-void code_constructor_input(CodeConstructor* constructor, int frame, SymbolVariable* symbol_variable) {
+void code_constructor_input(CodeConstructor* constructor, SymbolVariable* symbol_variable) {
     NULL_POINTER_CHECK(constructor,);
+    NULL_POINTER_CHECK(symbol_variable,);
+    CHECK_VALID_DATA_TYPE(symbol_variable->data_type);
 
-    UNUSED(frame);
-
-    // TODO: Add generationg symbol with corresponding frame
-    // TODO: Add add inicialization on LF
     String* prompt = string_init();
     string_append_s(prompt, "? ");
 
@@ -110,6 +109,7 @@ void code_constructor_input(CodeConstructor* constructor, int frame, SymbolVaria
 
 void code_constructor_if_after_expression(CodeConstructor* constructor) {
     NULL_POINTER_CHECK(constructor,);
+
     constructor->control_statement_depth++;
     // prepare end jump with label to first position in stack
     char* label = code_constructor_generate_label(constructor, "if_end");
@@ -130,6 +130,7 @@ void code_constructor_if_after_expression(CodeConstructor* constructor) {
 
 void code_constructor_if_end_if_block(CodeConstructor* constructor) {
     NULL_POINTER_CHECK(constructor,);
+
     char* label = stack_code_label_get_by_index(constructor->conditions_label_stack, 1);
     GENERATE_CODE(
             I_JUMP,
@@ -140,7 +141,6 @@ void code_constructor_if_end_if_block(CodeConstructor* constructor) {
 
 void code_constructor_if_after_end_if(CodeConstructor* constructor) {
     NULL_POINTER_CHECK(constructor,);
-
 
     CodeLabel* code_label = stack_code_label_pop(constructor->conditions_label_stack);
     GENERATE_CODE(
@@ -162,6 +162,8 @@ void code_constructor_if_after_end_if(CodeConstructor* constructor) {
 
 
 void code_constructor_if_else_if_before_expression(CodeConstructor* constructor) {
+    NULL_POINTER_CHECK(constructor,);
+
     CodeLabel* code_label = stack_code_label_pop(constructor->conditions_label_stack);
     GENERATE_CODE(
             I_LABEL,
@@ -296,6 +298,9 @@ void code_constructor_while_end(CodeConstructor* constructor) {
 }
 
 void code_constructor_variable_expression_assignment(CodeConstructor* constructor, SymbolVariable* variable) {
+    NULL_POINTER_CHECK(constructor,);
+    NULL_POINTER_CHECK(variable,);
+
     GENERATE_CODE(
             I_POP_STACK,
             code_instruction_operand_init_variable(variable)
@@ -347,6 +352,8 @@ void code_constructor_scope_end(CodeConstructor* constructor) {
 
 void code_constructor_stack_type_conversion(CodeConstructor* constructor, DataType current_type, DataType target_type) {
     NULL_POINTER_CHECK(constructor,);
+    CHECK_VALID_DATA_TYPE(current_type);
+    CHECK_VALID_DATA_TYPE(target_type);
 
     // TODO add bool in future
     TypeConversionInstruction* conversion_instruction = (TypeConversionInstruction*) constructor->conversion_instructions->head;
@@ -368,6 +375,10 @@ void code_constructor_stack_type_conversion(CodeConstructor* constructor, DataTy
 void code_constructor_add_conversion_instruction(CodeConstructor* constructor, TypeInstruction instruction,
                                                  DataType current_type, DataType target_type,
                                                  bool is_stack_instruction) {
+    NULL_POINTER_CHECK(constructor,);
+    CHECK_VALID_DATA_TYPE(current_type);
+    CHECK_VALID_DATA_TYPE(target_type);
+
     TypeConversionInstruction* conversion_instruction = (TypeConversionInstruction*) llist_new_tail_item(
             constructor->conversion_instructions);
 
@@ -380,11 +391,16 @@ void code_constructor_add_conversion_instruction(CodeConstructor* constructor, T
 void code_constructor_binary_operation_stack_type_conversion(CodeConstructor* constructor, DataType operand_1_type,
                                                              DataType operand_2_type, DataType target_type,
                                                              SymbolVariable* temp_var) {
+    NULL_POINTER_CHECK(constructor,);
+    NULL_POINTER_CHECK(temp_var,);
+    CHECK_VALID_DATA_TYPE(operand_1_type);
+    CHECK_VALID_DATA_TYPE(operand_2_type);
+    CHECK_VALID_DATA_TYPE(target_type);
+
     if(operand_1_type != target_type) {
         GENERATE_CODE(I_POP_STACK, code_instruction_operand_init_variable(temp_var));
         code_constructor_stack_type_conversion(constructor, operand_1_type, target_type);
         GENERATE_CODE(I_PUSH_STACK, code_instruction_operand_init_variable(temp_var));
-
     }
 
     if(operand_2_type != target_type) {
@@ -392,8 +408,12 @@ void code_constructor_binary_operation_stack_type_conversion(CodeConstructor* co
     }
 }
 
-void code_constructor_unary_operation_stack_type_conversion(CodeConstructor* constructor, DataType operand_1_type,
+void code_constructor_unary_operation_stack_type_conversion(CodeConstructor* constructor, DataType operand_type,
                                                             DataType target_type) {
-    if(operand_1_type != target_type)
-        code_constructor_stack_type_conversion(constructor, operand_1_type, target_type);
+    NULL_POINTER_CHECK(constructor,);
+    CHECK_VALID_DATA_TYPE(operand_type);
+    CHECK_VALID_DATA_TYPE(target_type);
+
+    if(operand_type != target_type)
+        code_constructor_stack_type_conversion(constructor, operand_type, target_type);
 }

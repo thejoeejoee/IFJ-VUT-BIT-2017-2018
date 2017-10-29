@@ -3,6 +3,13 @@
 
 #include "token.h"
 
+#define CHECK_VALID_DATA_TYPE(data_type) do { \
+    if ((data_type) == DATA_TYPE_NONE) { \
+        LOG_WARNING("Invalid data type for " #data_type ": %d.", data_type); \
+    } \
+} while(0)
+
+
 typedef enum {
     DATA_TYPE_NONE = 0,
     DATA_TYPE_INTEGER = TOKEN_INTEGER,

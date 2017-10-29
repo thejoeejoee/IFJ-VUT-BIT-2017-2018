@@ -96,7 +96,7 @@ void code_constructor_variable_declaration(CodeConstructor* constructor, SymbolV
  * @param frame
  * @param symbolVariable
  */
-void code_constructor_input(CodeConstructor* constructor, int frame, SymbolVariable* symbolVariable);
+void code_constructor_input(CodeConstructor* constructor, SymbolVariable* symbolVariable);
 
 /**
  * Generates control block to handle expression result and maybe skip positive statements.
@@ -166,7 +166,8 @@ void code_constructor_return(CodeConstructor* constructor);
 
 void code_constructor_stack_type_conversion(CodeConstructor* constructor, DataType current_type, DataType target_type);
 
-void code_constructor_unary_operation_stack_type_conversion(CodeConstructor* constructor, DataType operand_1_type, DataType target_type);
+void code_constructor_unary_operation_stack_type_conversion(CodeConstructor* constructor, DataType operand_type,
+                                                            DataType target_type);
 
 void code_constructor_binary_operation_stack_type_conversion(CodeConstructor* constructor, DataType operand_1_type, DataType operand_2_type, DataType target_type, SymbolVariable* temp_var);
 

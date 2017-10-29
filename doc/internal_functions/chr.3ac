@@ -1,0 +1,6 @@
+PUSHS i
+#START INLINE Chr(i)
+POPS GF@temp_1
+INT2CHAR GF@temp_2 GF@temp_1
+PUSHS GF@temp_2
+#END INLINE

@@ -1,0 +1,17 @@
+PUSHS i
+PUSHS s
+#START INLINE Asc(s, i)
+POPS GF@temp_1
+POPS GF@temp_2
+STRLEN GF@temp_3 GF@temp_1
+LT GF@temp_3 GF@temp_2 GF@temp_3
+JUMPIFEQ error_label GF@temp_3 bool@false
+GT GF@temp_3 GF@temp_2 int@-1
+JUMPIFEQ error_label GF@temp_3 bool@false
+STRI2INT GF@temp_3 GF@temp_1 GF@temp_2
+PUSHS GF@temp_3
+JUMP ok_label
+LABEL error_label
+PUSHS int@0
+LABEL ok_label
+#END INLINE

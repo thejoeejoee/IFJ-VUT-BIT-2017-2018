@@ -1,0 +1,6 @@
+PUSHS s
+#START INLINE Length(s)
+POPS GF@temp_1
+STRLEN GF@temp_2 GF@temp_1
+PUSHS GF@temp_2
+#END INLINE

@@ -755,18 +755,42 @@ bool expression_rule_fn_asc(Parser* parser, LList* expr_token_buffer, ExprIdx* e
     EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_FN_ASC);
     EXPR_RULE_CHECK_FINISH();
 
-    // NOTE: now we are processing rule regular way - from the left to the right
 
     // Asc(s As String, i As Integer) As Integer
+    // TODO: check expression types for functions params
+    // TODO: add param data types to code_constructor_fn_asc to process by implicit conversions
+    // TODO: Sony... :-)
+    DataType param_data_type = get_n_expr(expr_token_buffer, 2)->data_type;
 
-    /* TODO Check:
+    EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION_FROM_DATA_TYPE(
+            OPERATION_IMPLICIT_CONVERSION,
+            param_data_type
+    );
+
+    // generate implicit conversion
+    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(
+            param_data_type,
+            DATA_TYPE_INTEGER
+    );
+
     SEMANTIC_ANALYSIS(
-    {
-    ExprToken* token = EXPR_RULE_NEXT_E();
-    token->data_type == DATA_TYPE_STRING;
-    ExprToken* token = EXPR_RULE_NEXT_E();
-    token->data_type == DATA_TYPE_INTEGER;
-    });*/
+            {
+                if(get_n_expr(expr_token_buffer, 2)->data_type != DATA_TYPE_INTEGER) {
+                    //parser->parser_semantic->error_report.error_code = ERROR_SEMANTIC_TYPE;
+                    //return false;
+                }
+            }
+    );
+    CODE_GENERATION(
+            {
+                code_constructor_fn_asc(
+                        parser->code_constructor,
+                        parser->parser_semantic->temp_variable1,
+                        parser->parser_semantic->temp_variable2,
+                        parser->parser_semantic->temp_variable3
+                );
+            }
+    );
 
     ExprToken* e = create_expression((*expression_idx)++);
     e->data_type = DATA_TYPE_INTEGER;

@@ -419,3 +419,80 @@ void code_constructor_fn_chr(CodeConstructor* constructor, SymbolVariable* tmp_v
 
     GENERATE_CODE(I_INT_TO_CHAR_STACK);
 }
+
+void code_constructor_fn_asc(
+        CodeConstructor* constructor,
+        SymbolVariable* tmp1,
+        SymbolVariable* index,
+        SymbolVariable* tmp3
+) {
+    NULL_POINTER_CHECK(constructor,);
+    NULL_POINTER_CHECK(tmp1,);
+    // NULL_POINTER_CHECK(index,);
+    NULL_POINTER_CHECK(tmp3,);
+
+    char* zero_label = code_constructor_generate_label(constructor, "asc_zero");
+    char* end_label = code_constructor_generate_label(constructor, "asc_end");
+
+    GENERATE_CODE(I_PUSH_STACK, code_instruction_operand_init_integer(-1));
+    GENERATE_CODE(I_ADD_STACK);
+    GENERATE_CODE(I_POP_STACK, code_instruction_operand_init_variable(index));
+    GENERATE_CODE(I_POP_STACK, code_instruction_operand_init_variable(tmp1));
+    GENERATE_CODE(
+            I_STRING_LENGTH,
+            code_instruction_operand_init_variable(tmp3),
+            code_instruction_operand_init_variable(tmp1)
+    );
+    GENERATE_CODE(
+            I_LESSER_THEN,
+            code_instruction_operand_init_variable(tmp3),
+            code_instruction_operand_init_variable(index),
+            code_instruction_operand_init_variable(tmp3)
+    );
+    GENERATE_CODE(
+            I_JUMP_IF_EQUAL,
+            code_instruction_operand_init_label(zero_label),
+            code_instruction_operand_init_variable(tmp3),
+            code_instruction_operand_init_boolean(false)
+    );
+    GENERATE_CODE(
+            I_GREATER_THEN,
+            code_instruction_operand_init_variable(tmp3),
+            code_instruction_operand_init_variable(index),
+            code_instruction_operand_init_integer(-1)
+    );
+    GENERATE_CODE(
+            I_JUMP_IF_EQUAL,
+            code_instruction_operand_init_label(zero_label),
+            code_instruction_operand_init_variable(tmp3),
+            code_instruction_operand_init_boolean(false)
+    );
+    GENERATE_CODE(
+            I_STRING_TO_INT,
+            code_instruction_operand_init_variable(tmp3),
+            code_instruction_operand_init_variable(tmp1),
+            code_instruction_operand_init_variable(index)
+    );
+    GENERATE_CODE(
+            I_PUSH_STACK,
+            code_instruction_operand_init_variable(tmp3)
+    );
+    GENERATE_CODE(
+            I_JUMP,
+            code_instruction_operand_init_label(end_label)
+    );
+    GENERATE_CODE(
+            I_LABEL,
+            code_instruction_operand_init_label(zero_label)
+    );
+    GENERATE_CODE(
+            I_PUSH_STACK,
+            code_instruction_operand_init_integer(0)
+    );
+    GENERATE_CODE(
+            I_LABEL,
+            code_instruction_operand_init_label(end_label)
+    );
+    memory_free(zero_label);
+    memory_free(end_label);
+}

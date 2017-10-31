@@ -411,3 +411,11 @@ void code_constructor_fn_length(CodeConstructor* constructor, SymbolVariable* tm
     );
     GENERATE_CODE(I_PUSH_STACK, code_instruction_operand_init_variable(tmp_variable));
 }
+
+
+void code_constructor_fn_chr(CodeConstructor* constructor, SymbolVariable* tmp_variable) {
+    NULL_POINTER_CHECK(constructor,);
+    NULL_POINTER_CHECK(tmp_variable,);
+
+    GENERATE_CODE(I_INT_TO_CHAR_STACK);
+}

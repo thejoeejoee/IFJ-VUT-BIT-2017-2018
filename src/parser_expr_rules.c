@@ -682,7 +682,7 @@ bool expression_rule_fn_length(Parser* parser, LList* expr_token_buffer, ExprIdx
     );
     CODE_GENERATION(
             {
-                code_constructor_fn_length(parser->code_constructor, parser->parser_semantic->temp_variable3);
+                code_constructor_fn_length(parser->code_constructor, parser->parser_semantic->temp_variable1);
             }
     );
 
@@ -795,13 +795,23 @@ bool expression_rule_fn_chr(Parser* parser, LList* expr_token_buffer, ExprIdx* e
     // NOTE: now we are processing rule regular way - from the left to the right
 
     // Chr(i As Integer) As String
+    DataType param_data_type = get_n_expr(expr_token_buffer, 2)->data_type;
 
-    /* TODO Check:
-    SEMANTIC_ANALYSIS(
-    {
-    ExprToken* token = EXPR_RULE_NEXT_E();
-    token->data_type == DATA_TYPE_INTEGER;
-    });*/
+    EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION_FROM_DATA_TYPE(
+            OPERATION_IMPLICIT_CONVERSION,
+            param_data_type
+    );
+
+    // generate implicit conversion
+    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(
+            param_data_type,
+            DATA_TYPE_INTEGER
+    );
+    CODE_GENERATION(
+            {
+                code_constructor_fn_chr(parser->code_constructor, parser->parser_semantic->temp_variable1);
+            }
+    );
 
     ExprToken* e = create_expression((*expression_idx)++);
     e->data_type = DATA_TYPE_STRING;

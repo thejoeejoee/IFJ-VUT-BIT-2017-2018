@@ -172,4 +172,6 @@ void code_constructor_binary_operation_stack_type_conversion(CodeConstructor* co
 
 void code_constructor_fn_length(CodeConstructor* constructor, SymbolVariable* tmp_variable);
 
+void code_constructor_fn_chr(CodeConstructor* constructor, SymbolVariable* tmp_variable);
+
 #endif //_CODE_CONSTRUCTOR_H

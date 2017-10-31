@@ -496,3 +496,219 @@ void code_constructor_fn_asc(
     memory_free(zero_label);
     memory_free(end_label);
 }
+
+void code_constructor_fn_substr(CodeConstructor* constructor, SymbolVariable* tmp1, SymbolVariable* tmp2,
+                                SymbolVariable* tmp3, SymbolVariable* tmp4, SymbolVariable* tmp5) {
+
+
+    char* continue_label = code_constructor_generate_label(constructor, "substr_continue");
+    char* loop_label = code_constructor_generate_label(constructor, "substr_loop");
+    char* break_label = code_constructor_generate_label(constructor, "substr_break");
+    char* empty_label = code_constructor_generate_label(constructor, "substr_empty");
+    char* end_label = code_constructor_generate_label(constructor, "substr_end");
+
+    String* empty_string = string_init();
+
+
+    GENERATE_CODE(
+            I_POP_STACK,
+            code_instruction_operand_init_variable(tmp3)
+    );
+
+
+    GENERATE_CODE(
+            I_POP_STACK,
+            code_instruction_operand_init_variable(tmp2)
+    );
+    GENERATE_CODE(
+            I_POP_STACK,
+            code_instruction_operand_init_variable(tmp1)
+    );
+
+    GENERATE_CODE(
+            I_LESSER_THEN,
+            code_instruction_operand_init_variable(tmp4),
+            code_instruction_operand_init_variable(tmp2),
+            code_instruction_operand_init_integer(1)
+    );
+    GENERATE_CODE(
+            I_JUMP_IF_EQUAL,
+            code_instruction_operand_init_label(empty_label),
+            code_instruction_operand_init_variable(tmp4),
+            code_instruction_operand_init_boolean(true)
+    );
+    GENERATE_CODE(
+            I_STRING_LENGTH,
+            code_instruction_operand_init_variable(tmp4),
+            code_instruction_operand_init_variable(tmp1)
+    );
+    GENERATE_CODE(
+            I_JUMP_IF_EQUAL,
+            code_instruction_operand_init_label(empty_label),
+            code_instruction_operand_init_variable(tmp4),
+            code_instruction_operand_init_integer(0)
+    );
+
+    GENERATE_CODE(
+            I_SUB,
+            code_instruction_operand_init_variable(tmp2),
+            code_instruction_operand_init_variable(tmp2),
+            code_instruction_operand_init_integer(1)
+    );
+    GENERATE_CODE(
+            I_SUB,
+            code_instruction_operand_init_variable(tmp4),
+            code_instruction_operand_init_variable(tmp4),
+            code_instruction_operand_init_variable(tmp2)
+    );
+
+
+    GENERATE_CODE(
+            I_PUSH_STACK,
+            code_instruction_operand_init_variable(tmp3)
+    );
+    GENERATE_CODE(
+            I_PUSH_STACK,
+            code_instruction_operand_init_integer(0)
+    );
+    GENERATE_CODE(
+            I_LESSER_THEN_STACK
+    );
+
+    GENERATE_CODE(
+            I_PUSH_STACK,
+            code_instruction_operand_init_variable(tmp3)
+    );
+    GENERATE_CODE(
+            I_PUSH_STACK,
+            code_instruction_operand_init_variable(tmp4)
+    );
+    GENERATE_CODE(I_GREATER_THEN_STACK);
+    GENERATE_CODE(I_OR_STACK);
+    GENERATE_CODE(
+            I_PUSH_STACK,
+            code_instruction_operand_init_boolean(false)
+    );
+    GENERATE_CODE(
+            I_JUMP_IF_EQUAL_STACK,
+            code_instruction_operand_init_label(continue_label)
+    );
+
+
+    GENERATE_CODE(
+            I_MOVE,
+            code_instruction_operand_init_variable(tmp3),
+            code_instruction_operand_init_variable(tmp4)
+    );
+    GENERATE_CODE(
+            I_LABEL,
+            code_instruction_operand_init_label(continue_label)
+    );
+    GENERATE_CODE(
+            I_ADD,
+            code_instruction_operand_init_variable(tmp3),
+            code_instruction_operand_init_variable(tmp3),
+            code_instruction_operand_init_variable(tmp2)
+    );
+    GENERATE_CODE(
+            I_GREATER_THEN,
+            code_instruction_operand_init_variable(tmp4),
+            code_instruction_operand_init_variable(tmp2),
+            code_instruction_operand_init_variable(tmp3)
+    );
+    GENERATE_CODE(
+            I_JUMP_IF_EQUAL,
+            code_instruction_operand_init_label(empty_label),
+            code_instruction_operand_init_variable(tmp4),
+            code_instruction_operand_init_boolean(true)
+    );
+
+
+    GENERATE_CODE(
+            I_MOVE,
+            code_instruction_operand_init_variable(tmp4),
+            code_instruction_operand_init_string(empty_string)
+    );
+    GENERATE_CODE(
+            I_LABEL,
+            code_instruction_operand_init_label(loop_label)
+    );
+    GENERATE_CODE(
+            I_JUMP_IF_EQUAL,
+            code_instruction_operand_init_label(break_label),
+            code_instruction_operand_init_variable(tmp2),
+            code_instruction_operand_init_variable(tmp3)
+    );
+
+    GENERATE_CODE(
+            I_PUSH_STACK,
+            code_instruction_operand_init_variable(tmp3)
+    );
+
+    GENERATE_CODE(
+            I_GET_CHAR,
+            code_instruction_operand_init_variable(tmp5),
+            code_instruction_operand_init_variable(tmp1),
+            code_instruction_operand_init_variable(tmp2)
+    );
+    GENERATE_CODE(
+            I_CONCAT_STRING,
+            code_instruction_operand_init_variable(tmp3),
+            code_instruction_operand_init_variable(tmp4),
+            code_instruction_operand_init_variable(tmp5)
+    );
+    GENERATE_CODE(
+            I_MOVE,
+            code_instruction_operand_init_variable(tmp4),
+            code_instruction_operand_init_variable(tmp3)
+    );
+    GENERATE_CODE(
+            I_POP_STACK,
+            code_instruction_operand_init_variable(tmp3)
+    );
+
+    GENERATE_CODE(
+            I_ADD,
+            code_instruction_operand_init_variable(tmp2),
+            code_instruction_operand_init_variable(tmp2),
+            code_instruction_operand_init_integer(1)
+    );
+    GENERATE_CODE(
+            I_JUMP,
+            code_instruction_operand_init_label(loop_label)
+    );
+
+    GENERATE_CODE(
+            I_LABEL,
+            code_instruction_operand_init_label(break_label)
+    );
+    GENERATE_CODE(
+            I_PUSH_STACK,
+            code_instruction_operand_init_variable(tmp4)
+    );
+    GENERATE_CODE(
+            I_JUMP,
+            code_instruction_operand_init_label(end_label)
+    );
+    GENERATE_CODE(
+            I_LABEL,
+            code_instruction_operand_init_label(empty_label)
+    );
+    GENERATE_CODE(
+            I_PUSH_STACK,
+            code_instruction_operand_init_string(empty_string)
+    );
+    GENERATE_CODE(
+            I_LABEL,
+            code_instruction_operand_init_label(end_label)
+    );
+
+
+    string_free(&empty_string);
+    memory_free(break_label);
+    memory_free(continue_label);
+    memory_free(loop_label);
+    memory_free(end_label);
+    memory_free(empty_label);
+
+}

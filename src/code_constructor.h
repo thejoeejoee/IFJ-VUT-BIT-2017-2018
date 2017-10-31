@@ -177,4 +177,7 @@ void code_constructor_fn_chr(CodeConstructor* constructor, SymbolVariable* tmp_v
 void code_constructor_fn_asc(CodeConstructor* constructor, SymbolVariable* tmp1, SymbolVariable* tmp_variable2,
                              SymbolVariable* tmp_variable3);
 
+void code_constructor_fn_substr(CodeConstructor* constructor, SymbolVariable* tmp1, SymbolVariable* tmp_variable2,
+                                SymbolVariable* tmp_variable3, SymbolVariable* tmp4, SymbolVariable* tmp5);
+
 #endif //_CODE_CONSTRUCTOR_H

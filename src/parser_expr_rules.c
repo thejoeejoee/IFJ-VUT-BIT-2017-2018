@@ -350,8 +350,8 @@ bool expression_rule_add(Parser* parser, LList* expr_token_buffer, ExprIdx* expr
         GENERATE_CODE(
                 I_CONCAT_STRING,
                 code_instruction_operand_init_variable(parser->parser_semantic->temp_variable1),
-                code_instruction_operand_init_variable(parser->parser_semantic->temp_variable1),
-                code_instruction_operand_init_variable(parser->parser_semantic->temp_variable2)
+                code_instruction_operand_init_variable(parser->parser_semantic->temp_variable2),
+                code_instruction_operand_init_variable(parser->parser_semantic->temp_variable1)
         );
         GENERATE_CODE(
                 I_PUSH_STACK,
@@ -728,6 +728,15 @@ bool expression_rule_fn_substr(Parser* parser, LList* expr_token_buffer, ExprIdx
     ExprToken* token = EXPR_RULE_NEXT_E();
     token->data_type == DATA_TYPE_INTEGER;
     });*/
+
+    code_constructor_fn_substr(
+            parser->code_constructor,
+            parser->parser_semantic->temp_variable1,
+            parser->parser_semantic->temp_variable2,
+            parser->parser_semantic->temp_variable3,
+            parser->parser_semantic->temp_variable4,
+            parser->parser_semantic->temp_variable5
+    );
 
     ExprToken* e = create_expression((*expression_idx)++);
     e->data_type = DATA_TYPE_STRING;

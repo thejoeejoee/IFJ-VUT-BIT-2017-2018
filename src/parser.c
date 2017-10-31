@@ -82,6 +82,14 @@ bool parser_parse_program(Parser* parser) {
                         parser->code_constructor,
                         parser->parser_semantic->temp_variable3
                 );
+                code_constructor_variable_declaration(
+                        parser->code_constructor,
+                        parser->parser_semantic->temp_variable4
+                );
+                code_constructor_variable_declaration(
+                        parser->code_constructor,
+                        parser->parser_semantic->temp_variable5
+                );
 
                 code_constructor_start_code(parser->code_constructor);
                 code_constructor_generate_builtin_functions(parser->code_constructor);

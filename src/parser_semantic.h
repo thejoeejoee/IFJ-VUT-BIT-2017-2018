@@ -60,6 +60,8 @@ typedef struct parser_semantic_t {
     SymbolVariable* temp_variable1;
     SymbolVariable* temp_variable2;
     SymbolVariable* temp_variable3;
+    SymbolVariable* temp_variable4;
+    SymbolVariable* temp_variable5;
     LList* operations_signatures[OPERATION__LAST];
 } ParserSemantic;
 

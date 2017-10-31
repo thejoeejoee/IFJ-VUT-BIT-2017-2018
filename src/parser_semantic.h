@@ -21,7 +21,8 @@ typedef enum {
     OPERATION_DIVIDE,
 
     // Bool operations
-            OPERATION_GREATER,
+
+    OPERATION_GREATER,
     OPERATION_GREATER_OR_EQUAL,
     OPERATION_LESSER,
     OPERATION_LESSER_OR_EQUAL,

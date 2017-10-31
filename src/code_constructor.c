@@ -62,6 +62,7 @@ void code_constructor_scope_start(CodeConstructor* constructor) {
         GENERATE_CODE(I_LABEL, code_instruction_operand_init_label(scope_label->label));
         GENERATE_CODE(I_CREATE_FRAME);
         GENERATE_CODE(I_PUSH_FRAME);
+        code_label_free(&scope_label);
     }
 
     constructor->scope_depth++;
@@ -396,4 +397,17 @@ void code_constructor_unary_operation_stack_type_conversion(CodeConstructor* con
                                                             DataType target_type) {
     if(operand_1_type != target_type)
         code_constructor_stack_type_conversion(constructor, operand_1_type, target_type);
+}
+
+void code_constructor_fn_length(CodeConstructor* constructor, SymbolVariable* tmp_variable) {
+    NULL_POINTER_CHECK(constructor,);
+    NULL_POINTER_CHECK(tmp_variable,);
+
+    GENERATE_CODE(I_POP_STACK, code_instruction_operand_init_variable(tmp_variable));
+    GENERATE_CODE(
+            I_STRING_LENGTH,
+            code_instruction_operand_init_variable(tmp_variable),
+            code_instruction_operand_init_variable(tmp_variable)
+    );
+    GENERATE_CODE(I_PUSH_STACK, code_instruction_operand_init_variable(tmp_variable));
 }

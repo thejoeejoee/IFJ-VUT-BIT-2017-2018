@@ -4,13 +4,9 @@
 #include "llist.h"
 #include "common.h"
 
-static ExprTokenType _expr_literal_to_id(ExprTokenType t) {
-    if(
-            t == EXPR_TOKEN_BOOLEAN_LITERAL ||
-            t == EXPR_TOKEN_INTEGER_LITERAL ||
-            t == EXPR_TOKEN_DOUBLE_LITERAL ||
-            t == EXPR_TOKEN_STRING_LITERAL
-            ) {
+static ExprTokenType _expr_internal_fn_literal_to_id(ExprTokenType t) {
+    if( t >= EXPR_TOKEN_BOOLEAN_LITERAL &&
+        t <= EXPR_TOKEN_FN_CHR  ) {
         t = EXPR_TOKEN_IDENTIFIER;
     }
     return t;
@@ -21,8 +17,8 @@ static ExprTokenType _expr_get_precedence(ExprTokenType a, ExprTokenType b) {
     if(!(a & EXPR_TERMINALS_MASK)) { return EXPR_UNKNOWN; }
     if(!(b & EXPR_TERMINALS_MASK)) { return EXPR_UNKNOWN; }
 
-    a = _expr_literal_to_id(a); // treat literals precedence as same as identifiers
-    b = _expr_literal_to_id(b); // treat literals precedence as same as identifiers
+    a = _expr_internal_fn_literal_to_id(a); // treat literals precedence as same as identifiers
+    b = _expr_internal_fn_literal_to_id(b); // treat literals precedence as same as identifiers
 
     a--;
     b--;
@@ -144,6 +140,19 @@ ExprToken* load_expr_token(Lexer* lexer, Token* last_token) {
             expr_t->type = EXPR_TOKEN_STRING_LITERAL;
             expr_t->data.s = c_string_copy(last_token->data);
             break;
+			// Internal functions
+		case TOKEN_LENGTH:
+			expr_t->type = EXPR_TOKEN_FN_LENGTH;
+			break;
+		case TOKEN_SUBSTR:
+			expr_t->type = EXPR_TOKEN_FN_SUBSTR;
+			break;
+		case TOKEN_ASC:
+			expr_t->type = EXPR_TOKEN_FN_ASC;
+			break;
+		case TOKEN_CHR:
+			expr_t->type = EXPR_TOKEN_FN_CHR;
+			break;
         default:
             expr_t->type = EXPR_UNKNOWN;
             break;

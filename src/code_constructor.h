@@ -171,4 +171,14 @@ void code_constructor_unary_operation_stack_type_conversion(CodeConstructor* con
 
 void code_constructor_binary_operation_stack_type_conversion(CodeConstructor* constructor, DataType operand_1_type, DataType operand_2_type, DataType target_type, SymbolVariable* temp_var);
 
+void code_constructor_fn_length(CodeConstructor* constructor, SymbolVariable* tmp_variable);
+
+void code_constructor_fn_chr(CodeConstructor* constructor, SymbolVariable* tmp_variable);
+
+void code_constructor_fn_asc(CodeConstructor* constructor, SymbolVariable* tmp1, SymbolVariable* tmp_variable2,
+                             SymbolVariable* tmp_variable3);
+
+void code_constructor_fn_substr(CodeConstructor* constructor, SymbolVariable* tmp1, SymbolVariable* tmp_variable2,
+                                SymbolVariable* tmp_variable3, SymbolVariable* tmp4, SymbolVariable* tmp5);
+
 #endif //_CODE_CONSTRUCTOR_H

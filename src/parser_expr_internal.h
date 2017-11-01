@@ -34,10 +34,17 @@ typedef enum {
     EXPR_TOKEN_IDENTIFIER = 19,
     EXPR_TOKEN_$ = 20,
 
+	// --- BLOCK of same precedence as identifier ---
     EXPR_TOKEN_BOOLEAN_LITERAL = 21,
     EXPR_TOKEN_INTEGER_LITERAL = 22,
     EXPR_TOKEN_DOUBLE_LITERAL = 23,
     EXPR_TOKEN_STRING_LITERAL = 24,
+
+	EXPR_TOKEN_FN_LENGTH = 25,
+	EXPR_TOKEN_FN_SUBSTR = 26,
+	EXPR_TOKEN_FN_ASC = 27,
+	EXPR_TOKEN_FN_CHR = 28,
+	// --- END of BLOCK ---
 
     // Mask
     EXPR_TERMINALS_MASK = 127, //for internal usage

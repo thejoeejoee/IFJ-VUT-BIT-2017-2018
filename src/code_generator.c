@@ -245,6 +245,13 @@ bool code_generator_instruction(
     if(!_check_operand(op0, signature.type0) ||
        !_check_operand(op1, signature.type1) ||
        !_check_operand(op2, signature.type2)) {
+        LOG_WARNING(
+                "Invalid operands to instruction %d: %d, %d, %d.",
+                type_instruction,
+                op0 != NULL ? op0->type : 0,
+                op1 != NULL ? op1->type : 0,
+                op2 != NULL ? op2->type : 0
+        );
         return false;
     }
 

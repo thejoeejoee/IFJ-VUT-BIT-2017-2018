@@ -79,7 +79,7 @@
 
 // --------------------------
 
-#define EXPR_RULE_TABLE_SIZE 16
+#define EXPR_RULE_TABLE_SIZE 19
 
 typedef bool(*expression_rule_function)(Parser* parser, LList *expr_token_buffer, ExprIdx* expression_idx);
 extern const expression_rule_function expr_rule_table[EXPR_RULE_TABLE_SIZE];
@@ -92,6 +92,11 @@ bool expression_rule_example(Parser* parser, LList *expr_token_buffer, ExprIdx* 
 bool expression_rule_id(Parser* parser, LList *expr_token_buffer, ExprIdx* expression_idx);
 bool expression_rule_brackets(Parser* parser, LList *expr_token_buffer, ExprIdx* expression_idx);
 bool expression_rule_fn(Parser* parser, LList *expr_token_buffer, ExprIdx* expression_idx);
+
+bool expression_rule_fn_length(Parser* parser, LList *expr_token_buffer, ExprIdx* expression_idx);
+bool expression_rule_fn_substr(Parser* parser, LList *expr_token_buffer, ExprIdx* expression_idx);
+bool expression_rule_fn_asc(Parser* parser, LList *expr_token_buffer, ExprIdx* expression_idx);
+bool expression_rule_fn_chr(Parser* parser, LList *expr_token_buffer, ExprIdx* expression_idx);
 
 bool expression_rule_add(Parser* parser, LList *expr_token_buffer, ExprIdx* expression_idx);
 bool expression_rule_sub(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx);

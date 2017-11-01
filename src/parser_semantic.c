@@ -11,6 +11,8 @@ ParserSemantic* parser_semantic_init() {
     parser_semantic->temp_variable1 = NULL;
     parser_semantic->temp_variable2 = NULL;
     parser_semantic->temp_variable3 = NULL;
+    parser_semantic->temp_variable4 = NULL;
+    parser_semantic->temp_variable5 = NULL;
     parser_semantic->error_report.error_code = ERROR_NONE;
 
     // Add allowed operations signatures
@@ -311,9 +313,19 @@ void parser_semantic_setup_temp_variables(ParserSemantic* parser_semantic) {
             parser_semantic->register_->variables->symbol_table,
             "%__temp_variable_3"
     );
+    parser_semantic->temp_variable4 = symbol_table_variable_get_or_create(
+            parser_semantic->register_->variables->symbol_table,
+            "%__temp_variable_4"
+    );
+    parser_semantic->temp_variable5 = symbol_table_variable_get_or_create(
+            parser_semantic->register_->variables->symbol_table,
+            "%__temp_variable_5"
+    );
     parser_semantic->temp_variable1->frame =
     parser_semantic->temp_variable2->frame =
-    parser_semantic->temp_variable3->frame = VARIABLE_FRAME_GLOBAL;
+    parser_semantic->temp_variable3->frame =
+    parser_semantic->temp_variable4->frame =
+    parser_semantic->temp_variable5->frame = VARIABLE_FRAME_GLOBAL;
 }
 
 OperationSignature* parser_semantic_get_operation_signature(

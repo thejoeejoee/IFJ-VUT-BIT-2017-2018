@@ -4,20 +4,12 @@ else ()
     set(UPDATE_DISCONNECTED_IF_AVAILABLE "UPDATE_DISCONNECTED 1")
 endif ()
 
-include(utils/DownloadProject.cmake)
-
 set(BUILD_GTEST ON CACHE INTERNAL "Builds the googletest subproject")
 set(BUILD_GMOCK OFF CACHE INTERNAL "Builds the googlemock subproject")
 
 download_project(
         PROJ googletest
         GIT_REPOSITORY https://github.com/google/googletest.git
-        GIT_TAG master
-        ${UPDATE_DISCONNECTED_IF_AVAILABLE}
-)
-download_project(
-        PROJ codecov
-        GIT_REPOSITORY https://github.com/RWTH-HPC/CMake-codecov.git
         GIT_TAG master
         ${UPDATE_DISCONNECTED_IF_AVAILABLE}
 )
@@ -37,8 +29,6 @@ if (CMAKE_VERSION VERSION_LESS 2.8.11)
     include_directories("${gtest_SOURCE_DIR}/include"
             "${gmock_SOURCE_DIR}/include")
 endif ()
-
-# link downloaded codecov
 
 # ifj2017_test
 file(

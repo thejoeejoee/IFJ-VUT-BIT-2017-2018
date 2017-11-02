@@ -2,6 +2,14 @@ cmake_minimum_required(VERSION 3.0)
 
 project(ifj2017)
 
+# codecov integration
+include(utils/DownloadProject.cmake)
+download_project(
+        PROJ codecov
+        GIT_REPOSITORY https://github.com/RWTH-HPC/CMake-codecov.git
+        GIT_TAG master
+        ${UPDATE_DISCONNECTED_IF_AVAILABLE}
+)
 set(CMAKE_MODULE_PATH "${CMAKE_BINARY_DIR}/codecov-src/cmake" ${CMAKE_MODULE_PATH})
 
 #init

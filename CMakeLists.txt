@@ -37,7 +37,6 @@ add_executable(ifj2017 ${ifj2017_SRC} ${VS_debug_visualizers})
 
 find_package(codecov)
 add_coverage(ifj2017) # to coverage by integration tests
-coverage_evaluate()
 
 set(ifj2017_SRC_no_main ${ifj2017_SRC})
 list(REMOVE_ITEM ifj2017_SRC_no_main "src/ifj2017.c")
@@ -58,3 +57,5 @@ foreach (_source IN ITEMS ${_all_sources})
     ENDIF ()
     source_group("${_source_path}" FILES "${_source}")
 endforeach ()
+
+coverage_evaluate()

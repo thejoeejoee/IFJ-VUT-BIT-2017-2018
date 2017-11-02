@@ -56,4 +56,3 @@ enable_testing()
 
 # coverage
 add_coverage(ifj2017_test)
-coverage_evaluate()

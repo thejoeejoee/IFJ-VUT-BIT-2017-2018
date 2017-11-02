@@ -28,7 +28,8 @@ before_install:
   - cd utils/plotly
   - pyvenv-3.4 .venv
   - source .venv/bin/activate
-  - pip install --upgrade requests[security] typing && pip install -r ./requirements.txt || true
+  - pip install --upgrade requests[security] && pip install -r ./requirements.txt || true
+  - pip install typing
   - cd ../..
 
 script:

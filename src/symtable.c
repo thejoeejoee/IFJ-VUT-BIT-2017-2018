@@ -68,12 +68,7 @@ SymbolTableBaseItem* symbol_table_new_item(const char* key, size_t item_size) {
     NULL_POINTER_CHECK(key, NULL);
     SymbolTableBaseItem* new_item = memory_alloc(item_size);
     char* copied_key = c_string_copy(key);
-
-    if(NULL == strcpy(copied_key, key)) {
-        memory_free(new_item);
-        memory_free(copied_key);
-        return NULL;
-    }
+    NULL_POINTER_CHECK(copied_key, NULL);
 
     new_item->key = copied_key;
     new_item->next = NULL;

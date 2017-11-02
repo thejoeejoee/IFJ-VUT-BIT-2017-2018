@@ -39,7 +39,6 @@ if (CMAKE_VERSION VERSION_LESS 2.8.11)
 endif ()
 
 # link downloaded codecov
-set(CMAKE_MODULE_PATH "${CMAKE_BINARY_DIR}/codecov-src/cmake" ${CMAKE_MODULE_PATH})
 
 # ifj2017_test
 file(
@@ -54,7 +53,6 @@ target_link_libraries(ifj2017_test gtest)
 add_test(NAME test COMMAND ifj2017_test)
 
 enable_testing()
-find_package(codecov)
 
 # coverage
 add_coverage(ifj2017_test)

@@ -32,7 +32,7 @@ TEST_F(CodeInstructionOperandTestFixture, Label) {
 TEST_F(CodeInstructionOperandTestFixture, Variable) {
     auto key = "my_variable_78987987";
     auto symbol = symbol_variable_init(key);
-    symbol_variable_init_data(reinterpret_cast<SymbolTableBaseItem*>(symbol));
+    symbol_variable_init_data((SymbolTableBaseItem*) symbol);
     operand = code_instruction_operand_init_variable(symbol);
 
     EXPECT_EQ(
@@ -43,6 +43,7 @@ TEST_F(CodeInstructionOperandTestFixture, Variable) {
             operand->data.variable->base.key,
             symbol->base.key
     );
+    symbol_variable_free_data((SymbolTableBaseItem*) symbol);
 }
 
 TEST_F(CodeInstructionOperandTestFixture, String) {

@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.0)
 
 project(ifj2017)
 
+set(CMAKE_MODULE_PATH "${CMAKE_BINARY_DIR}/codecov-src/cmake" ${CMAKE_MODULE_PATH})
+
 #init
 IF (CMAKE_COMPILER_IS_GNUCC)
     SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -pedantic -std=c99 -Wno-unused-parameter -Wno-variadic-macros -D__USE_MINGW_ANSI_STDIO")
@@ -32,6 +34,10 @@ file(
         "src/*.c" "src/*.h"
 )
 add_executable(ifj2017 ${ifj2017_SRC} ${VS_debug_visualizers})
+
+find_package(codecov)
+add_coverage(ifj2017) # to coverage by integration tests
+coverage_evaluate()
 
 set(ifj2017_SRC_no_main ${ifj2017_SRC})
 list(REMOVE_ITEM ifj2017_SRC_no_main "src/ifj2017.c")

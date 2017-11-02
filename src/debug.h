@@ -50,7 +50,7 @@ do {\
         log_verbosity = verbosity; \
         code \
         log_verbosity = _verbosity; \
-    } while (false)
+    } while (0)
 
 #define DISABLE_LOG(code) OVERRIDE_VERBOSITY(LOG_VERBOSITY_NONE, code)
 

@@ -15,16 +15,18 @@ typedef struct symbol_table_base_list_item_t {
 /**
  * Callback, which frees data pointer from hash table item.
  */
-typedef void(* free_data_callback_f)(SymbolTableBaseItem*);
+typedef void(* symtable_free_data_callback_f)(SymbolTableBaseItem*);
 
-typedef void(* init_data_callback_f)(SymbolTableBaseItem*);
+typedef void(* symtable_init_data_callback_f)(SymbolTableBaseItem*);
+
+typedef void(* symtable_foreach_callback_f)(const char* key, void* data, void* static_data);
 
 typedef struct symbol_table_t {
     size_t item_size;
     size_t bucket_count;
     size_t item_count;
-    free_data_callback_f free_data_callback;
-    init_data_callback_f init_data_callback;
+    symtable_free_data_callback_f free_data_callback;
+    symtable_init_data_callback_f init_data_callback;
     SymbolTableBaseItem* items[];
 } SymbolTable;
 
@@ -32,9 +34,12 @@ typedef struct symbol_table_t {
  * Construct new hash table with given size.
  * @return Ptr to allocated hash table, NULL in case of error.
  */
-SymbolTable* symbol_table_init(size_t size, size_t item_size,
-                               init_data_callback_f init_data_callback,
-                               free_data_callback_f free_data_callback);
+SymbolTable* symbol_table_init(
+        size_t size,
+        size_t item_size,
+        symtable_init_data_callback_f init_data_callback,
+        symtable_free_data_callback_f free_data_callback
+);
 
 /**
  * Dealloc table from memory.
@@ -74,9 +79,16 @@ SymbolTableBaseItem* symbol_table_get_or_create(SymbolTable* table, const char* 
 SymbolTableBaseItem* symbol_table_get(SymbolTable* table, const char* key);
 
 /**
+ * Create new item with copied key, non linked to table.
+ * @param key key to copy
+ * @param item_size bytes to allocated
+ */
+SymbolTableBaseItem* symbol_table_new_item(const char* key, size_t item_size);
+
+/**
  * Call given function on all items in hash table.
  */
-void symbol_table_foreach(SymbolTable* table, void(* callback)(const char*, void*));
+void symbol_table_foreach(SymbolTable* table, symtable_foreach_callback_f, void* static_data);
 
 /**
  * Try to remove item from table by given key.

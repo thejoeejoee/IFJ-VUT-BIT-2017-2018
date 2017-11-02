@@ -13,6 +13,10 @@ void* memory_manager_malloc(
         const char* func,
         MemoryManager* manager
 ) {
+    UNUSED(file);
+    UNUSED(line);
+    UNUSED(func);
+
     if(!size) {
         LOG_WARNING("Invalid size %zd .", size);
         return NULL;
@@ -37,8 +41,14 @@ void* memory_manager_malloc(
 }
 
 void memory_manager_free(void* address,
+                         const char* file,
+                         unsigned line,
+                         const char* func,
                          MemoryManager* manager) {
     NULL_POINTER_CHECK(address,);
+    UNUSED(file);
+    UNUSED(line);
+    UNUSED(func);
     if(manager == NULL)
         manager = &memory_manager;
 
@@ -54,6 +64,11 @@ void memory_manager_free(void* address,
     }
 
     free(target_page);
+}
+
+void memory_manager_free_lazy(void* address, MemoryManager* manager) {
+    UNUSED(address);
+    UNUSED(manager);
 }
 
 void memory_manager_enter(MemoryManager* manager) {

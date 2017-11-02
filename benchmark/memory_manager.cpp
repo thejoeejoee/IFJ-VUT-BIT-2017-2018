@@ -33,7 +33,7 @@ BENCHMARK_DEFINE_F(MemoryManagerBenchmark, Free)(benchmark::State &st) {
         }
 
         for(auto address: addresses)
-            memory_manager_free(address, manager);
+            memory_manager_free(address, "", 0, "", manager);
 
         addresses.clear();
     }

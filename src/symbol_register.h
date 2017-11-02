@@ -10,6 +10,7 @@
  */
 typedef struct symbol_table_symbol_variable_stack_item_t {
     SymbolTable* symbol_table;
+    size_t index;
     struct symbol_table_symbol_variable_stack_item_t* parent;
 } SymbolTableSymbolVariableStackItem;
 
@@ -19,6 +20,7 @@ typedef struct symbol_table_symbol_variable_stack_item_t {
 typedef struct symbol_register_t {
     SymbolTable* functions;
     SymbolTableSymbolVariableStackItem* variables;
+    signed short index_of_found_variable;
 } SymbolRegister;
 
 /**
@@ -60,5 +62,13 @@ SymbolVariable* symbol_register_find_variable(SymbolRegister* register_, const c
  * @return Found variable symbol or NULL
  */
 SymbolVariable* symbol_register_find_variable_recursive(SymbolRegister* register_, const char* key);
+
+/**
+ * Create variable in current scope (controlled by stack depth), with assign to correct scope.
+ * @param register_ Symbol register
+ * @param key name of variable
+ * @return created SymbolVariable
+ */
+SymbolVariable* symbol_register_new_variable(SymbolRegister* register_, const char* key);
 
 #endif //_SYMBOL_REGISTER_H

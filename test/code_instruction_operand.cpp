@@ -7,10 +7,11 @@ extern "C" {
 
 class CodeInstructionOperandTestFixture : public ::testing::Test {
     protected:
-        CodeInstructionOperand* operand;
+        CodeInstructionOperand* operand = nullptr;
 
         virtual void TearDown() {
-            code_instruction_operand_free(&operand);
+            if(operand != NULL)
+                code_instruction_operand_free(&operand);
         }
 };
 
@@ -22,26 +23,27 @@ TEST_F(CodeInstructionOperandTestFixture, Label) {
             operand->type,
             TYPE_INSTRUCTION_OPERAND_LABEL
     );
-    EXPECT_EQ(
+    EXPECT_STREQ(
             operand->data.label,
             label
     );
 }
 
 TEST_F(CodeInstructionOperandTestFixture, Variable) {
-    auto symbol = static_cast<SymbolVariable*>(memory_alloc(sizeof(SymbolVariable)));
-
+    auto key = "my_variable_78987987";
+    auto symbol = symbol_variable_init(key);
+    symbol_variable_init_data((SymbolTableBaseItem*) symbol);
     operand = code_instruction_operand_init_variable(symbol);
 
     EXPECT_EQ(
             operand->type,
             TYPE_INSTRUCTION_OPERAND_VARIABLE
     );
-    EXPECT_EQ(
-            operand->data.variable,
-            symbol
+    EXPECT_STREQ(
+            operand->data.variable->base.key,
+            symbol->base.key
     );
-    memory_free(symbol);
+    symbol_variable_free_data((SymbolTableBaseItem*) symbol);
 }
 
 TEST_F(CodeInstructionOperandTestFixture, String) {
@@ -54,7 +56,7 @@ TEST_F(CodeInstructionOperandTestFixture, String) {
             TYPE_INSTRUCTION_OPERAND_CONSTANT
     );
     EXPECT_STREQ(
-            string_content(&(operand->data.constant.data.string)),
+            string_content(operand->data.constant.data.string),
             string_content(string)
     );
     EXPECT_EQ(
@@ -64,9 +66,103 @@ TEST_F(CodeInstructionOperandTestFixture, String) {
     string_free(&string);
 }
 
+TEST_F(CodeInstructionOperandTestFixture, StringEscape1) {
+    auto string = string_init();
+    string_append_s(string, "#foo\\bar\nstr ing");
+    char* escaped = code_instruction_operand_escaped_string(string);
+
+    EXPECT_STREQ(
+            escaped,
+            "\\035foo\\092bar\\010str\\032ing"
+    );
+
+    string_free(&string);
+    memory_free(escaped);
+}
+
+TEST_F(CodeInstructionOperandTestFixture, StringEscape2) {
+    auto string = string_init();
+    string_append_s(string, "\16ia\17f\12j\40");
+    char* escaped = code_instruction_operand_escaped_string(string);
+
+    EXPECT_STREQ(
+            escaped,
+            "\\014ia\\015f\\010j\\032"
+    );
+
+    string_free(&string);
+    memory_free(escaped);
+}
+
+TEST_F(CodeInstructionOperandTestFixture, StringEscape3
+) {
+    auto string = string_init();
+    string_append_c(string,
+                    (char) 238);
+    char* escaped = code_instruction_operand_escaped_string(string);
+
+    EXPECT_STREQ(
+            escaped,
+            "\\238"
+    );
+
+    string_free(&string);
+    memory_free(escaped);
+}
+
+TEST_F(CodeInstructionOperandTestFixture, StringRender) {
+    auto string = string_init();
+    string_append_s(string,
+                    "foobarman\xfe");
+    operand = code_instruction_operand_init_string(string);
+    auto rendered = code_instruction_operand_render(operand);
+    EXPECT_STREQ(
+            rendered,
+            "string@foobarman\\254"
+    );
+
+    string_free(&string);
+    memory_free(rendered);
+}
+
+TEST_F(CodeInstructionOperandTestFixture, DataTypeRender) {
+    operand = code_instruction_operand_init_data_type(DATA_TYPE_STRING);
+    auto rendered = code_instruction_operand_render(operand);
+    EXPECT_STREQ(
+            rendered,
+            "string"
+    );
+    memory_free(rendered);
+
+    code_instruction_operand_free(&operand);
+    operand = code_instruction_operand_init_data_type(DATA_TYPE_INTEGER);
+    rendered = code_instruction_operand_render(operand);
+    EXPECT_STREQ(
+            rendered,
+            "int"
+    );
+    memory_free(rendered);
+
+    code_instruction_operand_free(&operand);
+    operand = code_instruction_operand_init_data_type(DATA_TYPE_DOUBLE);
+    rendered = code_instruction_operand_render(operand);
+    EXPECT_STREQ(
+            rendered,
+            "float"
+    );
+    memory_free(rendered);
+
+    code_instruction_operand_free(&operand);
+    operand = code_instruction_operand_init_data_type(DATA_TYPE_BOOLEAN);
+    rendered = code_instruction_operand_render(operand);
+    EXPECT_STREQ(
+            rendered,
+            "bool"
+    );
+    memory_free(rendered);
+}
 
 TEST_F(CodeInstructionOperandTestFixture, Integer) {
-
     auto value = 142;
     operand = code_instruction_operand_init_integer(value);
 
@@ -82,6 +178,17 @@ TEST_F(CodeInstructionOperandTestFixture, Integer) {
             operand->data.constant.data_type,
             DATA_TYPE_INTEGER
     );
+}
+
+TEST_F(CodeInstructionOperandTestFixture, IntegerRender) {
+    auto value = 123456789;
+    operand = code_instruction_operand_init_integer(value);
+    auto rendered = code_instruction_operand_render(operand);
+    EXPECT_STREQ(
+            rendered,
+            "int@123456789"
+    );
+    memory_free(rendered);
 }
 
 TEST_F(CodeInstructionOperandTestFixture, Double) {
@@ -103,6 +210,35 @@ TEST_F(CodeInstructionOperandTestFixture, Double) {
     );
 }
 
+TEST_F(CodeInstructionOperandTestFixture, DoubleRender0) {
+    auto value = 12471254.89765456;
+    operand = code_instruction_operand_init_double(value);
+    auto rendered = code_instruction_operand_render(operand);
+
+#ifdef __MINGW32__
+    const char* expected_value = "float@1.24713e+007";
+#else
+    const char* expected_value = "float@1.24713e+07";
+#endif
+
+    EXPECT_STREQ(
+            rendered,
+            expected_value
+    );
+    memory_free(rendered);
+}
+
+TEST_F(CodeInstructionOperandTestFixture, DoubleRender1) {
+    auto value = -15.54;
+    operand = code_instruction_operand_init_double(value);
+    auto rendered = code_instruction_operand_render(operand);
+    EXPECT_STREQ(
+            rendered,
+            "float@-15.54"
+    );
+    memory_free(rendered);
+}
+
 TEST_F(CodeInstructionOperandTestFixture, Boolean) {
     auto value = false;
     operand = code_instruction_operand_init_boolean(value);
@@ -119,4 +255,25 @@ TEST_F(CodeInstructionOperandTestFixture, Boolean) {
             operand->data.constant.data_type,
             DATA_TYPE_BOOLEAN
     );
+}
+
+TEST_F(CodeInstructionOperandTestFixture, BooleanRender0) {
+    auto value = false;
+    operand = code_instruction_operand_init_boolean(value);
+    auto rendered = code_instruction_operand_render(operand);
+    EXPECT_STREQ(
+            rendered,
+            "bool@false"
+    );
+    memory_free(rendered);
+    code_instruction_operand_free(&operand);
+
+    value = true;
+    operand = code_instruction_operand_init_boolean(value);
+    rendered = code_instruction_operand_render(operand);
+    EXPECT_STREQ(
+            rendered,
+            "bool@true"
+    );
+    memory_free(rendered);
 }

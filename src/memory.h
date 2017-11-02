@@ -24,13 +24,19 @@
 #define memory_alloc_1(size) memory_manager_malloc(size, __FILENAME__, __LINE__, __func__, NULL)
 #define memory_alloc(...) MSVC_EXPAND(GET_OVERLOADED_MACRO12(__VA_ARGS__, memory_alloc_2, memory_alloc_1)(__VA_ARGS__))
 
-#define memory_free_1(address) memory_manager_free(address, NULL)
-#define memory_free_2(address, manager) memory_manager_free(address, manager)
+#define memory_free_1(address) memory_manager_free(address, __FILENAME__, __LINE__, __func__, NULL)
+#define memory_free_2(address, manager) memory_manager_free(address, __FILENAME__, __LINE__, __func__, manager)
 #define memory_free(...) MSVC_EXPAND(GET_OVERLOADED_MACRO12(__VA_ARGS__, memory_free_2, memory_free_1)(__VA_ARGS__))
+
+#define memory_free_lazy_1(address) memory_manager_free_lazy(address, NULL)
+#define memory_free_lazy_2(address, manager) memory_manager_free_lazy(address, manager)
+#define memory_free_lazy(...) MSVC_EXPAND(GET_OVERLOADED_MACRO12(__VA_ARGS__, memory_free_lazy_2, memory_free_lazy_1)(__VA_ARGS__))
 
 #define MALLOC_CHECK(address) \
     if ((address) == NULL) {\
+        LOG_WARNING("Malloc-like function returned NULL, exiting."); \
         exit_with_code(ERROR_MEMORY);\
+        return NULL; \
     }\
 
 #define MEMORY_MANAGER_INFO_MAX_LENGTH 128
@@ -47,6 +53,7 @@ typedef struct memory_manager_page_t {
 #else
     void* address;
     bool allocated;
+    bool lazy_free;
     size_t size;
     char* info;
 #endif
@@ -98,6 +105,19 @@ void* memory_manager_malloc(
  * @param manager memory manager
  */
 void memory_manager_free(
+        void* address,
+        const char* file,
+        unsigned line,
+        const char* func,
+        MemoryManager* manager
+);
+
+/**
+ * Lazy-style of free, only marks page to lazy free at end of memory manager session.
+ * @param address pointer to memory block to mark as lazy-free
+ * @param manager memory manager
+ */
+void memory_manager_free_lazy(
         void* address,
         MemoryManager* manager
 );

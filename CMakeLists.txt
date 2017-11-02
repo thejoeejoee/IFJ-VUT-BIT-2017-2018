@@ -2,9 +2,19 @@ cmake_minimum_required(VERSION 3.0)
 
 project(ifj2017)
 
+# codecov integration
+include(utils/DownloadProject.cmake)
+download_project(
+        PROJ codecov
+        GIT_REPOSITORY https://github.com/RWTH-HPC/CMake-codecov.git
+        GIT_TAG master
+        ${UPDATE_DISCONNECTED_IF_AVAILABLE}
+)
+set(CMAKE_MODULE_PATH "${CMAKE_BINARY_DIR}/codecov-src/cmake" ${CMAKE_MODULE_PATH})
+
 #init
 IF (CMAKE_COMPILER_IS_GNUCC)
-    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -pedantic -std=c99 -Wno-variadic-macros -D__USE_MINGW_ANSI_STDIO")
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -pedantic -std=c99 -Wno-unused-parameter -Wno-variadic-macros -D__USE_MINGW_ANSI_STDIO")
 ELSEIF (MSVC)
     SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /D_CRT_SECURE_NO_WARNINGS /wd4200")
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_CRT_SECURE_NO_WARNINGS /wd4200")
@@ -33,6 +43,9 @@ file(
 )
 add_executable(ifj2017 ${ifj2017_SRC} ${VS_debug_visualizers})
 
+find_package(codecov)
+add_coverage(ifj2017) # to coverage by integration tests
+
 set(ifj2017_SRC_no_main ${ifj2017_SRC})
 list(REMOVE_ITEM ifj2017_SRC_no_main "src/ifj2017.c")
 
@@ -52,3 +65,5 @@ foreach (_source IN ITEMS ${_all_sources})
     ENDIF ()
     source_group("${_source_path}" FILES "${_source}")
 endforeach ()
+
+coverage_evaluate()

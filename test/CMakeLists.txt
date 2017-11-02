@@ -4,20 +4,12 @@ else ()
     set(UPDATE_DISCONNECTED_IF_AVAILABLE "UPDATE_DISCONNECTED 1")
 endif ()
 
-include(utils/DownloadProject.cmake)
-
 set(BUILD_GTEST ON CACHE INTERNAL "Builds the googletest subproject")
 set(BUILD_GMOCK OFF CACHE INTERNAL "Builds the googlemock subproject")
 
 download_project(
         PROJ googletest
         GIT_REPOSITORY https://github.com/google/googletest.git
-        GIT_TAG master
-        ${UPDATE_DISCONNECTED_IF_AVAILABLE}
-)
-download_project(
-        PROJ codecov
-        GIT_REPOSITORY https://github.com/RWTH-HPC/CMake-codecov.git
         GIT_TAG master
         ${UPDATE_DISCONNECTED_IF_AVAILABLE}
 )
@@ -38,9 +30,6 @@ if (CMAKE_VERSION VERSION_LESS 2.8.11)
             "${gmock_SOURCE_DIR}/include")
 endif ()
 
-# link downloaded codecov
-set(CMAKE_MODULE_PATH "${CMAKE_BINARY_DIR}/codecov-src/cmake" ${CMAKE_MODULE_PATH})
-
 # ifj2017_test
 file(
         GLOB_RECURSE ifj2017_test_SRC
@@ -54,8 +43,6 @@ target_link_libraries(ifj2017_test gtest)
 add_test(NAME test COMMAND ifj2017_test)
 
 enable_testing()
-find_package(codecov)
 
 # coverage
 add_coverage(ifj2017_test)
-coverage_evaluate()

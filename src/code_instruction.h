@@ -7,6 +7,8 @@
 typedef enum type_instruction_t {
     // frame + function instructions
 
+    I__NONE,
+
     I_MOVE,
     I_CREATE_FRAME,
     I_PUSH_FRAME,
@@ -34,10 +36,10 @@ typedef enum type_instruction_t {
 
     // comparing
 
-    I_LESS_THEN,
+    I_LESSER_THEN,
     I_GREATER_THEN,
     I_EQUAL,
-    I_LESS_THEN_STACK,
+    I_LESSER_THEN_STACK,
     I_GREATER_THEN_STACK,
     I_EQUAL_STACK,
 
@@ -74,8 +76,8 @@ typedef enum type_instruction_t {
 
     // strings
 
-    I_CONCAT,
-    I_STRING_LEN,
+    I_CONCAT_STRING,
+    I_STRING_LENGTH,
     I_GET_CHAR,
     I_SET_CHAR,
 
@@ -95,8 +97,19 @@ typedef enum type_instruction_t {
     // debug
 
     I_BREAK,
-    I_DEBUG_PRINT
+    I_DEBUG_PRINT,
+
+    I__LAST
 } TypeInstruction;
+
+
+typedef struct code_instruction_signature_t {
+    TypeInstruction type;
+    const char* identifier;
+    TypeInstructionOperand type0;
+    TypeInstructionOperand type1;
+    TypeInstructionOperand type2;
+} CodeInstructionSignature;
 
 typedef struct code_instruction_t {
     TypeInstruction type;
@@ -106,6 +119,8 @@ typedef struct code_instruction_t {
 
     struct code_instruction_t* next;
     struct code_instruction_t* prev;
+
+    CodeInstructionSignature* signature_buffer;
 } CodeInstruction;
 
 CodeInstruction* code_instruction_init(
@@ -116,5 +131,8 @@ CodeInstruction* code_instruction_init(
 );
 
 void code_instruction_free(CodeInstruction** instruction);
+
+
+char* code_instruction_render(CodeInstruction* instruction);
 
 #endif //_INSTRUCTION_H

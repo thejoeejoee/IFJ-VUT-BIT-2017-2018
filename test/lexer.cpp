@@ -24,10 +24,9 @@ class LexerTokenizerTestFixture : public ::testing::Test {
         }
 
         TokenType getNextTokenType() {
-            Token* token = lexer_next_token(lexer);
-            const TokenType tokenType = token->type;
-            memory_free(token);
-
+            Token token = lexer_next_token(lexer);
+            const TokenType tokenType = token.type;
+            token_free(&token);
             return tokenType;
         }
 };
@@ -134,12 +133,21 @@ TEST_F(LexerTokenizerTestFixture, IntegersAndDoubles) {
 234346.4646e465
 1221342.54654e-245
 1221342.54654e+245
+234346e465
+1221342e-245
+1221342e+245
 )RAW");
     char_stack_empty(lexer->lexer_fsm->stack);
 
     const std::vector<TokenType> expectedTokens = {
             TOKEN_EOL,
             TOKEN_INTEGER_LITERAL,
+            TOKEN_EOL,
+            TOKEN_DOUBLE_LITERAL,
+            TOKEN_EOL,
+            TOKEN_DOUBLE_LITERAL,
+            TOKEN_EOL,
+            TOKEN_DOUBLE_LITERAL,
             TOKEN_EOL,
             TOKEN_DOUBLE_LITERAL,
             TOKEN_EOL,
@@ -260,7 +268,7 @@ TEST_F(LexerTokenizerTestFixture, ErrorTokens) {
             LEXER_ERROR__ERROR_LEXEM
     ) << "Error getting error code";
 
-    provider->setString("!\"\\%\"");
+    provider->setString(R"(!"\%")");
     EXPECT_EQ(
             this->getNextTokenType(),
             TOKEN_ERROR
@@ -340,7 +348,6 @@ TEST_F(LexerTokenizerTestFixture, ErrorTokens) {
 
 TEST_F(LexerTokenizerTestFixture, ComplexTest) {
     provider->setString("+ <= >= ahoj _8wtf \\ *");
-    char_stack_empty(lexer->lexer_fsm->stack);
 
     EXPECT_EQ(
             this->getNextTokenType(),
@@ -383,6 +390,67 @@ TEST_F(LexerTokenizerTestFixture, ComplexTest) {
     ) << "Error EOF token";
 }
 
+TEST_F(LexerTokenizerTestFixture, OneLineComment) {
+    provider->setString(R"RAW(PrinT 42; ' !"Zadejte cislo pro vypocet faktorialu";
+InpuT a
+)RAW");
+
+    const std::vector<TokenType> expectedTokens = {
+            TOKEN_PRINT, TOKEN_INTEGER_LITERAL, TOKEN_SEMICOLON,
+            TOKEN_EOL, TOKEN_INPUT, TOKEN_IDENTIFIER
+    };
+
+    for(const TokenType expectedToken: expectedTokens) {
+        EXPECT_EQ(
+                this->getNextTokenType(),
+                expectedToken
+        ) << "Error token in complex test";
+    }
+}
+
+TEST_F(LexerTokenizerTestFixture, StringWithEscapeSequences) {
+    provider->setString(R"(!"foob\238armanr545")");
+
+    Token token = lexer_next_token(lexer);
+    EXPECT_EQ(
+            token.type,
+            TOKEN_STRING_VALUE
+    );
+    EXPECT_STREQ(
+            token.data,
+            "foob\356armanr545"
+    );
+
+    token_free(&token);
+}
+
+TEST_F(LexerTokenizerTestFixture, EmptyString) {
+    provider->setString(R"(!"")");
+
+    Token token = lexer_next_token(lexer);
+    EXPECT_EQ(
+            token.type,
+            TOKEN_STRING_VALUE
+    );
+    EXPECT_STREQ(
+            token.data,
+            ""
+    );
+
+    token_free(&token);
+}
+
+
+TEST_F(LexerTokenizerTestFixture, LongString) {
+    provider->setString(
+            R"(!"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.")");
+
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_STRING_VALUE
+    );
+}
+
 TEST_F(LexerTokenizerTestFixture, SecondComplexTest) {
     provider->setString(R"RAW(
 /'Program 2: Vypocet faktorialu (rekurzivne)'/
@@ -401,7 +469,6 @@ End If
 Return result
 End Function
 )RAW");
-    char_stack_empty(lexer->lexer_fsm->stack);
 
     const std::vector<TokenType> expectedTokens = {
             TOKEN_EOL, TOKEN_EOL, TOKEN_DECLARE, TOKEN_FUNCTION, TOKEN_IDENTIFIER,
@@ -462,7 +529,6 @@ Input s1
 Loop
 End Scope
 )RAW");
-    char_stack_empty(lexer->lexer_fsm->stack);
 
     const std::vector<TokenType> expectedTokens = {
             TOKEN_EOL, TOKEN_EOL, TOKEN_SCOPE,
@@ -470,7 +536,7 @@ End Scope
             TOKEN_AS, TOKEN_STRING, TOKEN_EOL, TOKEN_DIM,
             TOKEN_IDENTIFIER, TOKEN_AS, TOKEN_STRING, TOKEN_EOL,
             TOKEN_DIM, TOKEN_IDENTIFIER, TOKEN_AS,
-            TOKEN_INTEGER, TOKEN_EOL, TOKEN_IDENTIFIER, TOKEN_AS,
+            TOKEN_INTEGER, TOKEN_EOL, TOKEN_EOL, TOKEN_IDENTIFIER, TOKEN_AS,
             TOKEN_STRING, TOKEN_EOL, TOKEN_IDENTIFIER, TOKEN_AS,
             TOKEN_STRING, TOKEN_EOL, TOKEN_IDENTIFIER, TOKEN_AS,
             TOKEN_INTEGER, TOKEN_EOL, TOKEN_IDENTIFIER, TOKEN_EQUAL,

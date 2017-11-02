@@ -24,4 +24,6 @@ void stack_push(Stack* stack, StackBaseItem* item);
 
 StackBaseItem* stack_pop(Stack* stack);
 
+StackBaseItem* stack_get_by_index(Stack* stack, size_t index);
+
 #endif //_STACK_H

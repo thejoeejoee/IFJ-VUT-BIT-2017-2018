@@ -1,12 +1,10 @@
+#include <ctype.h>
 #include "memory.h"
 #include "error.h"
 
 #ifndef NDEBUG
 
 MemoryManager memory_manager;
-
-#define INFO_MAX_LENGTH 128
-#define INFO_FORMAT "%s:%d:%s()"
 
 void* memory_manager_malloc(
         size_t size,
@@ -27,16 +25,18 @@ void* memory_manager_malloc(
 
     new_page->size = size;
     new_page->allocated = true;
+    new_page->lazy_free = false;
     new_page->info = (char*) malloc(MEMORY_MANAGER_INFO_MAX_LENGTH + 1);
     MALLOC_CHECK(new_page->info);
+    snprintf(new_page->info, MEMORY_MANAGER_INFO_MAX_LENGTH, MEMORY_MANAGER_INFO_FORMAT, file, line, func);
+
     new_page->address = malloc(new_page->size);
     if(new_page->address == NULL) {
         // at first free allocated info
         free(new_page->info);
         MALLOC_CHECK(new_page->address);
     }
-
-    snprintf(new_page->info, MEMORY_MANAGER_INFO_MAX_LENGTH, MEMORY_MANAGER_INFO_FORMAT, file, line, func);
+    memset(new_page->address, 0, new_page->size); // reset memory block to suppress valgrind's warnings
 
     new_page->next = manager->head;
     manager->head = new_page;
@@ -45,7 +45,36 @@ void* memory_manager_malloc(
 }
 
 void memory_manager_free(void* address,
+                         const char* file,
+                         unsigned line,
+                         const char* func,
                          MemoryManager* manager) {
+    NULL_POINTER_CHECK(address,);
+    if(manager == NULL)
+        manager = &memory_manager;
+
+    MemoryManagerPage* page = manager->head;
+    while((page != NULL) && (page->address != address)) {
+        page = page->next;
+    }
+    if(page == NULL) {
+        LOG_WARNING(
+                "Allocated memory with address %p to free not found (%s:%d:%s()).",
+                address,
+                file,
+                line,
+                func
+        );
+        return;
+    }
+    page->allocated = false;
+    free(page->address);
+    page->address = NULL;
+
+}
+
+void memory_manager_free_lazy(void* address,
+                              MemoryManager* manager) {
     NULL_POINTER_CHECK(address,);
     if(manager == NULL)
         manager = &memory_manager;
@@ -58,10 +87,7 @@ void memory_manager_free(void* address,
         LOG_WARNING("Allocated memory with address %p to free not found.", address);
         return;
     }
-    page->allocated = false;
-    free(page->address);
-    page->address = NULL;
-
+    page->lazy_free = true;
 }
 
 void memory_manager_enter(MemoryManager* manager) {
@@ -88,11 +114,30 @@ void memory_manager_exit(MemoryManager* manager) {
         pages_count++;
         size_sum += page->size;
 
-        if(page->allocated) {
-            LOG_WARNING("Memory leak of %zu bytes from %s.", page->size, page->info);
+        if(page->allocated && !page->lazy_free) {
+            unsigned char* string = (unsigned char*) page->address;
+            bool is_string = true;
+            if(string[page->size - 1] == 0) {
+                for(int i = 0; i < (int) (page->size) - 1; ++i) {
+                    if(!isprint(string[i])) {
+                        is_string = false;
+                        break;
+                    }
+                }
+            }
+            if(is_string) {
+                LOG_WARNING("Memory leak of %zu bytes from %s: %s.", page->size, page->info, string);
+            } else {
+                LOG_WARNING("Memory leak of %zu bytes from %s.", page->size, page->info);
+            }
             free(page->address);
+            page->address = NULL;
+        } else if(page->lazy_free) {
+            free(page->address);
+            page->address = NULL;
         }
         free(page->info);
+        page->info = NULL;
         free(page);
         page = next;
     }
@@ -124,8 +169,8 @@ void memory_manager_log_stats(MemoryManager* manager) {
 
         page = next;
     }
-    LOG_DEBUG(
-            "Allocated %d bytes in %d pages. Total memory usage %d bytes.",
+    LOG_INFO(
+            "Auto freed %d bytes from %d pages. Total memory usage %d bytes.",
             allocated_size, allocated_pages_count, total_size
     );
 }

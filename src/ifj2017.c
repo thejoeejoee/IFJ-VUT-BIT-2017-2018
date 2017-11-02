@@ -1,14 +1,30 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include "debug.h"
-#include "common.h"
+#include "ifj2017.h"
 
-short log_verbosity = LOG_VERBOSITY_DEBUG;
+int stdin_stream() {
+    return getchar();
+}
 
-int main(int argc, char* argv[]) {
+int main(int argc, char** argv) {
     UNUSED(argc);
     UNUSED(argv);
 
-    printf("Hello world, IFJ!\n");
+
+    log_verbosity = LOG_VERBOSITY_WARNING;
+    Parser* parser = parser_init(stdin_stream);
+
+    if(!parser_parse(parser)) {
+        ErrorReport report = parser->error_report;
+        parser_free(&parser);
+        exit_with_detail_information(report);
+    }
+
+    setbuf(stdout, NULL);
+    code_generator_render(parser->code_constructor->generator, stdout);
+    fflush(stdout);
+
+    parser_free(&parser);
+
+    memory_manager_exit(&memory_manager);
+
     return EXIT_SUCCESS;
 }

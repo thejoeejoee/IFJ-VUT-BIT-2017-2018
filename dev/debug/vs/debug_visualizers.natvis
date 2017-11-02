@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?> 
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
-  <Type Name="LList">
+  <!--<Type Name="LList">
     <Expand>
       <CustomListItems MaxItemsPerView="1000">
         <Variable Name="iter" InitialValue="head"/>
@@ -15,6 +15,23 @@
   </Type>
   <Type Name="LListItem">
     <DisplayString>{value}</DisplayString>
+  </Type>-->
+  
+  <Type Name="LList">
+    <Expand>
+      <CustomListItems MaxItemsPerView="1000">
+        <Variable Name="iter" InitialValue="head"/>
+        <Loop>
+          <Break Condition="iter == nullptr"/>
+          <Item>*(struct expr_token_t*)(iter->value)</Item>
+          <Break Condition="iter == tail"/>
+          <Exec>iter = iter->next</Exec>
+        </Loop>
+      </CustomListItems>
+    </Expand>
+  </Type>
+  <Type Name="expr_token_t">
+    <DisplayString>{type}, {data.s}</DisplayString>
   </Type>
 
   <Type Name="memory_manager_t">

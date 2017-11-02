@@ -157,11 +157,10 @@ char* code_instruction_operand_render(CodeInstructionOperand* operand) {
                     break;
                 case VARIABLE_FRAME_TEMP:
                     frame = "TF";
-                    if(operand->data.variable->scope_depth != 1) {
+                    if(operand->data.variable->scope_depth == 0) {
                         LOG_WARNING(
-                                "Variable %s on temp frame (function parameter) has non-parameter scope depth: %zd.",
-                                operand->data.variable->base.key,
-                                operand->data.variable->scope_depth
+                                "Variable %s on temp frame (function parameter) has zero scope depth - invalid variable init.",
+                                operand->data.variable->base.key
                         );
                     }
                     break;

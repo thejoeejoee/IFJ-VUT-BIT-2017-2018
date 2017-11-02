@@ -182,25 +182,13 @@ void code_generator_free(CodeGenerator** generator) {
     *generator = NULL;
 }
 
-void code_generator_generate_instruction(
+void code_generator_append_instruction(
         CodeGenerator* generator,
-        TypeInstruction type_instruction,
-        CodeInstructionOperand* op0,
-        CodeInstructionOperand* op1,
-        CodeInstructionOperand* op2,
-        CodeInstructionSignature* signature
+        CodeInstruction* instruction
 ) {
     NULL_POINTER_CHECK(generator,);
-    if(signature == NULL) {
-        signature = generator->instruction_signatures + type_instruction;
-    }
-    if(signature->type != type_instruction) {
-        LOG_WARNING("Unknown type instruction, try add instruction signature.");
-        return;
-    }
+    NULL_POINTER_CHECK(instruction,);
 
-    CodeInstruction* instruction = code_instruction_init(type_instruction, op0, op1, op2);
-    instruction->signature_buffer = signature;
     if(generator->last == NULL) {
         generator->last = generator->first = instruction;
         instruction->prev = instruction->next = NULL;
@@ -228,7 +216,8 @@ static bool _check_operand(CodeInstructionOperand* op, TypeInstructionOperand ty
     }
 }
 
-bool code_generator_instruction(
+
+CodeInstruction* code_generator_new_instruction(
         CodeGenerator* generator,
         TypeInstruction type_instruction,
         CodeInstructionOperand* op0,
@@ -236,15 +225,20 @@ bool code_generator_instruction(
         CodeInstructionOperand* op2
 ) {
     NULL_POINTER_CHECK(generator, false);
-    CodeInstructionSignature signature = generator->instruction_signatures[type_instruction];
-    if(signature.type != type_instruction) {
-        LOG_WARNING("Unknown type instruction %d.", type_instruction);
-        return false;
+    if((type_instruction < 0) || (type_instruction >= I__LAST)) {
+        LOG_WARNING("Invalid type instruction.");
+        return NULL;
     }
 
-    if(!_check_operand(op0, signature.type0) ||
-       !_check_operand(op1, signature.type1) ||
-       !_check_operand(op2, signature.type2)) {
+    CodeInstructionSignature* signature = generator->instruction_signatures + type_instruction;
+    if(signature->type != type_instruction) {
+        LOG_WARNING("Unknown type instruction %d.", type_instruction);
+        return NULL;
+    }
+
+    if(!_check_operand(op0, signature->type0) ||
+       !_check_operand(op1, signature->type1) ||
+       !_check_operand(op2, signature->type2)) {
         LOG_WARNING(
                 "Invalid operands to instruction %d: %d, %d, %d.",
                 type_instruction,
@@ -252,14 +246,37 @@ bool code_generator_instruction(
                 op1 != NULL ? op1->type : 0,
                 op2 != NULL ? op2->type : 0
         );
-        return false;
+        return NULL;
     }
 
-    code_generator_generate_instruction(
-            generator, type_instruction, op0, op1, op2,
-            generator->instruction_signatures + type_instruction
+    CodeInstruction* instruction = code_instruction_init(type_instruction, op0, op1, op2);
+    instruction->signature_buffer = signature;
+    return instruction;
+}
+
+CodeInstruction* code_generator_instruction(
+        CodeGenerator* generator,
+        TypeInstruction type_instruction,
+        CodeInstructionOperand* op0,
+        CodeInstructionOperand* op1,
+        CodeInstructionOperand* op2
+) {
+    NULL_POINTER_CHECK(generator, false);
+    CodeInstruction* instruction = code_generator_new_instruction(
+            generator,
+            type_instruction,
+            op0,
+            op1,
+            op2
     );
-    return true;
+    if(instruction == NULL) {
+        return NULL;
+    }
+    code_generator_append_instruction(
+            generator,
+            instruction
+    );
+    return instruction;
 }
 
 void code_generator_render(CodeGenerator* generator, FILE* file) {
@@ -277,4 +294,32 @@ void code_generator_render(CodeGenerator* generator, FILE* file) {
         memory_free(rendered);
     }
     fprintf(file, "\n");
+}
+
+void code_generator_insert_instruction_before(
+        CodeGenerator* generator,
+        CodeInstruction* to_insert,
+        CodeInstruction* before_what
+) {
+    NULL_POINTER_CHECK(generator,);
+    NULL_POINTER_CHECK(to_insert,);
+    NULL_POINTER_CHECK(before_what,);
+    if(to_insert->next != NULL || to_insert->prev != NULL) {
+        LOG_WARNING("Cannot insert already linked instruction.");
+        return;
+    }
+
+    if(before_what->prev != NULL) {
+        // not at start
+        to_insert->prev = before_what->prev;
+        to_insert->next = before_what;
+        before_what->prev->next = to_insert;
+    } else {
+        // at start
+        generator->first = to_insert;
+        to_insert->prev = NULL;
+        to_insert->next = before_what;
+    }
+
+    before_what->prev = to_insert;
 }

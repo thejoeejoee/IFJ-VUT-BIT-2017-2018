@@ -9,7 +9,7 @@ SymbolRegister* symbol_register_init() {
     register_->variables->symbol_table = symbol_table_variable_init(16);
     register_->variables->parent = NULL;
     register_->variables->index = 0;
-    register_->index_of_found_variable = -1;
+    register_->variables_table_counter = 0;
 
     return register_;
 }
@@ -38,9 +38,10 @@ void symbol_register_push_variables_table(SymbolRegister* register_) {
     NULL_POINTER_CHECK(register_,);
 
     SymbolTableSymbolVariableStackItem* item = memory_alloc(sizeof(SymbolTableSymbolVariableStackItem));
+    register_->variables_table_counter++;
     item->symbol_table = symbol_table_variable_init(16);
     item->parent = register_->variables;
-    item->index = register_->variables != NULL ? register_->variables->index + 1 : 0;
+    item->index = register_->variables_table_counter;
     register_->variables = item;
 }
 
@@ -68,17 +69,10 @@ SymbolVariable* symbol_register_find_variable(SymbolRegister* register_, const c
     NULL_POINTER_CHECK(register_->variables->symbol_table, NULL);
     NULL_POINTER_CHECK(key, NULL);
 
-    register_->index_of_found_variable = -1;
-    SymbolVariable* item = symbol_table_variable_get(
+    return symbol_table_variable_get(
             register_->variables->symbol_table,
             key
     );
-    if(item == NULL) {
-        return NULL;
-    }
-
-    register_->index_of_found_variable = 0;
-    return item;
 }
 
 SymbolVariable* symbol_register_find_variable_recursive(SymbolRegister* register_, const char* key) {
@@ -87,19 +81,16 @@ SymbolVariable* symbol_register_find_variable_recursive(SymbolRegister* register
     NULL_POINTER_CHECK(register_->variables->symbol_table, NULL);
     NULL_POINTER_CHECK(key, NULL);
 
-    register_->index_of_found_variable = -1;
     SymbolVariable* item = NULL;
     SymbolTableSymbolVariableStackItem* variables = register_->variables;
 
     while(variables != NULL) {
         item = symbol_table_variable_get(variables->symbol_table, key);
-        register_->index_of_found_variable++;
         if(item != NULL)
             return item;
 
         variables = variables->parent;
     }
-    register_->index_of_found_variable = -1;
     return NULL;
 }
 

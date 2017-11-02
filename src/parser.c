@@ -688,6 +688,11 @@ bool parser_parse_while_(Parser* parser) {
     RULES(
             CHECK_TOKEN(TOKEN_DO);
             CHECK_TOKEN(TOKEN_WHILE);
+            SEMANTIC_ANALYSIS(
+                    {
+                            symbol_register_push_variables_table(parser->parser_semantic->register_);
+                    }
+            );
             CODE_GENERATION(
                     {
                             code_constructor_while_before_condition(parser->code_constructor);
@@ -712,6 +717,11 @@ bool parser_parse_while_(Parser* parser) {
             CODE_GENERATION(
                     {
                             code_constructor_while_end(parser->code_constructor);
+                    }
+            );
+            SEMANTIC_ANALYSIS(
+                    {
+                            symbol_register_pop_variables_table(parser->parser_semantic->register_);
                     }
             );
     );

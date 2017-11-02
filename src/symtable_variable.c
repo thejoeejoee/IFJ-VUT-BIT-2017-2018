@@ -59,7 +59,7 @@ SymbolVariable* symbol_variable_init_from_function_param(SymbolFunction* functio
 
     variable->alias_name = c_string_copy(string_content(param_name));
     variable->frame = VARIABLE_FRAME_TEMP;
-    variable->scope_depth++;
+    variable->scope_depth = function->local_variables_table_index;
 
     string_free(&param_name);
     return variable;

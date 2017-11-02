@@ -50,11 +50,15 @@ typedef struct code_constructor_t {
     Stack* conditions_label_stack;
     Stack* loops_label_stack;
     size_t scope_depth;
-    bool in_function_definition;
+    // for registering label loops to prepend variable declaration before cycle
+    Stack* loops_initial_instruction_stack;
 
-    size_t label_counter;
+    // for generating labels in nested control statements
     size_t control_statement_depth;
+    // for automatic generating conversion instructions
     LList* conversion_instructions;
+    // internal
+    size_t _label_counter;
 } CodeConstructor;
 
 CodeConstructor* code_constructor_init();

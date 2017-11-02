@@ -20,7 +20,7 @@ typedef struct symbol_table_symbol_variable_stack_item_t {
 typedef struct symbol_register_t {
     SymbolTable* functions;
     SymbolTableSymbolVariableStackItem* variables;
-    signed short index_of_found_variable;
+    size_t variables_table_counter;
 } SymbolRegister;
 
 /**

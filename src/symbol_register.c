@@ -8,7 +8,7 @@ SymbolRegister* symbol_register_init() {
     register_->variables = memory_alloc(sizeof(SymbolTable));
     register_->variables->symbol_table = symbol_table_variable_init(16);
     register_->variables->parent = NULL;
-    register_->variables->index = 0;
+    register_->variables->scope_identifier = 0;
     register_->variables_table_counter = 0;
 
     return register_;
@@ -41,7 +41,7 @@ void symbol_register_push_variables_table(SymbolRegister* register_) {
     register_->variables_table_counter++;
     item->symbol_table = symbol_table_variable_init(16);
     item->parent = register_->variables;
-    item->index = register_->variables_table_counter;
+    item->scope_identifier = register_->variables_table_counter;
     register_->variables = item;
 }
 
@@ -59,7 +59,7 @@ void symbol_register_pop_variables_table(SymbolRegister* register_) {
         register_->variables = memory_alloc(sizeof(SymbolTableSymbolVariableStackItem));
         register_->variables->symbol_table = symbol_table_variable_init(16);
         register_->variables->parent = NULL;
-        register_->variables->index = 0;
+        register_->variables->scope_identifier = 0;
     }
 }
 
@@ -100,11 +100,12 @@ SymbolVariable* symbol_register_new_variable(SymbolRegister* register_, const ch
 
     SymbolVariable* variable = symbol_register_find_variable(register_, key);
     if(variable != NULL) {
-        LOG_WARNING("Variable %s in scope %zd already exists, cannot create new.", key, register_->variables->index);
+        LOG_WARNING("Variable %s in scope %zd already exists, cannot create new.", key,
+                    register_->variables->scope_identifier);
         return variable;
     }
 
     variable = symbol_table_variable_get_or_create(register_->variables->symbol_table, key);
-    variable->scope_depth = register_->variables->index;
+    variable->scope_depth = register_->variables->scope_identifier;
     return variable;
 }

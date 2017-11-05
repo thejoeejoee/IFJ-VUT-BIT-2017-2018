@@ -393,7 +393,7 @@ void parser_semantic_function_start(ParserSemantic* parser_semantic, SymbolFunct
 
     symbol_register_push_variables_table(parser_semantic->register_);
 
-    function->local_variables_table_index = parser_semantic->register_->variables->index;
+    function->local_variables_table_index = parser_semantic->register_->variables->scope_identifier;
 
     SymbolFunctionParam* param = function->param;
     while(param != NULL) {

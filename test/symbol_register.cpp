@@ -30,7 +30,7 @@ TEST_F(SymbolRegisterTestFixture, PushAndGetFunctions) {
 
 
     EXPECT_EQ(
-            symbol_register->variables->index,
+            symbol_register->variables->scope_index,
             0
     ) << "Created variable.";
 
@@ -70,7 +70,7 @@ TEST_F(SymbolRegisterTestFixture, FindingVariablesInStack) {
     symbol_register_push_variables_table(symbol_register);
 
     EXPECT_EQ(
-            symbol_register->variables->index,
+            symbol_register->variables->scope_index,
             1
     );
 

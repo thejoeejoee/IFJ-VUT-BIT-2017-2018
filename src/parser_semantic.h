@@ -22,6 +22,9 @@ typedef enum {
 
     // Bool operations
 
+	OPERATION_AND,
+	OPERATION_OR,
+
     OPERATION_GREATER,
     OPERATION_GREATER_OR_EQUAL,
     OPERATION_LESSER,

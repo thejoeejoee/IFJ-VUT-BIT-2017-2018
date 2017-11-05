@@ -779,6 +779,11 @@ bool parser_parse_condition(Parser* parser) {
             );
             CHECK_TOKEN(TOKEN_THEN);
             CHECK_TOKEN(TOKEN_EOL);
+            SEMANTIC_ANALYSIS(
+                    {
+                            symbol_register_push_variables_table(parser->parser_semantic->register_);
+                    }
+            );
             CALL_RULE(eols)
             CALL_RULE_STATEMENTS();
             CODE_GENERATION(
@@ -790,6 +795,11 @@ bool parser_parse_condition(Parser* parser) {
             CALL_RULE(condition_else);
             CHECK_TOKEN(TOKEN_END);
             CHECK_TOKEN(TOKEN_IF);
+            SEMANTIC_ANALYSIS(
+                    {
+                            symbol_register_pop_variables_table(parser->parser_semantic->register_);
+                    }
+            );
             CODE_GENERATION(
                     {
                             code_constructor_if_after_end_if(parser->code_constructor);
@@ -824,6 +834,11 @@ bool parser_parse_condition_elseif(Parser* parser) {
                             code_constructor_if_else_if_before_expression(parser->code_constructor);
                     }
             );
+            SEMANTIC_ANALYSIS(
+                    {
+                            symbol_register_pop_variables_table(parser->parser_semantic->register_);
+                    }
+            );
             CALL_EXPRESSION_RULE(expression_data_type);
             SEMANTIC_ANALYSIS(
                     {
@@ -838,6 +853,11 @@ bool parser_parse_condition_elseif(Parser* parser) {
             CHECK_TOKEN(TOKEN_THEN);
             CHECK_TOKEN(TOKEN_EOL);
             CALL_RULE_STATEMENTS();
+            SEMANTIC_ANALYSIS(
+                    {
+                            symbol_register_push_variables_table(parser->parser_semantic->register_);
+                    }
+            );
             CALL_RULE(condition_elseif);
     );
     );
@@ -871,7 +891,17 @@ bool parser_parse_condition_else(Parser* parser) {
                             code_constructor_if_else_block(parser->code_constructor);
                     }
             );
+            SEMANTIC_ANALYSIS(
+                    {
+                            symbol_register_push_variables_table(parser->parser_semantic->register_);
+                    }
+            );
             CALL_RULE_STATEMENTS();
+            SEMANTIC_ANALYSIS(
+                    {
+                            symbol_register_pop_variables_table(parser->parser_semantic->register_);
+                    }
+            );
     );
     );
     return true;

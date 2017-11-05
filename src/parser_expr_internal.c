@@ -128,6 +128,14 @@ ExprToken* load_expr_token(Lexer* lexer, Token* last_token) {
             expr_t->data.s = c_string_copy(last_token->data);
             break;
             // Literals
+        case TOKEN_TRUE:
+            expr_t->type = EXPR_TOKEN_BOOLEAN_LITERAL;
+            expr_t->data.b = true;
+            break;
+        case TOKEN_FALSE:
+            expr_t->type = EXPR_TOKEN_BOOLEAN_LITERAL;
+            expr_t->data.b = false;
+            break;
         case TOKEN_DOUBLE_LITERAL:
             expr_t->type = EXPR_TOKEN_DOUBLE_LITERAL;
             expr_t->data.s = c_string_copy(last_token->data);
@@ -164,7 +172,6 @@ ExprToken* load_expr_token(Lexer* lexer, Token* last_token) {
 void expr_token_free(ExprToken* t) {
     if(t != NULL) {
         if((t->type == EXPR_TOKEN_IDENTIFIER ||
-            t->type == EXPR_TOKEN_BOOLEAN_LITERAL ||
             t->type == EXPR_TOKEN_INTEGER_LITERAL ||
             t->type == EXPR_TOKEN_DOUBLE_LITERAL ||
             t->type == EXPR_TOKEN_STRING_LITERAL
@@ -187,18 +194,7 @@ int expr_llist_type_cmp(LListBaseItem* a, LListBaseItem* b) {
 
 void expr_llist_free(LListBaseItem* item) {
     ASSERT(item != NULL);
-    ExprToken* t = (ExprToken*) item;
-
-    if(t != NULL) {
-        if((t->type == EXPR_TOKEN_IDENTIFIER ||
-            t->type == EXPR_TOKEN_BOOLEAN_LITERAL ||
-            t->type == EXPR_TOKEN_INTEGER_LITERAL ||
-            t->type == EXPR_TOKEN_DOUBLE_LITERAL ||
-            t->type == EXPR_TOKEN_STRING_LITERAL
-           ) && t->data.s != NULL) {
-            memory_free(t->data.s);
-        }
-    }
+    expr_token_free(item);
 }
 
 ExprToken* create_expr_token(ExprTokenType type) {

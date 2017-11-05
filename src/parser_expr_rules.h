@@ -109,15 +109,12 @@ bool expression_rule_div_int(Parser* parser, LList* expr_token_buffer, ExprIdx* 
 
 bool expression_rule_unary_minus(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx);
 
-// Boolshit
+// Comparison
 bool expression_rule_greater(Parser* parser, LList *expr_token_buffer, ExprIdx* expression_idx);
 bool expression_rule_greater_or_equal(Parser* parser, LList *expr_token_buffer, ExprIdx* expression_idx);
 bool expression_rule_equal(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx);
-
 bool expression_rule_not_equal(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx);
-
 bool expression_rule_lesser_or_equal(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx);
-
 bool expression_rule_lesser(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx);
 
 #endif //_PARSER_EXPR_RULES_H

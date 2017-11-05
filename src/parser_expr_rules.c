@@ -125,7 +125,7 @@ bool expression_rule_id(Parser* parser, LList* expr_token_buffer, ExprIdx* expre
         i->data_type = DATA_TYPE_BOOLEAN;
 
         CodeConstructor* constructor = parser->code_constructor;
-        GENERATE_CODE(I_PUSH_STACK, code_instruction_operand_init_boolean(0 == strcmp(i->data.s, "true")));
+        GENERATE_CODE(I_PUSH_STACK, code_instruction_operand_init_boolean(i->data.b));
 
     } else if(i->type == EXPR_TOKEN_IDENTIFIER) {
         SymbolVariable* variable = symbol_register_find_variable_recursive(

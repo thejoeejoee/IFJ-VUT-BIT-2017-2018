@@ -68,7 +68,6 @@ ParserSemantic* parser_semantic_init() {
                                             DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER);
 
 
-    // TODO add boolean, string, double in greater operation
     const TypeExpressionOperation compare_operations[] = {
             OPERATION_GREATER,
             OPERATION_GREATER_OR_EQUAL,

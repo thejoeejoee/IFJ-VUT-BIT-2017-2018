@@ -868,7 +868,7 @@ bool expression_rule_not(Parser* parser, LList* expr_token_buffer, ExprIdx* expr
 	EXPR_RULE_CHECK_TYPE(EXPR_EXPRESSION);
 	EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_NOT);
 	EXPR_RULE_CHECK_FINISH();
-	EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION(OPERATION_UNARY_MINUS);
+	EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION(OPERATION_NOT);
 
 	// NOTE: now we are processing rule regular way - from the left to the right
 

@@ -14,12 +14,13 @@ typedef enum {
 
 typedef struct symbol_variable_t {
     SymbolTableBaseItem base;
-
     char* alias_name;
 
     DataType data_type;
     SymbolVariableFrame frame;
+
     size_t scope_depth;
+    char* scope_alias;
 } SymbolVariable;
 
 /**

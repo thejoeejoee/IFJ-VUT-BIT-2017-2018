@@ -167,15 +167,26 @@ char* code_instruction_operand_render(CodeInstructionOperand* operand) {
                 default:
                     LOG_WARNING("Unknown variable frame %d.", operand->data.variable->frame);
             }
-            snprintf(
-                    rendered,
-                    length,
-                    "%s@%%%05zd_%s",
-                    frame,
-                    operand->data.variable->scope_depth,
-                    operand->data.variable->alias_name == NULL ?
-                    operand->data.variable->base.key : operand->data.variable->alias_name
-            );
+            if(operand->data.variable->scope_alias == NULL)
+                snprintf(
+                        rendered,
+                        length,
+                        "%s@%%%05zd_%s",
+                        frame,
+                        operand->data.variable->scope_depth,
+                        operand->data.variable->alias_name == NULL ?
+                        operand->data.variable->base.key : operand->data.variable->alias_name
+                );
+            else
+                snprintf(
+                        rendered,
+                        length,
+                        "%s@%%%s_%s",
+                        frame,
+                        operand->data.variable->scope_alias,
+                        operand->data.variable->alias_name == NULL ?
+                        operand->data.variable->base.key : operand->data.variable->alias_name
+                );
         }
             break;
         case TYPE_INSTRUCTION_OPERAND_CONSTANT:

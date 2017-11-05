@@ -110,5 +110,8 @@ SymbolVariable* symbol_register_new_variable(SymbolRegister* register_, const ch
 
     variable = symbol_table_variable_get_or_create(register_->variables->symbol_table, key);
     variable->scope_depth = register_->variables->scope_identifier;
+    if(register_->variables->scope_alias != NULL)
+        variable->scope_alias = c_string_copy(register_->variables->scope_alias);
+
     return variable;
 }

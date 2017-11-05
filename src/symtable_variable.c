@@ -20,6 +20,10 @@ void symbol_variable_free_data(SymbolTableBaseItem* item) {
         memory_free(variable->alias_name);
         variable->alias_name = NULL;
     }
+    if(variable->scope_alias != NULL) {
+        memory_free(variable->scope_alias);
+        variable->scope_alias = NULL;
+    }
 }
 
 void symbol_variable_init_data(SymbolTableBaseItem* item) {
@@ -29,6 +33,7 @@ void symbol_variable_init_data(SymbolTableBaseItem* item) {
     variable->data_type = DATA_TYPE_NONE;
     variable->scope_depth = 0;
     variable->alias_name = NULL;
+    variable->scope_alias = NULL;
 }
 
 SymbolVariable* symbol_variable_copy(SymbolVariable* variable) {
@@ -44,6 +49,9 @@ SymbolVariable* symbol_variable_copy(SymbolVariable* variable) {
     if(variable->alias_name != NULL) {
         new->alias_name = c_string_copy(variable->alias_name);
     }
+    if(variable->scope_alias != NULL) {
+        new->scope_alias = c_string_copy(variable->scope_alias);
+    }
 
     return new;
 }
@@ -58,6 +66,7 @@ SymbolVariable* symbol_variable_init_from_function_param(SymbolFunction* functio
     String* param_name = symbol_function_get_param_name_alias(function, param);
 
     variable->alias_name = c_string_copy(string_content(param_name));
+    variable->scope_alias = c_string_copy(function->base.key);
     variable->frame = VARIABLE_FRAME_TEMP;
 
     string_free(&param_name);

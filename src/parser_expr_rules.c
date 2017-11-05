@@ -15,6 +15,9 @@ const expression_rule_function expr_rule_table[EXPR_RULE_TABLE_SIZE] = {
         expression_rule_div,
         expression_rule_div_int,
         expression_rule_unary_minus,
+		expression_rule_not,
+		expression_rule_and,
+		expression_rule_or,
         expression_rule_greater,
         expression_rule_greater_or_equal,
         expression_rule_equal,
@@ -851,4 +854,90 @@ bool expression_rule_fn_chr(Parser* parser, LList* expr_token_buffer, ExprIdx* e
     EXPR_RULE_REPLACE(e);
     return true;
 
+}
+
+bool expression_rule_not(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx) 
+{
+	/*
+	* RULE
+	* E -> NOT E
+	*/
+
+	CodeConstructor* constructor = parser->code_constructor;
+	UNUSED(parser);
+
+	// NOTE: we are processing rule backwards!
+	EXPR_RULE_CHECK_START();
+	EXPR_RULE_CHECK_TYPE(EXPR_EXPRESSION);
+	EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_NOT);
+	EXPR_RULE_CHECK_FINISH();
+	EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION(OPERATION_UNARY_MINUS);
+
+	// NOTE: now we are processing rule regular way - from the left to the right
+
+	CodeInstructionOperand* inverse_operand = NULL;
+    if(EXPR_HIGHER_OPERAND->data_type != DATA_TYPE_BOOLEAN) {
+            SEMANTIC_ANALYSIS(
+                    {
+                        parser->parser_semantic->error_report.error_code = ERROR_SEMANTIC_TYPE;
+                        return false;
+                    }
+            );
+    }
+    CODE_GENERATION(
+            {
+                CodeConstructor* constructor = parser->code_constructor;
+                GENERATE_CODE(I_NOT_STACK);
+            }
+    );
+
+    ExprToken* e = create_expression((*expression_idx)++);
+    e->data_type = DATA_TYPE_BOOLEAN;
+    EXPR_RULE_REPLACE(e);
+    return true;
+}
+
+bool expression_rule_and(Parser* parser, LList *expr_token_buffer, ExprIdx* expression_idx) {
+	/*
+	* RULE
+	* E -> E AND E
+	*/
+	// backward
+	EXPR_RULE_CHECK_START();
+	EXPR_RULE_CHECK_TYPE(EXPR_EXPRESSION);
+	EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_AND);
+	EXPR_RULE_CHECK_TYPE(EXPR_EXPRESSION);
+	EXPR_RULE_CHECK_FINISH();
+	EXPR_CHECK_BINARY_OPERATION_IMPLICIT_CONVERSION(OPERATION_AND);
+
+	CREATE_EXPR_RESULT_OF_BINARY_OPERATION(OPERATION_AND);
+
+	CodeConstructor* constructor = parser->code_constructor;
+	GENERATE_IMPLICIT_CONVERSIONS_FOR_BINARY_OPERATION_SIGNATURE();
+	GENERATE_CODE(I_AND_STACK);
+
+	EXPR_RULE_REPLACE(e);
+	return true;
+}
+bool expression_rule_or(Parser* parser, LList *expr_token_buffer, ExprIdx* expression_idx) {
+	/*
+	* RULE
+	* E -> E OR E
+	*/
+	// backward
+	EXPR_RULE_CHECK_START();
+	EXPR_RULE_CHECK_TYPE(EXPR_EXPRESSION);
+	EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_OR);
+	EXPR_RULE_CHECK_TYPE(EXPR_EXPRESSION);
+	EXPR_RULE_CHECK_FINISH();
+	EXPR_CHECK_BINARY_OPERATION_IMPLICIT_CONVERSION(OPERATION_OR);
+
+	CREATE_EXPR_RESULT_OF_BINARY_OPERATION(OPERATION_OR);
+
+	CodeConstructor* constructor = parser->code_constructor;
+	GENERATE_IMPLICIT_CONVERSIONS_FOR_BINARY_OPERATION_SIGNATURE();
+	GENERATE_CODE(I_OR_STACK);
+
+	EXPR_RULE_REPLACE(e);
+	return true;
 }

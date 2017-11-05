@@ -79,7 +79,7 @@
 
 // --------------------------
 
-#define EXPR_RULE_TABLE_SIZE 19
+#define EXPR_RULE_TABLE_SIZE 22
 
 typedef bool(*expression_rule_function)(Parser* parser, LList *expr_token_buffer, ExprIdx* expression_idx);
 extern const expression_rule_function expr_rule_table[EXPR_RULE_TABLE_SIZE];
@@ -108,6 +108,11 @@ bool expression_rule_div(Parser* parser, LList* expr_token_buffer, ExprIdx* expr
 bool expression_rule_div_int(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx);
 
 bool expression_rule_unary_minus(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx);
+
+// Boolean
+bool expression_rule_not(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx);
+bool expression_rule_and(Parser* parser, LList *expr_token_buffer, ExprIdx* expression_idx);
+bool expression_rule_or(Parser* parser, LList *expr_token_buffer, ExprIdx* expression_idx);
 
 // Comparison
 bool expression_rule_greater(Parser* parser, LList *expr_token_buffer, ExprIdx* expression_idx);

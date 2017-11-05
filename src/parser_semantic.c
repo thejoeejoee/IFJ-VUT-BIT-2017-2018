@@ -92,6 +92,12 @@ ParserSemantic* parser_semantic_init() {
                                                 DATA_TYPE_STRING, DATA_TYPE_STRING,
                                                 DATA_TYPE_STRING, DATA_TYPE_BOOLEAN);
     }
+	parser_semantic_add_operation_signature(parser_semantic, OPERATION_EQUAL,
+		DATA_TYPE_BOOLEAN, DATA_TYPE_BOOLEAN,
+		DATA_TYPE_BOOLEAN, DATA_TYPE_BOOLEAN);
+	parser_semantic_add_operation_signature(parser_semantic, OPERATION_NOT_EQUAL,
+		DATA_TYPE_BOOLEAN, DATA_TYPE_BOOLEAN,
+		DATA_TYPE_BOOLEAN, DATA_TYPE_BOOLEAN);
 
     // implicit conversions
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_IMPLICIT_CONVERSION,

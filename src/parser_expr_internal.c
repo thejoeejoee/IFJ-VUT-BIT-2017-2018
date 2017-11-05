@@ -194,7 +194,7 @@ int expr_llist_type_cmp(LListBaseItem* a, LListBaseItem* b) {
 
 void expr_llist_free(LListBaseItem* item) {
     ASSERT(item != NULL);
-    expr_token_free(item);
+    expr_token_free((ExprToken*)item);
 }
 
 ExprToken* create_expr_token(ExprTokenType type) {

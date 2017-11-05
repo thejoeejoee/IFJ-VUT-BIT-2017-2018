@@ -30,7 +30,7 @@ TEST_F(SymbolRegisterTestFixture, PushAndGetFunctions) {
 
 
     EXPECT_EQ(
-            symbol_register->variables->scope_index,
+            symbol_register->variables->scope_identifier,
             0
     ) << "Created variable.";
 
@@ -68,11 +68,6 @@ TEST_F(SymbolRegisterTestFixture, FindingVariablesInStack) {
     ) << "Auto allocated data ptr.";
 
     symbol_register_push_variables_table(symbol_register);
-
-    EXPECT_EQ(
-            symbol_register->variables->scope_index,
-            1
-    );
 
     SymbolVariable* found_variable = symbol_register_find_variable(symbol_register, "foo");
 

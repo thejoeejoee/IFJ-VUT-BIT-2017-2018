@@ -38,10 +38,9 @@ void symbol_register_push_variables_table(SymbolRegister* register_) {
     NULL_POINTER_CHECK(register_,);
 
     SymbolTableSymbolVariableStackItem* item = memory_alloc(sizeof(SymbolTableSymbolVariableStackItem));
-    register_->variables_table_counter++;
     item->symbol_table = symbol_table_variable_init(16);
     item->parent = register_->variables;
-    item->scope_identifier = register_->variables_table_counter;
+    item->scope_identifier = register_->variables_table_counter++;
     item->scope_alias = NULL;
     register_->variables = item;
 }
@@ -53,6 +52,8 @@ void symbol_register_pop_variables_table(SymbolRegister* register_) {
     SymbolTableSymbolVariableStackItem* stack_item_to_free = register_->variables;
     register_->variables = stack_item_to_free->parent;
     symbol_table_free(stack_item_to_free->symbol_table);
+    if(stack_item_to_free->scope_alias != NULL)
+        memory_free(stack_item_to_free->scope_alias);
     memory_free(stack_item_to_free);
 
     if(register_->variables == NULL) {

@@ -30,8 +30,6 @@ typedef struct symbol_function_t {
     size_t arguments_count;
     SymbolFunctionParam* param;
     SymbolFunctionParam* param_tail;
-
-    size_t local_variables_table_index;
 } SymbolFunction;
 
 SymbolFunction* symbol_table_function_get_or_create(SymbolTable* table, const char* key);

@@ -392,8 +392,7 @@ void parser_semantic_function_start(ParserSemantic* parser_semantic, SymbolFunct
     NULL_POINTER_CHECK(function,);
 
     symbol_register_push_variables_table(parser_semantic->register_);
-
-    function->local_variables_table_index = parser_semantic->register_->variables->scope_identifier;
+    parser_semantic->register_->variables->scope_alias = c_string_copy(function->base.key);
 
     SymbolFunctionParam* param = function->param;
     while(param != NULL) {
@@ -403,7 +402,6 @@ void parser_semantic_function_start(ParserSemantic* parser_semantic, SymbolFunct
         variable->alias_name = c_string_copy(string_content(param_name));
         variable->frame = VARIABLE_FRAME_LOCAL;
         variable->data_type = param->data_type;
-        variable->scope_depth = function->local_variables_table_index;
 
         string_free(&param_name);
 

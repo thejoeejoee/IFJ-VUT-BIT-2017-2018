@@ -29,7 +29,6 @@ void symbol_function_init_data(SymbolTableBaseItem* item) {
     function->param_tail = NULL;
     function->declared = false;
     function->defined = false;
-    function->local_variables_table_index = 1;
 }
 
 SymbolFunctionParam* symbol_function_add_param(SymbolFunction* function, char* name, DataType data_type) {

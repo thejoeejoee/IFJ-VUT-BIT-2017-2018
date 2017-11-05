@@ -863,9 +863,6 @@ bool expression_rule_not(Parser* parser, LList* expr_token_buffer, ExprIdx* expr
 	* E -> NOT E
 	*/
 
-	CodeConstructor* constructor = parser->code_constructor;
-	UNUSED(parser);
-
 	// NOTE: we are processing rule backwards!
 	EXPR_RULE_CHECK_START();
 	EXPR_RULE_CHECK_TYPE(EXPR_EXPRESSION);
@@ -875,7 +872,6 @@ bool expression_rule_not(Parser* parser, LList* expr_token_buffer, ExprIdx* expr
 
 	// NOTE: now we are processing rule regular way - from the left to the right
 
-	CodeInstructionOperand* inverse_operand = NULL;
     if(EXPR_HIGHER_OPERAND->data_type != DATA_TYPE_BOOLEAN) {
             SEMANTIC_ANALYSIS(
                     {

@@ -12,6 +12,8 @@ typedef struct symbol_table_symbol_variable_stack_item_t {
     SymbolTable* symbol_table;
     size_t scope_identifier;
     struct symbol_table_symbol_variable_stack_item_t* parent;
+
+    char* scope_alias;
 } SymbolTableSymbolVariableStackItem;
 
 /**

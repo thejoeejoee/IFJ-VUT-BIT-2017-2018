@@ -1,8 +1,32 @@
 \section{Struktura projektu}
+Jazyk IFJ17 je podmnožinou jazyka Free Basic. Jazyk není case-sensitiove,
+což znamená že nerozlišuje malá a velká písmena. Je jazykem staticky typovaným.
 \subsection{Lexikální analýza}
-\todo{Describe a lexical analysis}
+Lexikální analyzátor je implementací deterministického konečného
+automatu. Jeho úlohou je rozpoznávat jazykové lexémy a reprezentovat
+je jako tokeny.
+
+Lexikální analyzátor je rozdělen do tří modulů \texttt{lexer.c}, \texttt{lexer\_fsm.c} a \texttt{token.c}
+. Modul \texttt{token.c} obsahuje implementaci abstraktního datového typu token. Modul \texttt{lexer\_fsm.c}
+obsahuje implementaci deterministického konečného automatu. Modul \texttt{lexer.c} poskytuje funkci
+\texttt{lexer\_next\_token}, která řídí činnost deterministického konečného automatu a
+která vrací další token.
+
 \subsection{Synataktická analýza}
-\todo{Describe a syntax analysis}
+Naším úkolem bylo implementovat syntaxí řízený překlad. To znamená
+že syntaktická analýza řídí čínnost překladače.
+
+Pro syntaktickou analýzu programu jako celku byla použita syntaktická
+analýza shora dolů, konkrétně metoda rekurzivního sestupu. Implementace se nachází v modulu \texttt{parser.c}
+
+Pro analýzu výrazů není analýza shora dolů příliš vhodná, proto byla
+použita metoda zdola nahorů v našem případě založená na precedenční
+syntaktické analýza implementovaná v souboru \texttt{parser\_expr.c}.
+
+Přepínání mezi metodami je realizováno následujícím mechanismem. Na celý program je použita funkce \texttt{parser_parse}
+z modulu \texttt{parser.c}. V případě že je jako neterminál očekáván výraz, je volána funkce \texttt{parser_parse_expr}
+z modulu \texttt{parser\_expr}.c, která provede precedenční syntaktickou analýzu výrazu.
+
 \subsection{Precedenční analýza výrazů}
 \todo{Describe a case-by-case analysis}
 \subsection{Interpret}

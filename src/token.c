@@ -11,10 +11,11 @@ Token token_copy(Token token) {
     if(token.data == NULL) {
         return token;
     }
-    return {
+    Token tmp = {
             .data = c_string_copy(token.data),
             .type = token.type
     };
+    return tmp;
 }
 
 void token_free(Token* token) {

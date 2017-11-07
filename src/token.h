@@ -77,6 +77,7 @@ typedef enum {
     TOKEN_ERROR = LEX_FSM__ERROR,
     TOKEN_EOF = LEX_FSM__EOF,
     TOKEN_DATA_TYPE_CLASS = 256,
+    TOKEN_CLASSES = 256,
 
 } TokenType;
 
@@ -87,6 +88,11 @@ typedef struct token_t {
     TokenType type; // Type of token
     char* data;
 } Token;
+
+/**
+* @brief Checks type of token
+*/
+bool token_check(Token token, TokenType type);
 
 /**
 * @brief Performs deep copy of token.

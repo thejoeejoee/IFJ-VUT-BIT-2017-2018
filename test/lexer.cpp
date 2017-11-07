@@ -239,6 +239,52 @@ TEST_F(LexerTokenizerTestFixture, RelationOperators) {
     ) << "Error SMALLER_BIGGER token";
 }
 
+TEST_F(LexerTokenizerTestFixture, ComplexTestMathematicTokens) {
+
+    provider->setString("+-*/+=-=*=/=");
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_ADD
+    );
+
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_SUBTRACT
+    );
+
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_MULTIPLY
+    );
+
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_DIVIDE
+    );
+
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_PLUS_EQUAL
+    );
+
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_MINUS_EQUAL
+    );
+
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_MULTIPLY_EQUAL
+    );
+
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_DIVIDE_EQUAL
+    );
+
+}
+
+
 TEST_F(LexerTokenizerTestFixture, ErrorTokens) {
 
     provider->setString("@");
@@ -356,6 +402,7 @@ TEST_F(LexerTokenizerTestFixture, ErrorTokens) {
             LEXER_ERROR__STRING_FORMAT
     ) << "Error getting error code";
 }
+
 
 TEST_F(LexerTokenizerTestFixture, ComplexTest) {
     provider->setString("+ <= >= ahoj _8wtf \\ *");

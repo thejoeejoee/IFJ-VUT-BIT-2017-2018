@@ -73,13 +73,13 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
                 case '/':
                     return LEX_FSM__SLASH;
                 case '\\':
-                    return LEX_FSM__INTEGER_DIVIDE;
+                    return LEX_FSM__INTEGER_DIVIDE_UNFINISHED;
                 case '+':
-                    return LEX_FSM__ADD;
+                    return LEX_FSM__ADD_UNFINISHED;
                 case '-':
-                    return LEX_FSM__SUBTRACT;
+                    return LEX_FSM__SUBTRACT_UNFINISHED;
                 case '*':
-                    return LEX_FSM__MULTIPLY;
+                    return LEX_FSM__MULTIPLY_UNFINISHED;
                 case '(':
                     return LEX_FSM__LEFT_BRACKET;
                 case ')':
@@ -101,7 +101,42 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
                     break;
             }
             break;
+
+            // Operator unfinished states
+        case LEX_FSM__ADD_UNFINISHED:
+            if(c != '=') {
+                REWIND_CHAR(c);
+                return LEX_FSM__ADD;
+            }
+
+            return LEX_FSM__PLUS_EQUAL;
             // String states
+
+        case LEX_FSM__SUBTRACT_UNFINISHED:
+            if(c != '=') {
+                REWIND_CHAR(c);
+                return LEX_FSM__SUBTRACT;
+            }
+
+            return LEX_FSM__MINUS_EQUAL;
+
+        case LEX_FSM__MULTIPLY_UNFINISHED:
+            if(c != '=') {
+                REWIND_CHAR(c);
+                return LEX_FSM__MULTIPLY;
+            }
+
+            return LEX_FSM__MULTIPLY_EQUAL;
+
+        case LEX_FSM__INTEGER_DIVIDE_UNFINISHED:
+            if(c != '=') {
+                REWIND_CHAR(c);
+                return LEX_FSM__INTEGER_DIVIDE;
+            }
+
+            return LEX_FSM__INTEGER_DIVIDE_EQUAL;
+
+            // Strings
 
         case LEX_FSM__STRING_EXC:
             if(c == '"') {
@@ -267,9 +302,12 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
 
             // Comments
         case LEX_FSM__SLASH:
+            if(c == '=')
+                return LEX_FSM__DIVIDE_EQUAL;
             if(c == '\'')
                 return LEX_FSM__COMMENT_BLOCK;
             else {
+
                 REWIND_CHAR(c);
                 return LEX_FSM__DIVIDE;
             }
@@ -302,7 +340,6 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
 }
 
 LexerFSMState lexer_fsm_get_identifier_state(const char* name) {
-    // TODO: Macro is faster....
 
     static const char* keywords[] = {
             // keywords
@@ -333,6 +370,5 @@ LexerFSMState lexer_fsm_get_identifier_state(const char* name) {
 }
 
 bool lexer_fsm_is_final_state(LexerFSMState state) {
-    return state >= LEX_FSM__ADD;
-    // TODO: inline of macro to better performance
+    return state >= LEX_FSM__PLUS_EQUAL;
 }

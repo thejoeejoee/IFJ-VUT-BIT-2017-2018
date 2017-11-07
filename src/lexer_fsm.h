@@ -48,6 +48,13 @@ typedef enum {
 
     LEX_FSM__INIT = 0,
 
+    // Unfinished states for operators
+            LEX_FSM__ADD_UNFINISHED,
+    LEX_FSM__SUBTRACT_UNFINISHED,
+    LEX_FSM__MULTIPLY_UNFINISHED,
+    LEX_FSM__INTEGER_DIVIDE_UNFINISHED,
+
+
     // Comments
     LEX_FSM__COMMENT_LINE,
     LEX_FSM__SLASH,
@@ -77,6 +84,11 @@ typedef enum {
 
     // FINAL STATES
     // 128 is operator class
+            LEX_FSM__PLUS_EQUAL,
+    LEX_FSM__MINUS_EQUAL,
+    LEX_FSM__MULTIPLY_EQUAL,
+    LEX_FSM__DIVIDE_EQUAL,
+    LEX_FSM__INTEGER_DIVIDE_EQUAL,
     LEX_FSM__ADD,
     LEX_FSM__SUBTRACT,
     LEX_FSM__DIVIDE,

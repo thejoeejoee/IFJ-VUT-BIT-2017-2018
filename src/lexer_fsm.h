@@ -5,7 +5,7 @@
 #include "char_stack.h"
 #include "dynamic_string.h"
 
-#define LEXER_FSM_STREAM_BUFFER_DEFAULT_LENGHT 16
+#define LEXER_FSM_STREAM_BUFFER_DEFAULT_LENGTH 2
 
 /**
  * @brief Pointer to function, which streams the characters

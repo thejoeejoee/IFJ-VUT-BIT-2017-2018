@@ -14,7 +14,7 @@ LexerFSM* lexer_fsm_init(lexer_input_stream_f input_stream) {
     LexerFSM* lexer_fsm = (LexerFSM*) memory_alloc(sizeof(LexerFSM));
     NULL_POINTER_CHECK(lexer_fsm, NULL);
     CharStack* stack = char_stack_init();
-    lexer_fsm->stream_buffer = string_init_with_capacity(LEXER_FSM_STREAM_BUFFER_DEFAULT_LENGHT);
+    lexer_fsm->stream_buffer = string_init_with_capacity(LEXER_FSM_STREAM_BUFFER_DEFAULT_LENGTH);
     lexer_fsm->stack = stack;
     lexer_fsm->input_stream = input_stream;
     lexer_fsm->numeric_char_position = -1;

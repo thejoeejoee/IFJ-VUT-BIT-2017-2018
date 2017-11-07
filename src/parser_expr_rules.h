@@ -41,11 +41,11 @@
         } \
     })
 
-#define EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION_FROM_DATA_TYPE(operation, source_data_type) SEMANTIC_ANALYSIS({ \
-        const DataType target_type = parser_semantic_resolve_implicit_data_type_conversion( \
+#define EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION_FROM_DATA_TYPE(operation, source_data_type, desired_data_type) SEMANTIC_ANALYSIS({ \
+        const DataType _target_type = parser_semantic_resolve_implicit_data_type_conversion( \
         parser->parser_semantic, \
         operation, DATA_TYPE_NONE, source_data_type); \
-        if(target_type == DATA_TYPE_NONE) {\
+        if(_target_type == DATA_TYPE_NONE || desired_data_type != _target_type) {\
             parser->parser_semantic->error_report.error_code = ERROR_SEMANTIC_TYPE; \
             return false; \
         } \

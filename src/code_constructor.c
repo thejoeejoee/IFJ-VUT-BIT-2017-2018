@@ -446,10 +446,12 @@ void code_constructor_unary_operation_stack_type_conversion(CodeConstructor* con
         code_constructor_stack_type_conversion(constructor, operand_type, target_type);
 }
 
-void code_constructor_fn_length(CodeConstructor* constructor, SymbolVariable* tmp_variable) {
+void code_constructor_fn_length(CodeConstructor* constructor, SymbolVariable* tmp_variable, DataType stack_param_type) {
     NULL_POINTER_CHECK(constructor,);
     NULL_POINTER_CHECK(tmp_variable,);
 
+
+    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(stack_param_type, DATA_TYPE_INTEGER);
     GENERATE_CODE(I_POP_STACK, code_instruction_operand_init_variable(tmp_variable));
     GENERATE_CODE(
             I_STRING_LENGTH,
@@ -460,10 +462,11 @@ void code_constructor_fn_length(CodeConstructor* constructor, SymbolVariable* tm
 }
 
 
-void code_constructor_fn_chr(CodeConstructor* constructor, SymbolVariable* tmp_variable) {
+void code_constructor_fn_chr(CodeConstructor* constructor, SymbolVariable* tmp_variable, DataType param_type) {
     NULL_POINTER_CHECK(constructor,);
     NULL_POINTER_CHECK(tmp_variable,);
 
+    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(param_type, DATA_TYPE_INTEGER);
     GENERATE_CODE(I_INT_TO_CHAR_STACK);
 }
 
@@ -471,7 +474,9 @@ void code_constructor_fn_asc(
         CodeConstructor* constructor,
         SymbolVariable* tmp1,
         SymbolVariable* index,
-        SymbolVariable* tmp3
+        SymbolVariable* tmp3,
+        DataType param_1_type,
+        DataType param_2_type
 ) {
     NULL_POINTER_CHECK(constructor,);
     NULL_POINTER_CHECK(tmp1,);
@@ -481,9 +486,11 @@ void code_constructor_fn_asc(
     char* zero_label = code_constructor_generate_label(constructor, "asc_zero");
     char* end_label = code_constructor_generate_label(constructor, "asc_end");
 
+    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(param_2_type, DATA_TYPE_INTEGER);
     GENERATE_CODE(I_PUSH_STACK, code_instruction_operand_init_integer(-1));
     GENERATE_CODE(I_ADD_STACK);
     GENERATE_CODE(I_POP_STACK, code_instruction_operand_init_variable(index));
+    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(param_1_type, DATA_TYPE_STRING);
     GENERATE_CODE(I_POP_STACK, code_instruction_operand_init_variable(tmp1));
     GENERATE_CODE(
             I_STRING_LENGTH,
@@ -545,7 +552,7 @@ void code_constructor_fn_asc(
 }
 
 void code_constructor_fn_substr(CodeConstructor* constructor, SymbolVariable* tmp1, SymbolVariable* tmp2,
-                                SymbolVariable* tmp3, SymbolVariable* tmp4, SymbolVariable* tmp5) {
+                                SymbolVariable* tmp3, SymbolVariable* tmp4, SymbolVariable* tmp5, DataType param_1_type, DataType param_2_type, DataType param_3_type) {
 
 
     char* continue_label = code_constructor_generate_label(constructor, "substr_continue");
@@ -556,17 +563,19 @@ void code_constructor_fn_substr(CodeConstructor* constructor, SymbolVariable* tm
 
     String* empty_string = string_init();
 
-
+    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(param_3_type, DATA_TYPE_INTEGER);
     GENERATE_CODE(
             I_POP_STACK,
             code_instruction_operand_init_variable(tmp3)
     );
 
-
+    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(param_2_type, DATA_TYPE_INTEGER);
     GENERATE_CODE(
             I_POP_STACK,
             code_instruction_operand_init_variable(tmp2)
     );
+
+    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(param_1_type, DATA_TYPE_STRING);
     GENERATE_CODE(
             I_POP_STACK,
             code_instruction_operand_init_variable(tmp1)

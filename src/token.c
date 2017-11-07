@@ -10,15 +10,11 @@ bool token_check(Token token, TokenType type) {
 Token token_copy(Token token) {
     if(token.data == NULL) {
         return token;
-    } else {
-        size_t len = strlen(token.data);
-        char* data = memory_alloc(sizeof(char) * (len + 1));
-        if(NULL == strcpy(data, token.data)) {
-            exit_with_code(ERROR_INTERNAL);
-        }
-        Token tmp = {.data = data, .type = token.type};
-        return tmp;
     }
+    return {
+            .data = c_string_copy(token.data),
+            .type = token.type
+    };
 }
 
 void token_free(Token* token) {

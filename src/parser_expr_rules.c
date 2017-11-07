@@ -676,7 +676,7 @@ bool expression_rule_fn_length(Parser* parser, LList* expr_token_buffer, ExprIdx
     EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION_FROM_DATA_TYPE(
             OPERATION_IMPLICIT_CONVERSION,
             param_data_type,
-            DATA_TYPE_INTEGER
+            DATA_TYPE_STRING
     );
 
 
@@ -722,7 +722,7 @@ bool expression_rule_fn_substr(Parser* parser, LList* expr_token_buffer, ExprIdx
     };
 
     for(unsigned int i = 1; i <= params_count; i++) {
-        params_data_types[i - 1] = get_n_expr(expr_token_buffer, (params_count - i + 2) * 2)
+        params_data_types[i - 1] = get_n_expr(expr_token_buffer, (params_count - i + 1) * 2)
                                    ->data_type;
         EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION_FROM_DATA_TYPE(
                 OPERATION_IMPLICIT_CONVERSION,
@@ -778,12 +778,12 @@ bool expression_rule_fn_asc(Parser* parser, LList* expr_token_buffer, ExprIdx* e
     const unsigned int params_count = 2;
     DataType params_data_types[params_count];
     // note it's NOT backwards
-    const DataType desired_params_data_types[3] = {
+    const DataType desired_params_data_types[2] = {
         DATA_TYPE_STRING, DATA_TYPE_INTEGER
     };
 
     for(unsigned int i = 1; i <= params_count; i++) {
-        params_data_types[i - 1] = get_n_expr(expr_token_buffer, (params_count - i + 2) * 2)
+        params_data_types[i - 1] = get_n_expr(expr_token_buffer, (params_count - i + 1) * 2)
                                    ->data_type;
         EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION_FROM_DATA_TYPE(
                 OPERATION_IMPLICIT_CONVERSION,

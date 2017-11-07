@@ -451,7 +451,7 @@ void code_constructor_fn_length(CodeConstructor* constructor, SymbolVariable* tm
     NULL_POINTER_CHECK(tmp_variable,);
 
 
-    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(stack_param_type, DATA_TYPE_INTEGER);
+    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(stack_param_type, DATA_TYPE_STRING);
     GENERATE_CODE(I_POP_STACK, code_instruction_operand_init_variable(tmp_variable));
     GENERATE_CODE(
             I_STRING_LENGTH,

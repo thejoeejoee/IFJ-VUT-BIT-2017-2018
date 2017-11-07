@@ -24,7 +24,7 @@
 #define EXPR_CHECK_BINARY_OPERATION_IMPLICIT_CONVERSION(operation) SEMANTIC_ANALYSIS({ \
         const DataType target_type = parser_semantic_resolve_implicit_data_type_conversion( \
         parser->parser_semantic, \
-        operation, EXPR_LOWER_OPERAND->data_type, EXPR_HIGHER_OPERAND->data_type); \
+        operation, EXPR_LOWER_OPERAND->data_type, EXPR_HIGHER_OPERAND->data_type, DATA_TYPE_ANY); \
         if(target_type == DATA_TYPE_NONE) {\
             parser->parser_semantic->error_report.error_code = ERROR_SEMANTIC_TYPE; \
             return false; \
@@ -34,7 +34,7 @@
 #define EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION(operation) SEMANTIC_ANALYSIS({ \
         const DataType target_type = parser_semantic_resolve_implicit_data_type_conversion( \
         parser->parser_semantic, \
-        operation, DATA_TYPE_NONE, EXPR_HIGHER_OPERAND->data_type); \
+        operation, DATA_TYPE_NONE, EXPR_HIGHER_OPERAND->data_type, DATA_TYPE_ANY); \
         if(target_type == DATA_TYPE_NONE) {\
             parser->parser_semantic->error_report.error_code = ERROR_SEMANTIC_TYPE; \
             return false; \
@@ -44,7 +44,7 @@
 #define EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION_FROM_DATA_TYPE(operation, source_data_type, desired_data_type) SEMANTIC_ANALYSIS({ \
         const DataType _target_type = parser_semantic_resolve_implicit_data_type_conversion( \
         parser->parser_semantic, \
-        operation, DATA_TYPE_NONE, source_data_type); \
+        operation, DATA_TYPE_NONE, source_data_type, desired_data_type); \
         if(_target_type == DATA_TYPE_NONE || desired_data_type != _target_type) {\
             parser->parser_semantic->error_report.error_code = ERROR_SEMANTIC_TYPE; \
             return false; \
@@ -60,7 +60,8 @@
                 parser->parser_semantic, \
                 (operation), \
                 EXPR_LOWER_OPERAND->data_type, \
-                EXPR_HIGHER_OPERAND->data_type \
+                EXPR_HIGHER_OPERAND->data_type, \
+                DATA_TYPE_ANY \
         ); \
         if (operation_signature != NULL)    \
             e->data_type = operation_signature->result_type; \

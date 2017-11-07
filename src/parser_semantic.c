@@ -102,10 +102,10 @@ ParserSemantic* parser_semantic_init() {
                                             DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE);
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_IMPLICIT_CONVERSION,
                                             DATA_TYPE_INTEGER, DATA_TYPE_NONE,
-                                            DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE);
+                                            DATA_TYPE_INTEGER, DATA_TYPE_INTEGER);
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_IMPLICIT_CONVERSION,
                                             DATA_TYPE_DOUBLE, DATA_TYPE_NONE,
-                                            DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER);
+                                            DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE);
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_IMPLICIT_CONVERSION,
                                             DATA_TYPE_STRING, DATA_TYPE_NONE,
                                             DATA_TYPE_STRING, DATA_TYPE_STRING);
@@ -332,7 +332,8 @@ OperationSignature* parser_semantic_get_operation_signature(
         ParserSemantic* parser_semantic,
         TypeExpressionOperation operation_type,
         DataType operand_1_type,
-        DataType operand_2_type
+        DataType operand_2_type,
+        DataType target_type
 ) {
     LList* operation_signatures = parser_semantic->operations_signatures[operation_type];
     OperationSignature* single_operation_signature = (OperationSignature*) operation_signatures->head;
@@ -340,7 +341,9 @@ OperationSignature* parser_semantic_get_operation_signature(
     while(single_operation_signature != NULL) {
         if(operands_match_data_type_combination(operand_1_type, operand_2_type,
                                                 single_operation_signature->operand_1_type,
-                                                single_operation_signature->operand_2_type)) {
+                                                single_operation_signature->operand_2_type) &&
+                (target_type == single_operation_signature->conversion_target_type ||
+                 target_type == DATA_TYPE_ANY)) {
             return single_operation_signature;
         }
 
@@ -362,13 +365,15 @@ DataType parser_semantic_resolve_implicit_data_type_conversion(
         ParserSemantic* parser_semantic,
         TypeExpressionOperation operation_type,
         DataType operand_1_type,
-        DataType operand_2_type
+        DataType operand_2_type,
+        DataType target_conversion_type
 ) {
     OperationSignature* op_signature = parser_semantic_get_operation_signature(
             parser_semantic,
             operation_type,
             operand_1_type,
-            operand_2_type
+            operand_2_type,
+            target_conversion_type
     );
     if(op_signature == NULL)
         return DATA_TYPE_NONE;

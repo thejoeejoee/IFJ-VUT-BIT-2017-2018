@@ -987,3 +987,25 @@ bool parser_parse_assignment(Parser* parser) {
     parser->parser_semantic->actual_variable = NULL;
     return true;
 }
+
+bool parser_parse_modify_assignment(Parser* parser) {
+    /*
+     * RULE
+     * <assignment> -> <modify> <expression>
+     * <modify> -> +=
+     * <modify> -> -=
+     * <modify> -> *=
+     * <modify> -> /=
+     * <modify> -> \=
+     */
+
+    DataType expression_data_type;
+    UNUSED(expression_data_type);
+    RULES(
+            CHECK_TOKEN(TOKEN_EQUAL);
+
+    );
+
+
+    return true;
+}

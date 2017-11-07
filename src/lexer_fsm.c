@@ -128,8 +128,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
 
         case LEX_FSM__STRING_SLASH:
             if(isdigit(c)) {
-                lexer_fsm->numeric_char_position = 0;
-                lexer_fsm->numeric_char_value[0] = c;
+                lexer_fsm->numeric_char_value[lexer_fsm->numeric_char_position = 0] = (char) c;
                 return LEX_FSM__STRING_NUMERIC_CHAR;
             }
 
@@ -154,8 +153,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
             // Integer literal
         case LEX_FSM__STRING_NUMERIC_CHAR:
             if(isdigit(c)) {
-                lexer_fsm->numeric_char_position++;
-                lexer_fsm->numeric_char_value[lexer_fsm->numeric_char_position] = c;
+                lexer_fsm->numeric_char_value[++lexer_fsm->numeric_char_position] = (char) c;
                 if(lexer_fsm->numeric_char_position == 2) {
 
                     lexer_fsm->numeric_char_value[3] = '\0';
@@ -165,11 +163,15 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
                         string_append_c(lexer_fsm->stream_buffer, (char) numeric_char_value);
                         return LEX_FSM__STRING_LOAD;
                     }
+                    // not in escape range
+                    lexer_fsm->lexer_error = LEXER_ERROR__STRING_FORMAT;
+                    return LEX_FSM__ERROR;
 
                 }
                 return LEX_FSM__STRING_NUMERIC_CHAR;
 
             }
+            // invalid char in \ddd sequence
             lexer_fsm->lexer_error = LEXER_ERROR__STRING_FORMAT;
             return LEX_FSM__ERROR;
 

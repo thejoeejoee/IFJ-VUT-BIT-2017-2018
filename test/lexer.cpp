@@ -165,7 +165,7 @@ TEST_F(LexerTokenizerTestFixture, IntegersAndDoubles) {
         EXPECT_EQ(
                 this->getNextTokenType(),
                 expectedToken
-        ) << "Error string token";
+        );
     }
 }
 
@@ -335,6 +335,17 @@ TEST_F(LexerTokenizerTestFixture, ErrorTokens) {
     ) << "Error getting error code";
 
     provider->setString("!\\256");
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_ERROR
+    ) << "Error ERROR token";
+
+    EXPECT_EQ(
+            lexer->lexer_fsm->lexer_error,
+            LEXER_ERROR__STRING_FORMAT
+    ) << "Error getting error code";
+
+    provider->setString(R"(!"\512")");
     EXPECT_EQ(
             this->getNextTokenType(),
             TOKEN_ERROR

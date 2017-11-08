@@ -1043,11 +1043,14 @@ bool parser_parse_modify_assignment(Parser* parser) {
             }
     );
 
-    // TODO implicit conversion
-    OperationSignature* operation_signature = parser_semantic_get_operation_signature(parser->parser_semantic, operation_type, actual_variable->data_type, expression_data_type, DATA_TYPE_ANY);
-
     CODE_GENERATION(
         {
+            OperationSignature* operation_signature = parser_semantic_get_operation_signature(parser->parser_semantic,
+                                                                                              operation_type,
+                                                                                              actual_variable->data_type,
+                                                                                              expression_data_type,
+                                                                                              DATA_TYPE_ANY);
+
             CodeConstructor* constructor = parser->code_constructor;
             if(operation_type == OPERATION_ADD && expression_data_type == DATA_TYPE_STRING &&
                     actual_variable->data_type == DATA_TYPE_STRING) {

@@ -160,8 +160,6 @@ void code_constructor_print_expression(CodeConstructor* constructor, SymbolVaria
 
 void code_constructor_variable_expression_assignment(CodeConstructor* constructor, SymbolVariable* variable);
 
-void code_constructor_generate_builtin_functions(CodeConstructor* constructor);
-
 void code_constructor_function_header(CodeConstructor* constructor, SymbolFunction* function);
 
 void code_constructor_function_end(CodeConstructor* constructor, SymbolFunction* function);

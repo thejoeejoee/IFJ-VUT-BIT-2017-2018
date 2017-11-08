@@ -235,12 +235,13 @@ char* code_constructor_generate_label(CodeConstructor* constructor, const char* 
     NULL_POINTER_CHECK(constructor, NULL);
     NULL_POINTER_CHECK(type, NULL);
 
-    size_t len = strlen(type) + 16 + 16;
+    const char* format = "%%_LABEL_%03zd_%s_DEPTH_%03zd";
+    size_t len = strlen(type) + 2 * strlen(format);
     char* label = memory_alloc(len * sizeof(char));
     snprintf(
             label,
             len,
-            "%%_LABEL_%03zd_%s_DEPTH_%03zd",
+            format,
             constructor->_label_counter++,
             type,
             constructor->control_statement_depth
@@ -333,11 +334,6 @@ void code_constructor_variable_expression_assignment(CodeConstructor* constructo
             I_POP_STACK,
             code_instruction_operand_init_variable(variable)
     );
-}
-
-void code_constructor_generate_builtin_functions(CodeConstructor* constructor) {
-    UNUSED(constructor);
-    // TODO: Add generate code for built-in functions
 }
 
 void code_constructor_function_header(CodeConstructor* constructor, SymbolFunction* function) {

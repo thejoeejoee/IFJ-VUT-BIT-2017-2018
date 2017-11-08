@@ -18,7 +18,7 @@ TEX = pdflatex -shell-escape
 # Main translation line
 all: $(TARGET_FILE)
 
-$(TARGET_FILE): $(SOURCE_DIR)/$(DOC_NAME).tex
+$(TARGET_FILE): $(SOURCE_DIR)/$(DOC_NAME).tex $(SOURCE_DIR)/*.tex
 	mkdir -p $(TARGET_DIR) && while ($(TEX) -output-directory $(TARGET_DIR) $< ; grep -q "Rerun to get cross" $(TARGET_DIR)/$(DOC_NAME).log) do true ; done
 
 # Install important packages for latex build

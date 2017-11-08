@@ -49,6 +49,7 @@ void lexer_transform_integer_value(char** integer_value) {
     int result = 0;
 
     size_t multiplier = 0;
+    int offset = 1;
     size_t base;
     // First char is type of integer. [0-9] -> decimal, 'b' -> binary, 'o' -> octa, 'h' -> hexa
     switch(**integer_value) {
@@ -64,11 +65,12 @@ void lexer_transform_integer_value(char** integer_value) {
             break;
 
         default:
+            offset = 0;
             base = 10;
             break;
     }
 
-    for(size_t i = strlen(*integer_value) - 1; i >= 1; i--) {
+    for(int i = (int) (strlen(*integer_value) - 1); i >= offset; i--) {
         result += hex_to_int((*integer_value)[i]) * pow(base, multiplier);
         multiplier++;
     }

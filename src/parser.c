@@ -964,6 +964,7 @@ bool parser_parse_assignment(Parser* parser) {
     DataType expression_data_type;
     SymbolVariable* actual_variable = parser->parser_semantic->actual_variable;
     RULES(
+    // Todo: for tokens +=, -=, /= .... call rule modify_assignment and return value
             CHECK_TOKEN(TOKEN_EQUAL);
             CALL_EXPRESSION_RULE(expression_data_type);
     );

@@ -433,6 +433,48 @@ TEST_F(ParserTestFixture, DeclarationAssigment2) {
 
 }
 
+TEST_F(ParserTestFixture, ModifyAssigment) {
+    provider->setString("+= 31");
+    EXPECT_TRUE(
+            parser_parse_modify_assignment(parser)
+    );
+
+    provider->setString("-= 31");
+    EXPECT_TRUE(
+            parser_parse_modify_assignment(parser)
+    );
+
+    provider->setString("*= 31");
+    EXPECT_TRUE(
+            parser_parse_modify_assignment(parser)
+    );
+
+    provider->setString("/= 31");
+    EXPECT_TRUE(
+            parser_parse_modify_assignment(parser)
+    );
+
+    provider->setString("+= foo()");
+    EXPECT_TRUE(
+            parser_parse_modify_assignment(parser)
+    );
+
+    provider->setString("-= a+b+c+d");
+    EXPECT_TRUE(
+            parser_parse_modify_assignment(parser)
+    );
+
+    provider->setString("*= foo()*foo(foo())");
+    EXPECT_TRUE(
+            parser_parse_modify_assignment(parser)
+    );
+
+    provider->setString("/= 12+15");
+    EXPECT_TRUE(
+            parser_parse_modify_assignment(parser)
+    );
+}
+
 TEST_F(ParserTestFixture, DoWhile) {
     provider->setString(R"(DO WHILE 42
 input id

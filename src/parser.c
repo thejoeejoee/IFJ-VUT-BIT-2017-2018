@@ -958,6 +958,7 @@ bool parser_parse_assignment(Parser* parser) {
     /*
      * RULE
      * <assignment> -> = <expression>
+     * <assignment> -> <modify_assignment>
      */
 
     DataType expression_data_type;

@@ -11,4 +11,12 @@
 
 char* c_string_copy(const char* string);
 
+/**
+ * @brief Transform char to integer
+ *
+ * @param char_value
+ * @return integer value
+ */
+int radix_to_int(char char_value);
+
 #endif // _COMMON_H

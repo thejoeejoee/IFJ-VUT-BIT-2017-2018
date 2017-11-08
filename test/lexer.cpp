@@ -31,6 +31,133 @@ class LexerTokenizerTestFixture : public ::testing::Test {
         }
 };
 
+
+TEST_F(LexerTokenizerTestFixture, StringToInteger) {
+
+    char* integer_value = (char*) memory_alloc(sizeof(char) * 1000);
+
+    strcpy(integer_value, "b101");
+
+    lexer_transform_integer_value(integer_value);
+
+    EXPECT_STREQ(
+            integer_value,
+            "5"
+    );
+
+    strcpy(integer_value, "b0");
+
+    lexer_transform_integer_value(integer_value);
+
+    EXPECT_STREQ(
+            integer_value,
+            "0"
+    );
+
+    strcpy(integer_value, "b00000000000000000000000000000000000000000000000000000000000");
+
+    lexer_transform_integer_value(integer_value);
+
+    EXPECT_STREQ(
+            integer_value,
+            "0"
+    );
+
+    strcpy(integer_value, "b111");
+
+    lexer_transform_integer_value(integer_value);
+
+    EXPECT_STREQ(
+            integer_value,
+            "7"
+    );
+
+    strcpy(integer_value, "b000000111");
+
+    lexer_transform_integer_value(integer_value);
+
+    EXPECT_STREQ(
+            integer_value,
+            "7"
+    );
+
+    strcpy(integer_value, "b000010111");
+
+    lexer_transform_integer_value(integer_value);
+
+    EXPECT_STREQ(
+            integer_value,
+            "23"
+    );
+
+    strcpy(integer_value, "b000000110");
+
+    lexer_transform_integer_value(integer_value);
+
+    EXPECT_STREQ(
+            integer_value,
+            "6"
+    );
+
+    strcpy(integer_value, "o1");
+
+    lexer_transform_integer_value(integer_value);
+
+    EXPECT_STREQ(
+            integer_value,
+            "1"
+    );
+
+    strcpy(integer_value, "o1065");
+
+    lexer_transform_integer_value(integer_value);
+
+    EXPECT_STREQ(
+            integer_value,
+            "565"
+    );
+
+    strcpy(integer_value, "h6776");
+
+    lexer_transform_integer_value(integer_value);
+
+    EXPECT_STREQ(
+            integer_value,
+            "26486"
+    );
+
+    strcpy(integer_value, "hd25");
+
+    lexer_transform_integer_value(integer_value);
+
+    EXPECT_STREQ(
+            integer_value,
+            "3365"
+    );
+
+    strcpy(integer_value, "hd2a5");
+
+    lexer_transform_integer_value(integer_value);
+
+    EXPECT_STREQ(
+            integer_value,
+            "53925"
+    );
+
+    strcpy(integer_value, "hd245456");
+
+    lexer_transform_integer_value(integer_value);
+
+    EXPECT_STREQ(
+            integer_value,
+            "220484694"
+    );
+
+
+    memory_free(integer_value);
+
+}
+
 TEST_F(LexerTokenizerTestFixture, Keywords) {
     provider->setString("AS + sCOpE");
     char_stack_empty(lexer->lexer_fsm->stack);
@@ -49,6 +176,8 @@ TEST_F(LexerTokenizerTestFixture, Keywords) {
             this->getNextTokenType(),
             TOKEN_SCOPE
     ) << "Error SCOPE token";
+
+
 }
 
 TEST_F(LexerTokenizerTestFixture, MathTokens) {

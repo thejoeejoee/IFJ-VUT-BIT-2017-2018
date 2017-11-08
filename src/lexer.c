@@ -3,6 +3,7 @@
 #include "memory.h"
 #include "debug.h"
 #include "lexer_fsm.h"
+#include "common.h"
 
 
 Lexer* lexer_init(lexer_input_stream_f input_stream) {
@@ -40,10 +41,9 @@ void lexer_rewind_token(Lexer* lexer, Token token) {
 
 void lexer_transform_integer_value(char* integer_value) {
 
-    char* integer_value_copy = memory_alloc(sizeof(integer_value));
-    strcpy(integer_value_copy, integer_value);
+    char* integer_value_copy = c_string_copy(integer_value);
     int sum = 0;
-    int multiplier = 0;
+    int multiplier = strlen(integer_value) - 2;
 
     // First char is type of integer. [0-9] -> decimal, 'b' -> binary, 'o' -> octa, 'h' -> hexa
     switch(integer_value[0]) {
@@ -52,27 +52,40 @@ void lexer_transform_integer_value(char* integer_value) {
         case 'b':
             // From binary to Decimal
             for(int i = 1; i < strlen(integer_value); i++) {
-                if(integer_value[i] == '1')
-                    sum = sum + (1 * pow(2, multiplier));
-                multiplier = multiplier + 1;
+                sum += radix_to_int(integer_value[i]) * pow(2, multiplier);
+                multiplier--;
             }
-
-            sprintf(integer_value, "%d", sum);
 
             break;
 
 
         case 'o':
             // From octa to Decimal
-            // TODO: Input: something like o12321103221032, tranform it into decimal into input pointer
+            for(int i = 1; i < strlen(integer_value); i++) {
+                sum += radix_to_int(integer_value[i]) * pow(8, multiplier);
+                multiplier--;
+            }
+
             break;
 
         case 'h':
             // From hexa to Decimal
-            // TODO: Input: something like h12b2a103221032, tranform it into decimal into input pointer
+            for(int i = 1; i < strlen(integer_value); i++) {
+                sum += radix_to_int(integer_value[i]) * pow(16, multiplier);
+                multiplier--;
+            }
+
+            break;
+
+        default:
+            sum = atoi(integer_value);
             break;
 
     }
+
+    int length = strlen(integer_value);
+
+    snprintf(integer_value, length * 2, "%d", sum);
 
     memory_free(integer_value_copy);
 
@@ -115,7 +128,18 @@ Token lexer_next_token(Lexer* lexer) {
 
     // Transform integer value to decimal system
     if(token.type == TOKEN_INTEGER_LITERAL) {
+
+        // Transform size of memory
+        char* copy = c_string_copy(token.data);
+        memory_free(token.data);
+        token.data = memory_alloc(sizeof(char) * strlen(copy) * 2);
+
+        // Copy data, I need memory after string
+        strcpy(token.data, copy);
+
+        // Transorm integer format
         lexer_transform_integer_value(token.data);
+        memory_free(copy);
     }
 
     return token;

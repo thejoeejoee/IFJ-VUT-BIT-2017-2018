@@ -157,6 +157,15 @@ TEST_F(LexerTokenizerTestFixture, StringToInteger) {
     );
 
     memory_free(integer_value);
+
+    integer_value = c_string_copy("h1f1a1");
+    lexer_transform_integer_value(&integer_value);
+    EXPECT_STREQ(
+            integer_value,
+            "127393"
+    );
+
+    memory_free(integer_value);
 }
 
 TEST_F(LexerTokenizerTestFixture, Keywords) {

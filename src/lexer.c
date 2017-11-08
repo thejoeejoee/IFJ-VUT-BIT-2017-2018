@@ -37,6 +37,30 @@ void lexer_rewind_token(Lexer* lexer, Token token) {
     lexer->rewind_token = token_copy(token);
 }
 
+void lexer_transform_integer_value(char* integer_value) {
+
+    // First char is type of integer. [0-9] -> decimal, 'b' -> binary, 'o' -> octa, 'h' -> hexa
+    switch(integer_value[0]) {
+
+        // From binary to Decimal
+        case 'b':
+            // TODO: Input: something like b1010110110, tranform it into decimal into input pointer
+            break;
+
+            // From octa to Decimal
+        case 'o':
+            // TODO: Input: something like o12321103221032, tranform it into decimal into input pointer
+            break;
+
+            // From hexa to Decimal
+        case 'h':
+            // TODO: Input: something like h12b2a103221032, tranform it into decimal into input pointer
+            break;
+
+    }
+
+}
+
 Token lexer_next_token(Lexer* lexer) {
     Token token = {
             .data = NULL,
@@ -70,6 +94,11 @@ Token lexer_next_token(Lexer* lexer) {
     if(token.type == TOKEN_ERROR) {
         lexer->error_report.error_code = ERROR_LEXER;
         lexer->error_report.detail_information = (int) lexer->lexer_fsm->lexer_error;
+    }
+
+    // Transform integer value to decimal system
+    if(token.type == TOKEN_INTEGER_LITERAL) {
+        lexer_transform_integer_value(token.data);
     }
 
     return token;

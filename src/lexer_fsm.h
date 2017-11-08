@@ -48,6 +48,14 @@ typedef enum {
 
     LEX_FSM__INIT = 0,
 
+    LEX_FSM__AMP,
+    LEX_FSM__BINARY_START,
+    LEX_FSM__BINARY_UNFINISHED,
+    LEX_FSM__OCTA_START,
+    LEX_FSM__OCTA_UNFINISHED,
+    LEX_FSM__HEXA_START,
+    LEX_FSM__HEXA_UNFINISHED,
+
     // Unfinished states for operators
             LEX_FSM__ADD_UNFINISHED,
     LEX_FSM__SUBTRACT_UNFINISHED,
@@ -89,6 +97,7 @@ typedef enum {
     LEX_FSM__MULTIPLY_EQUAL,
     LEX_FSM__DIVIDE_EQUAL,
     LEX_FSM__INTEGER_DIVIDE_EQUAL,
+
     LEX_FSM__ADD,
     LEX_FSM__SUBTRACT,
     LEX_FSM__DIVIDE,

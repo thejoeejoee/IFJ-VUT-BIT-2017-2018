@@ -85,6 +85,38 @@ TEST_F(LexerTokenizerTestFixture, MathTokens) {
     ) << "Error get divide token";
 }
 
+TEST_F(LexerTokenizerTestFixture, IntegerLiterals) {
+    provider->setString(R"RAW(
+127
+&B10101110
+&O10101110
+&H10101110
+)RAW");
+    char_stack_empty(lexer->lexer_fsm->stack);
+
+    const std::vector<TokenType> expectedTokens = {
+            TOKEN_EOL,
+            TOKEN_INTEGER_LITERAL,
+            TOKEN_EOL,
+            TOKEN_INTEGER_LITERAL,
+            TOKEN_EOL,
+            TOKEN_INTEGER_LITERAL,
+            TOKEN_EOL,
+            TOKEN_INTEGER_LITERAL,
+            TOKEN_EOL,
+            TOKEN_EOF
+    };
+
+    for(const TokenType expectedToken: expectedTokens) {
+        EXPECT_EQ(
+                this->getNextTokenType(),
+                expectedToken
+        );
+    }
+
+
+}
+
 TEST_F(LexerTokenizerTestFixture, Strings) {
     provider->setString(R"RAW(
 !"Simple string"

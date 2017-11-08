@@ -94,6 +94,8 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
                     return LEX_FSM__SEMICOLON;
                 case ',':
                     return LEX_FSM__COMMA;
+                case '&':
+                    return LEX_FSM__AMP;
                 case EOF:
                     return LEX_FSM__EOF;
 
@@ -101,6 +103,83 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
                     break;
             }
             break;
+
+            // Binary integers
+        case LEX_FSM__AMP:
+
+            if(tolower(c) == 'b') {
+                STORE_CHAR(tolower(c));
+                return LEX_FSM__BINARY_START;
+            }
+
+            if(tolower(c) == 'o') {
+                STORE_CHAR(tolower(c));
+                return LEX_FSM__OCTA_START;
+            }
+
+            if(tolower(c) == 'h') {
+                STORE_CHAR(tolower(c));
+                return LEX_FSM__HEXA_START;
+            }
+
+            return LEX_FSM__ERROR;
+
+        case LEX_FSM__BINARY_START:
+
+            if(c == '0' || c == '1') {
+                STORE_CHAR(c);
+                return LEX_FSM__BINARY_UNFINISHED;
+            }
+
+            return LEX_FSM__ERROR;
+
+        case LEX_FSM__BINARY_UNFINISHED:
+
+            if(c == '0' || c == '1') {
+                STORE_CHAR(c);
+                return LEX_FSM__BINARY_UNFINISHED;
+            }
+
+            REWIND_CHAR(c);
+            return LEX_FSM__INTEGER_LITERAL_FINISHED;
+
+        case LEX_FSM__OCTA_START:
+
+            if(c >= (int) '0' && c <= (int) '7') {
+                STORE_CHAR(c);
+                return LEX_FSM__OCTA_UNFINISHED;
+            }
+
+            return LEX_FSM__ERROR;
+
+        case LEX_FSM__OCTA_UNFINISHED:
+
+            if(c >= (int) '0' && c <= (int) '7') {
+                STORE_CHAR(c);
+                return LEX_FSM__OCTA_UNFINISHED;
+            }
+
+            REWIND_CHAR(c);
+            return LEX_FSM__INTEGER_LITERAL_FINISHED;
+
+        case LEX_FSM__HEXA_START:
+
+            if((c >= (int) '0' && c <= (int) '9') || (tolower(c) >= (int) 'a' && tolower(c) <= (int) 'f')) {
+                STORE_CHAR(tolower(c));
+                return LEX_FSM__HEXA_UNFINISHED;
+            }
+
+            return LEX_FSM__ERROR;
+
+        case LEX_FSM__HEXA_UNFINISHED:
+
+            if((c >= (int) '0' && c <= (int) '9') || (tolower(c) >= (int) 'a' && tolower(c) <= (int) 'f')) {
+                STORE_CHAR(tolower(c));
+                return LEX_FSM__HEXA_UNFINISHED;
+            }
+
+            REWIND_CHAR(c);
+            return LEX_FSM__INTEGER_LITERAL_FINISHED;
 
             // Operator unfinished states
         case LEX_FSM__ADD_UNFINISHED:

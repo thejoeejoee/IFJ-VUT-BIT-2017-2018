@@ -24,7 +24,7 @@ void lexer_free(Lexer** lexer) {
     NULL_POINTER_CHECK(*lexer,);
 
     lexer_fsm_free(&((*lexer)->lexer_fsm));
-    if ((*lexer)->is_token_rewind) {
+    if((*lexer)->is_token_rewind) {
         token_free(&(*lexer)->rewind_token);
     }
     memory_free(*lexer);
@@ -39,55 +39,44 @@ void lexer_rewind_token(Lexer* lexer, Token token) {
     lexer->rewind_token = token_copy(token);
 }
 
-void lexer_transform_integer_value(char* integer_value) {
+void lexer_transform_integer_value(char** integer_value) {
+    NULL_POINTER_CHECK(integer_value,);
+    NULL_POINTER_CHECK(*integer_value,);
 
-    char* integer_value_copy = c_string_copy(integer_value);
-    int sum = 0;
-    int multiplier = strlen(integer_value) - 2;
+    size_t target_length = (1 + strlen(*integer_value)) * 2;
+    char* integer_value_copy = memory_alloc(target_length * sizeof(char));
 
+    int result = 0;
+
+    size_t multiplier = 0;
+    size_t base;
     // First char is type of integer. [0-9] -> decimal, 'b' -> binary, 'o' -> octa, 'h' -> hexa
-    switch(integer_value[0]) {
-
-
+    switch(**integer_value) {
         case 'b':
-            // From binary to Decimal
-            for(int i = 1; i < strlen(integer_value); i++) {
-                sum += radix_to_int(integer_value[i]) * pow(2, multiplier);
-                multiplier--;
-            }
-
+            base = 2;
             break;
-
 
         case 'o':
-            // From octa to Decimal
-            for(int i = 1; i < strlen(integer_value); i++) {
-                sum += radix_to_int(integer_value[i]) * pow(8, multiplier);
-                multiplier--;
-            }
-
+            base = 8;
             break;
-
         case 'h':
-            // From hexa to Decimal
-            for(int i = 1; i < strlen(integer_value); i++) {
-                sum += radix_to_int(integer_value[i]) * pow(16, multiplier);
-                multiplier--;
-            }
-
+            base = 16;
             break;
 
         default:
-            sum = atoi(integer_value);
+            base = 10;
             break;
-
     }
 
-    int length = strlen(integer_value);
+    for(size_t i = strlen(*integer_value) - 1; i >= 1; i--) {
+        result += hex_to_int((*integer_value)[i]) * pow(base, multiplier);
+        multiplier++;
+    }
 
-    snprintf(integer_value, length * 2, "%d", sum);
+    snprintf(integer_value_copy, target_length, "%d", result);
 
-    memory_free(integer_value_copy);
+    memory_free(*integer_value);
+    *integer_value = integer_value_copy;
 
 }
 
@@ -102,7 +91,7 @@ Token lexer_next_token(Lexer* lexer) {
     if(lexer->is_token_rewind) {
         lexer->is_token_rewind = false;
 
-        Token tmp = { .data = lexer->rewind_token.data,.type = lexer->rewind_token.type };
+        Token tmp = {.data = lexer->rewind_token.data, .type = lexer->rewind_token.type};
         lexer->rewind_token.data = NULL;
         lexer->rewind_token.type = TOKEN_UNKNOWN;
 
@@ -128,7 +117,6 @@ Token lexer_next_token(Lexer* lexer) {
 
     // Transform integer value to decimal system
     if(token.type == TOKEN_INTEGER_LITERAL) {
-
         // Transform size of memory
         char* copy = c_string_copy(token.data);
         memory_free(token.data);
@@ -137,8 +125,8 @@ Token lexer_next_token(Lexer* lexer) {
         // Copy data, I need memory after string
         strcpy(token.data, copy);
 
-        // Transorm integer format
-        lexer_transform_integer_value(token.data);
+        // transform to integer format
+        lexer_transform_integer_value(&token.data);
         memory_free(copy);
     }
 
@@ -148,19 +136,15 @@ Token lexer_next_token(Lexer* lexer) {
 char* lexer_store_token_data(const Lexer* lexer, Token token) {
     NULL_POINTER_CHECK(lexer, NULL);
 
-    size_t data_length = string_length(lexer->lexer_fsm->stream_buffer);
-    if(token.type == TOKEN_IDENTIFIER ||
+    if(
+            token.type == TOKEN_IDENTIFIER ||
             token.type == TOKEN_STRING_VALUE ||
             token.type == TOKEN_INTEGER_LITERAL ||
             token.type == TOKEN_DOUBLE_LITERAL
             ) {
-        char* data = memory_alloc(sizeof(char) * (data_length + 1));
 
-        if (NULL == strcpy(data, string_content(lexer->lexer_fsm->stream_buffer))) {
-            exit_with_code(ERROR_INTERNAL);
-        }
-        return data;
-    } else {
-        return NULL;
+        return c_string_copy(string_content(lexer->lexer_fsm->stream_buffer));
     }
+
+    return NULL;
 }

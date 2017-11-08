@@ -59,6 +59,6 @@ void lexer_rewind_token(Lexer* lexer, Token token);
  *
  * @param char* integer_value
  */
-void lexer_transform_integer_value(char* integer_value);
+void lexer_transform_integer_value(char** integer_value);
 
 #endif //_LEXER_H

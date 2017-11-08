@@ -88,13 +88,16 @@ TEST_F(LexerTokenizerTestFixture, MathTokens) {
 TEST_F(LexerTokenizerTestFixture, IntegerLiterals) {
     provider->setString(R"RAW(
 127
-&B10101110
+&B111
+&B10101
 &O10101110
 &H10101110
 )RAW");
     char_stack_empty(lexer->lexer_fsm->stack);
 
     const std::vector<TokenType> expectedTokens = {
+            TOKEN_EOL,
+            TOKEN_INTEGER_LITERAL,
             TOKEN_EOL,
             TOKEN_INTEGER_LITERAL,
             TOKEN_EOL,

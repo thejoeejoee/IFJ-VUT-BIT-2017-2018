@@ -1,3 +1,4 @@
+#include <math.h>
 #include "lexer.h"
 #include "memory.h"
 #include "debug.h"
@@ -39,25 +40,41 @@ void lexer_rewind_token(Lexer* lexer, Token token) {
 
 void lexer_transform_integer_value(char* integer_value) {
 
+    char* integer_value_copy = memory_alloc(sizeof(integer_value));
+    strcpy(integer_value_copy, integer_value);
+    int sum = 0;
+    int multiplier = 0;
+
     // First char is type of integer. [0-9] -> decimal, 'b' -> binary, 'o' -> octa, 'h' -> hexa
     switch(integer_value[0]) {
 
-        // From binary to Decimal
+
         case 'b':
-            // TODO: Input: something like b1010110110, tranform it into decimal into input pointer
+            // From binary to Decimal
+            for(int i = 1; i < strlen(integer_value); i++) {
+                if(integer_value[i] == '1')
+                    sum = sum + (1 * pow(2, multiplier));
+                multiplier = multiplier + 1;
+            }
+
+            sprintf(integer_value, "%d", sum);
+
             break;
 
-            // From octa to Decimal
+
         case 'o':
+            // From octa to Decimal
             // TODO: Input: something like o12321103221032, tranform it into decimal into input pointer
             break;
 
-            // From hexa to Decimal
         case 'h':
+            // From hexa to Decimal
             // TODO: Input: something like h12b2a103221032, tranform it into decimal into input pointer
             break;
 
     }
+
+    memory_free(integer_value_copy);
 
 }
 
@@ -112,7 +129,7 @@ char* lexer_store_token_data(const Lexer* lexer, Token token) {
             token.type == TOKEN_STRING_VALUE ||
             token.type == TOKEN_INTEGER_LITERAL ||
             token.type == TOKEN_DOUBLE_LITERAL
-    ) {
+            ) {
         char* data = memory_alloc(sizeof(char) * (data_length + 1));
 
         if (NULL == strcpy(data, string_content(lexer->lexer_fsm->stream_buffer))) {

@@ -188,7 +188,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
                 return LEX_FSM__ADD;
             }
 
-            return LEX_FSM__PLUS_EQUAL;
+            return LEX_FSM__ASSIGN_ADD;
             // String states
 
         case LEX_FSM__SUBTRACT_UNFINISHED:
@@ -197,7 +197,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
                 return LEX_FSM__SUBTRACT;
             }
 
-            return LEX_FSM__MINUS_EQUAL;
+            return LEX_FSM__ASSIGN_SUB;
 
         case LEX_FSM__MULTIPLY_UNFINISHED:
             if(c != '=') {
@@ -205,7 +205,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
                 return LEX_FSM__MULTIPLY;
             }
 
-            return LEX_FSM__MULTIPLY_EQUAL;
+            return LEX_FSM__ASSIGN_MULTIPLY;
 
         case LEX_FSM__INTEGER_DIVIDE_UNFINISHED:
             if(c != '=') {
@@ -213,7 +213,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
                 return LEX_FSM__INTEGER_DIVIDE;
             }
 
-            return LEX_FSM__INTEGER_DIVIDE_EQUAL;
+            return LEX_FSM__ASSIGN_INT_DIVIDE;
 
             // Strings
 
@@ -382,7 +382,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
             // Comments
         case LEX_FSM__SLASH:
             if(c == '=')
-                return LEX_FSM__DIVIDE_EQUAL;
+                return LEX_FSM__ASSIGN_DIVIDE;
             if(c == '\'')
                 return LEX_FSM__COMMENT_BLOCK;
             else {
@@ -449,5 +449,5 @@ LexerFSMState lexer_fsm_get_identifier_state(const char* name) {
 }
 
 bool lexer_fsm_is_final_state(LexerFSMState state) {
-    return state >= LEX_FSM__PLUS_EQUAL;
+    return state >= LEX_FSM__ADD;
 }

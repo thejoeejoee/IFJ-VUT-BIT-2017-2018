@@ -21,15 +21,20 @@
 #define EXPR_RULE_REPLACE(single_expression) expr_replace(expr_token_buffer, it, (single_expression))
 #define EXPR_LOWER_OPERAND get_n_expr(expr_token_buffer, 3)
 #define EXPR_HIGHER_OPERAND get_n_expr(expr_token_buffer, 1)
-#define EXPR_CHECK_BINARY_OPERATION_IMPLICIT_CONVERSION(operation) SEMANTIC_ANALYSIS({ \
-        const DataType target_type = parser_semantic_resolve_implicit_data_type_conversion( \
-        parser->parser_semantic, \
-        operation, EXPR_LOWER_OPERAND->data_type, EXPR_HIGHER_OPERAND->data_type, DATA_TYPE_ANY); \
-        if(target_type == DATA_TYPE_NONE) {\
-            parser->parser_semantic->error_report.error_code = ERROR_SEMANTIC_TYPE; \
-            return false; \
-        } \
-    })
+
+#define CHECK_BINARY_OPERATION_IMPLICIT_CONVERSION(operation, operand_1_type, operand_2_type) SEMANTIC_ANALYSIS({ \
+    const DataType target_type = parser_semantic_resolve_implicit_data_type_conversion( \
+    parser->parser_semantic, \
+    operation, operand_1_type, operand_2_type, DATA_TYPE_ANY); \
+    if(target_type == DATA_TYPE_NONE) {\
+        parser->parser_semantic->error_report.error_code = ERROR_SEMANTIC_TYPE; \
+        return false; \
+    } \
+})
+
+#define EXPR_CHECK_BINARY_OPERATION_IMPLICIT_CONVERSION(operation) \
+    CHECK_BINARY_OPERATION_IMPLICIT_CONVERSION(operation, EXPR_LOWER_OPERAND->data_type, EXPR_HIGHER_OPERAND->data_type)
+
 
 #define EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION(operation) SEMANTIC_ANALYSIS({ \
         const DataType target_type = parser_semantic_resolve_implicit_data_type_conversion( \

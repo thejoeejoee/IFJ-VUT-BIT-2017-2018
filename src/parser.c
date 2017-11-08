@@ -965,7 +965,8 @@ bool parser_parse_assignment(Parser* parser) {
     );
     SEMANTIC_ANALYSIS(
             {
-                NULL_POINTER_CHECK(actual_variable, false);
+                if(actual_variable == NULL)
+                    return false;
                 CHECK_IMPLICIT_CONVERSION(actual_variable->data_type, expression_data_type);
             }
     );
@@ -999,13 +1000,76 @@ bool parser_parse_modify_assignment(Parser* parser) {
      * <modify> -> \=
      */
 
-    DataType expression_data_type;
-    UNUSED(expression_data_type);
-    RULES(
-            CHECK_TOKEN(TOKEN_EQUAL);
+    const unsigned int shorten_operators_count = 5;
+    const int map_diff = (int)TOKEN_AUGMENTED_ASSIGN_OPERATORS + 1;
 
+    TypeExpressionOperation token_type_mapped_to_operation[shorten_operators_count];
+    TypeInstruction token_type_mapped_to_instruction[shorten_operators_count];
+    token_type_mapped_to_operation[TOKEN_ASSIGN_ADD - map_diff] = OPERATION_ADD;
+    token_type_mapped_to_operation[TOKEN_ASSIGN_SUB - map_diff] = OPERATION_SUB;
+    token_type_mapped_to_operation[TOKEN_ASSIGN_MULTIPLY - map_diff] = OPERATION_MULTIPLY;
+    token_type_mapped_to_operation[TOKEN_ASSIGN_INT_DIVIDE - map_diff] = OPERATION_INT_DIVIDE;
+    token_type_mapped_to_operation[TOKEN_ASSIGN_DIVIDE - map_diff] = OPERATION_DIVIDE;
+
+    token_type_mapped_to_instruction[TOKEN_ASSIGN_ADD - map_diff] = I_ADD_STACK;
+    token_type_mapped_to_instruction[TOKEN_ASSIGN_SUB - map_diff] = I_SUB_STACK;
+    token_type_mapped_to_instruction[TOKEN_ASSIGN_MULTIPLY - map_diff] = I_MUL_STACK;
+    token_type_mapped_to_instruction[TOKEN_ASSIGN_INT_DIVIDE - map_diff] = I_DIV_STACK;
+    token_type_mapped_to_instruction[TOKEN_ASSIGN_DIVIDE - map_diff] = I_DIV_STACK;
+
+    DataType expression_data_type;
+    SymbolVariable* actual_variable = parser->parser_semantic->actual_variable;
+
+    TypeExpressionOperation operation_type;
+    TypeInstruction corresponding_instruction;
+
+    RULES(
+            CHECK_TOKEN(TOKEN_AUGMENTED_ASSIGN_OPERATORS);
+            operation_type = token_type_mapped_to_operation[token_type - map_diff];
+            corresponding_instruction = token_type_mapped_to_instruction[token_type - map_diff];
+            CALL_EXPRESSION_RULE(expression_data_type);
     );
 
+    SEMANTIC_ANALYSIS(
+            {
+                    if(actual_variable == NULL)
+                        return false;
+                CHECK_BINARY_OPERATION_IMPLICIT_CONVERSION(operation_type, actual_variable->data_type, expression_data_type);
+            }
+    );
 
+    // TODO implicit conversion
+    OperationSignature* operation_signature = parser_semantic_get_operation_signature(parser->parser_semantic, operation_type, actual_variable->data_type, expression_data_type, DATA_TYPE_ANY);
+
+    CODE_GENERATION(
+        {
+            CodeConstructor* constructor = parser->code_constructor;
+            if(operation_type == OPERATION_ADD && expression_data_type == DATA_TYPE_STRING &&
+                    actual_variable->data_type == DATA_TYPE_STRING) {
+                GENERATE_CODE(I_POP_STACK, code_instruction_operand_init_variable(parser->parser_semantic->temp_variable1));
+                        GENERATE_CODE(
+                                I_CONCAT_STRING,
+                                code_instruction_operand_init_variable(actual_variable),
+                                code_instruction_operand_init_variable(actual_variable),
+                                code_instruction_operand_init_variable(parser->parser_semantic->temp_variable1)
+                        );
+            }
+
+            else {
+                GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(expression_data_type, operation_signature->conversion_target_type);
+                GENERATE_CODE(I_POP_STACK, code_instruction_operand_init_variable(parser->parser_semantic->temp_variable1));
+
+                GENERATE_CODE(I_PUSH_STACK, code_instruction_operand_init_variable(actual_variable));
+                GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(actual_variable->data_type, operation_signature->conversion_target_type);
+                GENERATE_CODE(I_PUSH_STACK, code_instruction_operand_init_variable(parser->parser_semantic->temp_variable1));
+
+                GENERATE_CODE(corresponding_instruction);
+                GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(operation_signature->result_type, actual_variable->data_type);
+                GENERATE_CODE(I_POP_STACK, code_instruction_operand_init_variable(actual_variable));
+            }
+        }
+    );
+
+    parser->parser_semantic->actual_variable = NULL;
     return true;
 }

@@ -92,12 +92,6 @@ typedef enum {
 
     // FINAL STATES
     // 128 is operator class
-            LEX_FSM__PLUS_EQUAL,
-    LEX_FSM__MINUS_EQUAL,
-    LEX_FSM__MULTIPLY_EQUAL,
-    LEX_FSM__DIVIDE_EQUAL,
-    LEX_FSM__INTEGER_DIVIDE_EQUAL,
-
     LEX_FSM__ADD,
     LEX_FSM__SUBTRACT,
     LEX_FSM__DIVIDE,
@@ -158,11 +152,16 @@ typedef enum {
     LEX_FSM__EOF,
     LEX_FSM__ERROR,
 
-    LEX_FSM__INTEGER = 256 | 1,
-    LEX_FSM__DOUBLE = 256 | 2,
-    LEX_FSM__BOOLEAN = 256 | 3,
-    LEX_FSM__STRING = 256 | 4,
+    LEX_FSM__INTEGER = 256 + 1,
+    LEX_FSM__DOUBLE = 256 + 2,
+    LEX_FSM__BOOLEAN = 256 + 3,
+    LEX_FSM__STRING = 256 + 4,
 
+    LEX_FSM__ASSIGN_ADD = 512 + 1,
+    LEX_FSM__ASSIGN_SUB = 512 + 2,
+    LEX_FSM__ASSIGN_MULTIPLY = 512 + 3,
+    LEX_FSM__ASSIGN_INT_DIVIDE = 512 + 4,
+    LEX_FSM__ASSIGN_DIVIDE = 512 + 5,
 
     // Error state
 

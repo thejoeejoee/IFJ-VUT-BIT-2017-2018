@@ -33,129 +33,130 @@ class LexerTokenizerTestFixture : public ::testing::Test {
 
 
 TEST_F(LexerTokenizerTestFixture, StringToInteger) {
+    char* integer_value;
 
-    char* integer_value = (char*) memory_alloc(sizeof(char) * 1000);
-
-    strcpy(integer_value, "b101");
-
-    lexer_transform_integer_value(integer_value);
-
+    integer_value = c_string_copy("b101");
+    lexer_transform_integer_value(&integer_value);
     EXPECT_STREQ(
             integer_value,
             "5"
     );
+    memory_free(integer_value);
 
-    strcpy(integer_value, "b0");
-
-    lexer_transform_integer_value(integer_value);
-
+    integer_value = c_string_copy("b0");
+    lexer_transform_integer_value(&integer_value);
     EXPECT_STREQ(
             integer_value,
             "0"
     );
+    memory_free(integer_value);
 
-    strcpy(integer_value, "b00000000000000000000000000000000000000000000000000000000000");
-
-    lexer_transform_integer_value(integer_value);
-
+    integer_value = c_string_copy("b00000000000000000000000000000000000000000000000000000000000");
+    lexer_transform_integer_value(&integer_value);
     EXPECT_STREQ(
             integer_value,
             "0"
     );
+    memory_free(integer_value);
 
-    strcpy(integer_value, "b111");
-
-    lexer_transform_integer_value(integer_value);
-
+    integer_value = c_string_copy("b111");
+    lexer_transform_integer_value(&integer_value);
     EXPECT_STREQ(
             integer_value,
             "7"
     );
+    memory_free(integer_value);
 
-    strcpy(integer_value, "b000000111");
-
-    lexer_transform_integer_value(integer_value);
-
+    integer_value = c_string_copy("b000000111");
+    lexer_transform_integer_value(&integer_value);
     EXPECT_STREQ(
             integer_value,
             "7"
     );
+    memory_free(integer_value);
 
-    strcpy(integer_value, "b000010111");
-
-    lexer_transform_integer_value(integer_value);
-
+    integer_value = c_string_copy("b000010111");
+    lexer_transform_integer_value(&integer_value);
     EXPECT_STREQ(
             integer_value,
             "23"
     );
+    memory_free(integer_value);
 
-    strcpy(integer_value, "b000000110");
-
-    lexer_transform_integer_value(integer_value);
-
+    integer_value = c_string_copy("b000000110");
+    lexer_transform_integer_value(&integer_value);
     EXPECT_STREQ(
             integer_value,
             "6"
     );
+    memory_free(integer_value);
 
-    strcpy(integer_value, "o1");
-
-    lexer_transform_integer_value(integer_value);
-
+    integer_value = c_string_copy("o1");
+    lexer_transform_integer_value(&integer_value);
     EXPECT_STREQ(
             integer_value,
             "1"
     );
+    memory_free(integer_value);
 
-    strcpy(integer_value, "o1065");
-
-    lexer_transform_integer_value(integer_value);
-
+    integer_value = c_string_copy("o1065");
+    lexer_transform_integer_value(&integer_value);
     EXPECT_STREQ(
             integer_value,
             "565"
     );
+    memory_free(integer_value);
 
-    strcpy(integer_value, "h6776");
-
-    lexer_transform_integer_value(integer_value);
-
+    integer_value = c_string_copy("h6776");
+    lexer_transform_integer_value(&integer_value);
     EXPECT_STREQ(
             integer_value,
             "26486"
     );
+    memory_free(integer_value);
 
-    strcpy(integer_value, "hd25");
-
-    lexer_transform_integer_value(integer_value);
-
+    integer_value = c_string_copy("hd25");
+    lexer_transform_integer_value(&integer_value);
     EXPECT_STREQ(
             integer_value,
             "3365"
     );
+    memory_free(integer_value);
 
-    strcpy(integer_value, "hd2a5");
-
-    lexer_transform_integer_value(integer_value);
-
+    integer_value = c_string_copy("hd2a5");
+    lexer_transform_integer_value(&integer_value);
     EXPECT_STREQ(
             integer_value,
             "53925"
     );
+    memory_free(integer_value);
 
-    strcpy(integer_value, "hd245456");
-
-    lexer_transform_integer_value(integer_value);
-
+    integer_value = c_string_copy("hd245456");
+    lexer_transform_integer_value(&integer_value);
     EXPECT_STREQ(
             integer_value,
             "220484694"
     );
 
+    memory_free(integer_value);
+
+    integer_value = c_string_copy("h0000001");
+    lexer_transform_integer_value(&integer_value);
+    EXPECT_STREQ(
+            integer_value,
+            "1"
+    );
 
     memory_free(integer_value);
 
+    integer_value = c_string_copy("h0000000");
+    lexer_transform_integer_value(&integer_value);
+    EXPECT_STREQ(
+            integer_value,
+            "0"
+    );
+
+    memory_free(integer_value);
 }
 
 TEST_F(LexerTokenizerTestFixture, Keywords) {

@@ -14,13 +14,13 @@ char* c_string_copy(const char* string) {
     return copied;
 }
 
-int radix_to_int(char char_value) {
+int hex_to_int(char char_) {
+    if((int) char_ >= '0' && (int) char_ <= '9')
+        return (int) char_ - '0';
+    if((int) char_ >= 'a' && (int) char_ <= 'e')
+        return (int) char_ - 'a' + 10;
 
-    if((int) char_value >= '0' && (int) char_value <= '9')
-        return (int) char_value - '0';
-    if((int) char_value >= 'a' && (int) char_value <= 'e')
-        return (int) char_value - 'a' + 10;
-
+    LOG_WARNING("Invalid char %c to convert.", char_);
     return 0;
 
 }

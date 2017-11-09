@@ -627,6 +627,7 @@ bool parser_parse_shared_variable_declaration(Parser* parser) {
             );
             CHECK_TOKEN(TOKEN_AS);
             CHECK_TOKEN(TOKEN_DATA_TYPE_CLASS);
+            CALL_RULE(declaration_assignment);
     );
     return true;
 }

@@ -247,7 +247,7 @@ TEST_F(ParserTestFixture, FunctionDefinitionWithStatic) {
     provider->setString(R"(FUNCTION hello () AS string
 input id
 dim a as integer
-static a as integer
+
 input id
 END FUNCTION
     )");
@@ -917,6 +917,28 @@ Print !"\nVysledek je:" ; vysl ; !"\n";
 End If
 
 End Scope
+    )");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    );
+
+}
+
+TEST_F(ParserTestFixture, ComplexTestStaticAndShared) {
+    provider->setString(R"(
+/' Program 2: Vypocet faktorialu (rekurzivne) '/
+dim shared b as integer = 31
+function foo() as integer
+static a as integer
+static b as integer
+end function
+
+dim shared a as integer = 31
+
+scope
+
+End Scope
+dim shared a as integer = 31
     )");
     EXPECT_TRUE(
             parser_parse_program(parser)

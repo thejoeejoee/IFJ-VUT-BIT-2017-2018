@@ -334,4 +334,14 @@ bool parser_parse_identifier_assignment(Parser* parser);
 
 bool parser_parse_modify_assignment(Parser* parser);
 
+bool parser_parse_static_variable_declaration(Parser* parser);
+
+bool parser_parse_shared_variable_declaration(Parser* parser);
+
+bool parser_parse_shared_variables_declarations(Parser* parser);
+
+bool parser_parse_for(Parser* parser);
+
+bool parser_parse_step(Parser* parser);
+
 #endif //_PARSER_H

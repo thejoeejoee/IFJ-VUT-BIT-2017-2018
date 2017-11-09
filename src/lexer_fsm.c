@@ -445,6 +445,9 @@ LexerFSMState lexer_fsm_get_identifier_state(const char* name) {
         }
     }
 
+    if(strcmp(name, "to") == 0)
+        return LEX_FSM__TO;
+
     return LEX_FSM__IDENTIFIER_FINISHED;
 }
 

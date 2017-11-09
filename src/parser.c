@@ -731,6 +731,43 @@ bool parser_parse_while_(Parser* parser) {
     return true;
 }
 
+bool parser_parse_for(Parser* parser) {
+    /*
+     * RULE
+     * <for> -> FOR IDENTIFIER <assignment> <step> EOL <eols> <fo_statements> NEXT EOL
+     */
+
+    DataType expression_data_type;
+
+    RULES(
+            CHECK_TOKEN(TOKEN_FOR);
+            CHECK_TOKEN(TOKEN_IDENTIFIER);
+            CALL_RULE(assignment);
+            CHECK_TOKEN(TOKEN_TO);
+            CALL_EXPRESSION_RULE(expression_data_type);
+            CALL_RULE(step);
+            CHECK_TOKEN(TOKEN_EOL);
+            CALL_RULE(eols);
+            CHECK_TOKEN(TOKEN_NEXT);
+    );
+    return true;
+}
+
+bool parser_parse_step(Parser* parser) {
+    /*
+     * RULE
+     * <step> -> E
+     * <step> STEP <expr>
+     */
+
+    // TODO: Rule step
+    return true;
+}
+
+
+// TODO: do-while
+
+
 
 bool parser_parse_input(Parser* parser) {
     /*

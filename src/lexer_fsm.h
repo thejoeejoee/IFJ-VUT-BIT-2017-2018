@@ -149,6 +149,7 @@ typedef enum {
     LEX_FSM__SHARED,
     LEX_FSM__STATIC,
     LEX_FSM__TRUE,
+    LEX_FSM__TO,
     LEX_FSM__EOF,
     LEX_FSM__ERROR,
 

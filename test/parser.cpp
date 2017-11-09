@@ -475,6 +475,17 @@ TEST_F(ParserTestFixture, ModifyAssigment) {
     );
 }
 
+TEST_F(ParserTestFixture, ForNext) {
+    provider->setString(R"(for i = 1 to 10
+next
+    )");
+    parser->body_statement = true;
+    EXPECT_TRUE(
+            parser_parse_for(parser)
+    ) << "Error parsing <for> rule";
+    parser->body_statement = false;
+}
+
 TEST_F(ParserTestFixture, DoWhile) {
     provider->setString(R"(DO WHILE 42
 input id

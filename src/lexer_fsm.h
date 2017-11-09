@@ -5,6 +5,7 @@
 #include "char_stack.h"
 #include "dynamic_string.h"
 
+// Lenght of lexer buffer
 #define LEXER_FSM_STREAM_BUFFER_DEFAULT_LENGTH 2
 
 /**

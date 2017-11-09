@@ -766,6 +766,8 @@ bool parser_parse_input(Parser* parser) {
 }
 
 bool parser_parse_condition(Parser* parser) {
+
+
     DataType expression_data_type;
 
     RULES(

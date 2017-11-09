@@ -438,36 +438,52 @@ TEST_F(ParserTestFixture, ModifyAssigment) {
     EXPECT_TRUE(
             parser_parse_modify_assignment(parser)
     );
+}
 
+TEST_F(ParserTestFixture, ModifyAssigment1) {
     provider->setString("-= 31");
     EXPECT_TRUE(
             parser_parse_modify_assignment(parser)
     );
+}
 
+TEST_F(ParserTestFixture, ModifyAssigment2) {
     provider->setString("*= 31");
     EXPECT_TRUE(
             parser_parse_modify_assignment(parser)
     );
+}
 
+TEST_F(ParserTestFixture, ModifyAssigment3) {
     provider->setString("/= 31");
     EXPECT_TRUE(
             parser_parse_modify_assignment(parser)
     );
+}
+
+TEST_F(ParserTestFixture, ModifyAssigment4) {
 
     provider->setString("+= foo()");
     EXPECT_TRUE(
             parser_parse_modify_assignment(parser)
     );
+}
 
+TEST_F(ParserTestFixture, ModifyAssigment5) {
     provider->setString("-= a+b+c+d");
     EXPECT_TRUE(
             parser_parse_modify_assignment(parser)
     );
+}
 
+TEST_F(ParserTestFixture, ModifyAssigment6) {
     provider->setString("*= foo()*foo(foo())");
     EXPECT_TRUE(
             parser_parse_modify_assignment(parser)
     );
+}
+
+TEST_F(ParserTestFixture, ModifyAssigment7) {
 
     provider->setString("/= 12+15");
     EXPECT_TRUE(
@@ -496,6 +512,13 @@ TEST_F(ParserTestFixture, ReturnRule) {
     provider->setString("return 34");
     EXPECT_TRUE(
             parser_parse_return_(parser)
+    ) << "Error parsing <expression> rule";
+}
+
+TEST_F(ParserTestFixture, ModifyAssignment) {
+    provider->setString("+= 31");
+    EXPECT_TRUE(
+            parser_parse_modify_assignment(parser)
     ) << "Error parsing <expression> rule";
 }
 

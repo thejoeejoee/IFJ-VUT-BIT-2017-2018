@@ -352,4 +352,6 @@ bool parser_parse_exit(Parser* parser);
 
 bool parser_parse_continue(Parser* parser);
 
+bool parser_parse_do_while(Parser* parser);
+
 #endif //_PARSER_H

@@ -498,6 +498,20 @@ next
     parser->body_statement = false;
 }
 
+
+TEST_F(ParserTestFixture, DoWhileLoop) {
+    provider->setString(R"(do
+dim a as integer
+loop while i < 10
+    )");
+    parser->body_statement = true;
+    EXPECT_TRUE(
+            parser_parse_do_while(parser)
+    ) << "Error parsing <do_while> rule";
+    parser->body_statement = false;
+}
+
+
 TEST_F(ParserTestFixture, Step2) {
     provider->setString("step 31");
     parser->body_statement = true;

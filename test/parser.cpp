@@ -486,6 +486,27 @@ next
     parser->body_statement = false;
 }
 
+
+TEST_F(ParserTestFixture, ForNext2) {
+    provider->setString(R"(for i = 1 to 10 step 2
+next
+    )");
+    parser->body_statement = true;
+    EXPECT_TRUE(
+            parser_parse_for(parser)
+    ) << "Error parsing <for> rule";
+    parser->body_statement = false;
+}
+
+TEST_F(ParserTestFixture, Step2) {
+    provider->setString("step 31");
+    parser->body_statement = true;
+    EXPECT_TRUE(
+            parser_parse_step(parser)
+    ) << "Error parsing <step> rule";
+    parser->body_statement = false;
+}
+
 TEST_F(ParserTestFixture, DoWhile) {
     provider->setString(R"(DO WHILE 42
 input id

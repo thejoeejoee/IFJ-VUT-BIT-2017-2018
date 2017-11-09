@@ -445,8 +445,12 @@ LexerFSMState lexer_fsm_get_identifier_state(const char* name) {
         }
     }
 
+    // TODO: Put it into cycle
     if(strcmp(name, "to") == 0)
         return LEX_FSM__TO;
+
+    if(strcmp(name, "step") == 0)
+        return LEX_FSM__STEP;
 
     return LEX_FSM__IDENTIFIER_FINISHED;
 }

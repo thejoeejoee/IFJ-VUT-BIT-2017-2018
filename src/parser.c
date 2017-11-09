@@ -745,7 +745,11 @@ bool parser_parse_for(Parser* parser) {
             CALL_RULE(assignment);
             CHECK_TOKEN(TOKEN_TO);
             CALL_EXPRESSION_RULE(expression_data_type);
-            CALL_RULE(step);
+
+            CONDITIONAL_RULES(
+                    lexer_rewind_token(parser->lexer, token);
+            CHECK_RULE(token_type == TOKEN_STEP, step, NO_CODE);
+    );
             CHECK_TOKEN(TOKEN_EOL);
             CALL_RULE(eols);
             CHECK_TOKEN(TOKEN_NEXT);
@@ -760,7 +764,24 @@ bool parser_parse_step(Parser* parser) {
      * <step> STEP <expr>
      */
 
-    // TODO: Rule step
+    DataType expression_data_type;
+
+    RULES(
+            CONDITIONAL_RULES(
+                    lexer_rewind_token(parser->lexer, token);
+
+
+            CHECK_RULE(
+                    token_type != TOKEN_STEP,
+                    epsilon,
+                    NO_CODE
+            );
+
+            CHECK_TOKEN(TOKEN_STEP);
+            CALL_EXPRESSION_RULE(expression_data_type);
+    );
+    );
+
     return true;
 }
 

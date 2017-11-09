@@ -344,4 +344,12 @@ bool parser_parse_for(Parser* parser);
 
 bool parser_parse_step(Parser* parser);
 
+bool parser_parse_cycle_statements(Parser* parser);
+
+bool parser_parse_cycle_statement_single(Parser* parser);
+
+bool parser_parse_exit(Parser* parser);
+
+bool parser_parse_continue(Parser* parser);
+
 #endif //_PARSER_H

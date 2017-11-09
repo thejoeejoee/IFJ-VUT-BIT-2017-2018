@@ -143,19 +143,19 @@ void parser_semantic_set_action(ParserSemantic* parser_semantic, SemanticAction 
         parser_semantic->argument_index = 0;
 }
 
-SymbolVariable* parser_semantic_add_symbol_variable(ParserSemantic* parser_semantic, char* name, DataType data_type) {
-    NULL_POINTER_CHECK(parser_semantic, false);
-    NULL_POINTER_CHECK(name, false);
+SymbolVariable* parser_semantic_add_variable(ParserSemantic* parser_semantic, char* name, DataType data_type) {
+    NULL_POINTER_CHECK(parser_semantic, NULL);
+    NULL_POINTER_CHECK(name, NULL);
 
     if(symbol_table_function_get(parser_semantic->register_->functions, name) != NULL) {
         parser_semantic->error_report.error_code = ERROR_SEMANTIC_DEFINITION;
-        return false;
+        return NULL;
     }
 
     if(symbol_register_find_variable(parser_semantic->register_, name) != NULL) {
         // already declared in current scope
         parser_semantic->error_report.error_code = ERROR_SEMANTIC_DEFINITION;
-        return false;
+        return NULL;
     }
 
     SymbolVariable* symbol_variable = symbol_register_new_variable(

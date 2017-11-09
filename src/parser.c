@@ -559,7 +559,7 @@ bool parser_parse_variable_declaration(Parser* parser) {
             SEMANTIC_ANALYSIS(
                     {
                             // TODO: resolve token_type -> data_type conversion for boolean
-                            parser->parser_semantic->actual_variable = parser_semantic_add_symbol_variable(
+                            parser->parser_semantic->actual_variable = parser_semantic_add_variable(
                                     parser->parser_semantic,
                                     name,
                                     (DataType) token_type
@@ -651,7 +651,41 @@ bool parser_parse_static_variable_declaration(Parser* parser) {
             );
             CHECK_TOKEN(TOKEN_AS);
             CHECK_TOKEN(TOKEN_DATA_TYPE_CLASS);
+            SEMANTIC_ANALYSIS(
+                    {
+                            parser->parser_semantic->actual_variable = parser_semantic_add_variable(
+                                    parser->parser_semantic,
+                                    name,
+                                    (DataType) token_type
+                            );
+
+                            if(parser->parser_semantic->actual_variable == NULL) {
+                        token_free(&token);
+                        return false;
+                    }
+                    }
+            );
+            CODE_GENERATION(
+                    {
+
+                            parser->parser_semantic->actual_variable->frame = VARIABLE_FRAME_LOCAL;
+                            code_constructor_static_variable_declaration(
+                            parser->code_constructor,
+                            parser->parser_semantic->actual_variable,
+                            parser->parser_semantic->actual_function
+                    );
+                    }
+            );
             CALL_RULE(declaration_assignment);
+            CODE_GENERATION(
+                    {
+                            code_constructor_static_variable_declaration_end(
+                                    parser->code_constructor,
+                                    parser->parser_semantic->actual_variable,
+                                    parser->parser_semantic->actual_function
+                            );
+                    }
+            );
     );
     return true;
 }
@@ -1066,7 +1100,6 @@ bool parser_parse_assignment(Parser* parser) {
             }
     );
 
-    parser->parser_semantic->actual_variable = NULL;
     return true;
 }
 

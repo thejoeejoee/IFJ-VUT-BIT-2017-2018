@@ -51,10 +51,11 @@ bool parser_parse(Parser* parser) {
         return false;
     }
     ASSERT(parser->code_constructor->code_label_stack->head == NULL);
-    ASSERT(parser->code_constructor->loops_initial_instruction_stack->head == NULL);
+    ASSERT(parser->code_constructor->loops_initial_instruction == NULL);
     ASSERT(parser->code_constructor->conditions_label_stack->head == NULL);
     ASSERT(parser->code_constructor->loops_label_stack->head == NULL);
     ASSERT(parser->code_constructor->control_statement_depth == 0);
+    ASSERT(parser->code_constructor->loops_depth == 0);
     ASSERT(parser->code_constructor->scope_depth == 0);
     return true;
 }

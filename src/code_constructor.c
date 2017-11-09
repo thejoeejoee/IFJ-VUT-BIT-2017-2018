@@ -12,7 +12,8 @@ CodeConstructor* code_constructor_init() {
     constructor->code_label_stack = stack_code_label_init();
     constructor->conditions_label_stack = stack_code_label_init();
     constructor->loops_label_stack = stack_code_label_init();
-    constructor->loops_initial_instruction_stack = stack_code_instruction_init();
+    constructor->loops_depth = 0;
+    constructor->loops_initial_instruction = NULL;
 
     llist_init(&constructor->conversion_instructions, sizeof(TypeConversionInstruction), NULL, NULL, NULL);
     code_constructor_add_conversion_instruction(constructor, I_INT_TO_FLOAT, DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE,
@@ -37,7 +38,6 @@ void code_constructor_free(CodeConstructor** constructor) {
     stack_free(&(*constructor)->code_label_stack);
     stack_free(&(*constructor)->conditions_label_stack);
     stack_free(&(*constructor)->loops_label_stack);
-    stack_free(&(*constructor)->loops_initial_instruction_stack);
     llist_free(&(*constructor)->conversion_instructions);
     code_generator_free(&((*constructor)->generator));
     memory_free(*constructor);
@@ -73,9 +73,7 @@ void code_constructor_variable_declaration(CodeConstructor* constructor, SymbolV
     NULL_POINTER_CHECK(constructor,);
     NULL_POINTER_CHECK(symbol_variable,);
 
-    // TODO: Add generating symbol with corresponding frame
-    CodeInstruction* loop_start_instruction = stack_code_instruction_head(constructor->loops_initial_instruction_stack);
-    if(loop_start_instruction == NULL) {
+    if(constructor->loops_initial_instruction == NULL) {
         // not in scope, directly declare variable
         GENERATE_CODE(
                 I_DEF_VAR,
@@ -93,7 +91,7 @@ void code_constructor_variable_declaration(CodeConstructor* constructor, SymbolV
         code_generator_insert_instruction_before(
                 constructor->generator,
                 declaration,
-                loop_start_instruction
+                constructor->loops_initial_instruction
         );
 
     }
@@ -276,11 +274,11 @@ void code_constructor_while_before_condition(CodeConstructor* constructor) {
             I_LABEL,
             code_instruction_operand_init_label(label)
     );
+
     // push label instruction to declare variables before while loop
-    stack_code_instruction_push(
-            constructor->loops_initial_instruction_stack,
-            loop_start_instruction
-    );
+    if(constructor->loops_depth++ == 0) {
+        constructor->loops_initial_instruction = loop_start_instruction;
+    }
 }
 
 
@@ -323,7 +321,9 @@ void code_constructor_while_end(CodeConstructor* constructor) {
     code_label_free(&end_label);
 
     // starting label instruction is now more needed
-    stack_code_instruction_pop(constructor->loops_initial_instruction_stack);
+    if(--constructor->loops_depth == 0) {
+        constructor->loops_initial_instruction = NULL;
+    }
 }
 
 void code_constructor_variable_expression_assignment(CodeConstructor* constructor, SymbolVariable* variable) {
@@ -548,7 +548,8 @@ void code_constructor_fn_asc(
 }
 
 void code_constructor_fn_substr(CodeConstructor* constructor, SymbolVariable* tmp1, SymbolVariable* tmp2,
-                                SymbolVariable* tmp3, SymbolVariable* tmp4, SymbolVariable* tmp5, DataType param_1_type, DataType param_2_type, DataType param_3_type) {
+                                SymbolVariable* tmp3, SymbolVariable* tmp4, SymbolVariable* tmp5, DataType param_1_type,
+                                DataType param_2_type, DataType param_3_type) {
 
 
     char* continue_label = code_constructor_generate_label(constructor, "substr_continue");

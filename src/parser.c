@@ -16,6 +16,7 @@ Parser* parser_init(lexer_input_stream_f input_stream) {
     parser->parser_semantic = parser_semantic_init();
     parser->code_constructor = code_constructor_init();
     parser->run_type = PARSER_RUN_TYPE_ALL;
+    parser->cycle_statement = false;
     parser->body_statement = false;
     parser->error_report.error_code = ERROR_NONE;
     return parser;
@@ -146,7 +147,7 @@ bool parser_parse_scope(Parser* parser) {
             );
             CHECK_TOKEN(TOKEN_EOL);
             CHECK_RULE(eols);
-            CHECK_RULE(body_statements);
+            CALL_RULE_STATEMENTS();
             CHECK_TOKEN(TOKEN_END);
             CHECK_TOKEN(TOKEN_SCOPE);
             CODE_GENERATION(
@@ -232,7 +233,7 @@ bool parser_parse_function_definition(Parser* parser) {
             );
             CHECK_TOKEN(TOKEN_EOL);
             CHECK_RULE(eols);
-            CHECK_RULE(function_statements);
+            CALL_RULE_STATEMENTS();
             CHECK_TOKEN(TOKEN_END);
             CHECK_TOKEN(TOKEN_FUNCTION);
             SEMANTIC_ANALYSIS(
@@ -686,10 +687,28 @@ bool parser_parse_while_(Parser* parser) {
      * RULE
      * <do_while> -> DO WHILE <expression> EOL <eols> <statements> LOOP
      */
-    DataType expression_data_type;
 
     RULES(
             CHECK_TOKEN(TOKEN_DO);
+
+            CONDITIONAL_RULES(
+                    CHECK_RULE(token_type == TOKEN_WHILE,
+            while, REWIND_AND_SUCCESS);
+            CHECK_RULE(token_type != TOKEN_WHILE, do_while, REWIND_AND_SUCCESS);
+            );
+    );
+    return true;
+}
+
+bool parser_parse_while(Parser* parser) {
+    /*
+     * RULE
+     * <do_while> -> DO WHILE <expression> EOL <eols> <statements> LOOP
+     */
+    DataType expression_data_type;
+
+    RULES(
+
             CHECK_TOKEN(TOKEN_WHILE);
             SEMANTIC_ANALYSIS(
                     {
@@ -715,7 +734,7 @@ bool parser_parse_while_(Parser* parser) {
             CHECK_TOKEN(TOKEN_EOL);
             CALL_RULE(eols);
 
-            CALL_RULE_STATEMENTS();
+            CHECK_RULE(cycle_statements);
             CHECK_TOKEN(TOKEN_LOOP);
             CODE_GENERATION(
                     {
@@ -772,13 +791,14 @@ bool parser_parse_cycle_statement_single(Parser* parser) {
             CONDITIONAL_RULES(
                     CHECK_RULE(token_type == TOKEN_IDENTIFIER, identifier_assignment, REWIND_AND_SUCCESS);
             CHECK_RULE(token_type == TOKEN_INPUT, input, REWIND_AND_SUCCESS);
+            CHECK_RULE(token_type == TOKEN_FOR,
+            for, REWIND_AND_SUCCESS);
             CHECK_RULE(token_type == TOKEN_RETURN, return_, REWIND_AND_SUCCESS);
             CHECK_RULE(token_type == TOKEN_PRINT, print, REWIND_AND_SUCCESS);
             CHECK_RULE(token_type == TOKEN_IF, condition, REWIND_AND_SUCCESS);
             CHECK_RULE(token_type == TOKEN_DO, while_, REWIND_AND_SUCCESS);
             CHECK_RULE(token_type == TOKEN_DIM, variable_declaration, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_CONTINUE,
-            continue, REWIND_AND_SUCCESS);
+            CHECK_RULE(token_type == TOKEN_CONTINUE, continue, REWIND_AND_SUCCESS);
             CHECK_RULE(token_type == TOKEN_EXIT, exit, REWIND_AND_SUCCESS);
     );
     );
@@ -821,6 +841,7 @@ bool parser_parse_for(Parser* parser) {
      */
 
     DataType expression_data_type;
+    parser->cycle_statement = true;
 
     RULES(
             CHECK_TOKEN(TOKEN_FOR);
@@ -835,10 +856,11 @@ bool parser_parse_for(Parser* parser) {
     );
             CHECK_TOKEN(TOKEN_EOL);
             CALL_RULE(eols);
-            CALL_RULE(cycle_statements);
+            CHECK_RULE(cycle_statements);
             CALL_RULE(eols);
             CHECK_TOKEN(TOKEN_NEXT);
     );
+    parser->cycle_statement = false;
     return true;
 }
 
@@ -878,18 +900,18 @@ bool parser_parse_do_while(Parser* parser) {
      */
 
     DataType expression_data_type;
-
+    parser->cycle_statement = true;
     RULES(
-            CHECK_TOKEN(TOKEN_DO);
             CHECK_TOKEN(TOKEN_EOL);
             CHECK_RULE(eols);
-            CALL_RULE(cycle_statements);
+            CHECK_RULE(cycle_statements);
             CHECK_RULE(eols);
             CHECK_TOKEN(TOKEN_LOOP);
             CHECK_TOKEN(TOKEN_WHILE);
             CALL_EXPRESSION_RULE(expression_data_type);
 
     );
+    parser->cycle_statement = false;
     return true;
 }
 

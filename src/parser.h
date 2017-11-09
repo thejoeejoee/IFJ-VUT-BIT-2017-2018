@@ -162,7 +162,10 @@ if ((parser)->run_type & PARSER_RUN_TYPE_SEMANTIC_CODE_GENERATION) { \
 }} while(0)
 
 #define CALL_RULE_STATEMENTS() do { \
-if(parser->body_statement) { \
+if(parser->cycle_statement) { \
+    CALL_RULE(cycle_statements); \
+} \
+else if(parser->body_statement) { \
     CALL_RULE(body_statements); \
 } else { \
     CALL_RULE(function_statements); \
@@ -198,7 +201,8 @@ typedef struct parser_t {
 
     int run_type;
 
-    bool body_statement; // TODO: cannot by done with semantic parser action?
+    bool body_statement;
+    bool cycle_statement;
 
     /** GET_NEXT_TOKEN_TYPE()
     * Token token;
@@ -353,5 +357,7 @@ bool parser_parse_exit(Parser* parser);
 bool parser_parse_continue(Parser* parser);
 
 bool parser_parse_do_while(Parser* parser);
+
+bool parser_parse_while(Parser* parser);
 
 #endif //_PARSER_H

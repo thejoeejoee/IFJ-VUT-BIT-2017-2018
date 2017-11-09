@@ -112,7 +112,7 @@ bool parser_parse_program(Parser* parser) {
 bool parser_parse_body(Parser* parser) {
     /*
      * RULE
-     * <body> -> <definitions> <scope>
+     * <body> -> <definitions> <scope> <shared_variables_declarations>
      */
     RULES(
             CHECK_RULE(definitions);
@@ -127,6 +127,7 @@ bool parser_parse_body(Parser* parser) {
 
             parser->body_statement = true;
             CHECK_RULE(scope);
+            CHECK_RULE(shared_variables_declarations);
     );
     return true;
 }
@@ -170,7 +171,8 @@ bool parser_parse_definitions(Parser* parser) {
             CHECK_RULE(eols);
             CONDITIONAL_RULES(
                     lexer_rewind_token(parser->lexer, token);
-            CHECK_RULE(token_type != TOKEN_DECLARE && token_type != TOKEN_FUNCTION, epsilon, NO_CODE);
+            CHECK_RULE(token_type != TOKEN_DECLARE && token_type != TOKEN_FUNCTION && token_type != TOKEN_DIM, epsilon,
+                       NO_CODE);
             CHECK_RULE(definition);
             CHECK_RULE(definitions);
     );
@@ -191,6 +193,7 @@ bool parser_parse_definition(Parser* parser) {
                     lexer_rewind_token(parser->lexer, token);
             CHECK_RULE(token_type == TOKEN_DECLARE, function_declaration, NO_CODE);
             CHECK_RULE(token_type == TOKEN_FUNCTION, function_definition, NO_CODE);
+            CHECK_RULE(token_type == TOKEN_DIM, shared_variable_declaration, NO_CODE);
             CHECK_RULE(epsilon);
     );
     );
@@ -578,6 +581,51 @@ bool parser_parse_variable_declaration(Parser* parser) {
                     }
             );
             CALL_RULE(declaration_assignment);
+    );
+    return true;
+}
+
+bool parser_parse_shared_variables_declarations(Parser* parser) {
+    /*
+     * RULES
+     * <shared_variables_declarations> -> E
+     * <shared_variables_declarations> -> <shared_variable_declaration>
+     */
+
+    RULES(
+            CHECK_RULE(eols);
+            CONDITIONAL_RULES(
+                    lexer_rewind_token(parser->lexer, token);
+            CHECK_RULE(token_type != TOKEN_DIM, epsilon, NO_CODE);
+            CHECK_RULE(shared_variable_declaration);
+            CHECK_RULE(shared_variables_declarations);
+    );
+    );
+
+    return true;
+}
+
+bool parser_parse_shared_variable_declaration(Parser* parser) {
+    /**
+     * RULES
+     * <variable_declaration> -> DIM SHARED IDENTIFIER AS <type>
+     */
+
+    char* name = NULL;
+    RULES(
+            CHECK_TOKEN(TOKEN_DIM);
+            CHECK_TOKEN(TOKEN_SHARED);
+            CHECK_TOKEN(
+                    TOKEN_IDENTIFIER,
+                    BEFORE(
+                            {
+                                    name = c_string_copy(token.data);
+                                    memory_free_lazy(name);
+                            }
+                    )
+            );
+            CHECK_TOKEN(TOKEN_AS);
+            CHECK_TOKEN(TOKEN_DATA_TYPE_CLASS);
     );
     return true;
 }

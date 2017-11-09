@@ -472,42 +472,63 @@ TEST_F(ParserTestFixture, DeclarationAssigment2) {
 
 }
 
-TEST_F(ParserTestFixture, ModifyAssigment) {
+TEST_F(ParserTestFixture, ModifyAssigmentAddConstant) {
     provider->setString("+= 31");
     EXPECT_TRUE(
             parser_parse_modify_assignment(parser)
     );
+}
 
+TEST_F(ParserTestFixture, ModifyAssigmentSubstractConstant) {
     provider->setString("-= 31");
     EXPECT_TRUE(
             parser_parse_modify_assignment(parser)
     );
+}
 
+TEST_F(ParserTestFixture, ModifyAssigmentMultiplyConstant) {
     provider->setString("*= 31");
     EXPECT_TRUE(
             parser_parse_modify_assignment(parser)
     );
+}
 
+TEST_F(ParserTestFixture, ModifyAssigmentDivideByConstant) {
     provider->setString("/= 31");
     EXPECT_TRUE(
             parser_parse_modify_assignment(parser)
     );
+}
 
+TEST_F(ParserTestFixture, ModifyAssigmentIntegerDivideByConstant) {
+    provider->setString("\\= 31");
+    EXPECT_TRUE(
+            parser_parse_modify_assignment(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, ModifyAssigmentAddFunctionCall) {
     provider->setString("+= foo()");
     EXPECT_TRUE(
             parser_parse_modify_assignment(parser)
     );
+}
 
+TEST_F(ParserTestFixture, ModifyAssigmentAddExpression) {
     provider->setString("-= a+b+c+d");
     EXPECT_TRUE(
             parser_parse_modify_assignment(parser)
     );
+}
 
+TEST_F(ParserTestFixture, ModifyAssigmentAddComplexFunctionCalls) {
     provider->setString("*= foo()*foo(foo())");
     EXPECT_TRUE(
             parser_parse_modify_assignment(parser)
     );
+}
 
+TEST_F(ParserTestFixture, ModifyAssigmentMultiplyByExpression) {
     provider->setString("/= 12+15");
     EXPECT_TRUE(
             parser_parse_modify_assignment(parser)

@@ -268,7 +268,7 @@ bool parser_parse_function_statements(Parser* parser) {
             CHECK_RULE(
                     token_type != TOKEN_INPUT && token_type != TOKEN_RETURN && token_type != TOKEN_IF &&
                     token_type != TOKEN_DIM && token_type != TOKEN_PRINT && token_type != TOKEN_DO &&
-                    token_type != TOKEN_IDENTIFIER,
+                    token_type != TOKEN_IDENTIFIER && token_type != TOKEN_STATIC,
                     epsilon,
                     NO_CODE
             );
@@ -322,6 +322,7 @@ bool parser_parse_function_statement_single(Parser* parser) {
      * <statement_single> -> RETURN <expr>
      * <statement_single> -> <variable_declaration>
      * <statement_single> -> <statement_print>
+     * <statement_single> -> <static_variable_declaration>
      */
     RULES(
             CONDITIONAL_RULES(
@@ -332,6 +333,7 @@ bool parser_parse_function_statement_single(Parser* parser) {
             CHECK_RULE(token_type == TOKEN_IF, condition, REWIND_AND_SUCCESS);
             CHECK_RULE(token_type == TOKEN_DO, while_, REWIND_AND_SUCCESS);
             CHECK_RULE(token_type == TOKEN_DIM, variable_declaration, REWIND_AND_SUCCESS);
+            CHECK_RULE(token_type == TOKEN_STATIC, static_variable_declaration, REWIND_AND_SUCCESS);
     );
     );
     return false;
@@ -575,6 +577,31 @@ bool parser_parse_variable_declaration(Parser* parser) {
                     );
                     }
             );
+            CALL_RULE(declaration_assignment);
+    );
+    return true;
+}
+
+bool parser_parse_static_variable_declaration(Parser* parser) {
+    /**
+     * RULES
+     * <static_variable_declaration> -> STATIC IDENTIFIER AS <type>
+     */
+
+    char* name = NULL;
+    RULES(
+            CHECK_TOKEN(TOKEN_STATIC);
+            CHECK_TOKEN(
+                    TOKEN_IDENTIFIER,
+                    BEFORE(
+                            {
+                                    name = c_string_copy(token.data);
+                                    memory_free_lazy(name);
+                            }
+                    )
+            );
+            CHECK_TOKEN(TOKEN_AS);
+            CHECK_TOKEN(TOKEN_DATA_TYPE_CLASS);
             CALL_RULE(declaration_assignment);
     );
     return true;

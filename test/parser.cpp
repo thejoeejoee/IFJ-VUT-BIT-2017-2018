@@ -238,6 +238,25 @@ END FUNCTION
 
 }
 
+TEST_F(ParserTestFixture, FunctionDefinitionWithStatic) {
+    provider->setString("FUNCTION hello () AS string \n END FUNCTION");
+    EXPECT_TRUE(
+            parser_parse_definitions(parser)
+    ) << "Error parsing <definitions> rule";
+
+    provider->setString(R"(FUNCTION hello () AS string
+input id
+dim a as integer
+static a as integer
+input id
+END FUNCTION
+    )");
+    EXPECT_TRUE(
+            parser_parse_definitions(parser)
+    ) << "Error parsing <definitions> rule";
+
+}
+
 TEST_F(ParserTestFixture, FunctionStatements) {
     provider->setString("");
     EXPECT_TRUE(
@@ -407,6 +426,26 @@ TEST_F(ParserTestFixture, DimRuleWithAssignmentInvalid) {
             parser_parse_variable_declaration(parser)
     ) << "Error parsing <variable_declaration> rule";
 }
+
+TEST_F(ParserTestFixture, StaticVariable) {
+    provider->setString("static variableble as integer");
+    EXPECT_TRUE(
+            parser_parse_static_variable_declaration(parser)
+    ) << "Error parsing <static_variable_declaration> rule";
+}
+
+
+TEST_F(ParserTestFixture, StaticVariableWitchAssignment) {
+
+    provider->setString("static param475624 as integer = 42");
+
+    EXPECT_TRUE(
+            parser_parse_static_variable_declaration(parser)
+    ) << "Error parsing <sttaic_variable_declaration> rule";
+
+
+}
+
 
 
 TEST_F(ParserTestFixture, AssignmentRule) {

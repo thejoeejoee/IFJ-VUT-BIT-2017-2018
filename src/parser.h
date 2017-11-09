@@ -334,4 +334,6 @@ bool parser_parse_identifier_assignment(Parser* parser);
 
 bool parser_parse_modify_assignment(Parser* parser);
 
+bool parser_parse_static_variable_declaration(Parser* parser);
+
 #endif //_PARSER_H

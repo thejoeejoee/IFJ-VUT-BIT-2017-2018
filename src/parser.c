@@ -269,7 +269,7 @@ bool parser_parse_function_statements(Parser* parser) {
             CHECK_RULE(
                     token_type != TOKEN_INPUT && token_type != TOKEN_RETURN && token_type != TOKEN_IF &&
                     token_type != TOKEN_DIM && token_type != TOKEN_PRINT && token_type != TOKEN_DO &&
-                    token_type != TOKEN_IDENTIFIER,
+                    token_type != TOKEN_IDENTIFIER && token_type != TOKEN_FOR,
                     epsilon,
                     NO_CODE
             );
@@ -297,7 +297,7 @@ bool parser_parse_body_statements(Parser* parser) {
             CHECK_RULE(
                     token_type != TOKEN_INPUT && token_type != TOKEN_DIM && token_type != TOKEN_PRINT &&
                     token_type != TOKEN_DO && token_type != TOKEN_IF && token_type != TOKEN_SCOPE &&
-                    token_type != TOKEN_PRINT && token_type != TOKEN_IDENTIFIER,
+                    token_type != TOKEN_PRINT && token_type != TOKEN_IDENTIFIER && token_type != TOKEN_FOR,
                     epsilon,
                     BEFORE({}),
                     AFTER(
@@ -333,6 +333,7 @@ bool parser_parse_function_statement_single(Parser* parser) {
             CHECK_RULE(token_type == TOKEN_IF, condition, REWIND_AND_SUCCESS);
             CHECK_RULE(token_type == TOKEN_DO, while_, REWIND_AND_SUCCESS);
             CHECK_RULE(token_type == TOKEN_DIM, variable_declaration, REWIND_AND_SUCCESS);
+            CHECK_RULE(token_type == TOKEN_FOR, for, REWIND_AND_SUCCESS);
     );
     );
     return false;
@@ -347,13 +348,14 @@ bool parser_parse_body_statement_single(Parser* parser) {
     RULES(
             CONDITIONAL_RULES(
                     CHECK_RULE(token_type == TOKEN_INPUT, input, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_IDENTIFIER, identifier_assignment, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_DO, while_, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_PRINT, print, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_SCOPE, scope, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_IF, condition, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_DIM, variable_declaration, REWIND_AND_SUCCESS);
-    );
+                    CHECK_RULE(token_type == TOKEN_IDENTIFIER, identifier_assignment, REWIND_AND_SUCCESS);
+                    CHECK_RULE(token_type == TOKEN_DO, while_, REWIND_AND_SUCCESS);
+                    CHECK_RULE(token_type == TOKEN_PRINT, print, REWIND_AND_SUCCESS);
+                    CHECK_RULE(token_type == TOKEN_SCOPE, scope, REWIND_AND_SUCCESS);
+                    CHECK_RULE(token_type == TOKEN_IF, condition, REWIND_AND_SUCCESS);
+                    CHECK_RULE(token_type == TOKEN_DIM, variable_declaration, REWIND_AND_SUCCESS);
+                    CHECK_RULE(token_type == TOKEN_FOR, for, REWIND_AND_SUCCESS);
+            );
     );
 
     return false;
@@ -764,7 +766,8 @@ bool parser_parse_cycle_statements(Parser* parser) {
             CHECK_RULE(
                     token_type != TOKEN_INPUT && token_type != TOKEN_RETURN && token_type != TOKEN_IF &&
                     token_type != TOKEN_DIM && token_type != TOKEN_PRINT && token_type != TOKEN_DO &&
-                    token_type != TOKEN_IDENTIFIER && token_type != TOKEN_EXIT && token_type != TOKEN_CONTINUE,
+                    token_type != TOKEN_IDENTIFIER && token_type != TOKEN_EXIT && token_type != TOKEN_CONTINUE &&
+                    token_type != TOKEN_FOR,
                     epsilon,
                     NO_CODE
             );
@@ -790,17 +793,17 @@ bool parser_parse_cycle_statement_single(Parser* parser) {
     RULES(
             CONDITIONAL_RULES(
                     CHECK_RULE(token_type == TOKEN_IDENTIFIER, identifier_assignment, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_INPUT, input, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_FOR,
-            for, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_RETURN, return_, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_PRINT, print, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_IF, condition, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_DO, while_, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_DIM, variable_declaration, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_CONTINUE, continue, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_EXIT, exit, REWIND_AND_SUCCESS);
-    );
+                    CHECK_RULE(token_type == TOKEN_INPUT, input, REWIND_AND_SUCCESS);
+                    CHECK_RULE(token_type == TOKEN_FOR, for, REWIND_AND_SUCCESS);
+                    CHECK_RULE(token_type == TOKEN_RETURN, return_, REWIND_AND_SUCCESS);
+                    CHECK_RULE(token_type == TOKEN_PRINT, print, REWIND_AND_SUCCESS);
+                    CHECK_RULE(token_type == TOKEN_IF, condition, REWIND_AND_SUCCESS);
+                    CHECK_RULE(token_type == TOKEN_DO, while_, REWIND_AND_SUCCESS);
+                    CHECK_RULE(token_type == TOKEN_DIM, variable_declaration, REWIND_AND_SUCCESS);
+                    CHECK_RULE(token_type == TOKEN_CONTINUE, continue, REWIND_AND_SUCCESS);
+                    CHECK_RULE(token_type == TOKEN_EXIT, exit, REWIND_AND_SUCCESS);
+
+            );
     );
     return false;
 }
@@ -852,8 +855,8 @@ bool parser_parse_for(Parser* parser) {
 
             CONDITIONAL_RULES(
                     lexer_rewind_token(parser->lexer, token);
-            CHECK_RULE(token_type == TOKEN_STEP, step, NO_CODE);
-    );
+                    CHECK_RULE(token_type == TOKEN_STEP, step, NO_CODE);
+            );
             CHECK_TOKEN(TOKEN_EOL);
             CALL_RULE(eols);
             CHECK_RULE(cycle_statements);

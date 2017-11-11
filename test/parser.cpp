@@ -527,6 +527,8 @@ loop while i < 10
 }
 
 
+
+
 TEST_F(ParserTestFixture, Step2) {
     provider->setString("step 31");
     parser->body_statement = true;
@@ -966,6 +968,195 @@ scope
 end scope
 )");
     EXPECT_TRUE(
+            parser_parse_program(parser)
+    );
+}
+
+
+TEST_F(ParserTestFixture, CycleFirst) {
+    provider->setString(R"(
+scope
+do
+input a
+loop while i < 10
+end scope
+)");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, CycleInFunction) {
+    provider->setString(R"(
+
+function foo() as integer
+do
+input a
+loop while i < 10
+end function
+
+scope
+end scope
+)");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, CycleForInFunction) {
+    provider->setString(R"(
+
+function foo() as integer
+for i = 0 to 10
+
+next
+end function
+
+scope
+end scope
+)");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, CycleInCycle) {
+    provider->setString(R"(
+scope
+do
+input a
+
+do
+input a
+loop while i < 10
+
+loop while i < 10
+end scope
+)");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, ForNextCycle) {
+    provider->setString(R"(
+scope
+dim i as integer
+for i = 0 to 10
+
+next
+
+end scope
+)");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, ForNextCycleWithStep) {
+    provider->setString(R"(
+scope
+dim i as integer
+for i = 0 to 10 step 10
+
+next
+
+end scope
+)");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, ManyCycles) {
+    provider->setString(R"(
+scope
+dim i as integer
+for i = 0 to 10 step 10
+
+for i = 0 to 10
+
+do
+input a
+
+do
+input a
+loop while i < 10
+
+loop while i < 10
+
+next
+
+next
+
+end scope
+)");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, ManyCyclesInFunction) {
+    provider->setString(R"(
+function hgdshgk() as integer
+dim i as integer
+for i = 0 to 10 step 10
+
+for i = 0 to 10
+
+do
+input a
+
+do
+input a
+loop while i < 10
+
+loop while i < 10
+
+next
+
+next
+
+end function
+
+scope
+end scope
+)");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, ForNextCycleFalse) {
+    provider->setString(R"(
+scope
+dim i as integer
+for i = 0 to 10
+
+loop
+
+end scope
+)");
+    EXPECT_FALSE(
+            parser_parse_program(parser)
+    );
+}
+
+
+TEST_F(ParserTestFixture, CycleInCycleFalse) {
+    provider->setString(R"(
+scope
+do
+input a
+
+do
+input a
+loop while
+
+loop while i < 10
+end scope
+)");
+    EXPECT_FALSE(
             parser_parse_program(parser)
     );
 }

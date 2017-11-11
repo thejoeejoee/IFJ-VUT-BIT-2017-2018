@@ -597,10 +597,10 @@ bool parser_parse_shared_variables_declarations(Parser* parser) {
             CHECK_RULE(eols);
             CONDITIONAL_RULES(
                     lexer_rewind_token(parser->lexer, token);
-            CHECK_RULE(token_type != TOKEN_DIM, epsilon, NO_CODE);
-            CHECK_RULE(shared_variable_declaration);
-            CHECK_RULE(shared_variables_declarations);
-    );
+                    CHECK_RULE(token_type != TOKEN_DIM, epsilon, NO_CODE);
+                    CHECK_RULE(shared_variable_declaration);
+                    CHECK_RULE(shared_variables_declarations);
+            );
     );
 
     return true;
@@ -616,6 +616,8 @@ bool parser_parse_shared_variable_declaration(Parser* parser) {
     RULES(
             CHECK_TOKEN(TOKEN_DIM);
             CHECK_TOKEN(TOKEN_SHARED);
+            CHECK_TOKEN(TOKEN_AS);
+            CHECK_TOKEN(TOKEN_DATA_TYPE_CLASS);
             CHECK_TOKEN(
                     TOKEN_IDENTIFIER,
                     BEFORE(
@@ -625,8 +627,7 @@ bool parser_parse_shared_variable_declaration(Parser* parser) {
                             }
                     )
             );
-            CHECK_TOKEN(TOKEN_AS);
-            CHECK_TOKEN(TOKEN_DATA_TYPE_CLASS);
+
             CALL_RULE(declaration_assignment);
     );
     return true;

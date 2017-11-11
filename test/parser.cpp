@@ -472,7 +472,7 @@ TEST_F(ParserTestFixture, DeclarationAssigment2) {
 
 }
 
-TEST_F(ParserTestFixture, ModifyAssigmentAddConstant) {
+TEST_F(ParserTestFixture, ModifyAssigment) {
     provider->setString("+= 31");
     EXPECT_TRUE(
             parser_parse_modify_assignment(parser)
@@ -948,18 +948,18 @@ End Scope
 TEST_F(ParserTestFixture, ComplexTestStaticAndShared) {
     provider->setString(R"(
 /' Program 2: Vypocet faktorialu (rekurzivne) '/
-dim shared b as integer = 31
+dim shared as integer b = 31
 function foo() as integer
 static a as integer
 static b as integer
 end function
 
-dim shared a as integer = 31
+dim shared as integer a = 31
 
 scope
 
 End Scope
-dim shared a as integer = 31
+dim shared as integer a = 31
     )");
     EXPECT_TRUE(
             parser_parse_program(parser)
@@ -984,6 +984,51 @@ scope
 	len = strlen(cokolivjennestring)
 	print len;
 
+end scope
+)");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, ProgramWithStatic) {
+    provider->setString(R"(
+function hgadfklh() as integer
+static a as integer
+a = 10
+return a
+end function
+
+scope
+dim a as integer
+a = foo()
+print a;
+end scope
+)");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, ProgramWithOutsiteFunction) {
+    provider->setString(R"(
+scope
+static a as integer
+a = foo()
+print a;
+end scope
+)");
+    EXPECT_FALSE(
+            parser_parse_program(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, SharedVariable) {
+    provider->setString(R"(
+
+dim shared as integer a = 10
+
+scope
 end scope
 )");
     EXPECT_TRUE(

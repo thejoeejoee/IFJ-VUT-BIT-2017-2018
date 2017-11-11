@@ -872,14 +872,6 @@ bool expression_rule_not(Parser* parser, LList* expr_token_buffer, ExprIdx* expr
 
 	// NOTE: now we are processing rule regular way - from the left to the right
 
-    if(EXPR_HIGHER_OPERAND->data_type != DATA_TYPE_BOOLEAN) {
-            SEMANTIC_ANALYSIS(
-                    {
-                        parser->parser_semantic->error_report.error_code = ERROR_SEMANTIC_TYPE;
-                        return false;
-                    }
-            );
-    }
     CODE_GENERATION(
             {
                 CodeConstructor* constructor = parser->code_constructor;

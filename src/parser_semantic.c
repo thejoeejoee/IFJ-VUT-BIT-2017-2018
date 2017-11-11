@@ -74,6 +74,9 @@ ParserSemantic* parser_semantic_init() {
 	parser_semantic_add_operation_signature(parser_semantic, OPERATION_OR,
 		DATA_TYPE_BOOLEAN, DATA_TYPE_BOOLEAN,
 		DATA_TYPE_BOOLEAN, DATA_TYPE_BOOLEAN);
+    parser_semantic_add_operation_signature(parser_semantic, OPERATION_NOT,
+        DATA_TYPE_BOOLEAN, DATA_TYPE_NONE,
+        DATA_TYPE_BOOLEAN, DATA_TYPE_BOOLEAN);
 
 
     const TypeExpressionOperation compare_operations[] = {
@@ -104,7 +107,7 @@ ParserSemantic* parser_semantic_init() {
 		DATA_TYPE_BOOLEAN, DATA_TYPE_BOOLEAN);
 	parser_semantic_add_operation_signature(parser_semantic, OPERATION_NOT_EQUAL,
 		DATA_TYPE_BOOLEAN, DATA_TYPE_BOOLEAN,
-		DATA_TYPE_BOOLEAN, DATA_TYPE_BOOLEAN);
+        DATA_TYPE_BOOLEAN, DATA_TYPE_BOOLEAN);
 
     // implicit conversions
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_IMPLICIT_CONVERSION,

@@ -931,3 +931,82 @@ end scope
             parser_parse_program(parser)
     );
 }
+
+TEST_F(ParserTestFixture, ModifyAssignmentProgram) {
+    provider->setString(R"(
+scope
+dim a as integer
+a = 10
+a += 10
+a *= 10
+a -= 10
+a /= 10
+a \= 10
+end scope
+)");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, ModifyAssignmentInFunction) {
+    provider->setString(R"(
+function dghsh() as integer
+dim a as integer
+a = 10
+a += 10
+a *= 10
+a -= 10
+a /= 10
+a \= 10
+end function
+
+scope
+end scope
+
+)");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    );
+}
+
+
+TEST_F(ParserTestFixture, ModifyAssignmentEverywhere) {
+    provider->setString(R"(
+function dghsh() as integer
+dim a as integer
+a = 10
+a += 10
+a *= 10
+a -= 10
+a /= 10
+a \= 10
+end function
+
+scope
+
+dim a as integer
+a = 10
+a += 10
+a *= 10
+a -= 10
+a /= 10
+a \= 10
+
+if a < 10 then
+dim a as integer
+a = 10
+a += 10
+a *= 10
+a -= 10
+a /= 10
+a \= 10
+end if
+
+end scope
+
+)");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    );
+}

@@ -955,18 +955,18 @@ End Scope
 TEST_F(ParserTestFixture, ComplexTestStaticAndShared) {
     provider->setString(R"(
 /' Program 2: Vypocet faktorialu (rekurzivne) '/
-dim shared as integer b = 31
+dim shared b as integer = 31
 function foo() as integer
 static a as integer
 static b as integer
 end function
 
-dim shared as integer a = 31
+dim shared a as integer = 31
 
 scope
 
 End Scope
-dim shared as integer a = 31
+dim shared a as integer = 31
     )");
     EXPECT_TRUE(
             parser_parse_program(parser)
@@ -1033,7 +1033,7 @@ end scope
 TEST_F(ParserTestFixture, SharedVariable) {
     provider->setString(R"(
 
-dim shared as integer a = 10
+dim shared a as integer = 10
 
 scope
 end scope

@@ -98,6 +98,14 @@ void code_constructor_scope_end(CodeConstructor* constructor);
 void code_constructor_variable_declaration(CodeConstructor* constructor, SymbolVariable* symbol_variable);
 
 /**
+ * Define variable in corresponding frame with correct data type.
+ * @param constructor
+ * @param frame
+ * @param symbol_variable
+ */
+void code_constructor_shared_variable_declaration(CodeConstructor* constructor, SymbolVariable* symbol_variable);
+
+/**
  * Define shared variable in corresponding frame with correct data type.
  * @param constructor
  * @param frame

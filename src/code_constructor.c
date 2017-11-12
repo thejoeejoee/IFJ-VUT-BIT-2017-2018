@@ -109,6 +109,35 @@ void code_constructor_variable_declaration(CodeConstructor* constructor, SymbolV
         );
 }
 
+
+void code_constructor_shared_variable_declaration(CodeConstructor* constructor, SymbolVariable* symbol_variable) {
+    NULL_POINTER_CHECK(constructor,);
+    NULL_POINTER_CHECK(symbol_variable,);
+
+    // in scope, insert declaration before loop
+    CodeInstruction* declaration = code_generator_new_instruction(
+            constructor->generator,
+            I_DEF_VAR,
+            code_instruction_operand_init_variable(symbol_variable),
+            NULL,
+            NULL
+    );
+    code_generator_insert_instruction_before(
+            constructor->generator,
+            declaration,
+            constructor->first_code_instruction
+    );
+
+    CodeInstructionOperand* operand = code_instruction_operand_implicit_value(symbol_variable->data_type);
+    // variables not defined by user have not implicit value
+    if(operand != NULL)
+        GENERATE_CODE(
+                I_MOVE,
+                code_instruction_operand_init_variable(symbol_variable),
+                operand
+        );
+}
+
 void code_constructor_static_variable_declaration(CodeConstructor* constructor, SymbolVariable* symbol_variable,
                                                   SymbolFunction* function) {
     NULL_POINTER_CHECK(constructor,);

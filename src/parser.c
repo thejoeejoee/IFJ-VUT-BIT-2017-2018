@@ -626,8 +626,6 @@ bool parser_parse_shared_variable_declaration(Parser* parser) {
     RULES(
             CHECK_TOKEN(TOKEN_DIM);
             CHECK_TOKEN(TOKEN_SHARED);
-            CHECK_TOKEN(TOKEN_AS);
-            CHECK_TOKEN(TOKEN_DATA_TYPE_CLASS);
             CHECK_TOKEN(
                     TOKEN_IDENTIFIER,
                     BEFORE(
@@ -637,7 +635,32 @@ bool parser_parse_shared_variable_declaration(Parser* parser) {
                             }
                     )
             );
+            CHECK_TOKEN(TOKEN_AS);
+            CHECK_TOKEN(TOKEN_DATA_TYPE_CLASS);
+            SEMANTIC_ANALYSIS(
+                    {
+                            parser->parser_semantic->actual_variable = parser_semantic_add_variable(
+                                    parser->parser_semantic,
+                                    name,
+                                    (DataType) token_type
+                            );
 
+                            if(parser->parser_semantic->actual_variable == NULL) {
+                        token_free(&token);
+                        return false;
+                    }
+                    }
+            );
+            CODE_GENERATION(
+                    {
+
+                            parser->parser_semantic->actual_variable->frame = VARIABLE_FRAME_GLOBAL;
+                            code_constructor_shared_variable_declaration(
+                            parser->code_constructor,
+                            parser->parser_semantic->actual_variable
+                    );
+                    }
+            );
             CALL_RULE(declaration_assignment);
     );
     return true;

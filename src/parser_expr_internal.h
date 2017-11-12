@@ -64,6 +64,7 @@ typedef unsigned ExprIdx;
 typedef union expr_data_u {
     ExprIdx idx;
     char* s;
+    bool b;
 } ExprData;
 
 typedef struct expr_token_t {

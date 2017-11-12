@@ -50,7 +50,7 @@
         const DataType _target_type = parser_semantic_resolve_implicit_data_type_conversion( \
         parser->parser_semantic, \
         operation, DATA_TYPE_NONE, source_data_type, desired_data_type); \
-        if(_target_type == DATA_TYPE_NONE || desired_data_type != _target_type) {\
+        if(_target_type == DATA_TYPE_NONE || (desired_data_type) != _target_type) {\
             parser->parser_semantic->error_report.error_code = ERROR_SEMANTIC_TYPE; \
             return false; \
         } \
@@ -85,7 +85,7 @@
 
 // --------------------------
 
-#define EXPR_RULE_TABLE_SIZE 19
+#define EXPR_RULE_TABLE_SIZE 22
 
 typedef bool(*expression_rule_function)(Parser* parser, LList *expr_token_buffer, ExprIdx* expression_idx);
 extern const expression_rule_function expr_rule_table[EXPR_RULE_TABLE_SIZE];
@@ -115,15 +115,17 @@ bool expression_rule_div_int(Parser* parser, LList* expr_token_buffer, ExprIdx* 
 
 bool expression_rule_unary_minus(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx);
 
-// Boolshit
+// Boolean
+bool expression_rule_not(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx);
+bool expression_rule_and(Parser* parser, LList *expr_token_buffer, ExprIdx* expression_idx);
+bool expression_rule_or(Parser* parser, LList *expr_token_buffer, ExprIdx* expression_idx);
+
+// Comparison
 bool expression_rule_greater(Parser* parser, LList *expr_token_buffer, ExprIdx* expression_idx);
 bool expression_rule_greater_or_equal(Parser* parser, LList *expr_token_buffer, ExprIdx* expression_idx);
 bool expression_rule_equal(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx);
-
 bool expression_rule_not_equal(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx);
-
 bool expression_rule_lesser_or_equal(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx);
-
 bool expression_rule_lesser(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx);
 
 #endif //_PARSER_EXPR_RULES_H

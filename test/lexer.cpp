@@ -383,6 +383,50 @@ TEST_F(LexerTokenizerTestFixture, EOFToken) {
     ) << "Error EOF token";
 }
 
+TEST_F(LexerTokenizerTestFixture, AssignmentTokens) {
+    provider->setString("+= 31");
+    char_stack_empty(lexer->lexer_fsm->stack);
+
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_ASSIGN_ADD
+    ) << "Error ASSIGN_ADD token";
+
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_INTEGER_LITERAL
+    ) << "Error ADD token";
+
+
+}
+
+TEST_F(LexerTokenizerTestFixture, AssignmentTokens1) {
+    provider->setString("-= 31 + b");
+    char_stack_empty(lexer->lexer_fsm->stack);
+
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_ASSIGN_SUB
+    ) << "Error ASSIGN_ADD token";
+
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_INTEGER_LITERAL
+    ) << "Error INTEGER_LITERAL token";
+
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_ADD
+    ) << "Error INTEGER_LITERAL token";
+
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_IDENTIFIER
+    ) << "Error IDENTIFIER token";
+
+
+}
+
 TEST_F(LexerTokenizerTestFixture, RelationOperators) {
     provider->setString("< > <= >= <>");
     char_stack_empty(lexer->lexer_fsm->stack);

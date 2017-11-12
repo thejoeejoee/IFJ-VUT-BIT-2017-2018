@@ -1105,7 +1105,24 @@ bool parser_parse_assignment(Parser* parser) {
     DataType expression_data_type;
     SymbolVariable* actual_variable = parser->parser_semantic->actual_variable;
     RULES(
-    // Todo: for tokens +=, -=, /= .... call rule modify_assignment and return value
+            CONDITIONAL_RULES(
+                    lexer_rewind_token(parser->lexer, token);
+
+            CHECK_RULE(
+                    token_type == TOKEN_ASSIGN_SUB || token_type == TOKEN_ASSIGN_ADD ||
+                    token_type == TOKEN_ASSIGN_DIVIDE || token_type == TOKEN_ASSIGN_MULTIPLY ||
+                    token_type == TOKEN_ASSIGN_INT_DIVIDE,
+                    modify_assignment,
+                    BEFORE({}),
+                    AFTER(
+                            {
+                                    token_free(&token);
+                                    return true;
+                            }
+                    )
+            );
+    );
+
             CHECK_TOKEN(TOKEN_EQUAL);
             CALL_EXPRESSION_RULE(expression_data_type);
     );

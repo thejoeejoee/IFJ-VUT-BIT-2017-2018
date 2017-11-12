@@ -194,7 +194,16 @@ int expr_llist_type_cmp(LListBaseItem* a, LListBaseItem* b) {
 
 void expr_llist_free(LListBaseItem* item) {
     ASSERT(item != NULL);
-    expr_token_free((ExprToken*)item);
+    ExprToken* t = (ExprToken*)item;
+    if(t != NULL) {
+        if((t->type == EXPR_TOKEN_IDENTIFIER ||
+            t->type == EXPR_TOKEN_INTEGER_LITERAL ||
+            t->type == EXPR_TOKEN_DOUBLE_LITERAL ||
+            t->type == EXPR_TOKEN_STRING_LITERAL
+           ) && t->data.s != NULL) {
+            memory_free(t->data.s);
+        }
+    }
 }
 
 ExprToken* create_expr_token(ExprTokenType type) {

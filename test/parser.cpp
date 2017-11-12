@@ -433,6 +433,64 @@ TEST_F(ParserTestFixture, DeclarationAssigment2) {
 
 }
 
+TEST_F(ParserTestFixture, ModifyAssigment) {
+    provider->setString("+= 31");
+    EXPECT_TRUE(
+            parser_parse_modify_assignment(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, ModifyAssigment1) {
+    provider->setString("-= 31");
+    EXPECT_TRUE(
+            parser_parse_modify_assignment(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, ModifyAssigment2) {
+    provider->setString("*= 31");
+    EXPECT_TRUE(
+            parser_parse_modify_assignment(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, ModifyAssigment3) {
+    provider->setString("/= 31");
+    EXPECT_TRUE(
+            parser_parse_modify_assignment(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, ModifyAssigment4) {
+
+    provider->setString("+= foo()");
+    EXPECT_TRUE(
+            parser_parse_modify_assignment(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, ModifyAssigment5) {
+    provider->setString("-= a+b+c+d");
+    EXPECT_TRUE(
+            parser_parse_modify_assignment(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, ModifyAssigment6) {
+    provider->setString("*= foo()*foo(foo())");
+    EXPECT_TRUE(
+            parser_parse_modify_assignment(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, ModifyAssigment7) {
+
+    provider->setString("/= 12+15");
+    EXPECT_TRUE(
+            parser_parse_modify_assignment(parser)
+    );
+}
+
 TEST_F(ParserTestFixture, DoWhile) {
     provider->setString(R"(DO WHILE 42
 input id
@@ -454,6 +512,13 @@ TEST_F(ParserTestFixture, ReturnRule) {
     provider->setString("return 34");
     EXPECT_TRUE(
             parser_parse_return_(parser)
+    ) << "Error parsing <expression> rule";
+}
+
+TEST_F(ParserTestFixture, ModifyAssignment) {
+    provider->setString("+= 31");
+    EXPECT_TRUE(
+            parser_parse_modify_assignment(parser)
     ) << "Error parsing <expression> rule";
 }
 
@@ -861,6 +926,85 @@ scope
 	print len;
 
 end scope
+)");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, ModifyAssignmentProgram) {
+    provider->setString(R"(
+scope
+dim a as integer
+a = 10
+a += 10
+a *= 10
+a -= 10
+a /= 10
+a \= 10
+end scope
+)");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, ModifyAssignmentInFunction) {
+    provider->setString(R"(
+function dghsh() as integer
+dim a as integer
+a = 10
+a += 10
+a *= 10
+a -= 10
+a /= 10
+a \= 10
+end function
+
+scope
+end scope
+
+)");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    );
+}
+
+
+TEST_F(ParserTestFixture, ModifyAssignmentEverywhere) {
+    provider->setString(R"(
+function dghsh() as integer
+dim a as integer
+a = 10
+a += 10
+a *= 10
+a -= 10
+a /= 10
+a \= 10
+end function
+
+scope
+
+dim a as integer
+a = 10
+a += 10
+a *= 10
+a -= 10
+a /= 10
+a \= 10
+
+if a < 10 then
+dim a as integer
+a = 10
+a += 10
+a *= 10
+a -= 10
+a /= 10
+a \= 10
+end if
+
+end scope
+
 )");
     EXPECT_TRUE(
             parser_parse_program(parser)

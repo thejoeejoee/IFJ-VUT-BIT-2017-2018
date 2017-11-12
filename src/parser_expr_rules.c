@@ -278,7 +278,8 @@ bool expression_rule_fn(Parser* parser, LList* expr_token_buffer, ExprIdx* expre
                     // check valid implicit conversion on stack top to token->data_type
                     EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION_FROM_DATA_TYPE(
                             OPERATION_IMPLICIT_CONVERSION,
-                            token->data_type
+                            token->data_type,
+                            param->data_type
                     );
 
                     // generate implicit conversion
@@ -674,18 +675,17 @@ bool expression_rule_fn_length(Parser* parser, LList* expr_token_buffer, ExprIdx
     EXPR_RULE_CHECK_FINISH();
 
     // Length(s As String) As Integer
-
-    SEMANTIC_ANALYSIS(
-            {
-                if(get_n_expr(expr_token_buffer, 2)->data_type != DATA_TYPE_STRING) {
-                    parser->parser_semantic->error_report.error_code = ERROR_SEMANTIC_TYPE;
-                    return false;
-                }
-            }
+    const DataType param_data_type = get_n_expr(expr_token_buffer, 2)->data_type;
+    EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION_FROM_DATA_TYPE(
+            OPERATION_IMPLICIT_CONVERSION,
+            param_data_type,
+            DATA_TYPE_STRING
     );
+
+
     CODE_GENERATION(
             {
-                code_constructor_fn_length(parser->code_constructor, parser->parser_semantic->temp_variable1);
+                code_constructor_fn_length(parser->code_constructor, parser->parser_semantic->temp_variable1, param_data_type);
             }
     );
 
@@ -717,20 +717,26 @@ bool expression_rule_fn_substr(Parser* parser, LList* expr_token_buffer, ExprIdx
     EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_FN_SUBSTR);
     EXPR_RULE_CHECK_FINISH();
 
+    const unsigned int params_count = 3;
+    DataType params_data_types[params_count];
+    // note it's NOT backwards
+    const DataType desired_params_data_types[3] = {
+        DATA_TYPE_STRING, DATA_TYPE_INTEGER, DATA_TYPE_INTEGER
+    };
+
+    for(unsigned int i = 1; i <= params_count; i++) {
+        params_data_types[i - 1] = get_n_expr(expr_token_buffer, (params_count - i + 1) * 2)
+                                   ->data_type;
+        EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION_FROM_DATA_TYPE(
+                OPERATION_IMPLICIT_CONVERSION,
+                params_data_types[i - 1],
+                desired_params_data_types[i - 1]
+        );
+    }
+
     // NOTE: now we are processing rule regular way - from the left to the right
 
     // SubStr(s As String, i As Integer, n As Integer) As String
-
-    /* TODO Check:
-    SEMANTIC_ANALYSIS(
-    {
-    ExprToken* token = EXPR_RULE_NEXT_E();
-    token->data_type == DATA_TYPE_STRING;
-    ExprToken* token = EXPR_RULE_NEXT_E();
-    token->data_type == DATA_TYPE_INTEGER;
-    ExprToken* token = EXPR_RULE_NEXT_E();
-    token->data_type == DATA_TYPE_INTEGER;
-    });*/
 
     code_constructor_fn_substr(
             parser->code_constructor,
@@ -738,7 +744,10 @@ bool expression_rule_fn_substr(Parser* parser, LList* expr_token_buffer, ExprIdx
             parser->parser_semantic->temp_variable2,
             parser->parser_semantic->temp_variable3,
             parser->parser_semantic->temp_variable4,
-            parser->parser_semantic->temp_variable5
+            parser->parser_semantic->temp_variable5,
+            params_data_types[0],
+            params_data_types[1],
+            params_data_types[2]
     );
 
     ExprToken* e = create_expression((*expression_idx)++);
@@ -769,37 +778,32 @@ bool expression_rule_fn_asc(Parser* parser, LList* expr_token_buffer, ExprIdx* e
 
 
     // Asc(s As String, i As Integer) As Integer
-    // TODO: check expression types for functions params
-    // TODO: add param data types to code_constructor_fn_asc to process by implicit conversions
-    // TODO: Sony... :-)
-    DataType param_data_type = get_n_expr(expr_token_buffer, 2)->data_type;
+    const unsigned int params_count = 2;
+    DataType params_data_types[params_count];
+    // note it's NOT backwards
+    const DataType desired_params_data_types[2] = {
+        DATA_TYPE_STRING, DATA_TYPE_INTEGER
+    };
 
-    EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION_FROM_DATA_TYPE(
-            OPERATION_IMPLICIT_CONVERSION,
-            param_data_type
-    );
+    for(unsigned int i = 1; i <= params_count; i++) {
+        params_data_types[i - 1] = get_n_expr(expr_token_buffer, (params_count - i + 1) * 2)
+                                   ->data_type;
+        EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION_FROM_DATA_TYPE(
+                OPERATION_IMPLICIT_CONVERSION,
+                params_data_types[i - 1],
+                desired_params_data_types[i - 1]
+        );
+    }
 
-    // generate implicit conversion
-    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(
-            param_data_type,
-            DATA_TYPE_INTEGER
-    );
-
-    SEMANTIC_ANALYSIS(
-            {
-                if(get_n_expr(expr_token_buffer, 2)->data_type != DATA_TYPE_INTEGER) {
-                    //parser->parser_semantic->error_report.error_code = ERROR_SEMANTIC_TYPE;
-                    //return false;
-                }
-            }
-    );
     CODE_GENERATION(
             {
                 code_constructor_fn_asc(
                         parser->code_constructor,
                         parser->parser_semantic->temp_variable1,
                         parser->parser_semantic->temp_variable2,
-                        parser->parser_semantic->temp_variable3
+                        parser->parser_semantic->temp_variable3,
+                        params_data_types[0],
+                        params_data_types[1]
                 );
             }
     );
@@ -832,20 +836,15 @@ bool expression_rule_fn_chr(Parser* parser, LList* expr_token_buffer, ExprIdx* e
 
     // Chr(i As Integer) As String
     DataType param_data_type = get_n_expr(expr_token_buffer, 2)->data_type;
-
     EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION_FROM_DATA_TYPE(
             OPERATION_IMPLICIT_CONVERSION,
-            param_data_type
-    );
-
-    // generate implicit conversion
-    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(
             param_data_type,
             DATA_TYPE_INTEGER
     );
+
     CODE_GENERATION(
             {
-                code_constructor_fn_chr(parser->code_constructor, parser->parser_semantic->temp_variable1);
+                code_constructor_fn_chr(parser->code_constructor, parser->parser_semantic->temp_variable1, param_data_type);
             }
     );
 
@@ -856,7 +855,7 @@ bool expression_rule_fn_chr(Parser* parser, LList* expr_token_buffer, ExprIdx* e
 
 }
 
-bool expression_rule_not(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx) 
+bool expression_rule_not(Parser* parser, LList* expr_token_buffer, ExprIdx* expression_idx)
 {
 	/*
 	* RULE

@@ -157,26 +157,36 @@ char* code_instruction_operand_render(CodeInstructionOperand* operand) {
                     break;
                 case VARIABLE_FRAME_TEMP:
                     frame = "TF";
-                    if(operand->data.variable->scope_depth != 1) {
+                    if(operand->data.variable->scope_depth == 0) {
                         LOG_WARNING(
-                                "Variable %s on temp frame (function parameter) has non-parameter scope depth: %zd.",
-                                operand->data.variable->base.key,
-                                operand->data.variable->scope_depth
+                                "Variable %s on temp frame (function parameter) has zero scope depth - invalid variable init.",
+                                operand->data.variable->base.key
                         );
                     }
                     break;
                 default:
                     LOG_WARNING("Unknown variable frame %d.", operand->data.variable->frame);
             }
-            snprintf(
-                    rendered,
-                    length,
-                    "%s@%%%05zd_%s",
-                    frame,
-                    operand->data.variable->scope_depth,
-                    operand->data.variable->alias_name == NULL ?
-                    operand->data.variable->base.key : operand->data.variable->alias_name
-            );
+            if(operand->data.variable->scope_alias == NULL)
+                snprintf(
+                        rendered,
+                        length,
+                        "%s@%%%05zd_%s",
+                        frame,
+                        operand->data.variable->scope_depth,
+                        operand->data.variable->alias_name == NULL ?
+                        operand->data.variable->base.key : operand->data.variable->alias_name
+                );
+            else
+                snprintf(
+                        rendered,
+                        length,
+                        "%s@%%%s_%s",
+                        frame,
+                        operand->data.variable->scope_alias,
+                        operand->data.variable->alias_name == NULL ?
+                        operand->data.variable->base.key : operand->data.variable->alias_name
+                );
         }
             break;
         case TYPE_INSTRUCTION_OPERAND_CONSTANT:

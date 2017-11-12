@@ -263,16 +263,43 @@ TEST_F(LexerFSMTestFixture, MathematicOperations) {
 
     EXPECT_EQ(
             lexer_fsm_next_state(lexer_fsm, LEX_FSM__INIT),
+            LEX_FSM__ADD_UNFINISHED
+    );
+
+    EXPECT_EQ(
+            lexer_fsm_next_state(lexer_fsm, LEX_FSM__ADD_UNFINISHED),
             LEX_FSM__ADD
-    ) << "Math add.";
+    );
+
     EXPECT_EQ(
             lexer_fsm_next_state(lexer_fsm, LEX_FSM__INIT),
+            LEX_FSM__SUBTRACT_UNFINISHED
+    );
+
+    EXPECT_EQ(
+            lexer_fsm_next_state(lexer_fsm, LEX_FSM__SUBTRACT_UNFINISHED),
             LEX_FSM__SUBTRACT
-    ) << "Math subtract.";
+    );
+
     EXPECT_EQ(
             lexer_fsm_next_state(lexer_fsm, LEX_FSM__INIT),
+            LEX_FSM__MULTIPLY_UNFINISHED
+    );
+
+    EXPECT_EQ(
+            lexer_fsm_next_state(lexer_fsm, LEX_FSM__MULTIPLY_UNFINISHED),
             LEX_FSM__MULTIPLY
-    ) << "Math multiply.";
+    );
+
+    EXPECT_EQ(
+            lexer_fsm_next_state(lexer_fsm, LEX_FSM__INIT),
+            LEX_FSM__SLASH
+    );
+
+    EXPECT_EQ(
+            lexer_fsm_next_state(lexer_fsm, LEX_FSM__SLASH),
+            LEX_FSM__DIVIDE
+    );
 }
 
 TEST_F(LexerFSMTestFixture, Identifier) {

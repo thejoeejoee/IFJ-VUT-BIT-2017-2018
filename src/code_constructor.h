@@ -13,15 +13,15 @@
 #define GENERATE_CODE(...) MSVC_EXPAND(GET_OVERLOADED_MACRO1234(__VA_ARGS__, _GENERATE_CODE_4, _GENERATE_CODE_3, \
     _GENERATE_CODE_2, _GENERATE_CODE_1)(__VA_ARGS__))
 
-#define _GENERATE_STACK_DATA_TYPE_CONVERSION_CODE_2(operand_1_type, target_type) SEMANTIC_ANALYSIS({ \
+#define _GENERATE_STACK_DATA_TYPE_CONVERSION_CODE_2(operand_1_type, target_type) do{ \
         code_constructor_unary_operation_stack_type_conversion( \
             constructor, \
             (operand_1_type), \
             (target_type) \
         ); \
-})
+} while(false)
 
-#define _GENERATE_STACK_DATA_TYPE_CONVERSION_CODE_3(operand_1_type, operand_2_type, target_type) SEMANTIC_ANALYSIS({ \
+#define _GENERATE_STACK_DATA_TYPE_CONVERSION_CODE_3(operand_1_type, operand_2_type, target_type) do { \
     code_constructor_binary_operation_stack_type_conversion( \
         constructor, \
         (operand_1_type), \
@@ -29,7 +29,7 @@
         (target_type), \
         parser->parser_semantic->temp_variable1 \
     ); \
-})
+} while(false)
 
 #define GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(...) MSVC_EXPAND(GET_OVERLOADED_MACRO123(__VA_ARGS__, _GENERATE_STACK_DATA_TYPE_CONVERSION_CODE_3, _GENERATE_STACK_DATA_TYPE_CONVERSION_CODE_2)(__VA_ARGS__))
 
@@ -50,11 +50,16 @@ typedef struct code_constructor_t {
     Stack* conditions_label_stack;
     Stack* loops_label_stack;
     size_t scope_depth;
-    bool in_function_definition;
+    // for registering label loops to prepend variable declaration before cycle
+    CodeInstruction* loops_initial_instruction;
+    size_t loops_depth;
 
-    size_t label_counter;
+    // for generating labels in nested control statements
     size_t control_statement_depth;
+    // for automatic generating conversion instructions
     LList* conversion_instructions;
+    // internal
+    size_t _label_counter;
 } CodeConstructor;
 
 CodeConstructor* code_constructor_init();
@@ -156,8 +161,6 @@ void code_constructor_print_expression(CodeConstructor* constructor, SymbolVaria
 
 void code_constructor_variable_expression_assignment(CodeConstructor* constructor, SymbolVariable* variable);
 
-void code_constructor_generate_builtin_functions(CodeConstructor* constructor);
-
 void code_constructor_function_header(CodeConstructor* constructor, SymbolFunction* function);
 
 void code_constructor_function_end(CodeConstructor* constructor, SymbolFunction* function);
@@ -171,14 +174,14 @@ void code_constructor_unary_operation_stack_type_conversion(CodeConstructor* con
 
 void code_constructor_binary_operation_stack_type_conversion(CodeConstructor* constructor, DataType operand_1_type, DataType operand_2_type, DataType target_type, SymbolVariable* temp_var);
 
-void code_constructor_fn_length(CodeConstructor* constructor, SymbolVariable* tmp_variable);
+void code_constructor_fn_length(CodeConstructor* constructor, SymbolVariable* tmp_variable, DataType stack_param_type);
 
-void code_constructor_fn_chr(CodeConstructor* constructor, SymbolVariable* tmp_variable);
+void code_constructor_fn_chr(CodeConstructor* constructor, SymbolVariable* tmp_variable, DataType param_type);
 
 void code_constructor_fn_asc(CodeConstructor* constructor, SymbolVariable* tmp1, SymbolVariable* tmp_variable2,
-                             SymbolVariable* tmp_variable3);
+                             SymbolVariable* tmp_variable3, DataType param_1_type, DataType param_2_type);
 
 void code_constructor_fn_substr(CodeConstructor* constructor, SymbolVariable* tmp1, SymbolVariable* tmp_variable2,
-                                SymbolVariable* tmp_variable3, SymbolVariable* tmp4, SymbolVariable* tmp5);
+                                SymbolVariable* tmp_variable3, SymbolVariable* tmp4, SymbolVariable* tmp5, DataType param_1_type, DataType param_2_type, DataType param_3_type);
 
 #endif //_CODE_CONSTRUCTOR_H

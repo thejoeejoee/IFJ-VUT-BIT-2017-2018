@@ -1,4 +1,5 @@
 #include "code_constructor.h"
+#include "stack_code_instruction.h"
 
 
 CodeConstructor* code_constructor_init() {
@@ -6,20 +7,19 @@ CodeConstructor* code_constructor_init() {
 
     constructor->generator = code_generator_init();
     constructor->scope_depth = 0;
-    constructor->in_function_definition = false;
-    constructor->label_counter = 0;
+    constructor->_label_counter = 0;
     constructor->control_statement_depth = 0;
     constructor->code_label_stack = stack_code_label_init();
     constructor->conditions_label_stack = stack_code_label_init();
     constructor->loops_label_stack = stack_code_label_init();
+    constructor->loops_depth = 0;
+    constructor->loops_initial_instruction = NULL;
 
     llist_init(&constructor->conversion_instructions, sizeof(TypeConversionInstruction), NULL, NULL, NULL);
-
     code_constructor_add_conversion_instruction(constructor, I_INT_TO_FLOAT, DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE,
                                                 false);
     code_constructor_add_conversion_instruction(constructor, I_INT_TO_FLOAT_STACK, DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE,
                                                 true);
-
     code_constructor_add_conversion_instruction(constructor, I_FLOAT_ROUND_TO_EVEN_INT, DATA_TYPE_DOUBLE,
                                                 DATA_TYPE_INTEGER,
                                                 false);
@@ -73,11 +73,28 @@ void code_constructor_variable_declaration(CodeConstructor* constructor, SymbolV
     NULL_POINTER_CHECK(constructor,);
     NULL_POINTER_CHECK(symbol_variable,);
 
-    // TODO: Add generating symbol with corresponding frame
-    GENERATE_CODE(
-            I_DEF_VAR,
-            code_instruction_operand_init_variable(symbol_variable)
-    );
+    if(constructor->loops_initial_instruction == NULL) {
+        // not in scope, directly declare variable
+        GENERATE_CODE(
+                I_DEF_VAR,
+                code_instruction_operand_init_variable(symbol_variable)
+        );
+    } else {
+        // in scope, insert declaration before loop
+        CodeInstruction* declaration = code_generator_new_instruction(
+                constructor->generator,
+                I_DEF_VAR,
+                code_instruction_operand_init_variable(symbol_variable),
+                NULL,
+                NULL
+        );
+        code_generator_insert_instruction_before(
+                constructor->generator,
+                declaration,
+                constructor->loops_initial_instruction
+        );
+
+    }
     CodeInstructionOperand* operand = code_instruction_operand_implicit_value(symbol_variable->data_type);
     // variables not defined by user have not implicit value 
     if(operand != NULL)
@@ -216,13 +233,14 @@ char* code_constructor_generate_label(CodeConstructor* constructor, const char* 
     NULL_POINTER_CHECK(constructor, NULL);
     NULL_POINTER_CHECK(type, NULL);
 
-    size_t len = strlen(type) + 16 + 16;
+    const char* format = "%%_LABEL_%03zd_%s_DEPTH_%03zd";
+    size_t len = strlen(type) + 2 * strlen(format);
     char* label = memory_alloc(len * sizeof(char));
     snprintf(
             label,
             len,
-            "%%_LABEL_%03zd_%s_DEPTH_%03zd",
-            constructor->label_counter++,
+            format,
+            constructor->_label_counter++,
             type,
             constructor->control_statement_depth
     );
@@ -252,10 +270,15 @@ void code_constructor_while_before_condition(CodeConstructor* constructor) {
     char* label = code_constructor_generate_label(constructor, "while_start");
     stack_code_label_push(constructor->loops_label_stack, label);
 
-    GENERATE_CODE(
+    CodeInstruction* loop_start_instruction = GENERATE_CODE(
             I_LABEL,
             code_instruction_operand_init_label(label)
     );
+
+    // push label instruction to declare variables before while loop
+    if(constructor->loops_depth++ == 0) {
+        constructor->loops_initial_instruction = loop_start_instruction;
+    }
 }
 
 
@@ -296,6 +319,11 @@ void code_constructor_while_end(CodeConstructor* constructor) {
 
     code_label_free(&start_label);
     code_label_free(&end_label);
+
+    // starting label instruction is now more needed
+    if(--constructor->loops_depth == 0) {
+        constructor->loops_initial_instruction = NULL;
+    }
 }
 
 void code_constructor_variable_expression_assignment(CodeConstructor* constructor, SymbolVariable* variable) {
@@ -306,11 +334,6 @@ void code_constructor_variable_expression_assignment(CodeConstructor* constructo
             I_POP_STACK,
             code_instruction_operand_init_variable(variable)
     );
-}
-
-void code_constructor_generate_builtin_functions(CodeConstructor* constructor) {
-    UNUSED(constructor);
-    // TODO: Add generate code for built-in functions
 }
 
 void code_constructor_function_header(CodeConstructor* constructor, SymbolFunction* function) {
@@ -419,10 +442,12 @@ void code_constructor_unary_operation_stack_type_conversion(CodeConstructor* con
         code_constructor_stack_type_conversion(constructor, operand_type, target_type);
 }
 
-void code_constructor_fn_length(CodeConstructor* constructor, SymbolVariable* tmp_variable) {
+void code_constructor_fn_length(CodeConstructor* constructor, SymbolVariable* tmp_variable, DataType stack_param_type) {
     NULL_POINTER_CHECK(constructor,);
     NULL_POINTER_CHECK(tmp_variable,);
 
+
+    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(stack_param_type, DATA_TYPE_STRING);
     GENERATE_CODE(I_POP_STACK, code_instruction_operand_init_variable(tmp_variable));
     GENERATE_CODE(
             I_STRING_LENGTH,
@@ -433,10 +458,11 @@ void code_constructor_fn_length(CodeConstructor* constructor, SymbolVariable* tm
 }
 
 
-void code_constructor_fn_chr(CodeConstructor* constructor, SymbolVariable* tmp_variable) {
+void code_constructor_fn_chr(CodeConstructor* constructor, SymbolVariable* tmp_variable, DataType param_type) {
     NULL_POINTER_CHECK(constructor,);
     NULL_POINTER_CHECK(tmp_variable,);
 
+    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(param_type, DATA_TYPE_INTEGER);
     GENERATE_CODE(I_INT_TO_CHAR_STACK);
 }
 
@@ -444,7 +470,9 @@ void code_constructor_fn_asc(
         CodeConstructor* constructor,
         SymbolVariable* tmp1,
         SymbolVariable* index,
-        SymbolVariable* tmp3
+        SymbolVariable* tmp3,
+        DataType param_1_type,
+        DataType param_2_type
 ) {
     NULL_POINTER_CHECK(constructor,);
     NULL_POINTER_CHECK(tmp1,);
@@ -454,9 +482,11 @@ void code_constructor_fn_asc(
     char* zero_label = code_constructor_generate_label(constructor, "asc_zero");
     char* end_label = code_constructor_generate_label(constructor, "asc_end");
 
+    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(param_2_type, DATA_TYPE_INTEGER);
     GENERATE_CODE(I_PUSH_STACK, code_instruction_operand_init_integer(-1));
     GENERATE_CODE(I_ADD_STACK);
     GENERATE_CODE(I_POP_STACK, code_instruction_operand_init_variable(index));
+    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(param_1_type, DATA_TYPE_STRING);
     GENERATE_CODE(I_POP_STACK, code_instruction_operand_init_variable(tmp1));
     GENERATE_CODE(
             I_STRING_LENGTH,
@@ -518,7 +548,8 @@ void code_constructor_fn_asc(
 }
 
 void code_constructor_fn_substr(CodeConstructor* constructor, SymbolVariable* tmp1, SymbolVariable* tmp2,
-                                SymbolVariable* tmp3, SymbolVariable* tmp4, SymbolVariable* tmp5) {
+                                SymbolVariable* tmp3, SymbolVariable* tmp4, SymbolVariable* tmp5, DataType param_1_type,
+                                DataType param_2_type, DataType param_3_type) {
 
 
     char* continue_label = code_constructor_generate_label(constructor, "substr_continue");
@@ -529,17 +560,19 @@ void code_constructor_fn_substr(CodeConstructor* constructor, SymbolVariable* tm
 
     String* empty_string = string_init();
 
-
+    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(param_3_type, DATA_TYPE_INTEGER);
     GENERATE_CODE(
             I_POP_STACK,
             code_instruction_operand_init_variable(tmp3)
     );
 
-
+    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(param_2_type, DATA_TYPE_INTEGER);
     GENERATE_CODE(
             I_POP_STACK,
             code_instruction_operand_init_variable(tmp2)
     );
+
+    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(param_1_type, DATA_TYPE_STRING);
     GENERATE_CODE(
             I_POP_STACK,
             code_instruction_operand_init_variable(tmp1)

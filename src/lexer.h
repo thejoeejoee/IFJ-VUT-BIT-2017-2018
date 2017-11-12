@@ -54,4 +54,11 @@ char* lexer_store_token_data(const Lexer* lexer, Token token);
  */
 void lexer_rewind_token(Lexer* lexer, Token token);
 
+/**
+ * @brief Transform integer according to the first character into the decimal system
+ *
+ * @param char* integer_value
+ */
+void lexer_transform_integer_value(char** integer_value);
+
 #endif //_LEXER_H

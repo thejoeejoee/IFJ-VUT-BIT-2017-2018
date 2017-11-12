@@ -172,7 +172,7 @@ if(parser->body_statement) { \
     if((variable_data_type) != (expr_data_type)) {\
         const DataType target_type = parser_semantic_resolve_implicit_data_type_conversion( \
         parser->parser_semantic, \
-        OPERATION_IMPLICIT_CONVERSION, DATA_TYPE_NONE, expr_data_type); \
+        OPERATION_IMPLICIT_CONVERSION, DATA_TYPE_NONE, expr_data_type, variable_data_type); \
             if(target_type != (variable_data_type)) {\
                 parser->parser_semantic->error_report.error_code = ERROR_SEMANTIC_TYPE; \
                 return false; \
@@ -331,5 +331,7 @@ bool parser_parse_assignment(Parser* parser);
 bool parser_parse_declaration_assignment(Parser* parser);
 
 bool parser_parse_identifier_assignment(Parser* parser);
+
+bool parser_parse_modify_assignment(Parser* parser);
 
 #endif //_PARSER_H

@@ -51,8 +51,13 @@ bool parser_parse(Parser* parser) {
         return false;
     }
     ASSERT(parser->code_constructor->code_label_stack->head == NULL);
+    ASSERT(parser->code_constructor->loops_initial_instruction == NULL);
+    ASSERT(parser->code_constructor->conditions_label_stack->head == NULL);
+    ASSERT(parser->code_constructor->loops_label_stack->head == NULL);
+    ASSERT(parser->code_constructor->control_statement_depth == 0);
+    ASSERT(parser->code_constructor->loops_depth == 0);
+    ASSERT(parser->code_constructor->scope_depth == 0);
     return true;
-
 }
 
 bool parser_parse_program(Parser* parser) {
@@ -92,7 +97,6 @@ bool parser_parse_program(Parser* parser) {
                 );
 
                 code_constructor_start_code(parser->code_constructor);
-                code_constructor_generate_builtin_functions(parser->code_constructor);
             }
     );
     // Call rule <body>. If <body> return false => return false
@@ -688,6 +692,11 @@ bool parser_parse_while_(Parser* parser) {
     RULES(
             CHECK_TOKEN(TOKEN_DO);
             CHECK_TOKEN(TOKEN_WHILE);
+            SEMANTIC_ANALYSIS(
+                    {
+                            symbol_register_push_variables_table(parser->parser_semantic->register_);
+                    }
+            );
             CODE_GENERATION(
                     {
                             code_constructor_while_before_condition(parser->code_constructor);
@@ -712,6 +721,11 @@ bool parser_parse_while_(Parser* parser) {
             CODE_GENERATION(
                     {
                             code_constructor_while_end(parser->code_constructor);
+                    }
+            );
+            SEMANTIC_ANALYSIS(
+                    {
+                            symbol_register_pop_variables_table(parser->parser_semantic->register_);
                     }
             );
     );
@@ -752,6 +766,8 @@ bool parser_parse_input(Parser* parser) {
 }
 
 bool parser_parse_condition(Parser* parser) {
+
+
     DataType expression_data_type;
 
     RULES(
@@ -769,6 +785,11 @@ bool parser_parse_condition(Parser* parser) {
             );
             CHECK_TOKEN(TOKEN_THEN);
             CHECK_TOKEN(TOKEN_EOL);
+            SEMANTIC_ANALYSIS(
+                    {
+                            symbol_register_push_variables_table(parser->parser_semantic->register_);
+                    }
+            );
             CALL_RULE(eols)
             CALL_RULE_STATEMENTS();
             CODE_GENERATION(
@@ -780,6 +801,11 @@ bool parser_parse_condition(Parser* parser) {
             CALL_RULE(condition_else);
             CHECK_TOKEN(TOKEN_END);
             CHECK_TOKEN(TOKEN_IF);
+            SEMANTIC_ANALYSIS(
+                    {
+                            symbol_register_pop_variables_table(parser->parser_semantic->register_);
+                    }
+            );
             CODE_GENERATION(
                     {
                             code_constructor_if_after_end_if(parser->code_constructor);
@@ -814,6 +840,11 @@ bool parser_parse_condition_elseif(Parser* parser) {
                             code_constructor_if_else_if_before_expression(parser->code_constructor);
                     }
             );
+            SEMANTIC_ANALYSIS(
+                    {
+                            symbol_register_pop_variables_table(parser->parser_semantic->register_);
+                    }
+            );
             CALL_EXPRESSION_RULE(expression_data_type);
             SEMANTIC_ANALYSIS(
                     {
@@ -828,6 +859,11 @@ bool parser_parse_condition_elseif(Parser* parser) {
             CHECK_TOKEN(TOKEN_THEN);
             CHECK_TOKEN(TOKEN_EOL);
             CALL_RULE_STATEMENTS();
+            SEMANTIC_ANALYSIS(
+                    {
+                            symbol_register_push_variables_table(parser->parser_semantic->register_);
+                    }
+            );
             CALL_RULE(condition_elseif);
     );
     );
@@ -861,7 +897,17 @@ bool parser_parse_condition_else(Parser* parser) {
                             code_constructor_if_else_block(parser->code_constructor);
                     }
             );
+            SEMANTIC_ANALYSIS(
+                    {
+                            symbol_register_push_variables_table(parser->parser_semantic->register_);
+                    }
+            );
             CALL_RULE_STATEMENTS();
+            SEMANTIC_ANALYSIS(
+                    {
+                            symbol_register_pop_variables_table(parser->parser_semantic->register_);
+                    }
+            );
     );
     );
     return true;
@@ -915,17 +961,38 @@ bool parser_parse_assignment(Parser* parser) {
     /*
      * RULE
      * <assignment> -> = <expression>
+     * <assignment> -> <modify_assignment>
      */
 
     DataType expression_data_type;
     SymbolVariable* actual_variable = parser->parser_semantic->actual_variable;
     RULES(
+
+            CONDITIONAL_RULES(
+                    lexer_rewind_token(parser->lexer, token);
+
+            CHECK_RULE(
+                    token_type == TOKEN_ASSIGN_SUB || token_type == TOKEN_ASSIGN_ADD ||
+                    token_type == TOKEN_ASSIGN_DIVIDE || token_type == TOKEN_ASSIGN_MULTIPLY ||
+                    token_type == TOKEN_ASSIGN_INT_DIVIDE,
+                    modify_assignment,
+                    BEFORE({}),
+                    AFTER(
+                            {
+                                    token_free(&token);
+                                    return true;
+                            }
+                    )
+            );
+    );
+
             CHECK_TOKEN(TOKEN_EQUAL);
             CALL_EXPRESSION_RULE(expression_data_type);
     );
     SEMANTIC_ANALYSIS(
             {
-                NULL_POINTER_CHECK(actual_variable, false);
+                if(actual_variable == NULL)
+                    return false;
                 CHECK_IMPLICIT_CONVERSION(actual_variable->data_type, expression_data_type);
             }
     );
@@ -941,6 +1008,123 @@ bool parser_parse_assignment(Parser* parser) {
                         parser->code_constructor,
                         actual_variable
                 );
+            }
+    );
+
+    parser->parser_semantic->actual_variable = NULL;
+    return true;
+}
+
+bool parser_parse_modify_assignment(Parser* parser) {
+    /*
+     * RULE
+     * <assignment> -> <modify> <expression>
+     * <modify> -> +=
+     * <modify> -> -=
+     * <modify> -> *=
+     * <modify> -> /=
+     * <modify> -> \=
+     */
+
+    const unsigned int shorten_operators_count = 5;
+    const int map_diff = (int) TOKEN_AUGMENTED_ASSIGN_OPERATORS + 1;
+
+    TypeExpressionOperation token_type_mapped_to_operation[shorten_operators_count];
+    TypeInstruction token_type_mapped_to_instruction[shorten_operators_count];
+    token_type_mapped_to_operation[TOKEN_ASSIGN_ADD - map_diff] = OPERATION_ADD;
+    token_type_mapped_to_operation[TOKEN_ASSIGN_SUB - map_diff] = OPERATION_SUB;
+    token_type_mapped_to_operation[TOKEN_ASSIGN_MULTIPLY - map_diff] = OPERATION_MULTIPLY;
+    token_type_mapped_to_operation[TOKEN_ASSIGN_INT_DIVIDE - map_diff] = OPERATION_INT_DIVIDE;
+    token_type_mapped_to_operation[TOKEN_ASSIGN_DIVIDE - map_diff] = OPERATION_DIVIDE;
+
+    token_type_mapped_to_instruction[TOKEN_ASSIGN_ADD - map_diff] = I_ADD_STACK;
+    token_type_mapped_to_instruction[TOKEN_ASSIGN_SUB - map_diff] = I_SUB_STACK;
+    token_type_mapped_to_instruction[TOKEN_ASSIGN_MULTIPLY - map_diff] = I_MUL_STACK;
+    token_type_mapped_to_instruction[TOKEN_ASSIGN_INT_DIVIDE - map_diff] = I_DIV_STACK;
+    token_type_mapped_to_instruction[TOKEN_ASSIGN_DIVIDE - map_diff] = I_DIV_STACK;
+
+    DataType expression_data_type;
+    SymbolVariable* actual_variable = parser->parser_semantic->actual_variable;
+
+    TypeExpressionOperation operation_type;
+    TypeInstruction corresponding_instruction;
+
+    RULES(
+            CHECK_TOKEN(TOKEN_AUGMENTED_ASSIGN_OPERATORS);
+            operation_type = token_type_mapped_to_operation[token_type - map_diff];
+            corresponding_instruction = token_type_mapped_to_instruction[token_type - map_diff];
+            CALL_EXPRESSION_RULE(expression_data_type);
+    );
+
+    SEMANTIC_ANALYSIS(
+            {
+                if(actual_variable == NULL)
+                    return false;
+                CHECK_BINARY_OPERATION_IMPLICIT_CONVERSION(
+                        operation_type,
+                        actual_variable->data_type,
+                        expression_data_type
+                );
+            }
+    );
+
+    CODE_GENERATION(
+            {
+                OperationSignature* operation_signature = parser_semantic_get_operation_signature(
+                        parser->parser_semantic,
+                        operation_type,
+                        actual_variable->data_type,
+                        expression_data_type,
+                        DATA_TYPE_ANY
+                );
+
+                CodeConstructor* constructor = parser->code_constructor;
+                if(
+                        operation_type == OPERATION_ADD &&
+                        expression_data_type == DATA_TYPE_STRING &&
+                        actual_variable->data_type == DATA_TYPE_STRING
+                        ) {
+                    // special case for string concat
+                    GENERATE_CODE(
+                            I_POP_STACK,
+                            code_instruction_operand_init_variable(parser->parser_semantic->temp_variable1)
+                    );
+                    GENERATE_CODE(
+                            I_CONCAT_STRING,
+                            code_instruction_operand_init_variable(actual_variable),
+                            code_instruction_operand_init_variable(actual_variable),
+                            code_instruction_operand_init_variable(parser->parser_semantic->temp_variable1)
+                    );
+                } else {
+                    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(
+                            expression_data_type,
+                            operation_signature->conversion_target_type
+                    );
+                    GENERATE_CODE(
+                            I_POP_STACK,
+                            code_instruction_operand_init_variable(parser->parser_semantic->temp_variable1)
+                    );
+
+                    GENERATE_CODE(
+                            I_PUSH_STACK,
+                            code_instruction_operand_init_variable(actual_variable)
+                    );
+                    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(
+                            actual_variable->data_type,
+                            operation_signature->conversion_target_type
+                    );
+                    GENERATE_CODE(
+                            I_PUSH_STACK,
+                            code_instruction_operand_init_variable(parser->parser_semantic->temp_variable1)
+                    );
+
+                    GENERATE_CODE(corresponding_instruction);
+                    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(
+                            operation_signature->result_type,
+                            actual_variable->data_type
+                    );
+                    GENERATE_CODE(I_POP_STACK, code_instruction_operand_init_variable(actual_variable));
+                }
             }
     );
 

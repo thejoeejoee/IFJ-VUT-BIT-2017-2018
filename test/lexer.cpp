@@ -31,6 +31,143 @@ class LexerTokenizerTestFixture : public ::testing::Test {
         }
 };
 
+
+TEST_F(LexerTokenizerTestFixture, StringToInteger) {
+    char* integer_value;
+
+    integer_value = c_string_copy("b101");
+    lexer_transform_integer_value(&integer_value);
+    EXPECT_STREQ(
+            integer_value,
+            "5"
+    );
+    memory_free(integer_value);
+
+    integer_value = c_string_copy("b0");
+    lexer_transform_integer_value(&integer_value);
+    EXPECT_STREQ(
+            integer_value,
+            "0"
+    );
+    memory_free(integer_value);
+
+    integer_value = c_string_copy("b00000000000000000000000000000000000000000000000000000000000");
+    lexer_transform_integer_value(&integer_value);
+    EXPECT_STREQ(
+            integer_value,
+            "0"
+    );
+    memory_free(integer_value);
+
+    integer_value = c_string_copy("b111");
+    lexer_transform_integer_value(&integer_value);
+    EXPECT_STREQ(
+            integer_value,
+            "7"
+    );
+    memory_free(integer_value);
+
+    integer_value = c_string_copy("b000000111");
+    lexer_transform_integer_value(&integer_value);
+    EXPECT_STREQ(
+            integer_value,
+            "7"
+    );
+    memory_free(integer_value);
+
+    integer_value = c_string_copy("b000010111");
+    lexer_transform_integer_value(&integer_value);
+    EXPECT_STREQ(
+            integer_value,
+            "23"
+    );
+    memory_free(integer_value);
+
+    integer_value = c_string_copy("b000000110");
+    lexer_transform_integer_value(&integer_value);
+    EXPECT_STREQ(
+            integer_value,
+            "6"
+    );
+    memory_free(integer_value);
+
+    integer_value = c_string_copy("o1");
+    lexer_transform_integer_value(&integer_value);
+    EXPECT_STREQ(
+            integer_value,
+            "1"
+    );
+    memory_free(integer_value);
+
+    integer_value = c_string_copy("o1065");
+    lexer_transform_integer_value(&integer_value);
+    EXPECT_STREQ(
+            integer_value,
+            "565"
+    );
+    memory_free(integer_value);
+
+    integer_value = c_string_copy("h6776");
+    lexer_transform_integer_value(&integer_value);
+    EXPECT_STREQ(
+            integer_value,
+            "26486"
+    );
+    memory_free(integer_value);
+
+    integer_value = c_string_copy("hd25");
+    lexer_transform_integer_value(&integer_value);
+    EXPECT_STREQ(
+            integer_value,
+            "3365"
+    );
+    memory_free(integer_value);
+
+    integer_value = c_string_copy("hd2a5");
+    lexer_transform_integer_value(&integer_value);
+    EXPECT_STREQ(
+            integer_value,
+            "53925"
+    );
+    memory_free(integer_value);
+
+    integer_value = c_string_copy("hd245456");
+    lexer_transform_integer_value(&integer_value);
+    EXPECT_STREQ(
+            integer_value,
+            "220484694"
+    );
+
+    memory_free(integer_value);
+
+    integer_value = c_string_copy("h0000001");
+    lexer_transform_integer_value(&integer_value);
+    EXPECT_STREQ(
+            integer_value,
+            "1"
+    );
+
+    memory_free(integer_value);
+
+    integer_value = c_string_copy("h0000000");
+    lexer_transform_integer_value(&integer_value);
+    EXPECT_STREQ(
+            integer_value,
+            "0"
+    );
+
+    memory_free(integer_value);
+
+    integer_value = c_string_copy("h1f1a1");
+    lexer_transform_integer_value(&integer_value);
+    EXPECT_STREQ(
+            integer_value,
+            "127393"
+    );
+
+    memory_free(integer_value);
+}
+
 TEST_F(LexerTokenizerTestFixture, Keywords) {
     provider->setString("AS + sCOpE");
     char_stack_empty(lexer->lexer_fsm->stack);
@@ -49,6 +186,8 @@ TEST_F(LexerTokenizerTestFixture, Keywords) {
             this->getNextTokenType(),
             TOKEN_SCOPE
     ) << "Error SCOPE token";
+
+
 }
 
 TEST_F(LexerTokenizerTestFixture, MathTokens) {
@@ -83,6 +222,41 @@ TEST_F(LexerTokenizerTestFixture, MathTokens) {
             this->getNextTokenType(),
             TOKEN_DIVIDE
     ) << "Error get divide token";
+}
+
+TEST_F(LexerTokenizerTestFixture, IntegerLiterals) {
+    provider->setString(R"RAW(
+127
+&B111
+&B10101
+&O10101110
+&H10101110
+)RAW");
+    char_stack_empty(lexer->lexer_fsm->stack);
+
+    const std::vector<TokenType> expectedTokens = {
+            TOKEN_EOL,
+            TOKEN_INTEGER_LITERAL,
+            TOKEN_EOL,
+            TOKEN_INTEGER_LITERAL,
+            TOKEN_EOL,
+            TOKEN_INTEGER_LITERAL,
+            TOKEN_EOL,
+            TOKEN_INTEGER_LITERAL,
+            TOKEN_EOL,
+            TOKEN_INTEGER_LITERAL,
+            TOKEN_EOL,
+            TOKEN_EOF
+    };
+
+    for(const TokenType expectedToken: expectedTokens) {
+        EXPECT_EQ(
+                this->getNextTokenType(),
+                expectedToken
+        );
+    }
+
+
 }
 
 TEST_F(LexerTokenizerTestFixture, Strings) {
@@ -165,7 +339,7 @@ TEST_F(LexerTokenizerTestFixture, IntegersAndDoubles) {
         EXPECT_EQ(
                 this->getNextTokenType(),
                 expectedToken
-        ) << "Error string token";
+        );
     }
 }
 
@@ -209,6 +383,50 @@ TEST_F(LexerTokenizerTestFixture, EOFToken) {
     ) << "Error EOF token";
 }
 
+TEST_F(LexerTokenizerTestFixture, AssignmentTokens) {
+    provider->setString("+= 31");
+    char_stack_empty(lexer->lexer_fsm->stack);
+
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_ASSIGN_ADD
+    ) << "Error ASSIGN_ADD token";
+
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_INTEGER_LITERAL
+    ) << "Error ADD token";
+
+
+}
+
+TEST_F(LexerTokenizerTestFixture, AssignmentTokens1) {
+    provider->setString("-= 31 + b");
+    char_stack_empty(lexer->lexer_fsm->stack);
+
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_ASSIGN_SUB
+    ) << "Error ASSIGN_ADD token";
+
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_INTEGER_LITERAL
+    ) << "Error INTEGER_LITERAL token";
+
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_ADD
+    ) << "Error INTEGER_LITERAL token";
+
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_IDENTIFIER
+    ) << "Error IDENTIFIER token";
+
+
+}
+
 TEST_F(LexerTokenizerTestFixture, RelationOperators) {
     provider->setString("< > <= >= <>");
     char_stack_empty(lexer->lexer_fsm->stack);
@@ -238,6 +456,52 @@ TEST_F(LexerTokenizerTestFixture, RelationOperators) {
             TOKEN_SMALLER_BIGGER
     ) << "Error SMALLER_BIGGER token";
 }
+
+TEST_F(LexerTokenizerTestFixture, ComplexTestMathematicTokens) {
+
+    provider->setString("+-*/+=-=*=/=");
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_ADD
+    );
+
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_SUBTRACT
+    );
+
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_MULTIPLY
+    );
+
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_DIVIDE
+    );
+
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_PLUS_EQUAL
+    );
+
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_MINUS_EQUAL
+    );
+
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_MULTIPLY_EQUAL
+    );
+
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_DIVIDE_EQUAL
+    );
+
+}
+
 
 TEST_F(LexerTokenizerTestFixture, ErrorTokens) {
 
@@ -344,7 +608,19 @@ TEST_F(LexerTokenizerTestFixture, ErrorTokens) {
             lexer->lexer_fsm->lexer_error,
             LEXER_ERROR__STRING_FORMAT
     ) << "Error getting error code";
+
+    provider->setString(R"(!"\512")");
+    EXPECT_EQ(
+            this->getNextTokenType(),
+            TOKEN_ERROR
+    ) << "Error ERROR token";
+
+    EXPECT_EQ(
+            lexer->lexer_fsm->lexer_error,
+            LEXER_ERROR__STRING_FORMAT
+    ) << "Error getting error code";
 }
+
 
 TEST_F(LexerTokenizerTestFixture, ComplexTest) {
     provider->setString("+ <= >= ahoj _8wtf \\ *");

@@ -151,11 +151,11 @@ void parser_semantic_add_operation_signature(ParserSemantic* parser_semantic, Ty
 
 OperationSignature*
 parser_semantic_get_operation_signature(ParserSemantic* parser_semantic, TypeExpressionOperation operation_type,
-                                        DataType operand_1_type, DataType operand_2_type);
+                                        DataType operand_1_type, DataType operand_2_type, DataType target_type);
 
 DataType parser_semantic_resolve_implicit_data_type_conversion(ParserSemantic* parser_semantic,
                                                                TypeExpressionOperation operation_type,
-                                                               DataType operand_1_type, DataType operand_2_type);
+                                                               DataType operand_1_type, DataType operand_2_type, DataType target_conversion_type);
 
 void parser_semantic_setup_temp_variables(ParserSemantic* parser_semantic);
 

@@ -5,7 +5,8 @@
 #include "char_stack.h"
 #include "dynamic_string.h"
 
-#define LEXER_FSM_STREAM_BUFFER_DEFAULT_LENGHT 16
+// Lenght of lexer buffer
+#define LEXER_FSM_STREAM_BUFFER_DEFAULT_LENGTH 2
 
 /**
  * @brief Pointer to function, which streams the characters
@@ -47,6 +48,21 @@ typedef enum {
     // Start state
 
     LEX_FSM__INIT = 0,
+
+    LEX_FSM__AMP,
+    LEX_FSM__BINARY_START,
+    LEX_FSM__BINARY_UNFINISHED,
+    LEX_FSM__OCTA_START,
+    LEX_FSM__OCTA_UNFINISHED,
+    LEX_FSM__HEXA_START,
+    LEX_FSM__HEXA_UNFINISHED,
+
+    // Unfinished states for operators
+            LEX_FSM__ADD_UNFINISHED,
+    LEX_FSM__SUBTRACT_UNFINISHED,
+    LEX_FSM__MULTIPLY_UNFINISHED,
+    LEX_FSM__INTEGER_DIVIDE_UNFINISHED,
+
 
     // Comments
     LEX_FSM__COMMENT_LINE,
@@ -137,11 +153,16 @@ typedef enum {
     LEX_FSM__EOF,
     LEX_FSM__ERROR,
 
-    LEX_FSM__INTEGER = 256 | 1,
-    LEX_FSM__DOUBLE = 256 | 2,
-    LEX_FSM__BOOLEAN = 256 | 3,
-    LEX_FSM__STRING = 256 | 4,
+    LEX_FSM__INTEGER = 256 + 1,
+    LEX_FSM__DOUBLE = 256 + 2,
+    LEX_FSM__BOOLEAN = 256 + 3,
+    LEX_FSM__STRING = 256 + 4,
 
+    LEX_FSM__ASSIGN_ADD = 512 + 1,
+    LEX_FSM__ASSIGN_SUB = 512 + 2,
+    LEX_FSM__ASSIGN_MULTIPLY = 512 + 3,
+    LEX_FSM__ASSIGN_INT_DIVIDE = 512 + 4,
+    LEX_FSM__ASSIGN_DIVIDE = 512 + 5,
 
     // Error state
 

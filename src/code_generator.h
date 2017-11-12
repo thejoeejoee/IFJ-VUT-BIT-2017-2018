@@ -57,9 +57,16 @@ void code_generator_free(CodeGenerator** generator);
  * @param op2 optionally operand
  * @internal
  */
-void code_generator_generate_instruction(CodeGenerator* generator, TypeInstruction type_instruction,
-                                         CodeInstructionOperand* op0, CodeInstructionOperand* op1,
-                                         CodeInstructionOperand* op2, CodeInstructionSignature* signature);
+void code_generator_append_instruction(
+        CodeGenerator* generator,
+        CodeInstruction* instruction
+);
+
+void code_generator_insert_instruction_before(
+        CodeGenerator* generator,
+        CodeInstruction* to_insert,
+        CodeInstruction* before_what
+);
 
 /**
  * Generic target for all generated methods for
@@ -74,7 +81,15 @@ void code_generator_generate_instruction(CodeGenerator* generator, TypeInstructi
  * @internal
  * @return true for success validation, else false
  */
-bool code_generator_instruction(
+CodeInstruction* code_generator_instruction(
+        CodeGenerator* generator,
+        TypeInstruction type_instruction,
+        CodeInstructionOperand* op0,
+        CodeInstructionOperand* op1,
+        CodeInstructionOperand* op2
+);
+
+CodeInstruction* code_generator_new_instruction(
         CodeGenerator* generator,
         TypeInstruction type_instruction,
         CodeInstructionOperand* op0,

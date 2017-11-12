@@ -11,6 +11,7 @@
 
 
 typedef enum {
+    DATA_TYPE_ANY = -1,
     DATA_TYPE_NONE = 0,
     DATA_TYPE_INTEGER = TOKEN_INTEGER,
     DATA_TYPE_DOUBLE = TOKEN_DOUBLE,

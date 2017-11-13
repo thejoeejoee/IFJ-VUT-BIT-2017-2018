@@ -1161,3 +1161,79 @@ end scope
             parser_parse_program(parser)
     );
 }
+
+
+TEST_F(ParserTestFixture, DISABLED_CycleContinueValid1) {
+    provider->setString(R"(
+scope
+
+do while 2 > 5
+continue for
+loop
+
+end scope
+)");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, DISABLED_CycleContinueInvalid) {
+    provider->setString(R"(
+scope
+
+do while 2 > 5
+continue
+loop
+
+end scope
+)");
+    EXPECT_FALSE(
+            parser_parse_program(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, DISABLED_CycleContinueValid2) {
+    provider->setString(R"(
+scope
+
+do while 2 > 5
+continue do
+loop
+
+end scope
+)");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, DISABLED_CycleContinueValid3) {
+    provider->setString(R"(
+scope
+
+do while 2 > 5
+continue do, for
+loop
+
+end scope
+)");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, DISABLED_CycleContinueInvalid3) {
+    provider->setString(R"(
+scope
+
+do while 2 > 5
+continue do,
+loop
+
+end scope
+)");
+    EXPECT_FALSE(
+            parser_parse_program(parser)
+    );
+}

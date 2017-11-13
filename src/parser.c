@@ -16,7 +16,7 @@ Parser* parser_init(lexer_input_stream_f input_stream) {
     parser->parser_semantic = parser_semantic_init();
     parser->code_constructor = code_constructor_init();
     parser->run_type = PARSER_RUN_TYPE_ALL;
-    parser->cycle_statement = false;
+    parser->cycle_depth = 0;
     parser->body_statement = false;
     parser->error_report.error_code = ERROR_NONE;
     return parser;
@@ -268,6 +268,7 @@ bool parser_parse_statements(Parser* parser) {
             CHECK_RULE(
                     token_type != TOKEN_INPUT && token_type != TOKEN_RETURN && token_type != TOKEN_IF &&
                     token_type != TOKEN_DIM && token_type != TOKEN_PRINT && token_type != TOKEN_DO &&
+                    token_type != TOKEN_CONTINUE && token_type != TOKEN_EXIT &&
                     token_type != TOKEN_IDENTIFIER && token_type != TOKEN_FOR && token_type != TOKEN_SCOPE,
                     epsilon,
                     NO_CODE
@@ -290,6 +291,9 @@ bool parser_parse_statement_single(Parser* parser) {
      * <statement_single> -> <variable_declaration>
      * <statement_single> -> <statement_print>
      */
+
+    int pico = 0;
+    pico++;
     RULES(
             CONDITIONAL_RULES(
 
@@ -299,7 +303,7 @@ bool parser_parse_statement_single(Parser* parser) {
                 CHECK_RULE(token_type == TOKEN_SCOPE, scope, REWIND_AND_SUCCESS);
             }
 
-            if(parser->cycle_statement) {
+            if(parser->cycle_depth) {
                 CHECK_RULE(token_type == TOKEN_CONTINUE,
                 continue, REWIND_AND_SUCCESS);
                 CHECK_RULE(token_type == TOKEN_EXIT, exit, REWIND_AND_SUCCESS);
@@ -654,7 +658,7 @@ bool parser_parse_while_(Parser* parser) {
                     CHECK_RULE(token_type == TOKEN_WHILE,
             while, REWIND_AND_SUCCESS);
             CHECK_RULE(token_type != TOKEN_WHILE, do_while, REWIND_AND_SUCCESS);
-            );
+    );
     );
     return true;
 }
@@ -666,6 +670,7 @@ bool parser_parse_while(Parser* parser) {
      */
     DataType expression_data_type;
 
+    parser->cycle_depth++;
     RULES(
 
             CHECK_TOKEN(TOKEN_WHILE);
@@ -706,6 +711,7 @@ bool parser_parse_while(Parser* parser) {
                     }
             );
     );
+    parser->cycle_depth--;
     return true;
 }
 
@@ -715,8 +721,77 @@ bool parser_parse_continue(Parser* parser) {
      * <continue> -> continue
      */
 
+    int pico = 0;
+    pico++;
     RULES(
             CHECK_TOKEN(TOKEN_CONTINUE);
+            CHECK_RULE(cycle_control);
+    );
+    return true;
+}
+
+bool parser_parse_cycle_control(Parser* parser) {
+
+    RULES(
+            CHECK_RULE(cycle_control_first);
+            CHECK_RULE(cycle_control_next);
+    );
+    return true;
+}
+
+bool parser_parse_cycle_control_first(Parser* parser) {
+
+    RULES(
+            CONDITIONAL_RULES(
+                    CHECK_RULE(
+                            token_type == TOKEN_DO,
+                            epsilon,
+                            BEFORE(
+                                    {
+                                            // lexer_rewind_token(parser->lexer, token);
+                                    }
+                            ),
+                            AFTER(
+                                    {
+                                            token_free(&token);
+                                            CHECK_RULE(cycle_control_next);
+                                            return true;
+                                    }
+                            )
+                    );
+            CHECK_RULE(
+                    token_type == TOKEN_FOR,
+                    epsilon,
+                    BEFORE(
+                            {
+                                    // lexer_rewind_token(parser->lexer, token);
+                            }
+                    ),
+                    AFTER(
+                            {
+                                    token_free(&token);
+                                    CHECK_RULE(cycle_control_next);
+                                    return true;
+                            }
+                    )
+            );
+    );
+    );
+
+
+    return true;
+}
+
+bool parser_parse_cycle_control_next(Parser* parser) {
+    RULES(
+            CONDITIONAL_RULES(
+                    CHECK_RULE(token_type != TOKEN_COMMA, epsilon, NO_CODE);
+            CHECK_RULE(token_type == TOKEN_COMMA, epsilon, , AFTER(
+                    {
+                    }
+                       )
+            );
+    );
     );
     return true;
 }
@@ -735,9 +810,6 @@ bool parser_parse_exit(Parser* parser) {
 }
 
 
-
-
-
 bool parser_parse_for(Parser* parser) {
     /*
      * RULE
@@ -745,26 +817,26 @@ bool parser_parse_for(Parser* parser) {
      */
 
     DataType expression_data_type;
-    parser->cycle_statement = true;
+    parser->cycle_depth++;
 
     RULES(
             CHECK_TOKEN(TOKEN_FOR);
             CHECK_TOKEN(TOKEN_IDENTIFIER);
-            CALL_RULE(assignment);
+            CHECK_RULE(assignment);
             CHECK_TOKEN(TOKEN_TO);
             CALL_EXPRESSION_RULE(expression_data_type);
 
             CONDITIONAL_RULES(
                     lexer_rewind_token(parser->lexer, token);
-                    CHECK_RULE(token_type == TOKEN_STEP, step, NO_CODE);
-            );
+            CHECK_RULE(token_type == TOKEN_STEP, step, NO_CODE);
+    );
             CHECK_TOKEN(TOKEN_EOL);
-            CALL_RULE(eols);
+            CHECK_RULE(eols);
             CALL_RULE_STATEMENTS();
-            CALL_RULE(eols);
+            CHECK_RULE(eols);
             CHECK_TOKEN(TOKEN_NEXT);
     );
-    parser->cycle_statement = false;
+    parser->cycle_depth--;
     return true;
 }
 
@@ -804,7 +876,7 @@ bool parser_parse_do_while(Parser* parser) {
      */
 
     DataType expression_data_type;
-    parser->cycle_statement = true;
+    parser->cycle_depth++;
     RULES(
             CHECK_TOKEN(TOKEN_EOL);
             CHECK_RULE(eols);
@@ -815,10 +887,9 @@ bool parser_parse_do_while(Parser* parser) {
             CALL_EXPRESSION_RULE(expression_data_type);
 
     );
-    parser->cycle_statement = false;
+    parser->cycle_depth--;
     return true;
 }
-
 
 
 bool parser_parse_input(Parser* parser) {
@@ -876,15 +947,15 @@ bool parser_parse_condition(Parser* parser) {
                             symbol_register_push_variables_table(parser->parser_semantic->register_);
                     }
             );
-            CALL_RULE(eols)
+            CHECK_RULE(eols);
             CALL_RULE_STATEMENTS();
             CODE_GENERATION(
                     {
                             code_constructor_if_end_if_block(parser->code_constructor);
                     }
             );
-            CALL_RULE(condition_elseif);
-            CALL_RULE(condition_else);
+            CHECK_RULE(condition_elseif);
+            CHECK_RULE(condition_else);
             CHECK_TOKEN(TOKEN_END);
             CHECK_TOKEN(TOKEN_IF);
             SEMANTIC_ANALYSIS(
@@ -950,7 +1021,7 @@ bool parser_parse_condition_elseif(Parser* parser) {
                             symbol_register_push_variables_table(parser->parser_semantic->register_);
                     }
             );
-            CALL_RULE(condition_elseif);
+            CHECK_RULE(condition_elseif);
     );
     );
 
@@ -977,7 +1048,7 @@ bool parser_parse_condition_else(Parser* parser) {
                             )
                     );
             CHECK_TOKEN(TOKEN_EOL);
-            CALL_RULE(eols)
+            CHECK_RULE(eols);
             CODE_GENERATION(
                     {
                             code_constructor_if_else_block(parser->code_constructor);

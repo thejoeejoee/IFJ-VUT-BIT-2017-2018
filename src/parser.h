@@ -39,7 +39,9 @@
         token.data = NULL; \
         TokenType token_type = TOKEN_UNKNOWN; UNUSED(token_type); \
         bool conditional_rules = false; \
+        UNUSED(conditional_rules); \
         unsigned int conditions_buffer = 0; \
+        UNUSED(conditions_buffer); \
         rules \
         token_free(&token); \
     } while(0)
@@ -196,7 +198,7 @@ typedef struct parser_t {
     int run_type;
 
     bool body_statement;
-    bool cycle_statement;
+    size_t cycle_depth;
 
     /** GET_NEXT_TOKEN_TYPE()
     * Token token;
@@ -345,5 +347,11 @@ bool parser_parse_while(Parser* parser);
 bool parser_parse_statements(Parser* parser);
 
 bool parser_parse_statement_single(Parser* parser);
+
+bool parser_parse_cycle_control(Parser* parser);
+
+bool parser_parse_cycle_control_first(Parser* parser);
+
+bool parser_parse_cycle_control_next(Parser* parser);
 
 #endif //_PARSER_H

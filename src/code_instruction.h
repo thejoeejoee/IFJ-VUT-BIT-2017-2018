@@ -112,6 +112,7 @@ typedef struct code_instruction_signature_t {
 } CodeInstructionSignature;
 
 typedef struct code_instruction_t {
+    CodeInstructionMetaData meta_data;
     TypeInstruction type;
     CodeInstructionOperand* op0;
     CodeInstructionOperand* op1;

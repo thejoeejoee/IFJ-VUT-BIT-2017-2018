@@ -1,6 +1,8 @@
 #include "symtable_variable.h"
 #include "symtable_function.h"
 
+static LList meta_data_shared_pointers;
+
 SymbolVariable* symbol_table_variable_get_or_create(SymbolTable* table, const char* key) {
     // internal!!!
     SymbolVariable* variable = (SymbolVariable*) symbol_table_get_or_create(table, key);
@@ -14,6 +16,8 @@ SymbolVariable* symbol_table_variable_get(SymbolTable* table, const char* key) {
 void symbol_variable_free_data(SymbolTableBaseItem* item) {
     NULL_POINTER_CHECK(item,);
     SymbolVariable* variable = (SymbolVariable*) item;
+    symbol_variable_meta_data_remove_reference(variable->meta_data);
+
     memory_free(variable->base.key);
     variable->base.key = NULL;
     if(variable->alias_name != NULL) {
@@ -34,6 +38,7 @@ void symbol_variable_init_data(SymbolTableBaseItem* item) {
     variable->scope_depth = 0;
     variable->alias_name = NULL;
     variable->scope_alias = NULL;
+    variable->meta_data = symbol_variable_meta_data_init();
 }
 
 SymbolVariable* symbol_variable_copy(SymbolVariable* variable) {
@@ -42,6 +47,10 @@ SymbolVariable* symbol_variable_copy(SymbolVariable* variable) {
     SymbolVariable* new = symbol_variable_init(variable->base.key);
     symbol_variable_init_data((SymbolTableBaseItem*) new);
 
+    symbol_variable_meta_data_free(&new->meta_data);
+
+    new->meta_data = variable->meta_data;
+    symbol_variable_meta_data_add_reference(variable->meta_data);
     new->data_type = variable->data_type;
     new->frame = variable->frame;
     new->scope_depth = variable->scope_depth;
@@ -62,6 +71,7 @@ SymbolVariable* symbol_variable_init_from_function_param(SymbolFunction* functio
 
     SymbolVariable* variable = symbol_variable_init(param->name);
     symbol_variable_init_data((SymbolTableBaseItem*) variable);
+    symbol_variable_meta_data_add_reference(variable->meta_data);
 
     String* param_name = symbol_function_get_param_name_alias(function, param);
 
@@ -80,6 +90,48 @@ void symbol_variable_single_free(SymbolVariable** variable) {
         LOG_WARNING("Symbol variable from table, not standalone!");
     }
     symbol_variable_free_data((SymbolTableBaseItem*) *variable);
+    symbol_variable_meta_data_remove_reference((*variable)->meta_data);
     memory_free(*variable);
     *variable = NULL;
+}
+
+SymbolVariableMetaData* symbol_variable_meta_data_init()
+{
+    static bool shared_ptr_list_inited = false;
+    if(!shared_ptr_list_inited) {
+        llist_init_list(&meta_data_shared_pointers, sizeof(SharedPointer), &init_shared_pointer, &symbol_variable_meta_data_item_free, NULL);
+        shared_ptr_list_inited = true;
+    }
+
+    SymbolVariableMetaData* meta_data = memory_alloc(sizeof(SymbolVariableMetaData));
+    symbol_variable_meta_data_add_reference(meta_data);
+
+    meta_data->occurrences_count = 0;
+    meta_data->type = VARIABLE_META_TYPE_PURE;
+    return meta_data;
+}
+
+void symbol_variable_meta_data_free(SymbolVariableMetaData** item)
+{
+    symbol_variable_meta_data_remove_reference(*item);
+    *item = NULL;
+}
+
+void symbol_variable_meta_data_item_free(LListBaseItem* item)
+{
+    SharedPointer* sh = (SharedPointer*)item;
+    if(sh->addr == NULL)
+        return;
+
+    memory_free(sh->addr);
+}
+
+void symbol_variable_meta_data_add_reference(SymbolVariableMetaData* item)
+{
+    add_reference(&meta_data_shared_pointers, item);
+}
+
+void symbol_variable_meta_data_remove_reference(SymbolVariableMetaData* item)
+{
+    remove_reference(&meta_data_shared_pointers, item);
 }

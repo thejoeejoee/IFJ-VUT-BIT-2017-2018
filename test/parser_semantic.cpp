@@ -33,7 +33,7 @@ TEST_F(ParserSemanticTestFixture, FunctionStatementSingle) {
     provider->setString("input hello_input42");
 
     EXPECT_TRUE(
-            parser_parse_function_statement_single(parser)
+            parser_parse_statement_single(parser)
     ) << "Error parsing <definitions> rule";
 
 }

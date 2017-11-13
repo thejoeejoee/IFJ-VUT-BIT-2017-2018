@@ -280,10 +280,6 @@ bool parser_parse_function_declaration(Parser* parser);
 
 //Todo: comments
 
-bool parser_parse_function_statements(Parser* parser);
-
-bool parser_parse_body_statements(Parser* parser);
-
 bool parser_parse_function_header(Parser* parser);
 
 bool parser_parse_eols(Parser* parser);
@@ -295,10 +291,6 @@ bool parser_parse_function_n_param(Parser* parser);
 bool parser_parse_definition(Parser* parser);
 
 bool parser_parse_function_definition(Parser* parser);
-
-bool parser_parse_function_statement_single(Parser* parser);
-
-bool parser_parse_body_statement_single(Parser* parser);
 
 bool parser_parse_epsilon(Parser* parser);
 
@@ -341,10 +333,6 @@ bool parser_parse_shared_variables_declarations(Parser* parser);
 bool parser_parse_for(Parser* parser);
 
 bool parser_parse_step(Parser* parser);
-
-bool parser_parse_cycle_statements(Parser* parser);
-
-bool parser_parse_cycle_statement_single(Parser* parser);
 
 bool parser_parse_exit(Parser* parser);
 

@@ -220,7 +220,7 @@ TEST_F(ParserTestFixture, Definitions) {
     ) << "Error parsing <definitions> rule";
 
 }
-
+// TODO: Add flags for tests
 TEST_F(ParserTestFixture, FunctionDefinition) {
     provider->setString("FUNCTION hello () AS string \n END FUNCTION");
     EXPECT_TRUE(
@@ -238,29 +238,30 @@ END FUNCTION
 
 }
 
+// TODO: Add flags for tests
 TEST_F(ParserTestFixture, FunctionStatements) {
     provider->setString("");
     EXPECT_TRUE(
-            parser_parse_function_statements(parser)
+            parser_parse_statements(parser)
     ) << "Error parsing <function_statements> rule";
 
     provider->setString("input id \n");
     EXPECT_TRUE(
-            parser_parse_function_statements(parser)
+            parser_parse_statements(parser)
     ) << "Error parsing <function_statements> rule";
 
     provider->setString("input id \n input id \n input id \n");
     EXPECT_TRUE(
-            parser_parse_function_statements(parser)
+            parser_parse_statements(parser)
     ) << "Error parsing <function_statements> rule";
 }
-
+// TODO: Add flags for tests
 TEST_F(ParserTestFixture, FunctionStatementSingle) {
     // Rule is Epsilon, it is just demonstration, it will be implemented in future
     provider->setString("input foo");
 
     EXPECT_TRUE(
-            parser_parse_function_statement_single(parser)
+            parser_parse_statement_single(parser)
     ) << "Error parsing <definitions> rule";
 
 }
@@ -292,12 +293,12 @@ TEST_F(ParserTestFixture, PrintStatement3) {
     ) << "Error parsing <print> rule with concatenation";
 }
 
-
+// TODO: Add flags for tests
 TEST_F(ParserTestFixture, BodyStatementSingle) {
     provider->setString("input foo");
 
     EXPECT_TRUE(
-            parser_parse_body_statement_single(parser)
+            parser_parse_statement_single(parser)
     ) << "Error parsing <definitions> rule";
 
 }

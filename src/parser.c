@@ -107,6 +107,12 @@ bool parser_parse_program(Parser* parser) {
             CHECK_TOKEN(TOKEN_EOF);
     );
 
+    CODE_GENERATION(
+            {
+                code_constructor_end_code(parser->code_constructor);
+            }
+    );
+
     return true;
 }
 

@@ -1,7 +1,7 @@
 CC=gcc
 
 CFLAGS+=-std=c99 -Wall -Wextra -pedantic -O3 -DNDEBUG -Wno-unused-parameter -Wno-variadic-macros
-LIBS += -lm
+LDLIBS += -lm
 
 TARGETS=ifj2017
 
@@ -34,7 +34,7 @@ pack: *.c *.h Makefile
 		sed -i '1s;^;$(FILE_HEADER);' $(RELEASE_TMP_DIR)/$$FILENAME;		\
 		sed -i -e "s/AUTHORS/$$AUTHORS/g" $(RELEASE_TMP_DIR)/$$FILENAME;	\
 		cat $(RELEASE_TMP_DIR)/$$FILENAME;	                  				\
-		tar -r $(RELEASE_ARCHIVE_NAME) $$FILENAME;						\
+		tar $(RELEASE_ARCHIVE_NAME) $$FILENAME;						\
     done
 
 # Makefile DEPS

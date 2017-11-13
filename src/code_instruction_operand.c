@@ -26,6 +26,7 @@ void code_instruction_operand_free(CodeInstructionOperand** operand_) {
             break;
         case TYPE_INSTRUCTION_OPERAND_VARIABLE:
             symbol_variable_free_data((SymbolTableBaseItem*) operand->data.variable);
+
             memory_free(operand->data.variable);
             break;
         case TYPE_INSTRUCTION_OPERAND_LABEL:
@@ -281,4 +282,13 @@ size_t code_instruction_rendered_variable_identifier_max_len(SymbolVariable* var
         length += strlen(variable->alias_name);
 
     return length;
+}
+
+char* code_instruction_render_variable_identifier(SymbolVariable* variable)
+{
+    const size_t max_len = code_instruction_rendered_variable_identifier_max_len(variable);
+    char* rendered = memory_alloc(max_len * sizeof(char));
+    code_instruction_operand_render_variable_identifier(variable, rendered, max_len);
+
+    return rendered;
 }

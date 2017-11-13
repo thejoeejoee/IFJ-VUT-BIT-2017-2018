@@ -14,7 +14,6 @@ CodeConstructor* code_constructor_init() {
     constructor->loops_label_stack = stack_code_label_init();
     constructor->loops_depth = 0;
     constructor->loops_initial_instruction = NULL;
-    constructor->first_code_instruction = NULL;
 
     llist_init(&constructor->conversion_instructions, sizeof(TypeConversionInstruction), NULL, NULL, NULL);
     code_constructor_add_conversion_instruction(constructor, I_INT_TO_FLOAT, DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE,
@@ -164,7 +163,7 @@ void code_constructor_static_variable_declaration(CodeConstructor* constructor, 
     code_generator_insert_instruction_before(
             constructor->generator,
             declaration_flag_instruction_init,
-            constructor->first_code_instruction
+            NULL
     );
     // declared flag declaration
     CodeInstruction* declaration_flag_instruction = code_generator_new_instruction(
@@ -177,7 +176,7 @@ void code_constructor_static_variable_declaration(CodeConstructor* constructor, 
     code_generator_insert_instruction_before(
             constructor->generator,
             declaration_flag_instruction,
-            constructor->first_code_instruction
+            NULL
     );
 
     // conditionally skip logic about initial value

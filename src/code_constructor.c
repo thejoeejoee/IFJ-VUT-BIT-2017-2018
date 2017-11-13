@@ -203,7 +203,7 @@ void code_constructor_static_variable_declaration(CodeConstructor* constructor, 
             code_instruction_operand_init_variable(static_variable),
             code_instruction_operand_implicit_value(static_variable->data_type)
     );
-
+    symbol_variable_single_free(&declaration_flag_variable);
 }
 
 void code_constructor_static_variable_declaration_end(
@@ -235,6 +235,7 @@ void code_constructor_static_variable_declaration_end(
     );
 
     code_label_free(&skip_label);
+    symbol_variable_single_free(&declaration_flag_variable);
 }
 
 void code_constructor_input(CodeConstructor* constructor, SymbolVariable* symbol_variable) {

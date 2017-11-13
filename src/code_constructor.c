@@ -182,6 +182,12 @@ void code_constructor_if_after_end_if(CodeConstructor* constructor) {
 void code_constructor_if_else_if_before_expression(CodeConstructor* constructor) {
     NULL_POINTER_CHECK(constructor,);
 
+    char* label = stack_code_label_get_by_index(constructor->conditions_label_stack, 1);
+    GENERATE_CODE(
+            I_JUMP,
+            code_instruction_operand_init_label(label)
+    );
+
     CodeLabel* code_label = stack_code_label_pop(constructor->conditions_label_stack);
     GENERATE_CODE(
             I_LABEL,

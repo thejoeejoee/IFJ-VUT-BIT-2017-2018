@@ -5,8 +5,14 @@
 #include "debug.h"
 #include "memory.h"
 
-struct LListBaseItem;
-typedef struct LListBaseItem LListBaseItem;
+/**
+ * @brief The LListItem structure is single item of linear list which contains single integer
+ * value.
+ */
+typedef struct LListBaseItem {
+    struct LListBaseItem* next;
+    struct LListBaseItem* previous;
+} LListBaseItem;
 
 /**
 * @brief Function to free LListItem data
@@ -37,19 +43,12 @@ typedef struct LList {
 } LList;
 
 /**
- * @brief The LListItem structure is single item of linear list which contains single integer
- * value.
- */
-struct LListBaseItem {
-    struct LListBaseItem* next;
-    struct LListBaseItem* previous;
-};
-
-/**
  * @brief llist_init Allocates memory for list and null head and tail.
  * @param list Address of pointer which will point to llist structure.
  */
 void llist_init(struct LList** list, size_t item_size, llist_init_item_data_callback_f init_function, llist_free_item_data_callback_f free_function, llist_item_compare_function cmp_function);
+
+void llist_init_list(struct LList* list, size_t item_size, llist_init_item_data_callback_f init_function, llist_free_item_data_callback_f free_function, llist_item_compare_function cmp_function);
 
 /**
  * @brief llist_append Appends one item with given value to the end of the list.

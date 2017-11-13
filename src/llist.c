@@ -4,12 +4,18 @@
 
 void llist_init(LList** list, size_t item_size, llist_init_item_data_callback_f init_function, llist_free_item_data_callback_f free_function, llist_item_compare_function cmp_function) {
     *list = (LList*) memory_alloc(sizeof(LList));
-    (*list)->head = NULL;
-    (*list)->tail = NULL;
-    (*list)->init_data_callback = init_function;
-    (*list)->free_data_callback = free_function;
-    (*list)->cmp_function = cmp_function;
-    (*list)->item_size = item_size;
+
+    llist_init_list(*list, item_size, init_function, free_function, cmp_function);
+}
+
+void llist_init_list(LList* list, size_t item_size, llist_init_item_data_callback_f init_function, llist_free_item_data_callback_f free_function, llist_item_compare_function cmp_function)
+{
+    list->head = NULL;
+    list->tail = NULL;
+    list->init_data_callback = init_function;
+    list->free_data_callback = free_function;
+    list->cmp_function = cmp_function;
+    list->item_size = item_size;
 }
 
 LListBaseItem* llist_new_tail_item(LList* list) {
@@ -158,4 +164,3 @@ LListBaseItem* llist_get_n_from_end(LList* list, size_t n)
 
     return item;
 }
-

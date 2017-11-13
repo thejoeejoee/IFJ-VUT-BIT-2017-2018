@@ -12,6 +12,7 @@ CodeInstruction* code_instruction_init(
     instruction->op0 = op0;
     instruction->op1 = op1;
     instruction->op2 = op2;
+    instruction->meta_data.type = CODE_INSTRUCTION_META_TYPE_NONE;
 
     instruction->prev = instruction->next = NULL;
 

@@ -102,6 +102,15 @@ typedef enum type_instruction_t {
     I__LAST
 } TypeInstruction;
 
+typedef enum {
+    CODE_INSTRUCTION_META_TYPE_NONE,
+    CODE_INSTRUCTION_META_TYPE_EXPRESSION_START = 1,
+    CODE_INSTRUCTION_META_TYPE_EXPRESSION_END = 2
+} CodeInstructionMetaType;
+
+typedef struct {
+    CodeInstructionMetaType type;
+} CodeInstructionMetaData;
 
 typedef struct code_instruction_signature_t {
     TypeInstruction type;

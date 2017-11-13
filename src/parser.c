@@ -756,11 +756,13 @@ bool parser_parse_input(Parser* parser) {
                     }
                     }
             );
-            CODE_GENERATION(
-                    {
-                            code_constructor_input(parser->code_constructor, symbol_variable);
-                    }
-            );
+    );
+
+    symbol_variable->meta_data->type |= VARIABLE_META_TYPE_DYNAMIC;
+    CODE_GENERATION(
+            {
+                    code_constructor_input(parser->code_constructor, symbol_variable);
+            }
     );
     return true;
 }
@@ -987,7 +989,9 @@ bool parser_parse_assignment(Parser* parser) {
     );
 
             CHECK_TOKEN(TOKEN_EQUAL);
+            CodeInstruction* before_expression_instruction = parser->code_constructor->generator->last;
             CALL_EXPRESSION_RULE(expression_data_type);
+            before_expression_instruction->next->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_START;
     );
     SEMANTIC_ANALYSIS(
             {
@@ -1008,6 +1012,7 @@ bool parser_parse_assignment(Parser* parser) {
                         parser->code_constructor,
                         actual_variable
                 );
+                parser->code_constructor->generator->last->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_END;
             }
     );
 
@@ -1053,7 +1058,9 @@ bool parser_parse_modify_assignment(Parser* parser) {
             CHECK_TOKEN(TOKEN_AUGMENTED_ASSIGN_OPERATORS);
             operation_type = token_type_mapped_to_operation[token_type - map_diff];
             corresponding_instruction = token_type_mapped_to_instruction[token_type - map_diff];
+            CodeInstruction* before_expression_instruction = parser->code_constructor->generator->last;
             CALL_EXPRESSION_RULE(expression_data_type);
+            before_expression_instruction->next->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_START;
     );
 
     SEMANTIC_ANALYSIS(
@@ -1125,6 +1132,7 @@ bool parser_parse_modify_assignment(Parser* parser) {
                     );
                     GENERATE_CODE(I_POP_STACK, code_instruction_operand_init_variable(actual_variable));
                 }
+            parser->code_constructor->generator->last->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_END;
             }
     );
 

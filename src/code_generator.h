@@ -62,6 +62,11 @@ void code_generator_append_instruction(
         CodeInstruction* instruction
 );
 
+void code_generator_remove_instruction(
+        CodeGenerator* generator,
+        CodeInstruction* instruction
+);
+
 void code_generator_insert_instruction_before(
         CodeGenerator* generator,
         CodeInstruction* to_insert,

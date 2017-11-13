@@ -199,6 +199,23 @@ void code_generator_append_instruction(
     }
 }
 
+void code_generator_remove_instruction(CodeGenerator* generator, CodeInstruction* instruction)
+{
+    NULL_POINTER_CHECK(generator,);
+    NULL_POINTER_CHECK(instruction,);
+
+    if(generator->last == instruction)
+        generator->last = instruction->prev;
+    if(generator->first == instruction)
+        generator->first = instruction->next;
+
+    if(instruction->prev)
+        instruction->prev->next = instruction->next;
+    if(instruction->next)
+        instruction->next->prev = instruction->prev;
+    code_instruction_free(&instruction);
+}
+
 static bool _check_operand(CodeInstructionOperand* op, TypeInstructionOperand type) {
     if(type == 0) {
         return (op == NULL);
@@ -282,6 +299,8 @@ CodeInstruction* code_generator_instruction(
 void code_generator_render(CodeGenerator* generator, FILE* file) {
     NULL_POINTER_CHECK(generator,);
     NULL_POINTER_CHECK(file,);
+
+    // NOTE do optimalization
 
     char* rendered;
     CodeInstruction* instruction = generator->first;

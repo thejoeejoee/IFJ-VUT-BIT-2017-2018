@@ -162,14 +162,8 @@ if ((parser)->run_type & PARSER_RUN_TYPE_SEMANTIC_CODE_GENERATION) { \
 }} while(0)
 
 #define CALL_RULE_STATEMENTS() do { \
-if(parser->cycle_statement) { \
-    CALL_RULE(cycle_statements); \
-} \
-else if(parser->body_statement) { \
-    CALL_RULE(body_statements); \
-} else { \
-    CALL_RULE(function_statements); \
-}} while(0)
+CALL_RULE(statements); \
+} while(0)
 
 #define CHECK_IMPLICIT_CONVERSION(variable_data_type, expr_data_type) do { \
     if((variable_data_type) != (expr_data_type)) {\
@@ -359,5 +353,9 @@ bool parser_parse_continue(Parser* parser);
 bool parser_parse_do_while(Parser* parser);
 
 bool parser_parse_while(Parser* parser);
+
+bool parser_parse_statements(Parser* parser);
+
+bool parser_parse_statement_single(Parser* parser);
 
 #endif //_PARSER_H

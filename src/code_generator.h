@@ -48,29 +48,36 @@ typedef struct code_generator_t {
     CodeInstructionSignature* instruction_signatures;
 } CodeGenerator;
 
+/**
+ * Constructor for generator.
+ * @return new instance of generator
+ */
 CodeGenerator* code_generator_init();
 
+/**
+ * Destructor for generator.
+ * @param generator instance
+ */
 void code_generator_free(CodeGenerator** generator);
 
+
 /**
- * Raw method for adding new, already checked, instructions.
+ * Constructor for CodeInstruction with operand validation.
  * @param generator instance
- * @param type_instruction type of new instruction
- * @param op0 optionally operand
- * @param op1 optionally operand
- * @param op2 optionally operand
- * @internal
+ * @param type_instruction type instruction
+ * @param op0 first operand or NULL
+ * @param op1 second operand or NULL
+ * @param op2 third operand or NULL
+ * @return initialized instruction or NULL in case of fail
  */
-void code_generator_append_instruction(
+CodeInstruction* code_generator_new_instruction(
         CodeGenerator* generator,
-        CodeInstruction* instruction
+        TypeInstruction type_instruction,
+        CodeInstructionOperand* op0,
+        CodeInstructionOperand* op1,
+        CodeInstructionOperand* op2
 );
 
-void code_generator_insert_instruction_before(
-        CodeGenerator* generator,
-        CodeInstruction* to_insert,
-        CodeInstruction* before_what
-);
 
 /**
  * Generic target for all generated methods for
@@ -83,7 +90,7 @@ void code_generator_insert_instruction_before(
  * @param op2 optionally operand
  * @param type2 0 for forbidden operand, else bit mask for check op type
  * @internal
- * @return true for success validation, else false
+ * @return instance or NULL
  */
 CodeInstruction* code_generator_instruction(
         CodeGenerator* generator,
@@ -93,16 +100,47 @@ CodeInstruction* code_generator_instruction(
         CodeInstructionOperand* op2
 );
 
-CodeInstruction* code_generator_new_instruction(
+/**
+ * Raw method for adding new, already checked, instructions. Is controlled by 'to_buffer' flag,
+ * which enable appending to temporary buffer, not to main list.
+ * @param generator instance
+ * @param type_instruction type of new instruction
+ * @param op0 optionally operand
+ * @param op1 optionally operand
+ * @param op2 optionally operand
+ * @internal
+ */
+void code_generator_append_instruction(
         CodeGenerator* generator,
-        TypeInstruction type_instruction,
-        CodeInstructionOperand* op0,
-        CodeInstructionOperand* op1,
-        CodeInstructionOperand* op2
+        CodeInstruction* instruction
 );
 
+
+/**
+ * Inserts instruction before another instruction. if before_what is NULL,
+ * instruction is inserted at start of all instruction.
+ * @param generator instance
+ * @param to_insert instruction to insert
+ * @param before_what before what insert?
+ */
+void code_generator_insert_instruction_before(
+        CodeGenerator* generator,
+        CodeInstruction* to_insert,
+        CodeInstruction* before_what
+);
+
+/**
+ * Flush temporary buffer to end of generated instruction.
+ * @param generator instance
+ */
+void code_generator_flush_buffer(CodeGenerator* generator);
+
+/**
+ * Render all generated instruction into given stream.
+ * @param generator generator instance
+ * @param file file to output
+ */
 void code_generator_render(CodeGenerator* generator, FILE* file);
 
-void code_generator_flush_buffer(CodeGenerator* generator);
 
 #endif //_CODE_GENERATOR_H

@@ -190,6 +190,7 @@ void code_generator_append_instruction(
     NULL_POINTER_CHECK(generator,);
     NULL_POINTER_CHECK(instruction,);
 
+    instruction->next = NULL;
     if(!generator->to_buffer) {
         if(generator->last == NULL) {
             generator->last = generator->first = instruction;

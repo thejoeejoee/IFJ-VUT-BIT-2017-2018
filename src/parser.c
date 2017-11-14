@@ -95,8 +95,6 @@ bool parser_parse_program(Parser* parser) {
                         parser->code_constructor,
                         parser->parser_semantic->temp_variable5
                 );
-
-                code_constructor_start_code(parser->code_constructor);
             }
     );
     // Call rule <body>. If <body> return false => return false

@@ -59,12 +59,6 @@ void code_constructor_free(CodeConstructor** constructor) {
     *constructor = NULL;
 }
 
-void code_constructor_start_code(CodeConstructor* constructor) {
-    NULL_POINTER_CHECK(constructor,);
-
-
-}
-
 void code_constructor_scope_start(CodeConstructor* constructor) {
     NULL_POINTER_CHECK(constructor,);
 
@@ -589,7 +583,6 @@ void code_constructor_fn_length(CodeConstructor* constructor, SymbolVariable* tm
     NULL_POINTER_CHECK(constructor,);
     NULL_POINTER_CHECK(tmp_variable,);
 
-
     GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(stack_param_type, DATA_TYPE_STRING);
     GENERATE_CODE(I_POP_STACK, code_instruction_operand_init_variable(tmp_variable));
     GENERATE_CODE(
@@ -619,7 +612,7 @@ void code_constructor_fn_asc(
 ) {
     NULL_POINTER_CHECK(constructor,);
     NULL_POINTER_CHECK(tmp1,);
-    // NULL_POINTER_CHECK(index,);
+    NULL_POINTER_CHECK(index,);
     NULL_POINTER_CHECK(tmp3,);
 
     char* zero_label = code_constructor_generate_label(constructor, "asc_zero");

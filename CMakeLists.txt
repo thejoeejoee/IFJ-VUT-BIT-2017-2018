@@ -42,7 +42,9 @@ file(
         "src/*.c" "src/*.h"
 )
 add_executable(ifj2017 ${ifj2017_SRC} ${VS_debug_visualizers})
-target_link_libraries(ifj2017 m)
+IF (CMAKE_COMPILER_IS_GNUCC)
+    target_link_libraries(ifj2017 m)
+ENDIF ()
 
 find_package(codecov)
 add_coverage(ifj2017) # to coverage by integration tests

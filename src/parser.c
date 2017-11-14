@@ -65,12 +65,6 @@ bool parser_parse_program(Parser* parser) {
      * RULE
      * <prog> -> <body> <eols> EOF
      */
-
-    SEMANTIC_ANALYSIS(
-            {
-                parser_semantic_add_built_in_functions(parser->parser_semantic);
-            }
-    );
     CODE_GENERATION(
             {
                 parser_semantic_setup_temp_variables(parser->parser_semantic);

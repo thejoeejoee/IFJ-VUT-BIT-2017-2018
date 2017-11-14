@@ -138,8 +138,6 @@ bool parser_semantic_check_count_of_function_arguments(ParserSemantic* parser_se
 
 bool parser_semantic_check_function_definitions(ParserSemantic* parser_semantic);
 
-void parser_semantic_add_built_in_functions(ParserSemantic* parser_semantic);
-
 void parser_semantic_function_start(ParserSemantic* parser_semantic, SymbolFunction* function);
 
 void parser_semantic_function_end(ParserSemantic* parser_semantic);

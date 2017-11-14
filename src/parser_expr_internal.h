@@ -54,7 +54,7 @@ typedef enum {
     EXPR_LEFT_SHARP = 129, EXPR_SHIFT = EXPR_LEFT_SHARP,      // <
     EXPR_RIGHT_SHARP = 130, EXPR_REDUCE = EXPR_RIGHT_SHARP,   // >
     EXPR_SAME = 131,    // =
-    EXPR_TOKENCHANGE = 132, // * so called 'token change', when changing from 'identifier token' and 'left bracket token' to 'function call token'
+    EXPR_TOKEN_CHANGE = 132, // * so called 'token change', when changing from 'identifier token' and 'left bracket token' to 'function call token'
 
     EXPR_UNKNOWN = 133  // unknown token or undefined precedence
 } ExprTokenType;

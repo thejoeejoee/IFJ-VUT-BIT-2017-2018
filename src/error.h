@@ -21,8 +21,16 @@ typedef struct error_report_t {
     // TODO: Other information
 } ErrorReport;
 
+/**
+ * Exit program with given code. It also free all allocated memory blocks.
+ * @param code exit code
+ */
 void exit_with_code(ErrorCode code);
 
+/**
+ * Exit program with given error report - info and error code. It also free all allocated memory blocks.
+ * @param code exit code
+ */
 void exit_with_detail_information(ErrorReport error_report);
 
 #endif //_ERROR_H

@@ -36,7 +36,7 @@ file(
 )
 
 add_executable(ifj2017_benchmark ${ifj2017_SRC_no_main} ${ifj2017_benchmark_SRC} ${VS_debug_visualizers})
-IF (CMAKE_COMPILER_IS_GNUCC)
+IF (NOT MSVC)
     target_link_libraries(ifj2017_benchmark m)
 ENDIF ()
 

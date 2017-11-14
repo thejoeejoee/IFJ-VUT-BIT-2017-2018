@@ -7,6 +7,9 @@ CodeOptimizer* code_optimizer_init(CodeGenerator* generator)
 
     CodeOptimizer* optimizer = memory_alloc(sizeof(CodeOptimizer));
     optimizer->variables_meta_data = symbol_table_init(32, sizeof(VariableMetaData), &init_variable_meta_data, NULL);
+
+    optimizer->functions_meta_data = symbol_table_init(32, sizeof(FunctionMetaData), &init_function_meta_data, NULL);
+
     optimizer->generator = generator;
     optimizer->first_instruction = generator->first;
 
@@ -16,44 +19,58 @@ CodeOptimizer* code_optimizer_init(CodeGenerator* generator)
 void code_optimizer_free(CodeOptimizer** optimizer)
 {
     symbol_table_free((*optimizer)->variables_meta_data);
+    symbol_table_free((*optimizer)->functions_meta_data);
     memory_free(*optimizer);
     *optimizer = NULL;
 }
 
-void code_optimizer_update_variables_meta_data(CodeOptimizer* optimizer)
+void code_optimizer_update_meta_data(CodeOptimizer* optimizer)
 {
     // clear old statistic
     symbol_table_clear_buckets(optimizer->variables_meta_data);
 
     CodeInstruction* instruction = optimizer->first_instruction;
-    const size_t max_operands_count = 3;
+    char* current_function = NULL;
 
     while(instruction != NULL) {
-        const CodeInstructionOperand* operands[] = {
-            instruction->op0, instruction->op1, instruction->op2
-        };
+        if(instruction->meta_data.type == CODE_INSTRUCTION_META_TYPE_FUNCTION_START) {
 
-        for(size_t i = 0; i < max_operands_count; i++) {
-            if(operands[i] == NULL || operands[i]->type != TYPE_INSTRUCTION_OPERAND_VARIABLE)
-                continue;
-            char* var_identifier = code_instruction_render_variable_identifier(operands[i]->data.variable);
-            VariableMetaData* var_meta_data = (VariableMetaData*)symbol_table_function_get_or_create(
-                                                  optimizer->variables_meta_data,
-                                                  var_identifier);
-            memory_free(var_identifier);
-
-            if(instruction->type == I_DEF_VAR ||
-                    (instruction->type == I_MOVE && i == 0)) // it's first operand
-                continue;
-
-            if(instruction->type == I_POP_STACK && instruction->meta_data.type == CODE_INSTRUCTION_META_TYPE_EXPRESSION_END)
-                break;
-
-            var_meta_data->occurences_count++;
-//            operands[i]->data.variable->meta_data->occurrences_count++;
         }
 
+        code_optimizer_update_variable_meta_data(optimizer, instruction);
+        code_optimizer_update_function_meta_data(optimizer, instruction);
+
         instruction = instruction->next;
+    }
+}
+
+void code_optimizer_update_function_meta_data(CodeOptimizer* optimizer, CodeInstruction* instruction)
+{
+    // TODO
+}
+
+void code_optimizer_update_variable_meta_data(CodeOptimizer* optimizer, CodeInstruction* instruction)
+{
+
+    if(instruction->type == I_POP_STACK && instruction->meta_data.type == CODE_INSTRUCTION_META_TYPE_EXPRESSION_END)
+        return;
+    if(instruction->type = I_DEF_VAR)
+        return;
+
+    const size_t max_operands_count = 3;
+    const CodeInstructionOperand* operands[] = {
+        instruction->op0, instruction->op1, instruction->op2
+    };
+
+    for(size_t i = 0; i < max_operands_count; i++) {
+        if(operands[i] == NULL || operands[i]->type != TYPE_INSTRUCTION_OPERAND_VARIABLE)
+            continue;
+        VariableMetaData* var_meta_data = code_optimizer_variable_meta_data(optimizer, operands[i]->data.variable);
+
+        if(instruction->type == I_MOVE && i == 0) // it's first operand
+            continue;
+
+        var_meta_data->occurences_count++;
     }
 }
 
@@ -63,52 +80,32 @@ void init_variable_meta_data(SymbolTableBaseItem* item)
     v->occurences_count = 0;
 }
 
+
+void init_function_meta_data(SymbolTableBaseItem* item)
+{
+    FunctionMetaData* v = (FunctionMetaData*)item;
+    v->call_count = 0;
+    v->type = FUNCTION_META_TYPE_PURE;
+}
+
+
+VariableMetaData* code_optimizer_variable_meta_data(CodeOptimizer* optimizer, SymbolVariable* variable)
+{
+    char* var_identifier = code_instruction_render_variable_identifier(variable);
+    VariableMetaData* var_meta_data = ((VariableMetaData*)symbol_table_get_or_create(optimizer->variables_meta_data, var_identifier));
+    memory_free(var_identifier);
+
+    return var_meta_data;
+}
+
 bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer)
 {
     CodeInstruction* instruction = optimizer->first_instruction;
     const size_t max_operands_count = 3;
     bool remove_something = false;
 
-    // null
-//    while(instruction) {
-//        const CodeInstructionOperand* operands[] = {
-//            instruction->op0, instruction->op1, instruction->op2
-//        };
-
-//        for(size_t i = 0; i < max_operands_count; i++) {
-//            if(operands[i] == NULL ||
-//                    operands[i]->type != TYPE_INSTRUCTION_OPERAND_VARIABLE)
-//                continue;
-//            operands[i]->data.variable->meta_data->occurrences_count = 0;
-//        }
-
-//        instruction = instruction->next;
-//    }
-
-    // analyze
-    code_optimizer_update_variables_meta_data(optimizer);
-//    instruction = optimizer->first_instruction;
-//    while(instruction) {
-//        const CodeInstructionOperand* operands[] = {
-//            instruction->op0, instruction->op1, instruction->op2
-//        };
-
-//        for(size_t i = 0; i < max_operands_count; i++) {
-//            if(operands[i] == NULL ||
-//                    operands[i]->type != TYPE_INSTRUCTION_OPERAND_VARIABLE ||
-//                    instruction->type == I_DEF_VAR ||
-//                    (instruction->type == I_MOVE && i == 0) // it's first operand
-//            )
-//                continue;
-
-//            if(instruction->type == I_POP_STACK && instruction->meta_data.type == CODE_INSTRUCTION_META_TYPE_EXPRESSION_END)
-//                continue;
-
-//            operands[i]->data.variable->meta_data->occurrences_count++;
-//        }
-
-//        instruction = instruction->next;
-//    }
+    // null and analyze
+    code_optimizer_update_meta_data(optimizer);
 
     // optimize
     instruction = optimizer->first_instruction;
@@ -126,9 +123,7 @@ bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer)
                 continue;
 
             SymbolVariable* variable = operands[i]->data.variable;
-            char* var_identifier = code_instruction_render_variable_identifier(variable);
-            const size_t variable_occurrences_count = ((VariableMetaData*)symbol_table_get(optimizer->variables_meta_data, var_identifier))->occurences_count;
-            memory_free(var_identifier);
+            const size_t variable_occurrences_count = code_optimizer_variable_meta_data(optimizer, variable)->occurences_count;
 
             if(variable_occurrences_count == 0 && variable->frame != VARIABLE_FRAME_TEMP) {
                 if(instruction->type == I_POP_STACK && instruction->meta_data.type == CODE_INSTRUCTION_META_TYPE_EXPRESSION_END)

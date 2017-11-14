@@ -154,7 +154,7 @@ CodeGenerator* code_generator_init() {
     CodeGenerator* generator = memory_alloc(sizeof(CodeGenerator));
 
     generator->to_buffer = false;
-    generator->first = generator->last = NULL;
+    generator->first = generator->last = generator->buffer_last = generator->buffer_first = NULL;
 
     generator->instruction_signatures = memory_alloc(sizeof(CodeInstructionSignature) * I__LAST);
 

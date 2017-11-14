@@ -107,13 +107,19 @@ bool parser_parse_program(Parser* parser) {
             CHECK_TOKEN(TOKEN_EOF);
     );
 
+    CODE_GENERATION(
+            {
+                code_constructor_end_code(parser->code_constructor);
+            }
+    );
+
     return true;
 }
 
 bool parser_parse_body(Parser* parser) {
     /*
      * RULE
-     * <body> -> <definitions> <scope>
+     * <body> -> <definitions> <scope> <shared_variables_declarations>
      */
     RULES(
             CHECK_RULE(definitions);
@@ -128,6 +134,7 @@ bool parser_parse_body(Parser* parser) {
 
             parser->body_statement = true;
             CHECK_RULE(scope);
+            CHECK_RULE(shared_variables_declarations);
     );
     return true;
 }
@@ -171,7 +178,8 @@ bool parser_parse_definitions(Parser* parser) {
             CHECK_RULE(eols);
             CONDITIONAL_RULES(
                     lexer_rewind_token(parser->lexer, token);
-            CHECK_RULE(token_type != TOKEN_DECLARE && token_type != TOKEN_FUNCTION, epsilon, NO_CODE);
+            CHECK_RULE(token_type != TOKEN_DECLARE && token_type != TOKEN_FUNCTION && token_type != TOKEN_DIM, epsilon,
+                       NO_CODE);
             CHECK_RULE(definition);
             CHECK_RULE(definitions);
     );
@@ -185,6 +193,7 @@ bool parser_parse_definition(Parser* parser) {
      * RULES
      * <definition> -> <function_declaration>
      * <definition> -> <function_definition>
+     * <definition> -> <shared_variable_declaration>
      */
 
     RULES(
@@ -192,6 +201,7 @@ bool parser_parse_definition(Parser* parser) {
                     lexer_rewind_token(parser->lexer, token);
             CHECK_RULE(token_type == TOKEN_DECLARE, function_declaration, NO_CODE);
             CHECK_RULE(token_type == TOKEN_FUNCTION, function_definition, NO_CODE);
+            CHECK_RULE(token_type == TOKEN_DIM, shared_variable_declaration, NO_CODE);
             CHECK_RULE(epsilon);
     );
     );
@@ -258,8 +268,8 @@ bool parser_parse_function_definition(Parser* parser) {
 bool parser_parse_function_statements(Parser* parser) {
     /*
      * RULES
-     * <statements> -> E
-     * <statements> -> <statement_single> EOL <eols> <statements>
+     * <function_statements> -> E
+     * <function_statements> -> <function_statement_single> EOL <eols> <function_statements>
      */
     RULES(
             CONDITIONAL_RULES(
@@ -269,7 +279,7 @@ bool parser_parse_function_statements(Parser* parser) {
             CHECK_RULE(
                     token_type != TOKEN_INPUT && token_type != TOKEN_RETURN && token_type != TOKEN_IF &&
                     token_type != TOKEN_DIM && token_type != TOKEN_PRINT && token_type != TOKEN_DO &&
-                    token_type != TOKEN_IDENTIFIER,
+                    token_type != TOKEN_IDENTIFIER && token_type != TOKEN_STATIC,
                     epsilon,
                     NO_CODE
             );
@@ -286,8 +296,8 @@ bool parser_parse_function_statements(Parser* parser) {
 bool parser_parse_body_statements(Parser* parser) {
     /*
      * RULES
-     * <statements> -> E
-     * <statements> -> <statement_single> EOL <eols> <statements>
+     * <body_statements> -> E
+     * <body_statements> -> <body_statement_single> EOL <eols> <body_statements>
      */
 
     RULES(
@@ -319,21 +329,26 @@ bool parser_parse_body_statements(Parser* parser) {
 bool parser_parse_function_statement_single(Parser* parser) {
     /*
      * RULE
-     * <statement_single> -> INPUT <id>
-     * <statement_single> -> RETURN <expr>
-     * <statement_single> -> <variable_declaration>
-     * <statement_single> -> <statement_print>
+     * <function_statement_single> -> <identifier_assignment>
+     * <function_statement_single> -> <input>
+     * <function_statement_single> -> <return>
+     * <function_statement_single> -> <print>
+     * <function_statement_single> -> <condition>
+     * <function_statement_single> -> <while_>
+     * <function_statement_single> -> <variable_declaration>
+     * <function_statement_single> -> <static_variable_declaration>
      */
     RULES(
             CONDITIONAL_RULES(
                     CHECK_RULE(token_type == TOKEN_IDENTIFIER, identifier_assignment, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_INPUT, input, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_RETURN, return_, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_PRINT, print, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_IF, condition, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_DO, while_, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_DIM, variable_declaration, REWIND_AND_SUCCESS);
-    );
+                    CHECK_RULE(token_type == TOKEN_INPUT, input, REWIND_AND_SUCCESS);
+                    CHECK_RULE(token_type == TOKEN_RETURN, return_, REWIND_AND_SUCCESS);
+                    CHECK_RULE(token_type == TOKEN_PRINT, print, REWIND_AND_SUCCESS);
+                    CHECK_RULE(token_type == TOKEN_IF, condition, REWIND_AND_SUCCESS);
+                    CHECK_RULE(token_type == TOKEN_DO, while_, REWIND_AND_SUCCESS);
+                    CHECK_RULE(token_type == TOKEN_DIM, variable_declaration, REWIND_AND_SUCCESS);
+                    CHECK_RULE(token_type == TOKEN_STATIC, static_variable_declaration, REWIND_AND_SUCCESS);
+            );
     );
     return false;
 }
@@ -341,19 +356,25 @@ bool parser_parse_function_statement_single(Parser* parser) {
 bool parser_parse_body_statement_single(Parser* parser) {
     /*
      * RULE
-     * <statement_single> -> INPUT <id>
+     * <body_statement_single> -> <input>
+     * <body_statement_single> -> <identifier_assignment>
+     * <body_statement_single> -> <while_>
+     * <body_statement_single> -> <print>
+     * <body_statement_single> -> <scope>
+     * <body_statement_single> -> <condition>
+     * <body_statement_single> -> <variable_declaration>
      */
 
     RULES(
             CONDITIONAL_RULES(
                     CHECK_RULE(token_type == TOKEN_INPUT, input, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_IDENTIFIER, identifier_assignment, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_DO, while_, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_PRINT, print, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_SCOPE, scope, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_IF, condition, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_DIM, variable_declaration, REWIND_AND_SUCCESS);
-    );
+                    CHECK_RULE(token_type == TOKEN_IDENTIFIER, identifier_assignment, REWIND_AND_SUCCESS);
+                    CHECK_RULE(token_type == TOKEN_DO, while_, REWIND_AND_SUCCESS);
+                    CHECK_RULE(token_type == TOKEN_PRINT, print, REWIND_AND_SUCCESS);
+                    CHECK_RULE(token_type == TOKEN_SCOPE, scope, REWIND_AND_SUCCESS);
+                    CHECK_RULE(token_type == TOKEN_IF, condition, REWIND_AND_SUCCESS);
+                    CHECK_RULE(token_type == TOKEN_DIM, variable_declaration, REWIND_AND_SUCCESS);
+            );
     );
 
     return false;
@@ -385,7 +406,7 @@ bool parser_parse_function_declaration(Parser* parser) {
 bool parser_parse_function_header(Parser* parser) {
     /*
      * RULE
-     * FUNCTION IDENTIFIER (<function_params>) AS <type>
+     * <function_header> -> FUNCTION IDENTIFIER (<function_params>) AS <type>
      */
     RULES(
             CHECK_TOKEN(TOKEN_FUNCTION);
@@ -429,8 +450,8 @@ bool parser_parse_function_header(Parser* parser) {
 bool parser_parse_function_params(Parser* parser) {
     /*
      * RULE
-     * E
-     * <function_param> <function_n_param>
+     * <function_params> -> E
+     * <function_params> -> <function_param> <function_n_param>
      */
     RULES(
             CONDITIONAL_RULES(
@@ -455,8 +476,8 @@ bool parser_parse_function_params(Parser* parser) {
 bool parser_parse_function_n_param(Parser* parser) {
     /*
      * RULE
-     * E
-     * <function_param> <function_n_param>
+     * <function_n_param> -> E
+     * <function_n_param> -> <function_param> <function_n_param>
      */
     RULES(
             CONDITIONAL_RULES(
@@ -532,9 +553,9 @@ bool parser_parse_epsilon(Parser* parser) {
 }
 
 bool parser_parse_variable_declaration(Parser* parser) {
-    /**
-     * RULES
-     * <variable_declaration> -> DIM IDENTIFIER AS <type>
+    /*
+     * RULE
+     * <variable_declaration> -> DIM IDENTIFIER AS <type> <declaration_assignment>
      */
 
     char* name = NULL;
@@ -554,7 +575,7 @@ bool parser_parse_variable_declaration(Parser* parser) {
             SEMANTIC_ANALYSIS(
                     {
                             // TODO: resolve token_type -> data_type conversion for boolean
-                            parser->parser_semantic->actual_variable = parser_semantic_add_symbol_variable(
+                            parser->parser_semantic->actual_variable = parser_semantic_add_variable(
                                     parser->parser_semantic,
                                     name,
                                     (DataType) token_type
@@ -581,10 +602,139 @@ bool parser_parse_variable_declaration(Parser* parser) {
     return true;
 }
 
+bool parser_parse_shared_variables_declarations(Parser* parser) {
+    /*
+     * RULE
+     * <shared_variables_declarations> -> E
+     * <shared_variables_declarations> -> <shared_variable_declaration>
+     */
+
+    RULES(
+            CHECK_RULE(eols);
+            CONDITIONAL_RULES(
+                    lexer_rewind_token(parser->lexer, token);
+                    CHECK_RULE(token_type != TOKEN_DIM, epsilon, NO_CODE);
+                    CHECK_RULE(shared_variable_declaration);
+                    CHECK_RULE(shared_variables_declarations);
+            );
+    );
+
+    return true;
+}
+
+bool parser_parse_shared_variable_declaration(Parser* parser) {
+    /*
+     * RULE
+     * <shared_variable_declaration> -> DIM SHARED IDENTIFIER AS <type>
+     */
+
+    char* name = NULL;
+    RULES(
+            CHECK_TOKEN(TOKEN_DIM);
+            CHECK_TOKEN(TOKEN_SHARED);
+            CHECK_TOKEN(
+                    TOKEN_IDENTIFIER,
+                    BEFORE(
+                            {
+                                    name = c_string_copy(token.data);
+                                    memory_free_lazy(name);
+                            }
+                    )
+            );
+            CHECK_TOKEN(TOKEN_AS);
+            CHECK_TOKEN(TOKEN_DATA_TYPE_CLASS);
+            SEMANTIC_ANALYSIS(
+                    {
+                            parser->parser_semantic->actual_variable = parser_semantic_add_variable(
+                                    parser->parser_semantic,
+                                    name,
+                                    (DataType) token_type
+                            );
+
+                            if(parser->parser_semantic->actual_variable == NULL) {
+                        token_free(&token);
+                        return false;
+                    }
+                    }
+            );
+            CODE_GENERATION(
+                    {
+
+                            parser->parser_semantic->actual_variable->frame = VARIABLE_FRAME_GLOBAL;
+                            code_constructor_shared_variable_declaration(
+                            parser->code_constructor,
+                            parser->parser_semantic->actual_variable
+                    );
+                    }
+            );
+            CALL_RULE(declaration_assignment);
+    );
+    return true;
+}
+
+bool parser_parse_static_variable_declaration(Parser* parser) {
+    /*
+     * RULE
+     * <static_variable_declaration> -> STATIC IDENTIFIER AS <type> <declaration_assignment>
+     */
+
+    char* name = NULL;
+    RULES(
+            CHECK_TOKEN(TOKEN_STATIC);
+            CHECK_TOKEN(
+                    TOKEN_IDENTIFIER,
+                    BEFORE(
+                            {
+                                    name = c_string_copy(token.data);
+                                    memory_free_lazy(name);
+                            }
+                    )
+            );
+            CHECK_TOKEN(TOKEN_AS);
+            CHECK_TOKEN(TOKEN_DATA_TYPE_CLASS);
+            SEMANTIC_ANALYSIS(
+                    {
+                            parser->parser_semantic->actual_variable = parser_semantic_add_variable(
+                                    parser->parser_semantic,
+                                    name,
+                                    (DataType) token_type
+                            );
+
+                            if(parser->parser_semantic->actual_variable == NULL) {
+                        token_free(&token);
+                        return false;
+                    }
+                    }
+            );
+            CODE_GENERATION(
+                    {
+
+                            parser->parser_semantic->actual_variable->frame = VARIABLE_FRAME_LOCAL;
+                            code_constructor_static_variable_declaration(
+                            parser->code_constructor,
+                            parser->parser_semantic->actual_variable,
+                            parser->parser_semantic->actual_function
+                    );
+                    }
+            );
+            CALL_RULE(declaration_assignment);
+            CODE_GENERATION(
+                    {
+                            code_constructor_static_variable_declaration_end(
+                                    parser->code_constructor,
+                                    parser->parser_semantic->actual_variable,
+                                    parser->parser_semantic->actual_function
+                            );
+                    }
+            );
+    );
+    return true;
+}
+
 bool parser_parse_return_(Parser* parser) {
     /*
      * RULE
-     * <statement> -> return <expr>
+     * <statement> -> RETURN <expr>
      */
     DataType expression_data_type;
     CodeConstructor* constructor;
@@ -612,7 +762,7 @@ bool parser_parse_return_(Parser* parser) {
 bool parser_parse_print(Parser* parser) {
     /*
      * RULE
-     * <statement_print> -> PRINT <print_expression> <print_expressions>
+     * <print> -> PRINT <print_expression> <print_expressions>
      */
     RULES(
             CHECK_TOKEN(TOKEN_PRINT);
@@ -623,7 +773,11 @@ bool parser_parse_print(Parser* parser) {
 }
 
 bool parser_parse_print_expressions(Parser* parser) {
-
+    /*
+     * RULE
+     * <print_expressions> -> E
+     * <print_expressions> -> <print_expression> <print_expressions>
+     */
     RULES(
             CONDITIONAL_RULES(
                     CHECK_RULE(
@@ -685,7 +839,7 @@ bool parser_parse_print_expression(Parser* parser) {
 bool parser_parse_while_(Parser* parser) {
     /*
      * RULE
-     * <do_while> -> DO WHILE <expression> EOL <eols> <statements> LOOP
+     * <while_> -> DO WHILE <expression> EOL <eols> <statements> LOOP
      */
     DataType expression_data_type;
 
@@ -736,7 +890,7 @@ bool parser_parse_while_(Parser* parser) {
 bool parser_parse_input(Parser* parser) {
     /*
      * RULE
-     * <statement> -> input identifier
+     * <input> -> INPUT IDENTIFIER
      */
     SymbolVariable* symbol_variable = NULL;
 
@@ -766,8 +920,10 @@ bool parser_parse_input(Parser* parser) {
 }
 
 bool parser_parse_condition(Parser* parser) {
-
-
+    /*
+     * RULE
+     * <condition> -> IF <expr> THEN EOL <eols> <statements> <condition_elseif> <condition_else> END IF
+     */
     DataType expression_data_type;
 
     RULES(
@@ -816,6 +972,12 @@ bool parser_parse_condition(Parser* parser) {
 }
 
 bool parser_parse_condition_elseif(Parser* parser) {
+    /*
+     * RULE
+     * <condition_elseif> -> E
+     * <condition_elseif> -> ELSEIF <expr> THEN EOL <statements> <condition_elseif>
+     */
+
     DataType expression_data_type;
 
     RULES(
@@ -858,6 +1020,7 @@ bool parser_parse_condition_elseif(Parser* parser) {
             );
             CHECK_TOKEN(TOKEN_THEN);
             CHECK_TOKEN(TOKEN_EOL);
+            CALL_RULE(eols);
             CALL_RULE_STATEMENTS();
             SEMANTIC_ANALYSIS(
                     {
@@ -873,6 +1036,11 @@ bool parser_parse_condition_elseif(Parser* parser) {
 
 
 bool parser_parse_condition_else(Parser* parser) {
+    /*
+     * RULE
+     * <condition_else> -> E
+     * <condition_else> -> ELSE EOL <eols> <statements>
+     */
     RULES(
             CONDITIONAL_RULES(
                     CHECK_RULE(
@@ -891,7 +1059,7 @@ bool parser_parse_condition_else(Parser* parser) {
                             )
                     );
             CHECK_TOKEN(TOKEN_EOL);
-            CALL_RULE(eols)
+            CALL_RULE(eols);
             CODE_GENERATION(
                     {
                             code_constructor_if_else_block(parser->code_constructor);
@@ -916,18 +1084,17 @@ bool parser_parse_condition_else(Parser* parser) {
 bool parser_parse_declaration_assignment(Parser* parser) {
     /*
      * RULE
-     * <condition_assignment> -> E
-     * <condition_assignment> -> <assignment>
+     * <declaration_assignment> -> E
+     * <declaration_assignment> -> <assignment>
      */
 
     RULES(
 
             CONDITIONAL_RULES(
                     lexer_rewind_token(parser->lexer, token);
-            CHECK_RULE(token_type == TOKEN_EQUAL, assignment, NO_CODE);
+                    CHECK_RULE(token_type == TOKEN_EQUAL, assignment, NO_CODE);
+            );
     );
-    );
-
     return true;
 }
 
@@ -967,7 +1134,6 @@ bool parser_parse_assignment(Parser* parser) {
     DataType expression_data_type;
     SymbolVariable* actual_variable = parser->parser_semantic->actual_variable;
     RULES(
-
             CONDITIONAL_RULES(
                     lexer_rewind_token(parser->lexer, token);
 
@@ -1011,7 +1177,6 @@ bool parser_parse_assignment(Parser* parser) {
             }
     );
 
-    parser->parser_semantic->actual_variable = NULL;
     return true;
 }
 

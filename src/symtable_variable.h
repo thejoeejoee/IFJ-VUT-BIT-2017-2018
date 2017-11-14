@@ -80,5 +80,10 @@ void symbol_variable_single_free(SymbolVariable** variable);
     sizeof(SymbolVariable) \
 )
 
+SymbolVariable* symbol_variable_init_flag_for_static_variable(
+        SymbolVariable* static_variable,
+        SymbolFunction* function
+);
+
 #endif // SYMTABLE_VARIABLE_H
 

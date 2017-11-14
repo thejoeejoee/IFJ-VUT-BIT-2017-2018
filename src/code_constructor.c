@@ -16,17 +16,32 @@ CodeConstructor* code_constructor_init() {
     constructor->loops_initial_instruction = NULL;
 
     llist_init(&constructor->conversion_instructions, sizeof(TypeConversionInstruction), NULL, NULL, NULL);
-    code_constructor_add_conversion_instruction(constructor, I_INT_TO_FLOAT, DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE,
-                                                false);
-    code_constructor_add_conversion_instruction(constructor, I_INT_TO_FLOAT_STACK, DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE,
-                                                true);
-    code_constructor_add_conversion_instruction(constructor, I_FLOAT_ROUND_TO_EVEN_INT, DATA_TYPE_DOUBLE,
-                                                DATA_TYPE_INTEGER,
-                                                false);
-    code_constructor_add_conversion_instruction(constructor, I_FLOAT_ROUND_TO_EVEN_INT_STACK, DATA_TYPE_DOUBLE,
-                                                DATA_TYPE_INTEGER,
-                                                true);
-    // TODO add more data type conversions
+    code_constructor_add_conversion_instruction(
+            constructor,
+            I_INT_TO_FLOAT,
+            DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE,
+            false
+    );
+    code_constructor_add_conversion_instruction(
+            constructor,
+            I_INT_TO_FLOAT_STACK,
+            DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE,
+            true
+    );
+    code_constructor_add_conversion_instruction(
+            constructor,
+            I_FLOAT_ROUND_TO_EVEN_INT,
+            DATA_TYPE_DOUBLE,
+            DATA_TYPE_INTEGER,
+            false
+    );
+    code_constructor_add_conversion_instruction(
+            constructor,
+            I_FLOAT_ROUND_TO_EVEN_INT_STACK,
+            DATA_TYPE_DOUBLE,
+            DATA_TYPE_INTEGER,
+            true
+    );
 
     return constructor;
 }
@@ -47,9 +62,7 @@ void code_constructor_free(CodeConstructor** constructor) {
 void code_constructor_start_code(CodeConstructor* constructor) {
     NULL_POINTER_CHECK(constructor,);
 
-    char* label = code_constructor_generate_label(constructor, "main_scope");
-    stack_code_label_push(constructor->code_label_stack, label);
-    GENERATE_CODE(I_JUMP, code_instruction_operand_init_label(stack_code_label_head(constructor->code_label_stack)));
+
 }
 
 void code_constructor_scope_start(CodeConstructor* constructor) {
@@ -57,12 +70,9 @@ void code_constructor_scope_start(CodeConstructor* constructor) {
 
     if(constructor->scope_depth == 0) {
         // main program scope, generate label for jump from start of this file
-        CodeLabel* scope_label = stack_code_label_pop(constructor->code_label_stack);
-        ASSERT(scope_label != NULL);
-        GENERATE_CODE(I_LABEL, code_instruction_operand_init_label(scope_label->label));
+
         GENERATE_CODE(I_CREATE_FRAME);
         GENERATE_CODE(I_PUSH_FRAME);
-        code_label_free(&scope_label);
     }
 
     constructor->scope_depth++;
@@ -103,6 +113,129 @@ void code_constructor_variable_declaration(CodeConstructor* constructor, SymbolV
                 code_instruction_operand_init_variable(symbol_variable),
                 operand
         );
+}
+
+
+void code_constructor_shared_variable_declaration(CodeConstructor* constructor, SymbolVariable* symbol_variable) {
+    NULL_POINTER_CHECK(constructor,);
+    NULL_POINTER_CHECK(symbol_variable,);
+
+    GENERATE_CODE(
+            I_DEF_VAR,
+            code_instruction_operand_init_variable(symbol_variable)
+    );
+
+    CodeInstructionOperand* operand = code_instruction_operand_implicit_value(symbol_variable->data_type);
+    // variables not defined by user have not implicit value
+    if(operand != NULL)
+        GENERATE_CODE(
+                I_MOVE,
+                code_instruction_operand_init_variable(symbol_variable),
+                operand
+        );
+}
+
+void code_constructor_static_variable_declaration(CodeConstructor* constructor, SymbolVariable* static_variable,
+                                                  SymbolFunction* function) {
+    NULL_POINTER_CHECK(constructor,);
+    NULL_POINTER_CHECK(static_variable,);
+    NULL_POINTER_CHECK(function,);
+    // TODO: what about static in cycle?
+
+    String* skip_label_string = string_init();
+    string_append_s(skip_label_string, "DECLARED__");
+    string_append_s(skip_label_string, function->base.key);
+    string_append_s(skip_label_string, "_");
+    string_append_s(skip_label_string, static_variable->base.key);
+
+    char* skip_label = code_constructor_generate_label(constructor, string_content(skip_label_string));
+    stack_code_label_push(constructor->code_label_stack, skip_label);
+    string_free(&skip_label_string);
+
+    SymbolVariable* declaration_flag_variable = symbol_variable_init_flag_for_static_variable(
+            static_variable,
+            function
+    );
+
+    static_variable->frame = VARIABLE_FRAME_GLOBAL; // TODO: here?
+
+    // initialize to false (inverted order to respect stack-behaviour of inserting)
+    CodeInstruction* declaration_flag_instruction_init = code_generator_new_instruction(
+            constructor->generator,
+            I_MOVE,
+            code_instruction_operand_init_variable(declaration_flag_variable),
+            code_instruction_operand_init_boolean(false),
+            NULL
+    );
+    code_generator_insert_instruction_before(
+            constructor->generator,
+            declaration_flag_instruction_init,
+            NULL
+    );
+    // declared flag declaration
+    CodeInstruction* declaration_flag_instruction = code_generator_new_instruction(
+            constructor->generator,
+            I_DEF_VAR,
+            code_instruction_operand_init_variable(declaration_flag_variable),
+            NULL,
+            NULL
+    );
+    code_generator_insert_instruction_before(
+            constructor->generator,
+            declaration_flag_instruction,
+            NULL
+    );
+
+    // conditionally skip logic about initial value
+    GENERATE_CODE(
+            I_JUMP_IF_EQUAL,
+            code_instruction_operand_init_label(stack_code_label_head(constructor->code_label_stack)),
+            code_instruction_operand_init_boolean(true),
+            code_instruction_operand_init_variable(declaration_flag_variable)
+    );
+    // declare and set implicit value
+    GENERATE_CODE(
+            I_DEF_VAR,
+            code_instruction_operand_init_variable(static_variable)
+    );
+    GENERATE_CODE(
+            I_MOVE,
+            code_instruction_operand_init_variable(static_variable),
+            code_instruction_operand_implicit_value(static_variable->data_type)
+    );
+    symbol_variable_single_free(&declaration_flag_variable);
+}
+
+void code_constructor_static_variable_declaration_end(
+        CodeConstructor* constructor,
+        SymbolVariable* static_variable,
+        SymbolFunction* function
+) {
+    NULL_POINTER_CHECK(constructor,);
+    NULL_POINTER_CHECK(static_variable,);
+    NULL_POINTER_CHECK(function,);
+
+    CodeLabel* skip_label = stack_code_label_pop(constructor->code_label_stack);
+
+    SymbolVariable* declaration_flag_variable = symbol_variable_init_flag_for_static_variable(
+            static_variable,
+            function
+    );
+
+    // set flag to initialized
+    GENERATE_CODE(
+            I_MOVE,
+            code_instruction_operand_init_variable(declaration_flag_variable),
+            code_instruction_operand_init_boolean(true)
+    );
+    // target label to skip declaration
+    GENERATE_CODE(
+            I_LABEL,
+            code_instruction_operand_init_label(skip_label->label)
+    );
+
+    code_label_free(&skip_label);
+    symbol_variable_single_free(&declaration_flag_variable);
 }
 
 void code_constructor_input(CodeConstructor* constructor, SymbolVariable* symbol_variable) {
@@ -239,7 +372,7 @@ char* code_constructor_generate_label(CodeConstructor* constructor, const char* 
     NULL_POINTER_CHECK(constructor, NULL);
     NULL_POINTER_CHECK(type, NULL);
 
-    const char* format = "%%_LABEL_%03zd_%s_DEPTH_%03zd";
+    const char* format = "%%LABEL_%zd_DEPTH_%zd_$%s";
     size_t len = strlen(type) + 2 * strlen(format);
     char* label = memory_alloc(len * sizeof(char));
     snprintf(
@@ -247,8 +380,8 @@ char* code_constructor_generate_label(CodeConstructor* constructor, const char* 
             len,
             format,
             constructor->_label_counter++,
-            type,
-            constructor->control_statement_depth
+            constructor->control_statement_depth,
+            type
     );
 
     return label;
@@ -346,6 +479,8 @@ void code_constructor_function_header(CodeConstructor* constructor, SymbolFuncti
     NULL_POINTER_CHECK(constructor,);
     NULL_POINTER_CHECK(function,);
 
+    constructor->generator->to_buffer = true;
+
     String* label = symbol_function_generate_function_label(function);
     GENERATE_CODE(
             I_LABEL,
@@ -363,6 +498,8 @@ void code_constructor_function_end(CodeConstructor* constructor, SymbolFunction*
             code_instruction_operand_implicit_value(function->return_data_type)
     );
     GENERATE_CODE(I_RETURN);
+
+    constructor->generator->to_buffer = false;
 }
 
 void code_constructor_return(CodeConstructor* constructor) {
@@ -769,5 +906,19 @@ void code_constructor_fn_substr(CodeConstructor* constructor, SymbolVariable* tm
     memory_free(loop_label);
     memory_free(end_label);
     memory_free(empty_label);
+}
 
+void code_constructor_end_code(CodeConstructor* constructor) {
+    NULL_POINTER_CHECK(constructor,);
+
+    char* label = code_constructor_generate_label(constructor, "main_scope");
+    GENERATE_CODE(
+            I_JUMP,
+            code_instruction_operand_init_label(label)
+    );
+
+    code_generator_flush_buffer(constructor->generator);
+
+    GENERATE_CODE(I_LABEL, code_instruction_operand_init_label(label));
+    memory_free(label);
 }

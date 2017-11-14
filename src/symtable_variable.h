@@ -102,5 +102,10 @@ void symbol_variable_meta_data_item_free(LListBaseItem* item);
 void symbol_variable_meta_data_add_reference(SymbolVariableMetaData* item);
 void symbol_variable_meta_data_remove_reference(SymbolVariableMetaData* item);
 
+SymbolVariable* symbol_variable_init_flag_for_static_variable(
+        SymbolVariable* static_variable,
+        SymbolFunction* function
+);
+
 #endif // SYMTABLE_VARIABLE_H
 

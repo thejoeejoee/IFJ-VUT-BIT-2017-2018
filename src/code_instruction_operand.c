@@ -222,54 +222,54 @@ CodeInstructionOperand* code_instruction_operand_implicit_value(DataType data_ty
             return NULL;
     }
 }
-void code_instruction_operand_render_variable_identifier(SymbolVariable* variable, char* rendered, size_t identifier_max_len)
+void code_instruction_operand_render_variable_identifier(SymbolVariable* variable, char* rendered, size_t length)
 {
     const char* frame = NULL;
-    switch(variable->frame) {
+    switch(operand->data.variable->frame) {
         case VARIABLE_FRAME_LOCAL:
             frame = "LF";
             break;
         case VARIABLE_FRAME_GLOBAL:
             frame = "GF";
-            if(variable->scope_depth > 0) {
+            if(operand->data.variable->scope_depth > 0 && operand->data.variable->scope_alias == NULL) {
                 LOG_WARNING(
-                        "Variable %s on global frame has non-zero scope depth: %zd.",
-                        variable->base.key,
-                        variable->scope_depth
+                        "Variable %s without scope alias on global frame has non-zero scope depth: %zd.",
+                        operand->data.variable->base.key,
+                        operand->data.variable->scope_depth
                 );
             }
             break;
         case VARIABLE_FRAME_TEMP:
             frame = "TF";
-            if(variable->scope_depth == 0) {
+            if(operand->data.variable->scope_depth != 0) {
                 LOG_WARNING(
-                        "Variable %s on temp frame (function parameter) has zero scope depth - invalid variable init.",
-                        variable->base.key
+                        "Variable %s on temp frame (function parameter) has non zero scope depth - invalid variable init.",
+                        operand->data.variable->base.key
                 );
             }
             break;
         default:
-            LOG_WARNING("Unknown variable frame %d.", variable->frame);
+            LOG_WARNING("Unknown variable frame %d.", operand->data.variable->frame);
     }
-    if(variable->scope_alias == NULL)
+    if(operand->data.variable->scope_alias == NULL)
         snprintf(
                 rendered,
-                identifier_max_len,
+                length,
                 "%s@%%%05zd_%s",
                 frame,
-                variable->scope_depth,
-                variable->alias_name == NULL ?
-                variable->base.key : variable->alias_name
+                operand->data.variable->scope_depth,
+                operand->data.variable->alias_name == NULL ?
+                operand->data.variable->base.key : operand->data.variable->alias_name
         );
     else
         snprintf(
                 rendered,
-                identifier_max_len,
+                length,
                 "%s@%%%s_%s",
                 frame,
-                variable->scope_alias,
-                variable->alias_name == NULL ?
-                variable->base.key : variable->alias_name
+                operand->data.variable->scope_alias,
+                operand->data.variable->alias_name == NULL ?
+                operand->data.variable->base.key : operand->data.variable->alias_name
         );
 }
 

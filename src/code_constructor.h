@@ -66,7 +66,13 @@ CodeConstructor* code_constructor_init();
 
 void code_constructor_free(CodeConstructor** constructor);
 
-void code_constructor_add_conversion_instruction(CodeConstructor* constructor, TypeInstruction instruction, DataType current_type, DataType target_type, bool is_stack_instruction);
+void code_constructor_add_conversion_instruction(
+        CodeConstructor* constructor,
+        TypeInstruction instruction,
+        DataType current_type,
+        DataType target_type,
+        bool is_stack_instruction
+);
 
 char* code_constructor_generate_label(CodeConstructor* constructor, const char* type);
 
@@ -75,6 +81,8 @@ char* code_constructor_generate_label(CodeConstructor* constructor, const char* 
  * @param constructor
  */
 void code_constructor_start_code(CodeConstructor* constructor);
+
+void code_constructor_end_code(CodeConstructor* constructor);
 
 /**
  * For root scope generates jump target into main program, always increment scope counter.
@@ -94,6 +102,26 @@ void code_constructor_scope_end(CodeConstructor* constructor);
  * @param symbol_variable
  */
 void code_constructor_variable_declaration(CodeConstructor* constructor, SymbolVariable* symbol_variable);
+
+/**
+ * Define variable in corresponding frame with correct data type.
+ * @param constructor
+ * @param frame
+ * @param symbol_variable
+ */
+void code_constructor_shared_variable_declaration(CodeConstructor* constructor, SymbolVariable* symbol_variable);
+
+/**
+ * Define shared variable in corresponding frame with correct data type.
+ * @param constructor
+ * @param frame
+ * @param symbol_variable
+ */
+void code_constructor_static_variable_declaration(CodeConstructor* constructor, SymbolVariable* symbol_variable,
+                                                  SymbolFunction* function);
+
+void code_constructor_static_variable_declaration_end(CodeConstructor* constructor, SymbolVariable* symbol_variable,
+                                                      SymbolFunction* function);
 
 /**
  * Read from stdin into given variable.
@@ -172,7 +200,9 @@ void code_constructor_stack_type_conversion(CodeConstructor* constructor, DataTy
 void code_constructor_unary_operation_stack_type_conversion(CodeConstructor* constructor, DataType operand_type,
                                                             DataType target_type);
 
-void code_constructor_binary_operation_stack_type_conversion(CodeConstructor* constructor, DataType operand_1_type, DataType operand_2_type, DataType target_type, SymbolVariable* temp_var);
+void code_constructor_binary_operation_stack_type_conversion(CodeConstructor* constructor, DataType operand_1_type,
+                                                             DataType operand_2_type, DataType target_type,
+                                                             SymbolVariable* temp_var);
 
 void code_constructor_fn_length(CodeConstructor* constructor, SymbolVariable* tmp_variable, DataType stack_param_type);
 
@@ -182,6 +212,7 @@ void code_constructor_fn_asc(CodeConstructor* constructor, SymbolVariable* tmp1,
                              SymbolVariable* tmp_variable3, DataType param_1_type, DataType param_2_type);
 
 void code_constructor_fn_substr(CodeConstructor* constructor, SymbolVariable* tmp1, SymbolVariable* tmp_variable2,
-                                SymbolVariable* tmp_variable3, SymbolVariable* tmp4, SymbolVariable* tmp5, DataType param_1_type, DataType param_2_type, DataType param_3_type);
+                                SymbolVariable* tmp_variable3, SymbolVariable* tmp4, SymbolVariable* tmp5,
+                                DataType param_1_type, DataType param_2_type, DataType param_3_type);
 
 #endif //_CODE_CONSTRUCTOR_H

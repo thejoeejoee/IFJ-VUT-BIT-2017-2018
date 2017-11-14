@@ -153,7 +153,8 @@ void code_generator_register_signatures(const CodeGenerator* generator) {
 CodeGenerator* code_generator_init() {
     CodeGenerator* generator = memory_alloc(sizeof(CodeGenerator));
 
-    generator->first = generator->last = NULL;
+    generator->to_buffer = false;
+    generator->first = generator->last = generator->buffer_last = generator->buffer_first = NULL;
 
     generator->instruction_signatures = memory_alloc(sizeof(CodeInstructionSignature) * I__LAST);
 
@@ -189,13 +190,24 @@ void code_generator_append_instruction(
     NULL_POINTER_CHECK(generator,);
     NULL_POINTER_CHECK(instruction,);
 
-    if(generator->last == NULL) {
-        generator->last = generator->first = instruction;
-        instruction->prev = instruction->next = NULL;
+    if(!generator->to_buffer) {
+        if(generator->last == NULL) {
+            generator->last = generator->first = instruction;
+            instruction->prev = instruction->next = NULL;
+        } else {
+            generator->last->next = instruction;
+            instruction->prev = generator->last;
+            generator->last = instruction;
+        }
     } else {
-        generator->last->next = instruction;
-        instruction->prev = generator->last;
-        generator->last = instruction;
+        if(generator->buffer_last == NULL) {
+            generator->buffer_last = generator->buffer_first = instruction;
+            instruction->prev = instruction->next = NULL;
+        } else {
+            generator->buffer_last->next = instruction;
+            instruction->prev = generator->buffer_last;
+            generator->buffer_last = instruction;
+        }
     }
 }
 
@@ -322,23 +334,46 @@ void code_generator_insert_instruction_before(
 ) {
     NULL_POINTER_CHECK(generator,);
     NULL_POINTER_CHECK(to_insert,);
-    NULL_POINTER_CHECK(before_what,);
     if(to_insert->next != NULL || to_insert->prev != NULL) {
         LOG_WARNING("Cannot insert already linked instruction.");
         return;
     }
 
-    if(before_what->prev != NULL) {
-        // not at start
-        to_insert->prev = before_what->prev;
-        to_insert->next = before_what;
-        before_what->prev->next = to_insert;
-    } else {
-        // at start
-        generator->first = to_insert;
+    if(before_what == NULL) {
         to_insert->prev = NULL;
-        to_insert->next = before_what;
+        to_insert->next = generator->first;
+        if(generator->first != NULL) {
+            generator->first->prev = to_insert;
+            generator->first = to_insert;
+        } else {
+            generator->first = generator->last = to_insert;
+        }
+    } else {
+        if(before_what->prev != NULL) {
+            // not at start
+            to_insert->prev = before_what->prev;
+            to_insert->next = before_what;
+            before_what->prev->next = to_insert;
+        } else {
+            // at start
+            generator->first = to_insert;
+            to_insert->prev = NULL;
+            to_insert->next = before_what;
+        }
+
+        before_what->prev = to_insert;
     }
 
-    before_what->prev = to_insert;
+}
+
+void code_generator_flush_buffer(CodeGenerator* generator) {
+    NULL_POINTER_CHECK(generator,);
+
+    if(generator->buffer_first != NULL) {
+        generator->last->next = generator->buffer_first;
+        generator->buffer_first->prev = generator->last;
+        generator->last = generator->buffer_last;
+
+        generator->buffer_last = generator->buffer_first = NULL;
+    }
 }

@@ -41,6 +41,10 @@ typedef struct code_generator_t {
     CodeInstruction* first;
     CodeInstruction* last;
 
+    CodeInstruction* buffer_first;
+    CodeInstruction* buffer_last;
+    bool to_buffer;
+
     CodeInstructionSignature* instruction_signatures;
 } CodeGenerator;
 
@@ -103,5 +107,7 @@ CodeInstruction* code_generator_new_instruction(
 );
 
 void code_generator_render(CodeGenerator* generator, FILE* file);
+
+void code_generator_flush_buffer(CodeGenerator* generator);
 
 #endif //_CODE_GENERATOR_H

@@ -135,3 +135,24 @@ void symbol_variable_meta_data_remove_reference(SymbolVariableMetaData* item)
 {
     remove_reference(&meta_data_shared_pointers, item);
 }
+
+SymbolVariable* symbol_variable_init_flag_for_static_variable(
+        SymbolVariable* static_variable,
+        SymbolFunction* function
+) {
+    NULL_POINTER_CHECK(static_variable, NULL);
+    NULL_POINTER_CHECK(function, NULL);
+
+    String* declaration_flag_variable_name = string_init();
+    string_append_s(declaration_flag_variable_name, "IS_DECLARED__");
+    string_append_s(declaration_flag_variable_name, function->base.key);
+    string_append_s(declaration_flag_variable_name, "_");
+    string_append_s(declaration_flag_variable_name, static_variable->base.key);
+
+    SymbolVariable* declaration_flag_variable = symbol_variable_init(string_content(declaration_flag_variable_name));
+    symbol_variable_init_data((SymbolTableBaseItem*) declaration_flag_variable);
+    string_free(&declaration_flag_variable_name);
+
+    declaration_flag_variable->frame = VARIABLE_FRAME_GLOBAL;
+    return declaration_flag_variable;
+}

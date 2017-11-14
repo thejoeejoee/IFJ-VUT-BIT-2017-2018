@@ -238,6 +238,25 @@ END FUNCTION
 
 }
 
+TEST_F(ParserTestFixture, FunctionDefinitionWithStatic) {
+    provider->setString("FUNCTION hello () AS string \n END FUNCTION");
+    EXPECT_TRUE(
+            parser_parse_definitions(parser)
+    ) << "Error parsing <definitions> rule";
+
+    provider->setString(R"(FUNCTION hello () AS string
+input id
+dim a as integer
+
+input id
+END FUNCTION
+    )");
+    EXPECT_TRUE(
+            parser_parse_definitions(parser)
+    ) << "Error parsing <definitions> rule";
+
+}
+
 TEST_F(ParserTestFixture, FunctionStatements) {
     provider->setString("");
     EXPECT_TRUE(
@@ -408,6 +427,26 @@ TEST_F(ParserTestFixture, DimRuleWithAssignmentInvalid) {
     ) << "Error parsing <variable_declaration> rule";
 }
 
+TEST_F(ParserTestFixture, StaticVariable) {
+    provider->setString("static variableble as integer");
+    EXPECT_TRUE(
+            parser_parse_static_variable_declaration(parser)
+    ) << "Error parsing <static_variable_declaration> rule";
+}
+
+
+TEST_F(ParserTestFixture, StaticVariableWitchAssignment) {
+
+    provider->setString("static param475624 as integer = 42");
+
+    EXPECT_TRUE(
+            parser_parse_static_variable_declaration(parser)
+    ) << "Error parsing <sttaic_variable_declaration> rule";
+
+
+}
+
+
 
 TEST_F(ParserTestFixture, AssignmentRule) {
     provider->setString("= 56875687");
@@ -440,51 +479,56 @@ TEST_F(ParserTestFixture, ModifyAssigment) {
     );
 }
 
-TEST_F(ParserTestFixture, ModifyAssigment1) {
+TEST_F(ParserTestFixture, ModifyAssigmentSubstractConstant) {
     provider->setString("-= 31");
     EXPECT_TRUE(
             parser_parse_modify_assignment(parser)
     );
 }
 
-TEST_F(ParserTestFixture, ModifyAssigment2) {
+TEST_F(ParserTestFixture, ModifyAssigmentMultiplyConstant) {
     provider->setString("*= 31");
     EXPECT_TRUE(
             parser_parse_modify_assignment(parser)
     );
 }
 
-TEST_F(ParserTestFixture, ModifyAssigment3) {
+TEST_F(ParserTestFixture, ModifyAssigmentDivideByConstant) {
     provider->setString("/= 31");
     EXPECT_TRUE(
             parser_parse_modify_assignment(parser)
     );
 }
 
-TEST_F(ParserTestFixture, ModifyAssigment4) {
+TEST_F(ParserTestFixture, ModifyAssigmentIntegerDivideByConstant) {
+    provider->setString("\\= 31");
+    EXPECT_TRUE(
+            parser_parse_modify_assignment(parser)
+    );
+}
 
+TEST_F(ParserTestFixture, ModifyAssigmentAddFunctionCall) {
     provider->setString("+= foo()");
     EXPECT_TRUE(
             parser_parse_modify_assignment(parser)
     );
 }
 
-TEST_F(ParserTestFixture, ModifyAssigment5) {
+TEST_F(ParserTestFixture, ModifyAssigmentAddExpression) {
     provider->setString("-= a+b+c+d");
     EXPECT_TRUE(
             parser_parse_modify_assignment(parser)
     );
 }
 
-TEST_F(ParserTestFixture, ModifyAssigment6) {
+TEST_F(ParserTestFixture, ModifyAssigmentAddComplexFunctionCalls) {
     provider->setString("*= foo()*foo(foo())");
     EXPECT_TRUE(
             parser_parse_modify_assignment(parser)
     );
 }
 
-TEST_F(ParserTestFixture, ModifyAssigment7) {
-
+TEST_F(ParserTestFixture, ModifyAssigmentMultiplyByExpression) {
     provider->setString("/= 12+15");
     EXPECT_TRUE(
             parser_parse_modify_assignment(parser)
@@ -908,6 +952,28 @@ End Scope
 
 }
 
+TEST_F(ParserTestFixture, ComplexTestStaticAndShared) {
+    provider->setString(R"(
+/' Program 2: Vypocet faktorialu (rekurzivne) '/
+dim shared b as integer = 31
+function foo() as integer
+static a as integer
+static b as integer
+end function
+
+dim shared a as integer = 31
+
+scope
+
+End Scope
+dim shared a as integer = 31
+    )");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    );
+
+}
+
 TEST_F(ParserTestFixture, LongStringInProgram) {
     provider->setString(R"(
 ' valid strlen
@@ -925,6 +991,51 @@ scope
 	len = strlen(cokolivjennestring)
 	print len;
 
+end scope
+)");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, ProgramWithStatic) {
+    provider->setString(R"(
+function hgadfklh() as integer
+static a as integer
+a = 10
+return a
+end function
+
+scope
+dim a as integer
+a = foo()
+print a;
+end scope
+)");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, ProgramWithOutsiteFunction) {
+    provider->setString(R"(
+scope
+static a as integer
+a = foo()
+print a;
+end scope
+)");
+    EXPECT_FALSE(
+            parser_parse_program(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, SharedVariable) {
+    provider->setString(R"(
+
+dim shared a as integer = 10
+
+scope
 end scope
 )");
     EXPECT_TRUE(

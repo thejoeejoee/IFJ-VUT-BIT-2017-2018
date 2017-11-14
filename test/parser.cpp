@@ -1121,3 +1121,10 @@ end scope
             parser_parse_program(parser)
     );
 }
+
+TEST_F(ParserTestFixture, CallWithUnaryMinus) {
+	provider->setString("= fce(-31, 25)");
+	EXPECT_TRUE(
+		parser_parse_assignment(parser)
+	) << "Error parsing <expression> rule";
+}

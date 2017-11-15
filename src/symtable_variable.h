@@ -4,7 +4,6 @@
 #include "symtable.h"
 #include "symtable_function.h"
 #include "data_type.h"
-#include "shared_pointer.h"
 
 typedef enum {
     VARIABLE_FRAME_NONE,
@@ -19,12 +18,6 @@ typedef enum {
     VARIABLE_META_TYPE_PRINTED = 2,
     VARIABLE_META_TYPE_NON_OPTIMIZABLE = 3
 } SymbolVariableMetaType;
-
-typedef struct {
-    size_t occurrences_count;
-    int type;
-} SymbolVariableMetaData;
-
 typedef struct symbol_variable_t {
     SymbolTableBaseItem base;
     char* alias_name;
@@ -34,8 +27,6 @@ typedef struct symbol_variable_t {
 
     size_t scope_depth;
     char* scope_alias;
-
-    SymbolVariableMetaData* meta_data;
 } SymbolVariable;
 
 /**
@@ -94,13 +85,6 @@ void symbol_variable_single_free(SymbolVariable** variable);
     key, \
     sizeof(SymbolVariable) \
 )
-
-SymbolVariableMetaData* symbol_variable_meta_data_init();
-void symbol_variable_meta_data_free(SymbolVariableMetaData** item);
-void symbol_variable_meta_data_item_free(LListBaseItem* item);
-
-void symbol_variable_meta_data_add_reference(SymbolVariableMetaData* item);
-void symbol_variable_meta_data_remove_reference(SymbolVariableMetaData* item);
 
 SymbolVariable* symbol_variable_init_flag_for_static_variable(
         SymbolVariable* static_variable,

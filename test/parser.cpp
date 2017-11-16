@@ -1128,3 +1128,10 @@ TEST_F(ParserTestFixture, CallWithUnaryMinus) {
 		parser_parse_assignment(parser)
 	) << "Error parsing <expression> rule";
 }
+
+TEST_F(ParserTestFixture, CallWithUnaryMinusII) {
+    provider->setString("= fce2(-7.12e1, -(-fce2(2, 9) + -2))");
+    EXPECT_TRUE(
+            parser_parse_assignment(parser)
+    ) << "Error parsing <expression> rule";
+}

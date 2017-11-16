@@ -1,5 +1,4 @@
 #include "code_constructor.h"
-#include "stack_code_instruction.h"
 
 
 CodeConstructor* code_constructor_init() {

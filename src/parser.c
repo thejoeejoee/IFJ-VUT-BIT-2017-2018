@@ -206,7 +206,12 @@ bool parser_parse_function_definition(Parser* parser) {
      * RULE
      * <function_definition> -> <function_header> EOL <eols> <statements> END FUNCTION
      */
-    CodeInstruction* before_instruction = parser->code_constructor->generator->buffer_last;
+
+    CodeInstruction* before_instruction = NULL;
+    CodeConstructor* constructor = parser->code_constructor;
+    CODE_GENERATION({
+                        before_instruction = parser->code_constructor->generator->buffer_last;
+                    });
     RULES(
             SEMANTIC_ANALYSIS(
                     {
@@ -254,12 +259,20 @@ bool parser_parse_function_definition(Parser* parser) {
                     }
             );
     );
-    if(before_instruction == NULL)
-        parser->code_constructor->generator->buffer_first->meta_data.type = CODE_INSTRUCTION_META_TYPE_FUNCTION_START;
-    else
-        before_instruction->next->meta_data.type = CODE_INSTRUCTION_META_TYPE_FUNCTION_START;
 
-    parser->code_constructor->generator->buffer_last->meta_data.type |= CODE_INSTRUCTION_META_TYPE_FUNCTION_END;
+            CODE_GENERATION(
+                {
+                    if(before_instruction == NULL)
+                        parser->code_constructor->generator->buffer_first
+                            ->meta_data.type = CODE_INSTRUCTION_META_TYPE_FUNCTION_START;
+                    else
+                        before_instruction->next
+                            ->meta_data.type = CODE_INSTRUCTION_META_TYPE_FUNCTION_START;
+
+                    parser->code_constructor->generator->buffer_last
+                            ->meta_data.type |= CODE_INSTRUCTION_META_TYPE_FUNCTION_END;
+                }
+            );
 
     parser->parser_semantic->actual_function = NULL;
     return true;
@@ -1154,9 +1167,18 @@ bool parser_parse_assignment(Parser* parser) {
     );
 
             CHECK_TOKEN(TOKEN_EQUAL);
-            CodeInstruction* before_expression_instruction = code_generator_last_instruction(parser->code_constructor->generator);
+            CodeConstructor* constructor = parser->code_constructor;
+            CodeInstruction* before_expression_instruction = NULL;
+            UNUSED(before_expression_instruction);
+
+            CODE_GENERATION(
+                before_expression_instruction = code_generator_last_instruction(parser->code_constructor->generator);
+            );
             CALL_EXPRESSION_RULE(expression_data_type);
-            before_expression_instruction->next->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_START;
+            CODE_GENERATION(
+                before_expression_instruction->next
+                        ->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_START;
+            );
     );
     SEMANTIC_ANALYSIS(
             {
@@ -1223,9 +1245,16 @@ bool parser_parse_modify_assignment(Parser* parser) {
             operation_type = token_type_mapped_to_operation[token_type - map_diff];
             corresponding_instruction = token_type_mapped_to_instruction[token_type - map_diff];
 
-            CodeInstruction* before_expression_instruction = code_generator_last_instruction(parser->code_constructor->generator);
+            CodeConstructor* constructor = parser->code_constructor;
+            CodeInstruction* before_expression_instruction = NULL;
+            CODE_GENERATION(
+                 before_expression_instruction = code_generator_last_instruction(parser->code_constructor->generator);
+            );
             CALL_EXPRESSION_RULE(expression_data_type);
-            before_expression_instruction->next->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_START;
+            CODE_GENERATION(
+                before_expression_instruction->next
+                        ->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_START;
+            );
     );
 
     SEMANTIC_ANALYSIS(
@@ -1296,8 +1325,9 @@ bool parser_parse_modify_assignment(Parser* parser) {
                             actual_variable->data_type
                     );
                     GENERATE_CODE(I_POP_STACK, code_instruction_operand_init_variable(actual_variable));
+                    code_generator_last_instruction(parser->code_constructor->generator)
+                        ->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_END;
                 }
-            code_generator_last_instruction(parser->code_constructor->generator)->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_END;
             }
     );
 

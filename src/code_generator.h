@@ -110,4 +110,6 @@ void code_generator_render(CodeGenerator* generator, FILE* file);
 
 void code_generator_flush_buffer(CodeGenerator* generator);
 
+CodeInstruction* code_generator_last_instruction(CodeGenerator* generator);
+
 #endif //_CODE_GENERATOR_H

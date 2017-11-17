@@ -378,3 +378,10 @@ void code_generator_flush_buffer(CodeGenerator* generator) {
         generator->buffer_last = generator->buffer_first = NULL;
     }
 }
+
+CodeInstruction* code_generator_last_instruction(CodeGenerator* generator)
+{
+    if(generator->to_buffer)
+        return generator->buffer_last;
+    return generator->last;
+}

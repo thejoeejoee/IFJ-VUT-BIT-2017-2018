@@ -33,11 +33,11 @@
 #define memory_free_lazy(...) MSVC_EXPAND(GET_OVERLOADED_MACRO12(__VA_ARGS__, memory_free_lazy_2, memory_free_lazy_1)(__VA_ARGS__))
 
 #define MALLOC_CHECK(address) \
-    if ((address) == NULL) {\
+    if ((address) == NULL) { \
         LOG_WARNING("Malloc-like function returned NULL, exiting."); \
-        exit_with_code(ERROR_MEMORY);\
+        exit_with_code(ERROR_MEMORY); \
         return NULL; \
-    }\
+    } \
 
 #define MEMORY_MANAGER_INFO_MAX_LENGTH 128
 #define MEMORY_MANAGER_INFO_FORMAT "%s:%d:%s()"

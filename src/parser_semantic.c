@@ -309,11 +309,6 @@ bool parser_semantic_check_function_definitions(ParserSemantic* parser_semantic)
     ) == NULL;
 }
 
-void parser_semantic_add_built_in_functions(ParserSemantic* parser_semantic) {
-    UNUSED(parser_semantic);
-    // TODO: ADD built-in function into table
-}
-
 void parser_semantic_setup_temp_variables(ParserSemantic* parser_semantic) {
     NULL_POINTER_CHECK(parser_semantic,);
 
@@ -399,8 +394,10 @@ DataType parser_semantic_resolve_implicit_data_type_conversion(
 void parser_semantic_add_operation_signature(ParserSemantic* parser_semantic, TypeExpressionOperation operation,
                                              DataType operand_1_type, DataType operand_2_type, DataType target_type,
                                              DataType result_type) {
+
     OperationSignature* operation_signature = (OperationSignature*) llist_new_tail_item(
-            parser_semantic->operations_signatures[operation]);
+            parser_semantic->operations_signatures[operation]
+    );
     operation_signature->operation_type = operation;
     operation_signature->operand_1_type = operand_1_type;
     operation_signature->operand_2_type = operand_2_type;

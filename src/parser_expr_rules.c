@@ -717,8 +717,8 @@ bool expression_rule_fn_substr(Parser* parser, LList* expr_token_buffer, ExprIdx
     EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_FN_SUBSTR);
     EXPR_RULE_CHECK_FINISH();
 
-    const unsigned int params_count = 3;
-    DataType params_data_types[params_count];
+    DataType params_data_types[3];
+	const unsigned int params_count = sizeof(params_data_types)/sizeof(*params_data_types);
     // note it's NOT backwards
     const DataType desired_params_data_types[3] = {
         DATA_TYPE_STRING, DATA_TYPE_INTEGER, DATA_TYPE_INTEGER
@@ -778,8 +778,8 @@ bool expression_rule_fn_asc(Parser* parser, LList* expr_token_buffer, ExprIdx* e
 
 
     // Asc(s As String, i As Integer) As Integer
-    const unsigned int params_count = 2;
-    DataType params_data_types[params_count];
+    DataType params_data_types[2];
+	const unsigned int params_count = sizeof(params_data_types) / sizeof(*params_data_types);
     // note it's NOT backwards
     const DataType desired_params_data_types[2] = {
         DATA_TYPE_STRING, DATA_TYPE_INTEGER

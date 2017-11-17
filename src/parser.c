@@ -65,12 +65,6 @@ bool parser_parse_program(Parser* parser) {
      * RULE
      * <prog> -> <body> <eols> EOF
      */
-
-    SEMANTIC_ANALYSIS(
-            {
-                parser_semantic_add_built_in_functions(parser->parser_semantic);
-            }
-    );
     CODE_GENERATION(
             {
                 parser_semantic_setup_temp_variables(parser->parser_semantic);
@@ -95,8 +89,6 @@ bool parser_parse_program(Parser* parser) {
                         parser->code_constructor,
                         parser->parser_semantic->temp_variable5
                 );
-
-                code_constructor_start_code(parser->code_constructor);
             }
     );
     // Call rule <body>. If <body> return false => return false
@@ -1192,6 +1184,7 @@ bool parser_parse_assignment(Parser* parser) {
     return true;
 }
 
+#define SHORTEN_OPERATORS_COUNT 5
 bool parser_parse_modify_assignment(Parser* parser) {
     /*
      * RULE
@@ -1203,11 +1196,10 @@ bool parser_parse_modify_assignment(Parser* parser) {
      * <modify> -> \=
      */
 
-    const unsigned int shorten_operators_count = 5;
     const int map_diff = (int) TOKEN_AUGMENTED_ASSIGN_OPERATORS + 1;
 
-    TypeExpressionOperation token_type_mapped_to_operation[shorten_operators_count];
-    TypeInstruction token_type_mapped_to_instruction[shorten_operators_count];
+    TypeExpressionOperation token_type_mapped_to_operation[SHORTEN_OPERATORS_COUNT];
+    TypeInstruction token_type_mapped_to_instruction[SHORTEN_OPERATORS_COUNT];
     token_type_mapped_to_operation[TOKEN_ASSIGN_ADD - map_diff] = OPERATION_ADD;
     token_type_mapped_to_operation[TOKEN_ASSIGN_SUB - map_diff] = OPERATION_SUB;
     token_type_mapped_to_operation[TOKEN_ASSIGN_MULTIPLY - map_diff] = OPERATION_MULTIPLY;
@@ -1312,3 +1304,4 @@ bool parser_parse_modify_assignment(Parser* parser) {
     parser->parser_semantic->actual_variable = NULL;
     return true;
 }
+#undef SHORTEN_OPERATORS_COUNT

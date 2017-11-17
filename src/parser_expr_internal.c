@@ -34,7 +34,7 @@ static ExprTokenType _expr_get_precedence(ExprTokenType a, ExprTokenType b) {
             t = EXPR_SAME;
             break;
         case '*':
-            t = EXPR_TOKENCHANGE;
+            t = EXPR_TOKEN_CHANGE;
             break;
         case 'x':
         case '#':

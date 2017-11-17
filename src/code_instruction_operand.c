@@ -225,41 +225,41 @@ CodeInstructionOperand* code_instruction_operand_implicit_value(DataType data_ty
 void code_instruction_operand_render_variable_identifier(SymbolVariable* variable, char* rendered, size_t length)
 {
     const char* frame = NULL;
-    switch(operand->data.variable->frame) {
+    switch(variable->frame) {
         case VARIABLE_FRAME_LOCAL:
             frame = "LF";
             break;
         case VARIABLE_FRAME_GLOBAL:
             frame = "GF";
-            if(operand->data.variable->scope_depth > 0 && operand->data.variable->scope_alias == NULL) {
+            if(variable->scope_depth > 0 && variable->scope_alias == NULL) {
                 LOG_WARNING(
                         "Variable %s without scope alias on global frame has non-zero scope depth: %zd.",
-                        operand->data.variable->base.key,
-                        operand->data.variable->scope_depth
+                        variable->base.key,
+                        variable->scope_depth
                 );
             }
             break;
         case VARIABLE_FRAME_TEMP:
             frame = "TF";
-            if(operand->data.variable->scope_depth != 0) {
+            if(variable->scope_depth != 0) {
                 LOG_WARNING(
                         "Variable %s on temp frame (function parameter) has non zero scope depth - invalid variable init.",
-                        operand->data.variable->base.key
+                        variable->base.key
                 );
             }
             break;
         default:
-            LOG_WARNING("Unknown variable frame %d.", operand->data.variable->frame);
+            LOG_WARNING("Unknown variable frame %d.", variable->frame);
     }
-    if(operand->data.variable->scope_alias == NULL)
+    if(variable->scope_alias == NULL)
         snprintf(
                 rendered,
                 length,
                 "%s@%%%05zd_%s",
                 frame,
-                operand->data.variable->scope_depth,
-                operand->data.variable->alias_name == NULL ?
-                operand->data.variable->base.key : operand->data.variable->alias_name
+                variable->scope_depth,
+                variable->alias_name == NULL ?
+                variable->base.key : variable->alias_name
         );
     else
         snprintf(
@@ -267,9 +267,9 @@ void code_instruction_operand_render_variable_identifier(SymbolVariable* variabl
                 length,
                 "%s@%%%s_%s",
                 frame,
-                operand->data.variable->scope_alias,
-                operand->data.variable->alias_name == NULL ?
-                operand->data.variable->base.key : operand->data.variable->alias_name
+                variable->scope_alias,
+                variable->alias_name == NULL ?
+                variable->base.key : variable->alias_name
         );
 }
 

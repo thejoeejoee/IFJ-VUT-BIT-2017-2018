@@ -41,20 +41,13 @@ void code_optimizer_update_meta_data(CodeOptimizer* optimizer)
         if(instruction->meta_data.type == CODE_INSTRUCTION_META_TYPE_FUNCTION_END)
             current_function = NULL;
 
-        if(instruction->type == I_READ) {
-            // TODO do something with variable meta data
-            VariableMetaData* variable_meta_data =
-                    code_optimizer_variable_meta_data(optimizer, instruction->op0[0].data.variable);
-            variable_meta_data->purity_type |= META_TYPE_DYNAMIC_DEPENDENT;
-        }
-
         code_optimizer_update_variable_meta_data(optimizer, instruction);
         code_optimizer_update_function_meta_data(optimizer, instruction, current_function);
 
         instruction = instruction->next;
     }
 
-    // TODO another loop to spread dynamic
+    // another loop to spread dynamic
     instruction = optimizer->first_instruction;
     CodeInstruction* expr_start_instruction = NULL;
     while(instruction != NULL) {
@@ -97,6 +90,13 @@ void code_optimizer_update_function_meta_data(CodeOptimizer* optimizer, CodeInst
 
 void code_optimizer_update_variable_meta_data(CodeOptimizer* optimizer, CodeInstruction* instruction)
 {
+
+    if(instruction->type == I_READ) {
+        // TODO do something with variable meta data
+        VariableMetaData* variable_meta_data =
+                code_optimizer_variable_meta_data(optimizer, instruction->op0[0].data.variable);
+        variable_meta_data->purity_type |= META_TYPE_DYNAMIC_DEPENDENT;
+    }
 
     if(instruction->type == I_POP_STACK && instruction->meta_data.type == CODE_INSTRUCTION_META_TYPE_EXPRESSION_END)
         return;

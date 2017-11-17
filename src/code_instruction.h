@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include "code_instruction_operand.h"
+#include "meta_data.h"
 
 typedef enum type_instruction_t {
     // frame + function instructions
@@ -112,6 +113,7 @@ typedef enum {
 
 typedef struct {
     CodeInstructionMetaType type;
+    MetaType purity_type;
 } CodeInstructionMetaData;
 
 typedef struct code_instruction_signature_t {

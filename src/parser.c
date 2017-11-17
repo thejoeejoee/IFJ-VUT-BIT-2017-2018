@@ -209,6 +209,8 @@ bool parser_parse_function_definition(Parser* parser) {
 
     CodeInstruction* before_instruction = NULL;
     CodeConstructor* constructor = parser->code_constructor;
+    UNUSED(constructor);
+
     CODE_GENERATION({
                         before_instruction = parser->code_constructor->generator->buffer_last;
                     });
@@ -1147,6 +1149,9 @@ bool parser_parse_assignment(Parser* parser) {
 
     DataType expression_data_type;
     SymbolVariable* actual_variable = parser->parser_semantic->actual_variable;
+    CodeConstructor* constructor = parser->code_constructor;
+    UNUSED(constructor);
+
     RULES(
             CONDITIONAL_RULES(
                     lexer_rewind_token(parser->lexer, token);
@@ -1167,7 +1172,6 @@ bool parser_parse_assignment(Parser* parser) {
     );
 
             CHECK_TOKEN(TOKEN_EQUAL);
-            CodeConstructor* constructor = parser->code_constructor;
             CodeInstruction* before_expression_instruction = NULL;
             UNUSED(before_expression_instruction);
 
@@ -1190,7 +1194,6 @@ bool parser_parse_assignment(Parser* parser) {
 
     CODE_GENERATION(
             {
-                CodeConstructor* constructor = parser->code_constructor;
                 GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(
                         expression_data_type,
                         actual_variable->data_type
@@ -1246,6 +1249,7 @@ bool parser_parse_modify_assignment(Parser* parser) {
             corresponding_instruction = token_type_mapped_to_instruction[token_type - map_diff];
 
             CodeConstructor* constructor = parser->code_constructor;
+            UNUSED(constructor);
             CodeInstruction* before_expression_instruction = NULL;
             CODE_GENERATION(
                  before_expression_instruction = code_generator_last_instruction(parser->code_constructor->generator);

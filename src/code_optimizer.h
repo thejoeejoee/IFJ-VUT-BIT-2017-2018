@@ -4,6 +4,7 @@
 #include "code_instruction.h"
 #include "code_generator.h"
 #include "symtable.h"
+#include "meta_data.h"
 
 typedef struct code_optimizer_t {
     CodeInstruction* first_instruction;
@@ -16,19 +17,13 @@ typedef struct code_optimizer_t {
 typedef struct variable_meta_data_t {
     SymbolTableBaseItem base;
     unsigned int occurences_count;
+    MetaType purity_type;
 } VariableMetaData;
-
-typedef enum {
-    FUNCTION_META_TYPE_PURE = 0,
-    FUNCTION_META_TYPE_DYNAMIC_DEPENDENT = 1,
-    FUNCTION_META_TYPE_OUTPUTED = 2,
-} FunctionMetaType;
 
 typedef struct function_meta_data_t {
     SymbolTableBaseItem base;
     unsigned int call_count;
-    FunctionMetaType type;
-
+    MetaType purity_type;
 } FunctionMetaData;
 
 void init_variable_meta_data(SymbolTableBaseItem* item);

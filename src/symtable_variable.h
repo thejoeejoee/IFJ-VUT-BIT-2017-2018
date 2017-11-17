@@ -12,12 +12,6 @@ typedef enum {
     VARIABLE_FRAME_TEMP,
 } SymbolVariableFrame;
 
-typedef enum {
-    VARIABLE_META_TYPE_PURE = 0,
-    VARIABLE_META_TYPE_DYNAMIC = 1,
-    VARIABLE_META_TYPE_PRINTED = 2,
-    VARIABLE_META_TYPE_NON_OPTIMIZABLE = 3
-} SymbolVariableMetaType;
 typedef struct symbol_variable_t {
     SymbolTableBaseItem base;
     char* alias_name;

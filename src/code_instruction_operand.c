@@ -26,6 +26,7 @@ void code_instruction_operand_free(CodeInstructionOperand** operand_) {
             break;
         case TYPE_INSTRUCTION_OPERAND_VARIABLE:
             symbol_variable_free_data((SymbolTableBaseItem*) operand->data.variable);
+
             memory_free(operand->data.variable);
             break;
         case TYPE_INSTRUCTION_OPERAND_LABEL:
@@ -109,8 +110,15 @@ char* code_instruction_operand_render(CodeInstructionOperand* operand) {
     size_t length = 1; // null terminator
     if(operand->type == TYPE_INSTRUCTION_OPERAND_CONSTANT && operand->data.constant.data_type == DATA_TYPE_STRING) {
         length += string_length(operand->data.constant.data.string) * 4;
-    } else if(operand->type == TYPE_INSTRUCTION_OPERAND_LABEL) {
+    }
+    else if(operand->type == TYPE_INSTRUCTION_OPERAND_LABEL)
         length += strlen(operand->data.label);
+
+    else if(operand->type == TYPE_INSTRUCTION_OPERAND_VARIABLE) {
+        if(operand->data.variable->alias_name == NULL)
+            length += strlen(operand->data.variable->base.key);
+        else
+            length += strlen(operand->data.variable->alias_name);
     }
 
     length += 64; // data type + float&integers
@@ -140,53 +148,7 @@ char* code_instruction_operand_render(CodeInstructionOperand* operand) {
             }
             break;
         case TYPE_INSTRUCTION_OPERAND_VARIABLE: {
-            const char* frame = NULL;
-            switch(operand->data.variable->frame) {
-                case VARIABLE_FRAME_LOCAL:
-                    frame = "LF";
-                    break;
-                case VARIABLE_FRAME_GLOBAL:
-                    frame = "GF";
-                    if(operand->data.variable->scope_depth > 0 && operand->data.variable->scope_alias == NULL) {
-                        LOG_WARNING(
-                                "Variable %s without scope alias on global frame has non-zero scope depth: %zd.",
-                                operand->data.variable->base.key,
-                                operand->data.variable->scope_depth
-                        );
-                    }
-                    break;
-                case VARIABLE_FRAME_TEMP:
-                    frame = "TF";
-                    if(operand->data.variable->scope_depth != 0) {
-                        LOG_WARNING(
-                                "Variable %s on temp frame (function parameter) has non zero scope depth - invalid variable init.",
-                                operand->data.variable->base.key
-                        );
-                    }
-                    break;
-                default:
-                    LOG_WARNING("Unknown variable frame %d.", operand->data.variable->frame);
-            }
-            if(operand->data.variable->scope_alias == NULL)
-                snprintf(
-                        rendered,
-                        length,
-                        "%s@%%%05zd_%s",
-                        frame,
-                        operand->data.variable->scope_depth,
-                        operand->data.variable->alias_name == NULL ?
-                        operand->data.variable->base.key : operand->data.variable->alias_name
-                );
-            else
-                snprintf(
-                        rendered,
-                        length,
-                        "%s@%%%s_%s",
-                        frame,
-                        operand->data.variable->scope_alias,
-                        operand->data.variable->alias_name == NULL ?
-                        operand->data.variable->base.key : operand->data.variable->alias_name
-                );
+            code_instruction_operand_render_variable_identifier(operand->data.variable, rendered, length);
         }
             break;
         case TYPE_INSTRUCTION_OPERAND_CONSTANT:
@@ -259,4 +221,81 @@ CodeInstructionOperand* code_instruction_operand_implicit_value(DataType data_ty
             LOG_WARNING("Unknown data type %d.", data_type);
             return NULL;
     }
+}
+void code_instruction_operand_render_variable_identifier(SymbolVariable* variable, char* rendered, size_t length)
+{
+    NULL_POINTER_CHECK(variable, );
+    NULL_POINTER_CHECK(rendered, );
+
+    const char* frame = NULL;
+    switch(variable->frame) {
+        case VARIABLE_FRAME_LOCAL:
+            frame = "LF";
+            break;
+        case VARIABLE_FRAME_GLOBAL:
+            frame = "GF";
+            if(variable->scope_depth > 0 && variable->scope_alias == NULL) {
+                LOG_WARNING(
+                        "Variable %s without scope alias on global frame has non-zero scope depth: %zd.",
+                        variable->base.key,
+                        variable->scope_depth
+                );
+            }
+            break;
+        case VARIABLE_FRAME_TEMP:
+            frame = "TF";
+            if(variable->scope_depth != 0) {
+                LOG_WARNING(
+                        "Variable %s on temp frame (function parameter) has non zero scope depth - invalid variable init.",
+                        variable->base.key
+                );
+            }
+            break;
+        default:
+            LOG_WARNING("Unknown variable frame %d.", variable->frame);
+    }
+    if(variable->scope_alias == NULL)
+        snprintf(
+                rendered,
+                length,
+                "%s@%%%05zd_%s",
+                frame,
+                variable->scope_depth,
+                variable->alias_name == NULL ?
+                variable->base.key : variable->alias_name
+        );
+    else
+        snprintf(
+                rendered,
+                length,
+                "%s@%%%s_%s",
+                frame,
+                variable->scope_alias,
+                variable->alias_name == NULL ?
+                variable->base.key : variable->alias_name
+        );
+}
+
+size_t code_instruction_rendered_variable_identifier_max_len(SymbolVariable* variable)
+{
+    NULL_POINTER_CHECK(variable, 0);
+
+    size_t length = 65;
+    if(variable->alias_name == NULL)
+        length += strlen(variable->base.key);
+    else
+        length += strlen(variable->alias_name);
+
+    return length;
+}
+
+char* code_instruction_render_variable_identifier(SymbolVariable* variable)
+{
+    NULL_POINTER_CHECK(variable, NULL);
+
+    const size_t max_len = code_instruction_rendered_variable_identifier_max_len(variable);
+    char* rendered = memory_alloc(max_len * sizeof(char));
+    code_instruction_operand_render_variable_identifier(variable, rendered, max_len);
+
+    return rendered;
 }

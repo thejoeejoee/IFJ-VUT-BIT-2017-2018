@@ -1,4 +1,5 @@
 #include "ifj2017.h"
+#include "code_optimizer.h"
 
 int stdin_stream() {
     return getchar();
@@ -19,7 +20,14 @@ int main(int argc, char** argv) {
     }
 
     setbuf(stdout, NULL);
+
+    CodeOptimizer* optimizer = code_optimizer_init(parser->code_constructor->generator);
+    while(code_optimizer_remove_unused_variables(optimizer))
+        ;
+    code_optimizer_free(&optimizer);
+
     code_generator_render(parser->code_constructor->generator, stdout);
+
     fflush(stdout);
 
     parser_free(&parser);

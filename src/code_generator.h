@@ -78,6 +78,16 @@ CodeInstruction* code_generator_new_instruction(
         CodeInstructionOperand* op2
 );
 
+void code_generator_remove_instruction(
+        CodeGenerator* generator,
+        CodeInstruction* instruction
+);
+
+void code_generator_insert_instruction_before(
+        CodeGenerator* generator,
+        CodeInstruction* to_insert,
+        CodeInstruction* before_what
+);
 
 /**
  * Generic target for all generated methods for
@@ -135,12 +145,14 @@ void code_generator_insert_instruction_before(
  */
 void code_generator_flush_buffer(CodeGenerator* generator);
 
+
+CodeInstruction* code_generator_last_instruction(CodeGenerator* generator);
+
 /**
  * Render all generated instruction into given stream.
  * @param generator generator instance
  * @param file file to output
  */
 void code_generator_render(CodeGenerator* generator, FILE* file);
-
 
 #endif //_CODE_GENERATOR_H

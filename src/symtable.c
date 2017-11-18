@@ -6,7 +6,6 @@ size_t hash(const char* str);
 
 SymbolTable* symbol_table_init(size_t size, size_t item_size, symtable_init_data_callback_f init_data_callback,
                                symtable_free_data_callback_f free_data_callback) {
-    NULL_POINTER_CHECK(free_data_callback, NULL);
     size_t need_memory = sizeof(SymbolTable) + item_size * size;
 
     SymbolTable* table = memory_alloc(need_memory);
@@ -204,7 +203,8 @@ bool symbol_table_remove(SymbolTable* table, const char* key) {
                 prev->next = item->next;
 
             memory_free(item->key);
-            table->free_data_callback(item);
+            if(table->free_data_callback != NULL)
+                table->free_data_callback(item);
             memory_free(item);
             return true;
         }

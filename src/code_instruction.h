@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include "code_instruction_operand.h"
+#include "meta_data.h"
 
 typedef enum type_instruction_t {
     // frame + function instructions
@@ -102,6 +103,18 @@ typedef enum type_instruction_t {
     I__LAST
 } TypeInstruction;
 
+typedef enum {
+    CODE_INSTRUCTION_META_TYPE_NONE,
+    CODE_INSTRUCTION_META_TYPE_EXPRESSION_START = 1,
+    CODE_INSTRUCTION_META_TYPE_EXPRESSION_END = 2,
+    CODE_INSTRUCTION_META_TYPE_FUNCTION_START = 4,
+    CODE_INSTRUCTION_META_TYPE_FUNCTION_END = 8
+} CodeInstructionMetaType;
+
+typedef struct {
+    CodeInstructionMetaType type;
+    MetaType purity_type;
+} CodeInstructionMetaData;
 
 typedef struct code_instruction_signature_t {
     TypeInstruction type;
@@ -112,6 +125,7 @@ typedef struct code_instruction_signature_t {
 } CodeInstructionSignature;
 
 typedef struct code_instruction_t {
+    CodeInstructionMetaData meta_data;
     TypeInstruction type;
     CodeInstructionOperand* op0;
     CodeInstructionOperand* op1;

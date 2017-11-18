@@ -14,6 +14,7 @@ SymbolVariable* symbol_table_variable_get(SymbolTable* table, const char* key) {
 void symbol_variable_free_data(SymbolTableBaseItem* item) {
     NULL_POINTER_CHECK(item,);
     SymbolVariable* variable = (SymbolVariable*) item;
+
     memory_free(variable->base.key);
     variable->base.key = NULL;
     if(variable->alias_name != NULL) {

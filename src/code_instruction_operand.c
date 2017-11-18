@@ -40,6 +40,31 @@ void code_instruction_operand_free(CodeInstructionOperand** operand_) {
     *operand_ = NULL;
 }
 
+CodeInstructionOperand* code_instruction_operand_copy(CodeInstructionOperand* other)
+{
+    if(other == NULL)
+        return NULL;
+
+    if(other->type == TYPE_INSTRUCTION_OPERAND_VARIABLE)
+        return code_instruction_operand_init_variable(other->data.variable);
+    else if(other->type == TYPE_INSTRUCTION_OPERAND_LABEL)
+        return code_instruction_operand_init_label(other->data.label);
+    else if(other->type == TYPE_INSTRUCTION_OPERAND_DATA_TYPE)
+        return code_instruction_operand_init_data_type(other->data.constant.data_type);
+    else if(other->type == TYPE_INSTRUCTION_OPERAND_CONSTANT) {
+        if(other->data.constant.data_type == DATA_TYPE_INTEGER)
+            return code_instruction_operand_init_integer(other->data.constant.data.integer);
+        else if(other->data.constant.data_type == DATA_TYPE_DOUBLE)
+            return code_instruction_operand_init_double(other->data.constant.data.double_);
+        else if(other->data.constant.data_type == DATA_TYPE_BOOLEAN)
+            return code_instruction_operand_init_boolean(other->data.constant.data.boolean);
+        else if(other->data.constant.data_type == DATA_TYPE_STRING)
+            return code_instruction_operand_init_string(other->data.constant.data.string);
+    }
+
+    return NULL;
+}
+
 CodeInstructionOperand* code_instruction_operand_init_variable(SymbolVariable* variable) {
     CodeInstructionOperandData data = {.variable=symbol_variable_copy(variable)};
     NULL_POINTER_CHECK(data.variable, NULL);

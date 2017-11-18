@@ -317,3 +317,39 @@ char* code_instruction_render_variable_identifier(SymbolVariable* variable)
 
     return rendered;
 }
+
+bool code_instruction_operand_cmp(CodeInstructionOperand* first, CodeInstructionOperand* second)
+{
+    if(first == NULL || second == NULL)
+        return (first == NULL && second == NULL);
+
+    if(first->type != second->type)     // type match
+        return false;
+
+    if(first->type == TYPE_INSTRUCTION_OPERAND_VARIABLE) {
+        char* first_identifier = code_instruction_operand_render(first);
+        char* second_identifier = code_instruction_operand_render(second);
+        bool cmp_res = strcmp(first_identifier, second_identifier);
+        memory_free(first_identifier);
+        memory_free(second_identifier);
+
+        return cmp_res == 0;
+    }
+    else if(first->type == TYPE_INSTRUCTION_OPERAND_LABEL)
+        return strcmp(first->data.label, second->data.label) == 0;
+    else if(first->type == TYPE_INSTRUCTION_OPERAND_DATA_TYPE)
+        return first->data.constant.data_type == second->data.constant.data_type;
+    else if(first->type == TYPE_INSTRUCTION_OPERAND_CONSTANT) {
+        if(first->data.constant.data_type == DATA_TYPE_INTEGER)
+            return first->data.constant.data.integer == second->data.constant.data.integer;
+        else if(first->data.constant.data_type == DATA_TYPE_DOUBLE)
+            return first->data.constant.data.double_ == second->data.constant.data.double_;
+        else if(first->data.constant.data_type == DATA_TYPE_BOOLEAN)
+            return first->data.constant.data.boolean == second->data.constant.data.boolean;
+        else if(first->data.constant.data_type == DATA_TYPE_STRING)
+            return strcmp(first->data.constant.data.string->content, second->data.constant.data.string->content) == 0;
+    }
+
+    ASSERT(false);
+    return false;
+}

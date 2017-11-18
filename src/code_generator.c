@@ -313,8 +313,6 @@ void code_generator_render(CodeGenerator* generator, FILE* file) {
     NULL_POINTER_CHECK(generator,);
     NULL_POINTER_CHECK(file,);
 
-    // NOTE do optimalization
-
     char* rendered;
     CodeInstruction* instruction = generator->first;
     fprintf(file, ".IFJcode17\n");

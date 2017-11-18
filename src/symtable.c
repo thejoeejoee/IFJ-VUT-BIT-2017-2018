@@ -203,7 +203,7 @@ bool symbol_table_remove(SymbolTable* table, const char* key) {
                 prev->next = item->next;
 
             memory_free(item->key);
-            if(table->free_data_callback)
+            if(table->free_data_callback != NULL)
                 table->free_data_callback(item);
             memory_free(item);
             return true;

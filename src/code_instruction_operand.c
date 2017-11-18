@@ -224,6 +224,9 @@ CodeInstructionOperand* code_instruction_operand_implicit_value(DataType data_ty
 }
 void code_instruction_operand_render_variable_identifier(SymbolVariable* variable, char* rendered, size_t length)
 {
+    NULL_POINTER_CHECK(variable, );
+    NULL_POINTER_CHECK(rendered, );
+
     const char* frame = NULL;
     switch(variable->frame) {
         case VARIABLE_FRAME_LOCAL:
@@ -275,6 +278,8 @@ void code_instruction_operand_render_variable_identifier(SymbolVariable* variabl
 
 size_t code_instruction_rendered_variable_identifier_max_len(SymbolVariable* variable)
 {
+    NULL_POINTER_CHECK(variable, 0);
+
     size_t length = 65;
     if(variable->alias_name == NULL)
         length += strlen(variable->base.key);
@@ -286,6 +291,8 @@ size_t code_instruction_rendered_variable_identifier_max_len(SymbolVariable* var
 
 char* code_instruction_render_variable_identifier(SymbolVariable* variable)
 {
+    NULL_POINTER_CHECK(variable, NULL);
+
     const size_t max_len = code_instruction_rendered_variable_identifier_max_len(variable);
     char* rendered = memory_alloc(max_len * sizeof(char));
     code_instruction_operand_render_variable_identifier(variable, rendered, max_len);

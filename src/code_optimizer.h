@@ -27,17 +27,23 @@ typedef struct function_meta_data_t {
 } FunctionMetaData;
 
 void init_variable_meta_data(SymbolTableBaseItem* item);
+
 void init_function_meta_data(SymbolTableBaseItem* item);
+
 VariableMetaData* code_optimizer_variable_meta_data(CodeOptimizer* optimizer, SymbolVariable* variable);
+
 FunctionMetaData* code_optimizer_function_meta_data(CodeOptimizer* optimizer, const char* key);
 
 CodeOptimizer* code_optimizer_init(CodeGenerator* generator);
+
 void code_optimizer_free(CodeOptimizer** optimizer);
 
 void code_optimizer_update_meta_data(CodeOptimizer* optimizer);
 
 void code_optimizer_update_variable_meta_data(CodeOptimizer* optimizer, CodeInstruction* instruction);
-void code_optimizer_update_function_meta_data(CodeOptimizer* optimizer, CodeInstruction* instruction, const char* current_func_label);
+
+void code_optimizer_update_function_meta_data(CodeOptimizer* optimizer, CodeInstruction* instruction,
+                                              const char* current_func_label);
 
 bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer);
 

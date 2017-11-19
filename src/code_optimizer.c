@@ -397,6 +397,7 @@ bool code_optimizer_peep_hole_optimization(CodeOptimizer* optimizer)
 {
     CodeInstruction* instruction = optimizer->generator->first;
     PeepHolePattern* pattern = NULL;
+    bool removed_something = false;
 
     while(instruction != NULL) {
         bool removed_instruction = false;
@@ -419,6 +420,7 @@ bool code_optimizer_peep_hole_optimization(CodeOptimizer* optimizer)
                     code_generator_remove_instruction(optimizer->generator, instruction);
                     instruction = temp;
                     removed_instruction = true;
+                    removed_something = true;
                 }
 
                 symbol_table_free(mapped_operands);
@@ -431,7 +433,7 @@ bool code_optimizer_peep_hole_optimization(CodeOptimizer* optimizer)
             instruction = instruction->next;
     }
 
-    return false;
+    return removed_something;
 }
 
 void init_mapped_operand_item(SymbolTableBaseItem* item)

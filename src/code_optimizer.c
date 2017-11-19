@@ -9,6 +9,8 @@ CodeOptimizer* code_optimizer_init(CodeGenerator* generator) {
 
     optimizer->functions_meta_data = symbol_table_init(32, sizeof(FunctionMetaData), &init_function_meta_data, NULL);
 
+    optimizer->labels_meta_data = symbol_table_init(32, sizeof(LabelMetaData), &init_label_meta_data, NULL);
+
     optimizer->generator = generator;
     optimizer->first_instruction = generator->first;
 
@@ -16,13 +18,15 @@ CodeOptimizer* code_optimizer_init(CodeGenerator* generator) {
 
     // adding peephole patterns
     PeepHolePattern* pattern = code_optimizer_new_ph_pattern(optimizer);
-    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_CREATE_FRAME, NULL, NULL, NULL);
-    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_FRAME, NULL, NULL, NULL);
-    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_FRAME, NULL, NULL, NULL);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_CREATE_FRAME, NULL, NULL, NULL, 0, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_FRAME, NULL, NULL, NULL, 0, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_FRAME, NULL, NULL, NULL, 0, 0, 0);
 
-//    pattern = code_optimizer_new_ph_pattern(optimizer);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_DEF_VAR, "a", NULL, NULL);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "a", NULL, NULL);
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_JUMP, "a", NULL, NULL, 1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_LABEL, "a", NULL, NULL, 1, 0, 0);
+//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_DEF_VAR, "a", NULL, NULL, 2, 0, 0);
+//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "a", NULL, NULL, 2, 0, 0);
 
 //    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_POP_STACK, "a", NULL, NULL);
 
@@ -35,6 +39,7 @@ void code_optimizer_free(CodeOptimizer** optimizer) {
 
     symbol_table_free((*optimizer)->variables_meta_data);
     symbol_table_free((*optimizer)->functions_meta_data);
+    symbol_table_free((*optimizer)->labels_meta_data);
     llist_free(&(*optimizer)->peep_hole_patterns);
     memory_free(*optimizer);
     *optimizer = NULL;
@@ -43,6 +48,8 @@ void code_optimizer_free(CodeOptimizer** optimizer) {
 void code_optimizer_update_meta_data(CodeOptimizer* optimizer) {
     // clear old statistic
     symbol_table_clear_buckets(optimizer->variables_meta_data);
+    symbol_table_clear_buckets(optimizer->labels_meta_data);
+    symbol_table_clear_buckets(optimizer->functions_meta_data);
 
     CodeInstruction* instruction = optimizer->first_instruction;
     const char* current_function = NULL;
@@ -57,6 +64,7 @@ void code_optimizer_update_meta_data(CodeOptimizer* optimizer) {
             current_function = NULL;
 
         code_optimizer_update_variable_meta_data(optimizer, instruction);
+        code_optimizer_update_label_meta_data(optimizer, instruction);
         code_optimizer_update_function_meta_data(optimizer, instruction, current_function);
 
         instruction = instruction->next;
@@ -104,6 +112,24 @@ void code_optimizer_update_function_meta_data(CodeOptimizer* optimizer, CodeInst
             flags |= META_TYPE_WITH_SIDE_EFFECT;
     }
     code_optimizer_function_meta_data(optimizer, current_func_label)->purity_type |= flags;
+}
+
+void code_optimizer_update_label_meta_data(CodeOptimizer* optimizer, CodeInstruction* instruction) {
+    NULL_POINTER_CHECK(optimizer, );
+    NULL_POINTER_CHECK(instruction, );
+
+    switch (instruction->type) {
+        case I_CALL:
+        case I_JUMP:
+        case I_JUMP_IF_EQUAL:
+        case I_JUMP_IF_NOT_EQUAL:
+        case I_JUMP_IF_EQUAL_STACK:
+        case I_JUMP_IF_NOT_EQUAL_STACK:
+            code_optimizer_label_meta_data(optimizer, instruction->op0->data.label)->occurrences_count++;
+            break;
+        default:
+            break;
+    }
 }
 
 void code_optimizer_update_variable_meta_data(CodeOptimizer* optimizer, CodeInstruction* instruction) {
@@ -159,6 +185,12 @@ void init_function_meta_data(SymbolTableBaseItem* item) {
     v->purity_type = META_TYPE_PURE;
 }
 
+void init_label_meta_data(SymbolTableBaseItem* item) {
+    NULL_POINTER_CHECK(item, );
+
+    LabelMetaData* v = (LabelMetaData*) item;
+    v->occurrences_count = 0;
+}
 
 VariableMetaData* code_optimizer_variable_meta_data(CodeOptimizer* optimizer, SymbolVariable* variable) {
     NULL_POINTER_CHECK(optimizer, NULL);
@@ -176,6 +208,13 @@ FunctionMetaData* code_optimizer_function_meta_data(CodeOptimizer* optimizer, co
     NULL_POINTER_CHECK(optimizer, NULL);
 
     return (FunctionMetaData*) symbol_table_get_or_create(optimizer->functions_meta_data, key);
+}
+
+LabelMetaData* code_optimizer_label_meta_data(CodeOptimizer* optimizer, const char* label)
+{
+    NULL_POINTER_CHECK(optimizer, NULL);
+
+    return (LabelMetaData*) symbol_table_get_or_create(optimizer->labels_meta_data, label);
 }
 
 bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer) {
@@ -264,17 +303,17 @@ PeepHolePattern* code_optimizer_new_ph_pattern(CodeOptimizer* optimizer)
     return (PeepHolePattern*)llist_new_tail_item(optimizer->peep_hole_patterns);
 }
 
-void code_optimizer_add_matching_instruction_to_ph_pattern(PeepHolePattern* ph_pattern, TypeInstruction instruction, const char* op1_alias, const char* op2_alias, const char* op3_alias)
+void code_optimizer_add_matching_instruction_to_ph_pattern(PeepHolePattern* ph_pattern, TypeInstruction instruction, const char* op1_alias, const char* op2_alias, const char* op3_alias, int op0_occ_count, int op1_occ_count, int op2_occ_count)
 {
-    _code_optimizer_add_instruction_to_ph_pattern(ph_pattern->matching_instructions, instruction, op1_alias, op2_alias, op3_alias);
+    _code_optimizer_add_instruction_to_ph_pattern(ph_pattern->matching_instructions, instruction, op1_alias, op2_alias, op3_alias, op0_occ_count, op1_occ_count, op2_occ_count);
 }
 
 void code_optimizer_add_replacement_instruction_to_ph_pattern(PeepHolePattern* ph_pattern, TypeInstruction instruction, const char* op1_alias, const char* op2_alias, const char* op3_alias)
 {
-    _code_optimizer_add_instruction_to_ph_pattern(ph_pattern->replacement_instructions, instruction, op1_alias, op2_alias, op3_alias);
+    _code_optimizer_add_instruction_to_ph_pattern(ph_pattern->replacement_instructions, instruction, op1_alias, op2_alias, op3_alias, 0, 0, 0);
 }
 
-void _code_optimizer_add_instruction_to_ph_pattern(LList* pattern_instruction_sub_list, TypeInstruction instruction, const char* op1_alias, const char* op2_alias, const char* op3_alias)
+void _code_optimizer_add_instruction_to_ph_pattern(LList* pattern_instruction_sub_list, TypeInstruction instruction, const char* op1_alias, const char* op2_alias, const char* op3_alias, int op0_occ_count, int op1_occ_count, int op2_occ_count)
 {
     PeepHolePatternInstruction* ph_pattern_instruction =
             (PeepHolePatternInstruction*)llist_new_tail_item(pattern_instruction_sub_list);
@@ -282,10 +321,16 @@ void _code_optimizer_add_instruction_to_ph_pattern(LList* pattern_instruction_su
     ph_pattern_instruction->op0_alias = op1_alias;
     ph_pattern_instruction->op1_alias = op2_alias;
     ph_pattern_instruction->op2_alias = op3_alias;
+
+    ph_pattern_instruction->op0_occurrences_count = op0_occ_count;
+    ph_pattern_instruction->op1_occurrences_count = op1_occ_count;
+    ph_pattern_instruction->op2_occurrences_count = op2_occ_count;
 }
 
 SymbolTable* code_optimizer_check_ph_pattern(CodeOptimizer* optimizer, PeepHolePattern* ph_pattern, CodeInstruction* instruction)
 {
+    code_optimizer_update_meta_data(optimizer);
+
     PeepHolePatternInstruction* pattern_instruction =
             (PeepHolePatternInstruction*)ph_pattern->matching_instructions->head;
     SymbolTable* mapped_operands = symbol_table_init(32, sizeof(MappedOperand), &init_mapped_operand_item, &free_mapped_operand_item);
@@ -300,16 +345,39 @@ SymbolTable* code_optimizer_check_ph_pattern(CodeOptimizer* optimizer, PeepHoleP
 
         // check operands
         const char* operands_aliases[] = { pattern_instruction->op0_alias, pattern_instruction->op1_alias, pattern_instruction->op2_alias };
+        int operands_occ_count[] = { pattern_instruction->op0_occurrences_count, pattern_instruction->op1_occurrences_count, pattern_instruction->op2_occurrences_count };
         CodeInstructionOperand* operands[] = { instruction->op0, instruction->op1, instruction->op2 };
 
         for(int i = 0; i < operands_max_count; i++) {
             if(operands_aliases[i] != NULL) {
                 MappedOperand* mapped_operand = (MappedOperand*)symbol_table_function_get_or_create(mapped_operands, operands_aliases[i]);
 
-                if(mapped_operand->operand == NULL)
+                if(mapped_operand->operand == NULL) {
                     mapped_operand->operand = code_instruction_operand_copy(operands[i]);
+                }
+
                 else {
                     if(!code_instruction_operand_cmp(operands[i], mapped_operand->operand)) {
+                        symbol_table_free(mapped_operands);
+                        return NULL;
+                    }
+                }
+                // check occurreces count
+                if(operands_occ_count[i] == -1)
+                    continue;
+
+                if(mapped_operand->operand->type == TYPE_INSTRUCTION_OPERAND_VARIABLE) {
+                    const VariableMetaData* var_meta_data = code_optimizer_variable_meta_data(optimizer, mapped_operand->operand->data.variable);
+
+                    if(var_meta_data->occurences_count != operands_occ_count[i]) {
+                        symbol_table_free(mapped_operands);
+                        return NULL;
+                    }
+                }
+
+                else if(mapped_operand->operand->type == TYPE_INSTRUCTION_OPERAND_LABEL) {
+                    const LabelMetaData* label_meta_data = code_optimizer_label_meta_data(optimizer, mapped_operand->operand->data.label);
+                    if(label_meta_data->occurrences_count != operands_occ_count[i]) {
                         symbol_table_free(mapped_operands);
                         return NULL;
                     }
@@ -337,7 +405,6 @@ bool code_optimizer_peep_hole_optimization(CodeOptimizer* optimizer)
         while(pattern != NULL) {
             SymbolTable* mapped_operands = code_optimizer_check_ph_pattern(optimizer, pattern, instruction);
             if(mapped_operands != NULL) {
-                printf("found match\n");
                 // add replacement
                 PeepHolePatternInstruction* ph_pattern_instruction = (PeepHolePatternInstruction*)pattern->replacement_instructions->head;
                 for(size_t i = 0; i < llist_length(pattern->replacement_instructions); i++) {

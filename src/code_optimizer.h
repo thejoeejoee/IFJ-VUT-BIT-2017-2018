@@ -12,12 +12,13 @@ typedef struct code_optimizer_t {
     CodeGenerator* generator;
     SymbolTable* variables_meta_data;
     SymbolTable* functions_meta_data;
+    SymbolTable* labels_meta_data;
     LList* peep_hole_patterns;
 } CodeOptimizer;
 
 typedef struct variable_meta_data_t {
     SymbolTableBaseItem base;
-    unsigned int occurences_count;
+    int occurences_count;
     MetaType purity_type;
 } VariableMetaData;
 
@@ -26,6 +27,11 @@ typedef struct function_meta_data_t {
     unsigned int call_count;
     MetaType purity_type;
 } FunctionMetaData;
+
+typedef struct label_meta_data_t {
+    SymbolTableBaseItem base;
+    int occurrences_count;
+} LabelMetaData;
 
 typedef struct peep_hole_pattern_t {
     LListBaseItem base;
@@ -39,6 +45,10 @@ typedef struct peep_hole_pattern_instruction_t {
     const char* op0_alias;
     const char* op1_alias;
     const char* op2_alias;
+
+    int op0_occurrences_count;
+    int op1_occurrences_count;
+    int op2_occurrences_count;
 } PeepHolePatternInstruction;
 
 typedef struct mapped_operand_t {
@@ -51,9 +61,13 @@ void init_variable_meta_data(SymbolTableBaseItem* item);
 
 void init_function_meta_data(SymbolTableBaseItem* item);
 
+void init_label_meta_data(SymbolTableBaseItem* item);
+
 VariableMetaData* code_optimizer_variable_meta_data(CodeOptimizer* optimizer, SymbolVariable* variable);
 
 FunctionMetaData* code_optimizer_function_meta_data(CodeOptimizer* optimizer, const char* key);
+
+LabelMetaData* code_optimizer_label_meta_data(CodeOptimizer* optimizer, const char* label);
 
 // init/free
 CodeOptimizer* code_optimizer_init(CodeGenerator* generator);
@@ -69,9 +83,9 @@ void free_peep_hole_pattern(LListBaseItem* item);
 // peep hole patterns managing
 PeepHolePattern* code_optimizer_new_ph_pattern(CodeOptimizer* optimizer);
 
-void _code_optimizer_add_instruction_to_ph_pattern(LList* pattern_instruction_sub_list, TypeInstruction instruction, const char* op1_alias, const char* op2_alias, const char* op3_alias);
+void _code_optimizer_add_instruction_to_ph_pattern(LList* pattern_instruction_sub_list, TypeInstruction instruction, const char* op1_alias, const char* op2_alias, const char* op3_alias, int op0_occ_count, int op1_occ_count, int op2_occ_count);
 
-void code_optimizer_add_matching_instruction_to_ph_pattern(PeepHolePattern* ph_pattern, TypeInstruction instruction, const char* op1_alias, const char* op2_alias, const char* op3_alias);
+void code_optimizer_add_matching_instruction_to_ph_pattern(PeepHolePattern* ph_pattern, TypeInstruction instruction, const char* op1_alias, const char* op2_alias, const char* op3_alias, int op0_occ_count, int op1_occ_count, int op2_occ_count);
 
 void code_optimizer_add_replacement_instruction_to_ph_pattern(PeepHolePattern* ph_pattern, TypeInstruction instruction, const char* op1_alias, const char* op2_alias, const char* op3_alias);
 
@@ -86,6 +100,8 @@ void code_optimizer_update_variable_meta_data(CodeOptimizer* optimizer, CodeInst
 
 void code_optimizer_update_function_meta_data(CodeOptimizer* optimizer, CodeInstruction* instruction,
                                               const char* current_func_label);
+
+void code_optimizer_update_label_meta_data(CodeOptimizer* optimizer, CodeInstruction* instruction);
 
 // optimizing functions
 bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer);

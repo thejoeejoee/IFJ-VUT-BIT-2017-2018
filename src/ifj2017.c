@@ -9,7 +9,6 @@ int main(int argc, char** argv) {
     UNUSED(argc);
     UNUSED(argv);
 
-
     log_verbosity = LOG_VERBOSITY_WARNING;
     Parser* parser = parser_init(stdin_stream);
 

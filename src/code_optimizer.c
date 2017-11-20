@@ -17,25 +17,49 @@ CodeOptimizer* code_optimizer_init(CodeGenerator* generator) {
     llist_init(&optimizer->peep_hole_patterns, sizeof(PeepHolePattern), &init_peep_hole_pattern, &free_peep_hole_pattern, NULL);
 
     // adding peephole patterns
+    /* Deleting unused frame
+     * CREATEFRAME
+     * PUSHFRAME        => E
+     * POPFRAME
+     */
     PeepHolePattern* pattern = code_optimizer_new_ph_pattern(optimizer);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_CREATE_FRAME, NULL, NULL, NULL, 0, 0, 0);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_FRAME, NULL, NULL, NULL, 0, 0, 0);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_FRAME, NULL, NULL, NULL, 0, 0, 0);
 
+    /* Deleting unused jump on label, which is used only once
+     * JUMP <a>         => E
+     * LABEL <a>
+     */
     pattern = code_optimizer_new_ph_pattern(optimizer);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_JUMP, "&a", NULL, NULL, 1, 0, 0);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_LABEL, "&a", NULL, NULL, 1, 0, 0);
 
+    /* Use move instead of stack if (b = a)
+     * PUSH <a>         => MOVE <b> <a>
+     * POP <b>
+     */
     pattern = code_optimizer_new_ph_pattern(optimizer);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_STACK, "!b", NULL, NULL, -1, 0, 0);
     code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_MOVE, "!b", "a", NULL);
 
+    /* Delete move which is overwritten with another move (a = b; a = c) => (a = c)
+     * MOVE <a> <b>     => MOVE <a> <c>
+     * MOVE <a> <c>
+     */
     pattern = code_optimizer_new_ph_pattern(optimizer);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "!a", "b", NULL, -1, -1, 0);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "!a", "c", NULL, -1, -1, 0);
     code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_MOVE, "!a", "c", NULL);
 
+    /* Use normal operations with memory instead of stack if there is only 2 operands and result
+     * is then stored in variable.
+     * PUSH <a>         => OP <b> <a> <c>
+     * PUSH <c>
+     * OPS
+     * POP <b>
+     */
     TypeInstruction stack_operations_instructions[] = { I_ADD_STACK, I_SUB_STACK, I_MUL_STACK, I_DIV_STACK, I_LESSER_THEN_STACK, I_GREATER_THEN_STACK,  I_EQUAL_STACK, I_AND_STACK, I_OR_STACK, I_NOT_STACK };
 
     TypeInstruction operations_instructions[] = { I_ADD, I_SUB, I_MUL, I_DIV, I_LESSER_THEN, I_GREATER_THEN,  I_EQUAL, I_AND, I_OR, I_NOT };
@@ -51,6 +75,14 @@ CodeOptimizer* code_optimizer_init(CodeGenerator* generator) {
         code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, operations_instructions[i], "!b", "a", "c");
     }
 
+    /* Remove concatinating with empty string
+     * PUSH string@         => PUSH <a>
+     * PUSH <a>
+     * POP <b>
+     * POP <c>
+     * CONCAT <b> <c> <b>
+     * PUSH <b>
+     */
     pattern = code_optimizer_new_ph_pattern(optimizer);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "]_", NULL, NULL, -1, 0, 0);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);

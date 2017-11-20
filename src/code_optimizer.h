@@ -51,10 +51,29 @@ typedef struct peep_hole_pattern_instruction_t {
     int op2_occurrences_count;
 } PeepHolePatternInstruction;
 
+typedef enum {
+    META_PATTERN_FLAG_INVALID,
+    META_PATTERN_FLAG_ALL,                      // any
+    META_PATTERN_FLAG_STRING_EMPTY,             // ]
+    META_PATTERN_FLAG_STRING,                   // [
+    META_PATTERN_FLAG_VARIABLE,                 // !
+    META_PATTERN_FLAG_INT_LITERAL_ZERO,         // }
+    META_PATTERN_FLAG_INT_LITERAL,              // {
+    META_PATTERN_FLAG_FLOAT_LITERAL_ZERO,       // )
+    META_PATTERN_FLAG_FLOAT_LITERAL,            // (
+    META_PATTERN_FLAG_BOOL_LITERAL,             // |
+    META_PATTERN_FLAG_BOOL_LITERAL_TRUE,        // <
+    META_PATTERN_FLAG_BOOL_LITERAL_FALSE,       // >
+    META_PATTERN_FLAG_LABEL                     // &
+} MetaPHPatternFlag;
+
 typedef struct mapped_operand_t {
     SymbolTableBaseItem base;
     CodeInstructionOperand* operand;
 } MappedOperand;
+
+MetaPHPatternFlag extract_flag(const char* alias);
+bool check_operand_with_meta_type_flag(CodeInstructionOperand* operand, MetaPHPatternFlag meta_type_flag);
 
 // meta data sub item
 void init_variable_meta_data(SymbolTableBaseItem* item);

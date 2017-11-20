@@ -23,12 +23,58 @@ CodeOptimizer* code_optimizer_init(CodeGenerator* generator) {
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_FRAME, NULL, NULL, NULL, 0, 0, 0);
 
     pattern = code_optimizer_new_ph_pattern(optimizer);
-    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_JUMP, "a", NULL, NULL, 1, 0, 0);
-    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_LABEL, "a", NULL, NULL, 1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_DEF_VAR, "a", NULL, NULL, 2, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "a", NULL, NULL, 2, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_JUMP, "&a", NULL, NULL, 1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_LABEL, "&a", NULL, NULL, 1, 0, 0);
 
-//    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_POP_STACK, "a", NULL, NULL);
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_STACK, "!b", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_MOVE, "!b", "a", NULL);
+
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "!a", "b", NULL, -1, -1, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "!a", "c", NULL, -1, -1, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_MOVE, "!a", "c", NULL);
+
+    TypeInstruction stack_operations_instructions[] = { I_ADD_STACK, I_SUB_STACK, I_MUL_STACK, I_DIV_STACK, I_LESSER_THEN_STACK, I_GREATER_THEN_STACK,  I_EQUAL_STACK, I_AND_STACK, I_OR_STACK, I_NOT_STACK };
+
+    TypeInstruction operations_instructions[] = { I_ADD, I_SUB, I_MUL, I_DIV, I_LESSER_THEN, I_GREATER_THEN,  I_EQUAL, I_AND, I_OR, I_NOT };
+    const int operations_count = (sizeof(operations_instructions) / sizeof(operations_instructions[0]));
+
+    for(int i = 0; i < operations_count; i++) {
+        pattern = code_optimizer_new_ph_pattern(optimizer);
+        code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);
+        code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "c", NULL, NULL, -1, 0, 0);
+        code_optimizer_add_matching_instruction_to_ph_pattern(pattern, stack_operations_instructions[i], NULL, NULL, NULL, 0, 0, 0);
+        code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_STACK, "!b", NULL, NULL, -1, 0, 0);
+
+        code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, operations_instructions[i], "!b", "a", "c");
+    }
+
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "]_", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_STACK, "!b", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_STACK, "!c", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_CONCAT_STRING, "!b", "!c", "!b", -1, -1, -1);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "!b", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL);
+
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "]_", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_STACK, "!b", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_STACK, "!c", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_CONCAT_STRING, "!b", "!c", "!b", -1, -1, -1);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "!b", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL);
+
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "]_", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_STACK, "!b", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_STACK, "!c", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_CONCAT_STRING, "!b", "!c", "!b", -1, -1, -1);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "!b", NULL, NULL, -1, 0, 0);
 
     return optimizer;
 }
@@ -165,6 +211,39 @@ void code_optimizer_update_variable_meta_data(CodeOptimizer* optimizer, CodeInst
             continue;
 
         var_meta_data->occurences_count++;
+    }
+}
+
+MetaPHPatternFlag extract_flag(const char* alias)
+{
+    if(alias == NULL || strlen(alias) == 0)
+        return META_PATTERN_FLAG_INVALID;
+
+    switch (alias[0]) {
+        case ']':
+            return META_PATTERN_FLAG_STRING_EMPTY;
+        case '[':
+            return META_PATTERN_FLAG_STRING;
+        case '!':
+            return META_PATTERN_FLAG_VARIABLE;
+        case '}':
+            return META_PATTERN_FLAG_INT_LITERAL_ZERO;
+        case '{':
+            return META_PATTERN_FLAG_INT_LITERAL;
+        case ')':
+            return META_PATTERN_FLAG_FLOAT_LITERAL_ZERO;
+        case '(':
+            return META_PATTERN_FLAG_FLOAT_LITERAL;
+        case '|':
+            return META_PATTERN_FLAG_BOOL_LITERAL;
+        case '<':
+            return META_PATTERN_FLAG_BOOL_LITERAL_TRUE;
+        case '>':
+            return META_PATTERN_FLAG_BOOL_LITERAL_FALSE;
+        case '&':
+            return META_PATTERN_FLAG_LABEL;
+        default:
+            return META_PATTERN_FLAG_ALL;
     }
 }
 
@@ -338,10 +417,8 @@ SymbolTable* code_optimizer_check_ph_pattern(CodeOptimizer* optimizer, PeepHoleP
 
     while (pattern_instruction != NULL) {
         // means end of program of instruction type mismatch
-        if(instruction == NULL || pattern_instruction->type != instruction->type) {
-            symbol_table_free(mapped_operands);
-            return NULL;
-        }
+        if(instruction == NULL || pattern_instruction->type != instruction->type)
+            goto PATTERN_NOT_MATCHED;
 
         // check operands
         const char* operands_aliases[] = { pattern_instruction->op0_alias, pattern_instruction->op1_alias, pattern_instruction->op2_alias };
@@ -352,34 +429,34 @@ SymbolTable* code_optimizer_check_ph_pattern(CodeOptimizer* optimizer, PeepHoleP
             if(operands_aliases[i] != NULL) {
                 MappedOperand* mapped_operand = (MappedOperand*)symbol_table_function_get_or_create(mapped_operands, operands_aliases[i]);
 
-                if(mapped_operand->operand == NULL) {
+                if(mapped_operand->operand == NULL)
                     mapped_operand->operand = code_instruction_operand_copy(operands[i]);
-                }
 
                 else {
-                    if(!code_instruction_operand_cmp(operands[i], mapped_operand->operand)) {
-                        symbol_table_free(mapped_operands);
-                        return NULL;
-                    }
+                    if(!code_instruction_operand_cmp(operands[i], mapped_operand->operand))
+                        goto PATTERN_NOT_MATCHED;
                 }
+
+                // check meta pattern flag type
+                const MetaPHPatternFlag meta_type_flag = extract_flag(mapped_operand->base.key);
+                const bool meta_type_flag_matched = check_operand_with_meta_type_flag(mapped_operand->operand, meta_type_flag);
+
+                if(!meta_type_flag_matched)
+                    goto PATTERN_NOT_MATCHED;
+
                 // check occurreces count
-                if(operands_occ_count[i] == -1)
-                    continue;
+                if(operands_occ_count[i] != -1) {
+                    if(mapped_operand->operand->type == TYPE_INSTRUCTION_OPERAND_VARIABLE) {
+                        const VariableMetaData* var_meta_data = code_optimizer_variable_meta_data(optimizer, mapped_operand->operand->data.variable);
 
-                if(mapped_operand->operand->type == TYPE_INSTRUCTION_OPERAND_VARIABLE) {
-                    const VariableMetaData* var_meta_data = code_optimizer_variable_meta_data(optimizer, mapped_operand->operand->data.variable);
-
-                    if(var_meta_data->occurences_count != operands_occ_count[i]) {
-                        symbol_table_free(mapped_operands);
-                        return NULL;
+                        if(var_meta_data->occurences_count != operands_occ_count[i])
+                            goto PATTERN_NOT_MATCHED;
                     }
-                }
 
-                else if(mapped_operand->operand->type == TYPE_INSTRUCTION_OPERAND_LABEL) {
-                    const LabelMetaData* label_meta_data = code_optimizer_label_meta_data(optimizer, mapped_operand->operand->data.label);
-                    if(label_meta_data->occurrences_count != operands_occ_count[i]) {
-                        symbol_table_free(mapped_operands);
-                        return NULL;
+                    else if(mapped_operand->operand->type == TYPE_INSTRUCTION_OPERAND_LABEL) {
+                        const LabelMetaData* label_meta_data = code_optimizer_label_meta_data(optimizer, mapped_operand->operand->data.label);
+                        if(label_meta_data->occurrences_count != operands_occ_count[i])
+                            goto PATTERN_NOT_MATCHED;
                     }
                 }
             }
@@ -391,6 +468,10 @@ SymbolTable* code_optimizer_check_ph_pattern(CodeOptimizer* optimizer, PeepHoleP
     }
 
     return mapped_operands;
+
+PATTERN_NOT_MATCHED:
+    symbol_table_free(mapped_operands);
+    return NULL;
 }
 
 bool code_optimizer_peep_hole_optimization(CodeOptimizer* optimizer)
@@ -468,4 +549,78 @@ CodeInstruction* code_optimizer_new_instruction_with_mapped_operands(CodeOptimiz
         operands[0], operands[1], operands[2]
     );
     return instruction;
+}
+
+bool check_operand_with_meta_type_flag(CodeInstructionOperand* operand, MetaPHPatternFlag meta_type_flag)
+{
+    NULL_POINTER_CHECK(operand, NULL);
+
+    if(meta_type_flag == META_PATTERN_FLAG_INVALID)
+        return false;
+
+    if(meta_type_flag != META_PATTERN_FLAG_ALL) {
+        switch (meta_type_flag) {
+            case META_PATTERN_FLAG_STRING:
+            case META_PATTERN_FLAG_STRING_EMPTY:
+                if(operand->type == TYPE_INSTRUCTION_OPERAND_CONSTANT &&
+                        operand->data.constant.data_type == DATA_TYPE_STRING) {
+                    if(meta_type_flag == META_PATTERN_FLAG_STRING)
+                        return true;
+
+                    const size_t len = string_length(operand->data.constant.data.string);
+                    return len == 0 && meta_type_flag == META_PATTERN_FLAG_STRING_EMPTY;
+                }
+                return false;
+
+            case META_PATTERN_FLAG_VARIABLE:
+                return operand->type == TYPE_INSTRUCTION_OPERAND_VARIABLE;
+
+            case META_PATTERN_FLAG_INT_LITERAL:
+            case META_PATTERN_FLAG_INT_LITERAL_ZERO:
+                if(operand->type == TYPE_INSTRUCTION_OPERAND_CONSTANT &&
+                        operand->data.constant.data_type == DATA_TYPE_INTEGER) {
+                    if(meta_type_flag == META_PATTERN_FLAG_INT_LITERAL)
+                        return true;
+
+                    const int ivalue = operand->data.constant.data.integer;
+                    return ivalue == 0 && meta_type_flag == META_PATTERN_FLAG_INT_LITERAL_ZERO;
+                }
+                return false;
+
+            case META_PATTERN_FLAG_FLOAT_LITERAL:
+            case META_PATTERN_FLAG_FLOAT_LITERAL_ZERO:
+                if(operand->type == TYPE_INSTRUCTION_OPERAND_CONSTANT &&
+                        operand->data.constant.data_type == DATA_TYPE_DOUBLE) {
+                    if(meta_type_flag == META_PATTERN_FLAG_FLOAT_LITERAL)
+                        return true;
+
+                    const double fvalue = operand->data.constant.data.double_;
+                    return fvalue == 0. && meta_type_flag == META_PATTERN_FLAG_FLOAT_LITERAL_ZERO;
+                }
+                return false;
+
+            case META_PATTERN_FLAG_BOOL_LITERAL:
+            case META_PATTERN_FLAG_BOOL_LITERAL_TRUE:
+            case META_PATTERN_FLAG_BOOL_LITERAL_FALSE:
+                if(operand->type == TYPE_INSTRUCTION_OPERAND_CONSTANT &&
+                        operand->data.constant.data_type == DATA_TYPE_BOOLEAN) {
+                    if(meta_type_flag == META_PATTERN_FLAG_BOOL_LITERAL)
+                        return true;
+
+                    const bool bvalue = operand->data.constant.data.boolean;
+                    return (bvalue && meta_type_flag == META_PATTERN_FLAG_BOOL_LITERAL_TRUE) ||
+                            (!bvalue && meta_type_flag == META_PATTERN_FLAG_BOOL_LITERAL_FALSE);
+                }
+                return false;
+
+            case META_PATTERN_FLAG_LABEL:
+                return operand->type == TYPE_INSTRUCTION_OPERAND_LABEL;
+
+            default:
+                ASSERT(false);
+                break;
+        }
+    }
+
+    return true;
 }

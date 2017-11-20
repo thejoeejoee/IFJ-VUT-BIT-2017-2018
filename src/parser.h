@@ -354,4 +354,8 @@ bool parser_parse_cycle_control_first(Parser* parser);
 
 bool parser_parse_cycle_control_next(Parser* parser);
 
+bool parser_parse_do_token(Parser* parser);
+
+bool parser_parse_for_token(Parser* parser);
+
 #endif //_PARSER_H

@@ -1163,7 +1163,7 @@ end scope
 }
 
 
-TEST_F(ParserTestFixture, DISABLED_CycleContinueValid1) {
+TEST_F(ParserTestFixture, CycleContinueValid1) {
     provider->setString(R"(
 scope
 
@@ -1178,7 +1178,7 @@ end scope
     );
 }
 
-TEST_F(ParserTestFixture, DISABLED_CycleContinueInvalid) {
+TEST_F(ParserTestFixture, CycleContinueInvalid) {
     provider->setString(R"(
 scope
 
@@ -1193,7 +1193,7 @@ end scope
     );
 }
 
-TEST_F(ParserTestFixture, DISABLED_CycleContinueValid2) {
+TEST_F(ParserTestFixture, CycleContinueValid2) {
     provider->setString(R"(
 scope
 
@@ -1208,22 +1208,7 @@ end scope
     );
 }
 
-TEST_F(ParserTestFixture, DISABLED_CycleContinueValid3) {
-    provider->setString(R"(
-scope
-
-do while 2 > 5
-continue do, for
-loop
-
-end scope
-)");
-    EXPECT_TRUE(
-            parser_parse_program(parser)
-    );
-}
-
-TEST_F(ParserTestFixture, DISABLED_CycleContinueInvalid3) {
+TEST_F(ParserTestFixture, CycleContinueValid3) {
     provider->setString(R"(
 scope
 
@@ -1234,6 +1219,126 @@ loop
 end scope
 )");
     EXPECT_FALSE(
+            parser_parse_program(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, CycleContinueInvalid3) {
+    provider->setString(R"(
+scope
+
+do while 2 > 5
+continue do, for, do, for, do,
+loop
+
+end scope
+)");
+    EXPECT_FALSE(
+            parser_parse_program(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, CycleContinueValid99) {
+    provider->setString(R"(
+scope
+
+do while 2 > 5
+continue do, for, do, for, do, do
+loop
+
+end scope
+)");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, CycleExitValid1) {
+    provider->setString(R"(
+scope
+
+do while 2 > 5
+exit for
+loop
+
+end scope
+)");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, CycleExitInvalid) {
+    provider->setString(R"(
+scope
+
+do while 2 > 5
+EXIT
+loop
+
+end scope
+)");
+    EXPECT_FALSE(
+            parser_parse_program(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, CycleEXITValid2) {
+    provider->setString(R"(
+scope
+
+do while 2 > 5
+EXIT do
+loop
+
+end scope
+)");
+    EXPECT_TRUE(
+            parser_parse_program(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, CycleExitInValid66) {
+    provider->setString(R"(
+scope
+
+do while 2 > 5
+exit do,
+loop
+
+end scope
+)");
+    EXPECT_FALSE(
+            parser_parse_program(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, CycleExitInvalid3) {
+    provider->setString(R"(
+scope
+
+do while 2 > 5
+exit do, for, do, for, do,
+loop
+
+end scope
+)");
+    EXPECT_FALSE(
+            parser_parse_program(parser)
+    );
+}
+
+TEST_F(ParserTestFixture, CycleExitValid99) {
+    provider->setString(R"(
+scope
+
+do while 2 > 5
+exit do, for, do, for, do, for
+loop
+
+end scope
+)");
+    EXPECT_TRUE(
             parser_parse_program(parser)
     );
 }

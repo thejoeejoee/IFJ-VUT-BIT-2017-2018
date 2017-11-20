@@ -292,8 +292,6 @@ bool parser_parse_statement_single(Parser* parser) {
      * <statement_single> -> <statement_print>
      */
 
-    int pico = 0;
-    pico++;
     RULES(
             CONDITIONAL_RULES(
 
@@ -721,10 +719,21 @@ bool parser_parse_continue(Parser* parser) {
      * <continue> -> continue
      */
 
-    int pico = 0;
-    pico++;
     RULES(
             CHECK_TOKEN(TOKEN_CONTINUE);
+            CHECK_RULE(cycle_control);
+    );
+    return true;
+}
+
+bool parser_parse_exit(Parser* parser) {
+    /*
+     * RULE
+     * <exit> -> exit
+     */
+
+    RULES(
+            CHECK_TOKEN(TOKEN_EXIT);
             CHECK_RULE(cycle_control);
     );
     return true;
@@ -739,75 +748,57 @@ bool parser_parse_cycle_control(Parser* parser) {
     return true;
 }
 
+
 bool parser_parse_cycle_control_first(Parser* parser) {
 
     RULES(
             CONDITIONAL_RULES(
-                    CHECK_RULE(
-                            token_type == TOKEN_DO,
-                            epsilon,
-                            BEFORE(
-                                    {
-                                            // lexer_rewind_token(parser->lexer, token);
-                                    }
-                            ),
-                            AFTER(
-                                    {
-                                            token_free(&token);
-                                            CHECK_RULE(cycle_control_next);
-                                            return true;
-                                    }
-                            )
-                    );
-            CHECK_RULE(
-                    token_type == TOKEN_FOR,
-                    epsilon,
-                    BEFORE(
-                            {
-                                    // lexer_rewind_token(parser->lexer, token);
-                            }
-                    ),
-                    AFTER(
-                            {
-                                    token_free(&token);
-                                    CHECK_RULE(cycle_control_next);
-                                    return true;
-                            }
-                    )
+                    CHECK_RULE(token_type == TOKEN_DO, do_token, REWIND_AND_SUCCESS);
+                    CHECK_RULE(token_type == TOKEN_FOR, for_token, REWIND_AND_SUCCESS);
             );
     );
-    );
 
-
-    return true;
+    return false;
 }
 
 bool parser_parse_cycle_control_next(Parser* parser) {
+
     RULES(
             CONDITIONAL_RULES(
-                    CHECK_RULE(token_type != TOKEN_COMMA, epsilon, NO_CODE);
-            CHECK_RULE(token_type == TOKEN_COMMA, epsilon, , AFTER(
-                    {
-                    }
-                       )
+                    lexer_rewind_token(parser->lexer, token);
+
+
+                    CHECK_RULE(
+                            token_type != TOKEN_COMMA,
+                            epsilon,
+                            NO_CODE
+                    );
+
+                    CHECK_TOKEN(TOKEN_COMMA);
+                    CHECK_RULE(cycle_control_first);
+                    CHECK_RULE(cycle_control_next);
             );
     );
-    );
+
     return true;
 }
 
-
-bool parser_parse_exit(Parser* parser) {
-    /*
-     * RULE
-     * <exit> -> exit
-     */
+bool parser_parse_for_token(Parser* parser) {
 
     RULES(
-            CHECK_TOKEN(TOKEN_EXIT);
+            CHECK_TOKEN(TOKEN_FOR);
     );
     return true;
 }
+
+bool parser_parse_do_token(Parser* parser) {
+
+    RULES(
+            CHECK_TOKEN(TOKEN_DO);
+    );
+    return true;
+}
+
 
 
 bool parser_parse_for(Parser* parser) {

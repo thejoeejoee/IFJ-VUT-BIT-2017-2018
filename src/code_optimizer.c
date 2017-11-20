@@ -394,6 +394,8 @@ void code_optimizer_add_replacement_instruction_to_ph_pattern(PeepHolePattern* p
 
 void _code_optimizer_add_instruction_to_ph_pattern(LList* pattern_instruction_sub_list, TypeInstruction instruction, const char* op1_alias, const char* op2_alias, const char* op3_alias, int op0_occ_count, int op1_occ_count, int op2_occ_count)
 {
+    NULL_POINTER_CHECK(pattern_instruction_sub_list, );
+
     PeepHolePatternInstruction* ph_pattern_instruction =
             (PeepHolePatternInstruction*)llist_new_tail_item(pattern_instruction_sub_list);
     ph_pattern_instruction->type = instruction;
@@ -408,6 +410,10 @@ void _code_optimizer_add_instruction_to_ph_pattern(LList* pattern_instruction_su
 
 SymbolTable* code_optimizer_check_ph_pattern(CodeOptimizer* optimizer, PeepHolePattern* ph_pattern, CodeInstruction* instruction)
 {
+    NULL_POINTER_CHECK(optimizer, NULL);
+    NULL_POINTER_CHECK(ph_pattern, NULL);
+    NULL_POINTER_CHECK(instruction, NULL);
+
     code_optimizer_update_meta_data(optimizer);
 
     PeepHolePatternInstruction* pattern_instruction =
@@ -476,6 +482,8 @@ PATTERN_NOT_MATCHED:
 
 bool code_optimizer_peep_hole_optimization(CodeOptimizer* optimizer)
 {
+    NULL_POINTER_CHECK(optimizer, false);
+
     CodeInstruction* instruction = optimizer->generator->first;
     PeepHolePattern* pattern = NULL;
     bool removed_something = false;
@@ -519,12 +527,16 @@ bool code_optimizer_peep_hole_optimization(CodeOptimizer* optimizer)
 
 void init_mapped_operand_item(SymbolTableBaseItem* item)
 {
+    NULL_POINTER_CHECK(item, );
+
     MappedOperand* v = (MappedOperand*)item;
     v->operand = NULL;
 }
 
 void free_mapped_operand_item(SymbolTableBaseItem* item)
 {
+    NULL_POINTER_CHECK(item, );
+
     MappedOperand* v = (MappedOperand*)item;
     if(v->operand != NULL)
         code_instruction_operand_free(&v->operand);
@@ -532,6 +544,10 @@ void free_mapped_operand_item(SymbolTableBaseItem* item)
 
 CodeInstruction* code_optimizer_new_instruction_with_mapped_operands(CodeOptimizer* optimizer, PeepHolePatternInstruction*  ph_pattern_instruction, SymbolTable* mapped_operands)
 {
+    NULL_POINTER_CHECK(optimizer, NULL);
+    NULL_POINTER_CHECK(ph_pattern_instruction, NULL);
+    NULL_POINTER_CHECK(mapped_operands, NULL);
+
     const int operands_max_count = 3;
     const char* op_aliases[] = { ph_pattern_instruction->op0_alias, ph_pattern_instruction->op1_alias, ph_pattern_instruction->op2_alias };
     CodeInstructionOperand* operands[operands_max_count];

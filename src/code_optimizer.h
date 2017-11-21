@@ -13,6 +13,11 @@ typedef struct code_optimizer_t {
     SymbolTable* functions_meta_data;
     SymbolTable* labels_meta_data;
     LList* peep_hole_patterns;
+    char* temp1_identifier;
+    char* temp2_identifier;
+    char* temp3_identifier;
+    char* temp4_identifier;
+    char* temp5_identifier;
 } CodeOptimizer;
 
 typedef struct variable_meta_data_t {
@@ -63,7 +68,12 @@ typedef enum {
     META_PATTERN_FLAG_BOOL_LITERAL,             // |
     META_PATTERN_FLAG_BOOL_LITERAL_TRUE,        // <
     META_PATTERN_FLAG_BOOL_LITERAL_FALSE,       // >
-    META_PATTERN_FLAG_LABEL                     // &
+    META_PATTERN_FLAG_LABEL,                    // &
+    META_PATTERN_FLAG_TEMP_VARIABLE_1,          // 1
+    META_PATTERN_FLAG_TEMP_VARIABLE_2,          // 2
+    META_PATTERN_FLAG_TEMP_VARIABLE_3,          // 3
+    META_PATTERN_FLAG_TEMP_VARIABLE_4,          // 4
+    META_PATTERN_FLAG_TEMP_VARIABLE_5           // 5
 } MetaPHPatternFlag;
 
 typedef struct mapped_operand_t {
@@ -72,7 +82,7 @@ typedef struct mapped_operand_t {
 } MappedOperand;
 
 MetaPHPatternFlag extract_flag(const char* alias);
-bool check_operand_with_meta_type_flag(CodeInstructionOperand* operand, MetaPHPatternFlag meta_type_flag);
+bool code_optimizer_check_operand_with_meta_type_flag(CodeOptimizer* optimizer, CodeInstructionOperand* operand, MetaPHPatternFlag meta_type_flag);
 
 // meta data sub item
 void init_variable_meta_data(SymbolTableBaseItem* item);
@@ -88,7 +98,7 @@ FunctionMetaData* code_optimizer_function_meta_data(CodeOptimizer* optimizer, co
 LabelMetaData* code_optimizer_label_meta_data(CodeOptimizer* optimizer, const char* label);
 
 // init/free
-CodeOptimizer* code_optimizer_init(CodeGenerator* generator);
+CodeOptimizer* code_optimizer_init(CodeGenerator* generator, SymbolVariable* temp1, SymbolVariable* temp2, SymbolVariable* temp3, SymbolVariable* temp4, SymbolVariable* temp5);
 
 void code_optimizer_free(CodeOptimizer** optimizer);
 

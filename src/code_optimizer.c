@@ -1,8 +1,14 @@
 #include "code_optimizer.h"
 #include "memory.h"
 
-CodeOptimizer* code_optimizer_init(CodeGenerator* generator) {
+CodeOptimizer* code_optimizer_init(CodeGenerator* generator, SymbolVariable* temp1, SymbolVariable* temp2, SymbolVariable* temp3, SymbolVariable* temp4, SymbolVariable* temp5) {
     NULL_POINTER_CHECK(generator, NULL);
+    NULL_POINTER_CHECK(temp1, NULL);
+    NULL_POINTER_CHECK(temp2, NULL);
+    NULL_POINTER_CHECK(temp3, NULL);
+    NULL_POINTER_CHECK(temp4, NULL);
+    NULL_POINTER_CHECK(temp5, NULL);
+
 
     CodeOptimizer* optimizer = memory_alloc(sizeof(CodeOptimizer));
     optimizer->variables_meta_data = symbol_table_init(32, sizeof(VariableMetaData), &init_variable_meta_data, NULL);
@@ -12,7 +18,11 @@ CodeOptimizer* code_optimizer_init(CodeGenerator* generator) {
     optimizer->labels_meta_data = symbol_table_init(32, sizeof(LabelMetaData), &init_label_meta_data, NULL);
 
     optimizer->generator = generator;
-    optimizer->first_instruction = generator->first;
+    optimizer->temp1_identifier = code_instruction_render_variable_identifier(temp1);
+    optimizer->temp2_identifier = code_instruction_render_variable_identifier(temp2);
+    optimizer->temp3_identifier = code_instruction_render_variable_identifier(temp3);
+    optimizer->temp4_identifier = code_instruction_render_variable_identifier(temp4);
+    optimizer->temp5_identifier = code_instruction_render_variable_identifier(temp5);
 
     llist_init(&optimizer->peep_hole_patterns, sizeof(PeepHolePattern), &init_peep_hole_pattern, &free_peep_hole_pattern, NULL);
 
@@ -114,6 +124,12 @@ CodeOptimizer* code_optimizer_init(CodeGenerator* generator) {
 void code_optimizer_free(CodeOptimizer** optimizer) {
     NULL_POINTER_CHECK(optimizer, );
     NULL_POINTER_CHECK(*optimizer, );
+
+    memory_free((*optimizer)->temp1_identifier);
+    memory_free((*optimizer)->temp2_identifier);
+    memory_free((*optimizer)->temp3_identifier);
+    memory_free((*optimizer)->temp4_identifier);
+    memory_free((*optimizer)->temp5_identifier);
 
     symbol_table_free((*optimizer)->variables_meta_data);
     symbol_table_free((*optimizer)->functions_meta_data);
@@ -278,6 +294,16 @@ MetaPHPatternFlag extract_flag(const char* alias)
             return META_PATTERN_FLAG_BOOL_LITERAL_FALSE;
         case '&':
             return META_PATTERN_FLAG_LABEL;
+        case '1':
+            return META_PATTERN_FLAG_TEMP_VARIABLE_1;
+        case '2':
+            return META_PATTERN_FLAG_TEMP_VARIABLE_2;
+        case '3':
+            return META_PATTERN_FLAG_TEMP_VARIABLE_3;
+        case '4':
+            return META_PATTERN_FLAG_TEMP_VARIABLE_4;
+        case '5':
+            return META_PATTERN_FLAG_TEMP_VARIABLE_5;
         default:
             return META_PATTERN_FLAG_ALL;
     }
@@ -480,7 +506,7 @@ SymbolTable* code_optimizer_check_ph_pattern(CodeOptimizer* optimizer, PeepHoleP
 
                 // check meta pattern flag type
                 const MetaPHPatternFlag meta_type_flag = extract_flag(mapped_operand->base.key);
-                const bool meta_type_flag_matched = check_operand_with_meta_type_flag(mapped_operand->operand, meta_type_flag);
+                const bool meta_type_flag_matched = code_optimizer_check_operand_with_meta_type_flag(optimizer, mapped_operand->operand, meta_type_flag);
 
                 if(!meta_type_flag_matched)
                     goto PATTERN_NOT_MATCHED;
@@ -602,7 +628,7 @@ CodeInstruction* code_optimizer_new_instruction_with_mapped_operands(CodeOptimiz
     return instruction;
 }
 
-bool check_operand_with_meta_type_flag(CodeInstructionOperand* operand, MetaPHPatternFlag meta_type_flag)
+bool code_optimizer_check_operand_with_meta_type_flag(CodeOptimizer* optimizer, CodeInstructionOperand* operand, MetaPHPatternFlag meta_type_flag)
 {
     NULL_POINTER_CHECK(operand, NULL);
 
@@ -625,6 +651,36 @@ bool check_operand_with_meta_type_flag(CodeInstructionOperand* operand, MetaPHPa
 
             case META_PATTERN_FLAG_VARIABLE:
                 return operand->type == TYPE_INSTRUCTION_OPERAND_VARIABLE;
+            case META_PATTERN_FLAG_TEMP_VARIABLE_1:
+            case META_PATTERN_FLAG_TEMP_VARIABLE_2:
+            case META_PATTERN_FLAG_TEMP_VARIABLE_3:
+            case META_PATTERN_FLAG_TEMP_VARIABLE_4:
+            case META_PATTERN_FLAG_TEMP_VARIABLE_5: {
+                if(operand->type != TYPE_INSTRUCTION_OPERAND_VARIABLE)
+                    return false;
+
+                char* temp_identifier = NULL;
+                if(meta_type_flag == META_PATTERN_FLAG_TEMP_VARIABLE_1)
+                    temp_identifier = optimizer->temp1_identifier;
+                else if(meta_type_flag == META_PATTERN_FLAG_TEMP_VARIABLE_2)
+                    temp_identifier = optimizer->temp2_identifier;
+                else if(meta_type_flag == META_PATTERN_FLAG_TEMP_VARIABLE_3)
+                    temp_identifier = optimizer->temp3_identifier;
+                else if(meta_type_flag == META_PATTERN_FLAG_TEMP_VARIABLE_4)
+                    temp_identifier = optimizer->temp4_identifier;
+                else if(meta_type_flag == META_PATTERN_FLAG_TEMP_VARIABLE_5)
+                    temp_identifier = optimizer->temp5_identifier;
+
+                char* operand_identifier = code_instruction_render_variable_identifier(
+                                               operand->data.variable);
+                const bool are_same = strcmp(temp_identifier, operand_identifier) == 0;
+                memory_free(operand_identifier);
+
+                if(are_same)
+                    return true;
+
+                return false;
+            }
 
             case META_PATTERN_FLAG_INT_LITERAL:
             case META_PATTERN_FLAG_INT_LITERAL_ZERO:

@@ -21,9 +21,17 @@ int main(int argc, char** argv) {
 
     setbuf(stdout, NULL);
 
-    CodeOptimizer* optimizer = code_optimizer_init(parser->code_constructor->generator);
-    while(code_optimizer_remove_unused_variables(optimizer))
-        ;
+    CodeOptimizer* optimizer = code_optimizer_init(parser->code_constructor->generator,
+                                                   parser->parser_semantic->temp_variable1,
+                                                   parser->parser_semantic->temp_variable2,
+                                                   parser->parser_semantic->temp_variable3,
+                                                   parser->parser_semantic->temp_variable4,
+                                                   parser->parser_semantic->temp_variable5);
+
+    bool optimized = false;
+    do {
+        optimized = /*code_optimizer_remove_unused_variables(optimizer) || code_optimizer_remove_unused_functions(optimizer) ||*/ code_optimizer_peep_hole_optimization(optimizer);
+    } while(optimized);
     code_optimizer_free(&optimizer);
 
     code_generator_render(parser->code_constructor->generator, stdout);

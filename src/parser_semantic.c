@@ -253,6 +253,12 @@ bool parser_semantic_add_function_parameter(ParserSemantic* parser_semantic, cha
     if(parser_semantic->actual_action == SEMANTIC_ACTION__FUNCTION_DECLARATION ||
        !parser_semantic->was_actual_function_declared) {
 
+        // check if it is a function name
+        if(!parser_semantic->was_actual_function_declared && symbol_table_function_get(parser_semantic->register_->functions, name) != NULL) {
+            parser_semantic->error_report.error_code = ERROR_SEMANTIC_DEFINITION;
+            return false;
+        }
+
         // Check duplicity name
         for(size_t i = 1; i <= (size_t) parser_semantic->actual_function->arguments_count; i++) {
             SymbolFunctionParam* param = symbol_function_get_param(parser_semantic->actual_function, i - 1);
@@ -268,6 +274,13 @@ bool parser_semantic_add_function_parameter(ParserSemantic* parser_semantic, cha
         parser_semantic->actual_function->arguments_count++;
 
     } else if(parser_semantic->actual_action == SEMANTIC_ACTION__FUNCTION_DEFINITION) {
+
+        if(!parser_semantic->was_actual_function_declared && symbol_table_function_get(parser_semantic->register_->functions, name) != NULL) {
+            parser_semantic->error_report.error_code = ERROR_SEMANTIC_DEFINITION;
+            return false;
+        }
+
+
         // Function definition, check argument on actual index
         SymbolFunctionParam* parameter = symbol_function_get_param(
                 parser_semantic->actual_function,

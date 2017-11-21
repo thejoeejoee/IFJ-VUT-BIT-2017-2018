@@ -15,6 +15,7 @@ Parser* parser_init(lexer_input_stream_f input_stream) {
     parser->error_report.error_code = ERROR_NONE;
     parser->parser_semantic = parser_semantic_init();
     parser->code_constructor = code_constructor_init();
+    parser->optimizer = code_optimizer_init(parser->code_constructor->generator);
     parser->run_type = PARSER_RUN_TYPE_ALL;
     parser->body_statement = false;
     parser->error_report.error_code = ERROR_NONE;
@@ -27,6 +28,7 @@ void parser_free(Parser** parser) {
     lexer_free(&((*parser)->lexer));
     parser_semantic_free(&((*parser)->parser_semantic));
     code_constructor_free(&((*parser)->code_constructor));
+    code_optimizer_free(&((*parser)->optimizer));
     memory_free(*parser);
     *parser = NULL;
 }

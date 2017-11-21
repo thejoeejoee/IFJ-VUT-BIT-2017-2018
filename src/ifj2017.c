@@ -21,10 +21,8 @@ int main(int argc, char** argv) {
 
     setbuf(stdout, NULL);
 
-    CodeOptimizer* optimizer = code_optimizer_init(parser->code_constructor->generator);
-    while(code_optimizer_remove_unused_variables(optimizer))
+    while(code_optimizer_remove_unused_variables(parser->optimizer))
         ;
-    code_optimizer_free(&optimizer);
 
     code_generator_render(parser->code_constructor->generator, stdout);
 

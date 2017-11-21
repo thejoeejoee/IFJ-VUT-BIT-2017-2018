@@ -213,10 +213,12 @@ ExprToken* create_expr_token(ExprTokenType type) {
 }
 
 ExprToken* create_expression(ExprIdx index) {
-    ExprToken* t;
-    t = memory_alloc(sizeof(ExprToken));
+    ExprToken* t = memory_alloc(sizeof(ExprToken));
     t->type = EXPR_EXPRESSION;
     t->data.idx = index;
+    t->is_constant = false;
+    t->instruction = NULL;
+    t->data_type = DATA_TYPE_NONE;
     return t;
 }
 

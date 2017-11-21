@@ -4,6 +4,7 @@
 #include "lexer.h"
 #include "llist.h"
 #include "data_type.h"
+#include "code_instruction.h"
 
 extern const int prec_table_size;
 extern const char* prec_table;
@@ -61,7 +62,7 @@ typedef enum {
 
 typedef unsigned ExprIdx;
 
-typedef union expr_data_u {
+typedef union {
     ExprIdx idx;
     char* s;
     bool b;
@@ -74,6 +75,8 @@ typedef struct expr_token_t {
     ExprData data;
 
     DataType data_type;
+	bool is_constant;
+	CodeInstruction* instruction;
 } ExprToken;
 
 ExprToken* expr_token_init();

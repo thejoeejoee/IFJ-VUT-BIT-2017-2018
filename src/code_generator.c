@@ -212,15 +212,20 @@ void code_generator_append_instruction(
     }
 }
 
-void code_generator_remove_instruction(CodeGenerator* generator, CodeInstruction* instruction)
-{
+void code_generator_remove_instruction(CodeGenerator* generator, CodeInstruction* instruction) {
     NULL_POINTER_CHECK(generator,);
     NULL_POINTER_CHECK(instruction,);
-
-    if(generator->last == instruction)
-        generator->last = instruction->prev;
-    if(generator->first == instruction)
-        generator->first = instruction->next;
+    if(generator->to_buffer) {
+        if(generator->buffer_last == instruction)
+            generator->buffer_last = instruction->prev;
+        if(generator->buffer_first == instruction)
+            generator->buffer_first = instruction->next;
+    } else {
+        if(generator->last == instruction)
+            generator->last = instruction->prev;
+        if(generator->first == instruction)
+            generator->first = instruction->next;
+    }
 
     if(instruction->prev)
         instruction->prev->next = instruction->next;
@@ -377,8 +382,7 @@ void code_generator_flush_buffer(CodeGenerator* generator) {
     }
 }
 
-CodeInstruction* code_generator_last_instruction(CodeGenerator* generator)
-{
+CodeInstruction* code_generator_last_instruction(CodeGenerator* generator) {
     if(generator->to_buffer)
         return generator->buffer_last;
     return generator->last;

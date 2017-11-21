@@ -173,6 +173,10 @@ void code_optimizer_update_function_meta_data(CodeOptimizer* optimizer, CodeInst
     NULL_POINTER_CHECK(optimizer, );
     NULL_POINTER_CHECK(instruction, );
 
+    if(instruction->type == I_CALL) {
+        code_optimizer_function_meta_data(optimizer, instruction->op0->data.label)->call_count++;
+    }
+
     if(current_func_label == NULL)
         return;
 
@@ -464,7 +468,7 @@ SymbolTable* code_optimizer_check_ph_pattern(CodeOptimizer* optimizer, PeepHoleP
 
         for(int i = 0; i < operands_max_count; i++) {
             if(operands_aliases[i] != NULL) {
-                MappedOperand* mapped_operand = (MappedOperand*)symbol_table_function_get_or_create(mapped_operands, operands_aliases[i]);
+                MappedOperand* mapped_operand = (MappedOperand*)symbol_table_get_or_create(mapped_operands, operands_aliases[i]);
 
                 if(mapped_operand->operand == NULL)
                     mapped_operand->operand = code_instruction_operand_copy(operands[i]);
@@ -670,4 +674,38 @@ bool check_operand_with_meta_type_flag(CodeInstructionOperand* operand, MetaPHPa
     }
 
     return true;
+}
+
+bool code_optimizer_remove_unused_functions(CodeOptimizer* optimizer)
+{
+    NULL_POINTER_CHECK(optimizer, false);
+
+    code_optimizer_update_meta_data(optimizer);
+
+    CodeInstruction* instruction = optimizer->generator->first;
+    bool removing_function = false;
+    bool removed_something = false;
+
+    while(instruction != NULL) {
+        if(instruction->type == I_LABEL && instruction->meta_data.type == CODE_INSTRUCTION_META_TYPE_FUNCTION_START) {
+            const FunctionMetaData* function_meta_data = code_optimizer_function_meta_data(optimizer, instruction->op0->data.label);
+
+            if(function_meta_data->call_count == 0)
+                removing_function = true;
+        }
+
+        if(removing_function) {
+            if(instruction->meta_data.type == CODE_INSTRUCTION_META_TYPE_FUNCTION_END)
+                removing_function = false;
+            CodeInstruction* next_instruction = instruction->next;
+            code_generator_remove_instruction(optimizer->generator, instruction);
+            removed_something = true;
+            instruction = next_instruction;
+        }
+
+        else {
+            instruction = instruction->next;
+        }
+    }
+    return removed_something;
 }

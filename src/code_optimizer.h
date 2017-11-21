@@ -124,5 +124,6 @@ void code_optimizer_update_label_meta_data(CodeOptimizer* optimizer, CodeInstruc
 // optimizing functions
 bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer);
 bool code_optimizer_peep_hole_optimization(CodeOptimizer* optimizer);
+bool code_optimizer_remove_unused_functions(CodeOptimizer* optimizer);
 
 #endif // CODE_OPTIMIZER_H

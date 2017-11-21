@@ -118,6 +118,17 @@ CodeOptimizer* code_optimizer_init(CodeGenerator* generator, SymbolVariable* tem
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_CONCAT_STRING, "!b", "!c", "!b", -1, -1, -1);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "!b", NULL, NULL, -1, 0, 0);
 
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "1a", "b", NULL, -1, -1, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_WRITE, "1a", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_WRITE, "b", NULL, NULL);
+
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "!a", "b", NULL, -1, -1, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_WRITE, "!a", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_MOVE, "!a", "b", NULL);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_WRITE, "b", NULL, NULL);
+
     return optimizer;
 }
 

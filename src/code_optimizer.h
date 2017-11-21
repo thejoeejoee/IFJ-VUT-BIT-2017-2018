@@ -8,7 +8,6 @@
 #include "llist.h"
 
 typedef struct code_optimizer_t {
-    CodeInstruction* first_instruction;
     CodeGenerator* generator;
     SymbolTable* variables_meta_data;
     SymbolTable* functions_meta_data;

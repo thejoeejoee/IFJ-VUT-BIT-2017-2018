@@ -129,7 +129,7 @@ void code_optimizer_update_meta_data(CodeOptimizer* optimizer) {
     symbol_table_clear_buckets(optimizer->labels_meta_data);
     symbol_table_clear_buckets(optimizer->functions_meta_data);
 
-    CodeInstruction* instruction = optimizer->first_instruction;
+    CodeInstruction* instruction = optimizer->generator->first;
     const char* current_function = NULL;
 
     while(instruction != NULL) {
@@ -149,7 +149,7 @@ void code_optimizer_update_meta_data(CodeOptimizer* optimizer) {
     }
 
     // another loop to spread dynamic
-    instruction = optimizer->first_instruction;
+    instruction = optimizer->generator->first;
     CodeInstruction* expr_start_instruction = NULL;
     while(instruction != NULL) {
         if(instruction->meta_data.type & CODE_INSTRUCTION_META_TYPE_EXPRESSION_START)
@@ -331,7 +331,7 @@ LabelMetaData* code_optimizer_label_meta_data(CodeOptimizer* optimizer, const ch
 bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer) {
     NULL_POINTER_CHECK(optimizer, false);
 
-    CodeInstruction* instruction = optimizer->first_instruction;
+    CodeInstruction* instruction = optimizer->generator->first;
     const size_t max_operands_count = 3;
     bool remove_something = false;
     MetaType expression_purity = META_TYPE_PURE;
@@ -340,7 +340,7 @@ bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer) {
     code_optimizer_update_meta_data(optimizer);
 
     // optimize
-    instruction = optimizer->first_instruction;
+    instruction = optimizer->generator->first;
 
     while(instruction) {
         bool delete_instruction = false;
@@ -391,7 +391,6 @@ bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer) {
             instruction = instruction->next;
     }
 
-    optimizer->first_instruction = optimizer->generator->first;
     return remove_something;
 }
 

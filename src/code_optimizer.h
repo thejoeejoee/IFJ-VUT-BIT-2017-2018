@@ -13,11 +13,11 @@ typedef struct code_optimizer_t {
     SymbolTable* functions_meta_data;
     SymbolTable* labels_meta_data;
     LList* peep_hole_patterns;
-    char* temp1_identifier;
-    char* temp2_identifier;
-    char* temp3_identifier;
-    char* temp4_identifier;
-    char* temp5_identifier;
+    SymbolVariable* temp1;
+    SymbolVariable* temp2;
+    SymbolVariable* temp3;
+    SymbolVariable* temp4;
+    SymbolVariable* temp5;
 } CodeOptimizer;
 
 typedef struct variable_meta_data_t {

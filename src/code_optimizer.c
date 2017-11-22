@@ -18,11 +18,11 @@ CodeOptimizer* code_optimizer_init(CodeGenerator* generator, SymbolVariable* tem
     optimizer->labels_meta_data = symbol_table_init(32, sizeof(LabelMetaData), &init_label_meta_data, NULL);
 
     optimizer->generator = generator;
-    optimizer->temp1_identifier = code_instruction_render_variable_identifier(temp1);
-    optimizer->temp2_identifier = code_instruction_render_variable_identifier(temp2);
-    optimizer->temp3_identifier = code_instruction_render_variable_identifier(temp3);
-    optimizer->temp4_identifier = code_instruction_render_variable_identifier(temp4);
-    optimizer->temp5_identifier = code_instruction_render_variable_identifier(temp5);
+    optimizer->temp1 = temp1;
+    optimizer->temp2 = temp2;
+    optimizer->temp3 = temp3;
+    optimizer->temp4 = temp4;
+    optimizer->temp5 = temp5;
 
     llist_init(&optimizer->peep_hole_patterns, sizeof(PeepHolePattern), &init_peep_hole_pattern, &free_peep_hole_pattern, NULL);
 
@@ -160,11 +160,6 @@ void code_optimizer_free(CodeOptimizer** optimizer) {
     NULL_POINTER_CHECK(optimizer, );
     NULL_POINTER_CHECK(*optimizer, );
 
-    memory_free((*optimizer)->temp1_identifier);
-    memory_free((*optimizer)->temp2_identifier);
-    memory_free((*optimizer)->temp3_identifier);
-    memory_free((*optimizer)->temp4_identifier);
-    memory_free((*optimizer)->temp5_identifier);
     symbol_table_free((*optimizer)->variables_meta_data);
     symbol_table_free((*optimizer)->functions_meta_data);
     symbol_table_free((*optimizer)->labels_meta_data);
@@ -696,22 +691,19 @@ bool code_optimizer_check_operand_with_meta_type_flag(CodeOptimizer* optimizer, 
                 if(operand->type != TYPE_INSTRUCTION_OPERAND_VARIABLE)
                     return false;
 
-                char* temp_identifier = NULL;
+                SymbolVariable* temp_var = NULL;
                 if(meta_type_flag == META_PATTERN_FLAG_TEMP_VARIABLE_1)
-                    temp_identifier = optimizer->temp1_identifier;
+                    temp_var = optimizer->temp1;
                 else if(meta_type_flag == META_PATTERN_FLAG_TEMP_VARIABLE_2)
-                    temp_identifier = optimizer->temp2_identifier;
+                    temp_var = optimizer->temp2;
                 else if(meta_type_flag == META_PATTERN_FLAG_TEMP_VARIABLE_3)
-                    temp_identifier = optimizer->temp3_identifier;
+                    temp_var = optimizer->temp3;
                 else if(meta_type_flag == META_PATTERN_FLAG_TEMP_VARIABLE_4)
-                    temp_identifier = optimizer->temp4_identifier;
+                    temp_var = optimizer->temp4;
                 else if(meta_type_flag == META_PATTERN_FLAG_TEMP_VARIABLE_5)
-                    temp_identifier = optimizer->temp5_identifier;
+                    temp_var = optimizer->temp5;
 
-                char* operand_identifier = code_instruction_render_variable_identifier(
-                                               operand->data.variable);
-                const bool are_same = strcmp(temp_identifier, operand_identifier) == 0;
-                memory_free(operand_identifier);
+                const bool are_same = symbol_variable_cmp(temp_var, operand->data.variable);
 
                 return are_same;
             }

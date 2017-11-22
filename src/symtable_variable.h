@@ -69,6 +69,8 @@ SymbolVariable* symbol_variable_init_from_function_param(SymbolFunction* functio
  */
 void symbol_variable_single_free(SymbolVariable** variable);
 
+bool symbol_variable_cmp(SymbolVariable* first, SymbolVariable* second);
+
 #define symbol_table_variable_init(bucket_count) symbol_table_init( \
     bucket_count, \
     sizeof(SymbolVariable), \

@@ -105,3 +105,21 @@ SymbolVariable* symbol_variable_init_flag_for_static_variable(
     declaration_flag_variable->frame = VARIABLE_FRAME_GLOBAL;
     return declaration_flag_variable;
 }
+
+bool symbol_variable_cmp(SymbolVariable* first, SymbolVariable* second)
+{
+    if(first->frame != second->frame)
+        return false;
+
+    if((first->alias_name != second->alias_name && first->alias_name == NULL) ||
+            (first->alias_name == NULL && strcmp(first->base.key, second->base.key) != 0) ||
+            (first->alias_name != NULL && strcmp(first->alias_name, second->alias_name) != 0))
+        return false;
+
+    if((first->scope_alias != second->scope_alias && first->scope_alias == NULL) ||
+            (first->scope_alias == NULL && first->scope_depth != second->scope_depth) ||
+            (first->scope_alias != NULL && strcmp(first->scope_alias, second->scope_alias) != 0))
+        return false;
+
+    return true;
+}

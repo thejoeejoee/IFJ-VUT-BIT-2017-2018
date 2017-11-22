@@ -10,6 +10,7 @@
 #include "common.h"
 #include "token.h"
 #include "code_constructor.h"
+#include "code_optimizer.h"
 
 //Todo: we need to invent better macros
 #define GET_NEXT_TOKEN_TYPE() do { \
@@ -195,15 +196,10 @@ typedef struct parser_t {
     ParserSemantic* parser_semantic;
     ErrorReport error_report;
     CodeConstructor* code_constructor;
+    CodeOptimizer* optimizer;
+    bool body_statement;
 
     int run_type;
-
-    bool body_statement; // TODO: cannot by done with semantic parser action?
-
-    /** GET_NEXT_TOKEN_TYPE()
-    * Token token;
-    * TokenType token_type;
-    */
 } Parser;
 
 /**

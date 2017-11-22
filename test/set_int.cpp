@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 
 extern "C" {
-#include "../src/setint.h"
+#include "../src/set_int.h"
 }
 
 class SetIntTestFixture: public testing::Test {

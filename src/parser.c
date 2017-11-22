@@ -74,8 +74,6 @@ bool parser_parse_program(Parser* parser) {
      */
     CODE_GENERATION(
             {
-                parser_semantic_setup_temp_variables(parser->parser_semantic);
-
                 code_constructor_variable_declaration(
                         parser->code_constructor,
                         parser->parser_semantic->temp_variable1

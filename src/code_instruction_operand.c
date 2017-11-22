@@ -357,6 +357,6 @@ bool code_instruction_operand_cmp(CodeInstructionOperand* first, CodeInstruction
             return strcmp(first->data.constant.data.string->content, second->data.constant.data.string->content) == 0;
     }
 
-    ASSERT(false);
+    LOG_WARNING("Undefined operands comparison.");
     return false;
 }

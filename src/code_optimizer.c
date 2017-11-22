@@ -735,7 +735,7 @@ bool code_optimizer_check_operand_with_meta_type_flag(CodeOptimizer* optimizer, 
                 return operand->type == TYPE_INSTRUCTION_OPERAND_LABEL;
 
             default:
-                ASSERT(false);
+                LOG_WARNING("Undefined meta pattern flag.");
                 break;
         }
     }

@@ -45,6 +45,9 @@ typedef struct code_instruction_operand_t {
     CodeInstructionOperandData data;
 } CodeInstructionOperand;
 
+CodeInstructionOperand* code_instruction_operand_copy(CodeInstructionOperand* other);
+bool code_instruction_operand_cmp(CodeInstructionOperand* first, CodeInstructionOperand* second);
+
 CodeInstructionOperand* code_instruction_operand_init_integer(int integer);
 
 CodeInstructionOperand* code_instruction_operand_init_string(String* string);

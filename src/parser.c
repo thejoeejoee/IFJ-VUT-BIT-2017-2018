@@ -15,7 +15,12 @@ Parser* parser_init(lexer_input_stream_f input_stream) {
     parser->error_report.error_code = ERROR_NONE;
     parser->parser_semantic = parser_semantic_init();
     parser->code_constructor = code_constructor_init();
-    parser->optimizer = code_optimizer_init(parser->code_constructor->generator);
+    parser->optimizer = code_optimizer_init(parser->code_constructor->generator,
+                                            parser->parser_semantic->temp_variable1,
+                                            parser->parser_semantic->temp_variable2,
+                                            parser->parser_semantic->temp_variable3,
+                                            parser->parser_semantic->temp_variable4,
+                                            parser->parser_semantic->temp_variable5);
     parser->run_type = PARSER_RUN_TYPE_ALL;
     parser->body_statement = false;
     parser->error_report.error_code = ERROR_NONE;
@@ -264,19 +269,19 @@ bool parser_parse_function_definition(Parser* parser) {
             );
     );
 
-            CODE_GENERATION(
-                {
-                    if(before_instruction == NULL)
-                        parser->code_constructor->generator->buffer_first
+    CODE_GENERATION(
+            {
+                if(before_instruction == NULL)
+                    parser->code_constructor->generator->buffer_first
                             ->meta_data.type = CODE_INSTRUCTION_META_TYPE_FUNCTION_START;
-                    else
-                        before_instruction->next
+                else
+                    before_instruction->next
                             ->meta_data.type = CODE_INSTRUCTION_META_TYPE_FUNCTION_START;
 
-                    parser->code_constructor->generator->buffer_last
-                            ->meta_data.type |= CODE_INSTRUCTION_META_TYPE_FUNCTION_END;
-                }
-            );
+                parser->code_constructor->generator->buffer_last
+                        ->meta_data.type |= CODE_INSTRUCTION_META_TYPE_FUNCTION_END;
+            }
+    );
 
     parser->parser_semantic->actual_function = NULL;
     return true;
@@ -358,14 +363,14 @@ bool parser_parse_function_statement_single(Parser* parser) {
     RULES(
             CONDITIONAL_RULES(
                     CHECK_RULE(token_type == TOKEN_IDENTIFIER, identifier_assignment, REWIND_AND_SUCCESS);
-                    CHECK_RULE(token_type == TOKEN_INPUT, input, REWIND_AND_SUCCESS);
-                    CHECK_RULE(token_type == TOKEN_RETURN, return_, REWIND_AND_SUCCESS);
-                    CHECK_RULE(token_type == TOKEN_PRINT, print, REWIND_AND_SUCCESS);
-                    CHECK_RULE(token_type == TOKEN_IF, condition, REWIND_AND_SUCCESS);
-                    CHECK_RULE(token_type == TOKEN_DO, while_, REWIND_AND_SUCCESS);
-                    CHECK_RULE(token_type == TOKEN_DIM, variable_declaration, REWIND_AND_SUCCESS);
-                    CHECK_RULE(token_type == TOKEN_STATIC, static_variable_declaration, REWIND_AND_SUCCESS);
-            );
+            CHECK_RULE(token_type == TOKEN_INPUT, input, REWIND_AND_SUCCESS);
+            CHECK_RULE(token_type == TOKEN_RETURN, return_, REWIND_AND_SUCCESS);
+            CHECK_RULE(token_type == TOKEN_PRINT, print, REWIND_AND_SUCCESS);
+            CHECK_RULE(token_type == TOKEN_IF, condition, REWIND_AND_SUCCESS);
+            CHECK_RULE(token_type == TOKEN_DO, while_, REWIND_AND_SUCCESS);
+            CHECK_RULE(token_type == TOKEN_DIM, variable_declaration, REWIND_AND_SUCCESS);
+            CHECK_RULE(token_type == TOKEN_STATIC, static_variable_declaration, REWIND_AND_SUCCESS);
+    );
     );
     return false;
 }
@@ -385,13 +390,13 @@ bool parser_parse_body_statement_single(Parser* parser) {
     RULES(
             CONDITIONAL_RULES(
                     CHECK_RULE(token_type == TOKEN_INPUT, input, REWIND_AND_SUCCESS);
-                    CHECK_RULE(token_type == TOKEN_IDENTIFIER, identifier_assignment, REWIND_AND_SUCCESS);
-                    CHECK_RULE(token_type == TOKEN_DO, while_, REWIND_AND_SUCCESS);
-                    CHECK_RULE(token_type == TOKEN_PRINT, print, REWIND_AND_SUCCESS);
-                    CHECK_RULE(token_type == TOKEN_SCOPE, scope, REWIND_AND_SUCCESS);
-                    CHECK_RULE(token_type == TOKEN_IF, condition, REWIND_AND_SUCCESS);
-                    CHECK_RULE(token_type == TOKEN_DIM, variable_declaration, REWIND_AND_SUCCESS);
-            );
+            CHECK_RULE(token_type == TOKEN_IDENTIFIER, identifier_assignment, REWIND_AND_SUCCESS);
+            CHECK_RULE(token_type == TOKEN_DO, while_, REWIND_AND_SUCCESS);
+            CHECK_RULE(token_type == TOKEN_PRINT, print, REWIND_AND_SUCCESS);
+            CHECK_RULE(token_type == TOKEN_SCOPE, scope, REWIND_AND_SUCCESS);
+            CHECK_RULE(token_type == TOKEN_IF, condition, REWIND_AND_SUCCESS);
+            CHECK_RULE(token_type == TOKEN_DIM, variable_declaration, REWIND_AND_SUCCESS);
+    );
     );
 
     return false;
@@ -599,9 +604,9 @@ bool parser_parse_variable_declaration(Parser* parser) {
                             );
 
                             if(parser->parser_semantic->actual_variable == NULL) {
-                                token_free(&token);
-                                return false;
-                            }
+                        token_free(&token);
+                        return false;
+                    }
                     }
             );
             CODE_GENERATION(
@@ -630,10 +635,10 @@ bool parser_parse_shared_variables_declarations(Parser* parser) {
             CHECK_RULE(eols);
             CONDITIONAL_RULES(
                     lexer_rewind_token(parser->lexer, token);
-                    CHECK_RULE(token_type != TOKEN_DIM, epsilon, NO_CODE);
-                    CHECK_RULE(shared_variable_declaration);
-                    CHECK_RULE(shared_variables_declarations);
-            );
+            CHECK_RULE(token_type != TOKEN_DIM, epsilon, NO_CODE);
+            CHECK_RULE(shared_variable_declaration);
+            CHECK_RULE(shared_variables_declarations);
+    );
     );
 
     return true;
@@ -931,7 +936,7 @@ bool parser_parse_input(Parser* parser) {
 
     CODE_GENERATION(
             {
-                    code_constructor_input(parser->code_constructor, symbol_variable);
+                code_constructor_input(parser->code_constructor, symbol_variable);
             }
     );
     return true;
@@ -1110,8 +1115,8 @@ bool parser_parse_declaration_assignment(Parser* parser) {
 
             CONDITIONAL_RULES(
                     lexer_rewind_token(parser->lexer, token);
-                    CHECK_RULE(token_type == TOKEN_EQUAL, assignment, NO_CODE);
-            );
+            CHECK_RULE(token_type == TOKEN_EQUAL, assignment, NO_CODE);
+    );
     );
     return true;
 }
@@ -1132,9 +1137,9 @@ bool parser_parse_identifier_assignment(Parser* parser) {
                                             token.data
                                     );
 
-                                    if (parser->parser_semantic->actual_variable == NULL) {
-                                            parser->parser_semantic->error_report.error_code = ERROR_SEMANTIC_DEFINITION;
-                                    }
+                                    if(parser->parser_semantic->actual_variable == NULL) {
+                                parser->parser_semantic->error_report.error_code = ERROR_SEMANTIC_DEFINITION;
+                            }
                             }
                     )
             );
@@ -1182,13 +1187,13 @@ bool parser_parse_assignment(Parser* parser) {
             UNUSED(before_expression_instruction);
 
             CODE_GENERATION(
-                before_expression_instruction = code_generator_last_instruction(parser->code_constructor->generator);
-            );
+            before_expression_instruction = code_generator_last_instruction(parser->code_constructor->generator);
+    );
             CALL_EXPRESSION_RULE(expression_data_type);
             CODE_GENERATION(
-                before_expression_instruction->next
-                        ->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_START;
-            );
+            before_expression_instruction->next
+            ->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_START;
+    );
     );
     SEMANTIC_ANALYSIS(
             {
@@ -1208,7 +1213,8 @@ bool parser_parse_assignment(Parser* parser) {
                         parser->code_constructor,
                         actual_variable
                 );
-                code_generator_last_instruction(parser->code_constructor->generator)->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_END;
+                code_generator_last_instruction(
+                        parser->code_constructor->generator)->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_END;
             }
     );
 
@@ -1216,6 +1222,7 @@ bool parser_parse_assignment(Parser* parser) {
 }
 
 #define SHORTEN_OPERATORS_COUNT 5
+
 bool parser_parse_modify_assignment(Parser* parser) {
     /*
      * RULE
@@ -1258,13 +1265,14 @@ bool parser_parse_modify_assignment(Parser* parser) {
             UNUSED(constructor);
             CodeInstruction* before_expression_instruction = NULL;
             CODE_GENERATION(
-                 before_expression_instruction = code_generator_last_instruction(parser->code_constructor->generator);
-            );
+                    before_expression_instruction = code_generator_last_instruction(
+                            parser->code_constructor->generator);
+    );
             CALL_EXPRESSION_RULE(expression_data_type);
             CODE_GENERATION(
-                before_expression_instruction->next
-                        ->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_START;
-            );
+            before_expression_instruction->next
+            ->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_START;
+    );
     );
 
     SEMANTIC_ANALYSIS(
@@ -1336,7 +1344,7 @@ bool parser_parse_modify_assignment(Parser* parser) {
                     );
                     GENERATE_CODE(I_POP_STACK, code_instruction_operand_init_variable(actual_variable));
                     code_generator_last_instruction(parser->code_constructor->generator)
-                        ->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_END;
+                            ->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_END;
                 }
             }
     );
@@ -1344,4 +1352,5 @@ bool parser_parse_modify_assignment(Parser* parser) {
     parser->parser_semantic->actual_variable = NULL;
     return true;
 }
+
 #undef SHORTEN_OPERATORS_COUNT

@@ -40,6 +40,31 @@ void code_instruction_operand_free(CodeInstructionOperand** operand_) {
     *operand_ = NULL;
 }
 
+CodeInstructionOperand* code_instruction_operand_copy(CodeInstructionOperand* other)
+{
+    if(other == NULL)
+        return NULL;
+
+    if(other->type == TYPE_INSTRUCTION_OPERAND_VARIABLE)
+        return code_instruction_operand_init_variable(other->data.variable);
+    else if(other->type == TYPE_INSTRUCTION_OPERAND_LABEL)
+        return code_instruction_operand_init_label(other->data.label);
+    else if(other->type == TYPE_INSTRUCTION_OPERAND_DATA_TYPE)
+        return code_instruction_operand_init_data_type(other->data.constant.data_type);
+    else if(other->type == TYPE_INSTRUCTION_OPERAND_CONSTANT) {
+        if(other->data.constant.data_type == DATA_TYPE_INTEGER)
+            return code_instruction_operand_init_integer(other->data.constant.data.integer);
+        else if(other->data.constant.data_type == DATA_TYPE_DOUBLE)
+            return code_instruction_operand_init_double(other->data.constant.data.double_);
+        else if(other->data.constant.data_type == DATA_TYPE_BOOLEAN)
+            return code_instruction_operand_init_boolean(other->data.constant.data.boolean);
+        else if(other->data.constant.data_type == DATA_TYPE_STRING)
+            return code_instruction_operand_init_string(other->data.constant.data.string);
+    }
+
+    return NULL;
+}
+
 CodeInstructionOperand* code_instruction_operand_init_variable(SymbolVariable* variable) {
     CodeInstructionOperandData data = {.variable=symbol_variable_copy(variable)};
     NULL_POINTER_CHECK(data.variable, NULL);
@@ -298,4 +323,40 @@ char* code_instruction_render_variable_identifier(SymbolVariable* variable)
     code_instruction_operand_render_variable_identifier(variable, rendered, max_len);
 
     return rendered;
+}
+
+bool code_instruction_operand_cmp(CodeInstructionOperand* first, CodeInstructionOperand* second)
+{
+    if(first == NULL || second == NULL)
+        return (first == NULL && second == NULL);
+
+    if(first->type != second->type)     // type match
+        return false;
+
+    if(first->type == TYPE_INSTRUCTION_OPERAND_VARIABLE) {
+        char* first_identifier = code_instruction_operand_render(first);
+        char* second_identifier = code_instruction_operand_render(second);
+        bool cmp_res = strcmp(first_identifier, second_identifier);
+        memory_free(first_identifier);
+        memory_free(second_identifier);
+
+        return cmp_res == 0;
+    }
+    else if(first->type == TYPE_INSTRUCTION_OPERAND_LABEL)
+        return strcmp(first->data.label, second->data.label) == 0;
+    else if(first->type == TYPE_INSTRUCTION_OPERAND_DATA_TYPE)
+        return first->data.constant.data_type == second->data.constant.data_type;
+    else if(first->type == TYPE_INSTRUCTION_OPERAND_CONSTANT) {
+        if(first->data.constant.data_type == DATA_TYPE_INTEGER)
+            return first->data.constant.data.integer == second->data.constant.data.integer;
+        else if(first->data.constant.data_type == DATA_TYPE_DOUBLE)
+            return first->data.constant.data.double_ == second->data.constant.data.double_;
+        else if(first->data.constant.data_type == DATA_TYPE_BOOLEAN)
+            return first->data.constant.data.boolean == second->data.constant.data.boolean;
+        else if(first->data.constant.data_type == DATA_TYPE_STRING)
+            return strcmp(first->data.constant.data.string->content, second->data.constant.data.string->content) == 0;
+    }
+
+    LOG_WARNING("Undefined operands comparison.");
+    return false;
 }

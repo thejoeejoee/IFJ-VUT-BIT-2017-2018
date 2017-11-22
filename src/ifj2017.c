@@ -21,6 +21,7 @@ int main(int argc, char** argv) {
 
     setbuf(stdout, NULL);
 
+
     while(code_optimizer_remove_unused_variables(parser->optimizer))
         ;
 

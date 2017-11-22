@@ -102,6 +102,14 @@ CodeOptimizer* code_optimizer_init(CodeGenerator* generator, SymbolVariable* tem
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "!b", NULL, NULL, -1, 0, 0);
     code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL);
 
+    /* Remove concatinating with empty string (reversed operands)
+     * PUSH <a>             => PUSH <a>
+     * PUSH string@
+     * POP <b>
+     * POP <c>
+     * CONCAT <b> <c> <b>
+     * PUSH <b>
+     */
     pattern = code_optimizer_new_ph_pattern(optimizer);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "]_", NULL, NULL, -1, 0, 0);
@@ -111,6 +119,14 @@ CodeOptimizer* code_optimizer_init(CodeGenerator* generator, SymbolVariable* tem
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "!b", NULL, NULL, -1, 0, 0);
     code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL);
 
+    /* Remove concatinating with empty string (resolving for example a = "" + b + "xx"), it's
+     * not first operation to be resolved in expression
+     * PUSH string@         => PUSH <b>
+     * POP <b>
+     * POP <c>
+     * CONCAT <b> <c> <b>
+     * PUSH <b>
+     */
     pattern = code_optimizer_new_ph_pattern(optimizer);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "]_", NULL, NULL, -1, 0, 0);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_STACK, "!b", NULL, NULL, -1, 0, 0);
@@ -118,11 +134,19 @@ CodeOptimizer* code_optimizer_init(CodeGenerator* generator, SymbolVariable* tem
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_CONCAT_STRING, "!b", "!c", "!b", -1, -1, -1);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "!b", NULL, NULL, -1, 0, 0);
 
+    /* Shorten print
+     * MOVE <temp_1> <b>    => WRITE <b>
+     * WRITE <temp_1>
+     */
     pattern = code_optimizer_new_ph_pattern(optimizer);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "1a", "b", NULL, -1, -1, 0);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_WRITE, "1a", NULL, NULL, -1, 0, 0);
     code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_WRITE, "b", NULL, NULL);
 
+    /* Shorten print (can reduce variable in general)
+     * MOVE <a> <b>    => MOVE <a> <b>
+     * WRITE <a>       => WRITE <b>
+     */
     pattern = code_optimizer_new_ph_pattern(optimizer);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "!a", "b", NULL, -1, -1, 0);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_WRITE, "!a", NULL, NULL, -1, 0, 0);

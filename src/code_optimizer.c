@@ -45,6 +45,15 @@ CodeOptimizer* code_optimizer_init(CodeGenerator* generator, SymbolVariable* tem
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_JUMP, "&a", NULL, NULL, 1, 0, 0);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_LABEL, "&a", NULL, NULL, 1, 0, 0);
 
+    /* Deleting unused jump to label, which is used not only once
+     * JUMP <a>         => LABEL <a>
+     * LABEL <a>
+     */
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_JUMP, "&a", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_LABEL, "&a", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_LABEL, "&a", NULL, NULL);
+
     /* Use move instead of stack if (b = a)
      * PUSH <a>         => MOVE <b> <a>
      * POP <b>

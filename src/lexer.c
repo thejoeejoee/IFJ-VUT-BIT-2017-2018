@@ -104,7 +104,7 @@ Token lexer_next_token(Lexer* lexer) {
     do {
         // loop from init state to one of final state
         actual_state = lexer_fsm_next_state(lexer->lexer_fsm, actual_state);
-    } while(!lexer_fsm_is_final_state(actual_state));
+    } while(!LEXER_FSM_IS_FINAL_STATE(actual_state));
 
     token.type = (TokenType) actual_state;
 

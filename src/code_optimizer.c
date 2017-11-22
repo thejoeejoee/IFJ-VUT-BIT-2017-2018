@@ -496,7 +496,7 @@ SymbolTable* code_optimizer_check_ph_pattern(CodeOptimizer* optimizer, PeepHoleP
     while (pattern_instruction != NULL) {
         // means end of program of instruction type mismatch
         if(instruction == NULL || pattern_instruction->type != instruction->type)
-            goto PATTERN_NOT_MATCHED;
+            goto patten_not_matched;
 
         // check operands
         const char* operands_aliases[] = { pattern_instruction->op0_alias, pattern_instruction->op1_alias, pattern_instruction->op2_alias };
@@ -512,7 +512,7 @@ SymbolTable* code_optimizer_check_ph_pattern(CodeOptimizer* optimizer, PeepHoleP
 
                 else {
                     if(!code_instruction_operand_cmp(operands[i], mapped_operand->operand))
-                        goto PATTERN_NOT_MATCHED;
+                        goto patten_not_matched;
                 }
 
                 // check meta pattern flag type
@@ -520,21 +520,21 @@ SymbolTable* code_optimizer_check_ph_pattern(CodeOptimizer* optimizer, PeepHoleP
                 const bool meta_type_flag_matched = code_optimizer_check_operand_with_meta_type_flag(optimizer, mapped_operand->operand, meta_type_flag);
 
                 if(!meta_type_flag_matched)
-                    goto PATTERN_NOT_MATCHED;
+                    goto patten_not_matched;
 
                 // check occurreces count
                 if(operands_occ_count[i] != -1) {
                     if(mapped_operand->operand->type == TYPE_INSTRUCTION_OPERAND_VARIABLE) {
                         const VariableMetaData* var_meta_data = code_optimizer_variable_meta_data(optimizer, mapped_operand->operand->data.variable);
 
-                        if(var_meta_data->occurences_count != operands_occ_count[i])
-                            goto PATTERN_NOT_MATCHED;
+                        if(var_meta_data->occurrences_count != operands_occ_count[i])
+                            goto patten_not_matched;
                     }
 
                     else if(mapped_operand->operand->type == TYPE_INSTRUCTION_OPERAND_LABEL) {
                         const LabelMetaData* label_meta_data = code_optimizer_label_meta_data(optimizer, mapped_operand->operand->data.label);
                         if(label_meta_data->occurrences_count != operands_occ_count[i])
-                            goto PATTERN_NOT_MATCHED;
+                            goto patten_not_matched;
                     }
                 }
             }
@@ -547,7 +547,7 @@ SymbolTable* code_optimizer_check_ph_pattern(CodeOptimizer* optimizer, PeepHoleP
 
     return mapped_operands;
 
-PATTERN_NOT_MATCHED:
+patten_not_matched:
     symbol_table_free(mapped_operands);
     return NULL;
 }
@@ -569,14 +569,16 @@ bool code_optimizer_peep_hole_optimization(CodeOptimizer* optimizer)
             if(mapped_operands != NULL) {
                 // add replacement
                 PeepHolePatternInstruction* ph_pattern_instruction = (PeepHolePatternInstruction*)pattern->replacement_instructions->head;
-                for(size_t i = 0; i < llist_length(pattern->replacement_instructions); i++) {
+                const size_t replacement_pattern_instruction_count = llist_length(pattern->replacement_instructions);
+                for(size_t i = 0; i < replacement_pattern_instruction_count; i++) {
                     CodeInstruction* replacement_instruction = code_optimizer_new_instruction_with_mapped_operands(optimizer, ph_pattern_instruction, mapped_operands);
                     code_generator_insert_instruction_before(optimizer->generator, replacement_instruction ,instruction);
                     ph_pattern_instruction = (PeepHolePatternInstruction*)ph_pattern_instruction->base.next;
                 }
 
                 // remove old
-                for(size_t i = 0; i < llist_length(pattern->matching_instructions); i++) {
+                const size_t matching_pattern_instruction_count = llist_length(pattern->matching_instructions);
+                for(size_t i = 0; i < matching_pattern_instruction_count; i++) {
                     CodeInstruction* temp = instruction->next;
                     code_generator_remove_instruction(optimizer->generator, instruction);
                     instruction = temp;
@@ -687,10 +689,7 @@ bool code_optimizer_check_operand_with_meta_type_flag(CodeOptimizer* optimizer, 
                 const bool are_same = strcmp(temp_identifier, operand_identifier) == 0;
                 memory_free(operand_identifier);
 
-                if(are_same)
-                    return true;
-
-                return false;
+                return are_same;
             }
 
             case META_PATTERN_FLAG_INT_LITERAL:

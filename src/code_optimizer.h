@@ -22,7 +22,7 @@ typedef struct code_optimizer_t {
 
 typedef struct variable_meta_data_t {
     SymbolTableBaseItem base;
-    int occurences_count;
+    int occurrences_count;
     MetaType purity_type;
 } VariableMetaData;
 

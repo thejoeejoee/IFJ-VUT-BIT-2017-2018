@@ -272,7 +272,7 @@ void code_optimizer_update_variable_meta_data(CodeOptimizer* optimizer, CodeInst
         if(instruction->type == I_MOVE && i == 0) // it's first operand
             continue;
 
-        var_meta_data->occurences_count++;
+        var_meta_data->occurrences_count++;
     }
 }
 
@@ -323,7 +323,7 @@ void init_variable_meta_data(SymbolTableBaseItem* item) {
     NULL_POINTER_CHECK(item, );
 
     VariableMetaData* v = (VariableMetaData*) item;
-    v->occurences_count = 0;
+    v->occurrences_count = 0;
     v->purity_type = META_TYPE_PURE;
 }
 
@@ -400,7 +400,7 @@ bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer) {
 
             SymbolVariable* variable = operands[i]->data.variable;
             const size_t variable_occurrences_count = code_optimizer_variable_meta_data(optimizer,
-                                                                                        variable)->occurences_count;
+                                                                                        variable)->occurrences_count;
 
             if(variable_occurrences_count == 0 && variable->frame != VARIABLE_FRAME_TEMP) {
                 delete_expression = instruction->type == I_POP_STACK &&

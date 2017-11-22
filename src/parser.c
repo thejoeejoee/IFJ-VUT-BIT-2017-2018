@@ -72,6 +72,8 @@ bool parser_parse_program(Parser* parser) {
      * RULE
      * <prog> -> <body> <eols> EOF
      */
+
+    NULL_POINTER_CHECK(parser, false);
     CODE_GENERATION(
             {
                 code_constructor_variable_declaration(
@@ -118,6 +120,8 @@ bool parser_parse_body(Parser* parser) {
      * RULE
      * <body> -> <definitions> <scope> <shared_variables_declarations>
      */
+
+    NULL_POINTER_CHECK(parser, false);
     RULES(
             CHECK_RULE(definitions);
 
@@ -141,6 +145,8 @@ bool parser_parse_scope(Parser* parser) {
      * RULE
      * <scope> -> SCOPE EOL <eols> <statements> END SCOPE
      */
+
+    NULL_POINTER_CHECK(parser, false);
     RULES(
             CHECK_TOKEN(TOKEN_SCOPE);
             CODE_GENERATION(
@@ -171,6 +177,8 @@ bool parser_parse_definitions(Parser* parser) {
      * <definitions> -> <eols> <definition> <definitions>
      * <definitions> -> <eols> E
      */
+
+    NULL_POINTER_CHECK(parser, false);
     RULES(
             CHECK_RULE(eols);
             CONDITIONAL_RULES(
@@ -193,6 +201,7 @@ bool parser_parse_definition(Parser* parser) {
      * <definition> -> <shared_variable_declaration>
      */
 
+    NULL_POINTER_CHECK(parser, false);
     RULES(
             CONDITIONAL_RULES(
                     lexer_rewind_token(parser->lexer, token);
@@ -212,6 +221,7 @@ bool parser_parse_function_definition(Parser* parser) {
      * <function_definition> -> <function_header> EOL <eols> <statements> END FUNCTION
      */
 
+    NULL_POINTER_CHECK(parser, false);
     CodeInstruction* before_instruction = NULL;
     CodeConstructor* constructor = parser->code_constructor;
     UNUSED(constructor);
@@ -291,6 +301,7 @@ bool parser_parse_function_statements(Parser* parser) {
      * <function_statements> -> E
      * <function_statements> -> <function_statement_single> EOL <eols> <function_statements>
      */
+    NULL_POINTER_CHECK(parser, false);
     RULES(
             CONDITIONAL_RULES(
                     lexer_rewind_token(parser->lexer, token);
@@ -320,6 +331,7 @@ bool parser_parse_body_statements(Parser* parser) {
      * <body_statements> -> <body_statement_single> EOL <eols> <body_statements>
      */
 
+    NULL_POINTER_CHECK(parser, false);
     RULES(
             CONDITIONAL_RULES(
                     lexer_rewind_token(parser->lexer, token);
@@ -358,6 +370,7 @@ bool parser_parse_function_statement_single(Parser* parser) {
      * <function_statement_single> -> <variable_declaration>
      * <function_statement_single> -> <static_variable_declaration>
      */
+    NULL_POINTER_CHECK(parser, false);
     RULES(
             CONDITIONAL_RULES(
                     CHECK_RULE(token_type == TOKEN_IDENTIFIER, identifier_assignment, REWIND_AND_SUCCESS);
@@ -385,6 +398,7 @@ bool parser_parse_body_statement_single(Parser* parser) {
      * <body_statement_single> -> <variable_declaration>
      */
 
+    NULL_POINTER_CHECK(parser, false);
     RULES(
             CONDITIONAL_RULES(
                     CHECK_RULE(token_type == TOKEN_INPUT, input, REWIND_AND_SUCCESS);
@@ -406,6 +420,7 @@ bool parser_parse_function_declaration(Parser* parser) {
      * RULE
      * <function_declaration> -> DECLARE <function_header> EOL <eols>
      */
+    NULL_POINTER_CHECK(parser, false);
     RULES(
             CHECK_TOKEN(TOKEN_DECLARE);
             SEMANTIC_ANALYSIS(
@@ -428,6 +443,7 @@ bool parser_parse_function_header(Parser* parser) {
      * RULE
      * <function_header> -> FUNCTION IDENTIFIER (<function_params>) AS <type>
      */
+    NULL_POINTER_CHECK(parser, false);
     RULES(
             CHECK_TOKEN(TOKEN_FUNCTION);
             CHECK_TOKEN(TOKEN_IDENTIFIER);
@@ -473,6 +489,7 @@ bool parser_parse_function_params(Parser* parser) {
      * <function_params> -> E
      * <function_params> -> <function_param> <function_n_param>
      */
+    NULL_POINTER_CHECK(parser, false);
     RULES(
             CONDITIONAL_RULES(
                     lexer_rewind_token(parser->lexer, token);
@@ -499,6 +516,7 @@ bool parser_parse_function_n_param(Parser* parser) {
      * <function_n_param> -> E
      * <function_n_param> -> <function_param> <function_n_param>
      */
+    NULL_POINTER_CHECK(parser, false);
     RULES(
             CONDITIONAL_RULES(
                     CHECK_RULE(
@@ -526,6 +544,7 @@ bool parser_parse_function_param(Parser* parser) {
      * RULE
      * <function_param> -> IDENTIFIER AS TYPE
      */
+    NULL_POINTER_CHECK(parser, false);
     char* name = NULL;
     RULES(
             CHECK_TOKEN(TOKEN_IDENTIFIER);
@@ -550,25 +569,19 @@ bool parser_parse_eols(Parser* parser) {
      * <eols> -> E
      * <eols> -> EOL <eols>
      */
-    RULES(
-            CONDITIONAL_RULES(
-                    CHECK_RULE(token_type == TOKEN_EOL, eols, NO_CODE);
-            CHECK_RULE(
-                    epsilon,
-                    BEFORE({}),
-                    AFTER(
-                            {
-                                    lexer_rewind_token(parser->lexer, token);
-                            }
-                    )
-            );
-    );
-    );
+    NULL_POINTER_CHECK(parser, false);
+    Token token = lexer_next_token(parser->lexer);
+    while(token.type == TOKEN_EOL) {
+        token_free(&token);
+        token = lexer_next_token(parser->lexer);
+    }
+    lexer_rewind_token(parser->lexer, token);
+
     return true;
 }
 
 bool parser_parse_epsilon(Parser* parser) {
-    UNUSED(parser);
+    NULL_POINTER_CHECK(parser, false);
     return true;
 }
 
@@ -578,6 +591,7 @@ bool parser_parse_variable_declaration(Parser* parser) {
      * <variable_declaration> -> DIM IDENTIFIER AS <type> <declaration_assignment>
      */
 
+    NULL_POINTER_CHECK(parser, false);
     char* name = NULL;
     RULES(
             CHECK_TOKEN(TOKEN_DIM);
@@ -629,6 +643,7 @@ bool parser_parse_shared_variables_declarations(Parser* parser) {
      * <shared_variables_declarations> -> <shared_variable_declaration>
      */
 
+    NULL_POINTER_CHECK(parser, false);
     RULES(
             CHECK_RULE(eols);
             CONDITIONAL_RULES(
@@ -648,6 +663,7 @@ bool parser_parse_shared_variable_declaration(Parser* parser) {
      * <shared_variable_declaration> -> DIM SHARED IDENTIFIER AS <type>
      */
 
+    NULL_POINTER_CHECK(parser, false);
     char* name = NULL;
     RULES(
             CHECK_TOKEN(TOKEN_DIM);
@@ -698,6 +714,7 @@ bool parser_parse_static_variable_declaration(Parser* parser) {
      * <static_variable_declaration> -> STATIC IDENTIFIER AS <type> <declaration_assignment>
      */
 
+    NULL_POINTER_CHECK(parser, false);
     char* name = NULL;
     RULES(
             CHECK_TOKEN(TOKEN_STATIC);
@@ -756,6 +773,7 @@ bool parser_parse_return_(Parser* parser) {
      * RULE
      * <statement> -> RETURN <expr>
      */
+    NULL_POINTER_CHECK(parser, false);
     DataType expression_data_type;
     CodeConstructor* constructor;
     RULES(
@@ -784,6 +802,7 @@ bool parser_parse_print(Parser* parser) {
      * RULE
      * <print> -> PRINT <print_expression> <print_expressions>
      */
+    NULL_POINTER_CHECK(parser, false);
     RULES(
             CHECK_TOKEN(TOKEN_PRINT);
             CALL_RULE(print_expression);
@@ -798,6 +817,7 @@ bool parser_parse_print_expressions(Parser* parser) {
      * <print_expressions> -> E
      * <print_expressions> -> <print_expression> <print_expressions>
      */
+    NULL_POINTER_CHECK(parser, false);
     RULES(
             CONDITIONAL_RULES(
                     CHECK_RULE(
@@ -839,6 +859,7 @@ bool parser_parse_print_expression(Parser* parser) {
      * RULE
      * <print_expression> -> <expression> SEMICOLON
      */
+    NULL_POINTER_CHECK(parser, false);
     DataType expression_data_type;
 
     RULES(
@@ -861,6 +882,7 @@ bool parser_parse_while_(Parser* parser) {
      * RULE
      * <while_> -> DO WHILE <expression> EOL <eols> <statements> LOOP
      */
+    NULL_POINTER_CHECK(parser, false);
     DataType expression_data_type;
 
     RULES(
@@ -912,6 +934,7 @@ bool parser_parse_input(Parser* parser) {
      * RULE
      * <input> -> INPUT IDENTIFIER
      */
+    NULL_POINTER_CHECK(parser, false);
     SymbolVariable* symbol_variable = NULL;
 
     RULES(
@@ -945,6 +968,7 @@ bool parser_parse_condition(Parser* parser) {
      * RULE
      * <condition> -> IF <expr> THEN EOL <eols> <statements> <condition_elseif> <condition_else> END IF
      */
+    NULL_POINTER_CHECK(parser, false);
     DataType expression_data_type;
 
     RULES(
@@ -999,6 +1023,7 @@ bool parser_parse_condition_elseif(Parser* parser) {
      * <condition_elseif> -> ELSEIF <expr> THEN EOL <statements> <condition_elseif>
      */
 
+    NULL_POINTER_CHECK(parser, false);
     DataType expression_data_type;
 
     RULES(
@@ -1062,6 +1087,7 @@ bool parser_parse_condition_else(Parser* parser) {
      * <condition_else> -> E
      * <condition_else> -> ELSE EOL <eols> <statements>
      */
+    NULL_POINTER_CHECK(parser, false);
     RULES(
             CONDITIONAL_RULES(
                     CHECK_RULE(
@@ -1108,6 +1134,7 @@ bool parser_parse_declaration_assignment(Parser* parser) {
      * <declaration_assignment> -> E
      * <declaration_assignment> -> <assignment>
      */
+    NULL_POINTER_CHECK(parser, false);
 
     RULES(
 
@@ -1124,6 +1151,7 @@ bool parser_parse_identifier_assignment(Parser* parser) {
      * RULE
      * <identifier_assignment> -> IDENTIF <assignment>
      */
+    NULL_POINTER_CHECK(parser, false);
 
     RULES(
             CHECK_TOKEN(
@@ -1156,6 +1184,7 @@ bool parser_parse_assignment(Parser* parser) {
      * <assignment> -> <modify_assignment>
      */
 
+    NULL_POINTER_CHECK(parser, false);
     DataType expression_data_type;
     SymbolVariable* actual_variable = parser->parser_semantic->actual_variable;
     CodeConstructor* constructor = parser->code_constructor;
@@ -1232,6 +1261,7 @@ bool parser_parse_modify_assignment(Parser* parser) {
      * <modify> -> \=
      */
 
+    NULL_POINTER_CHECK(parser, false);
     const int map_diff = (int) TOKEN_AUGMENTED_ASSIGN_OPERATORS + 1;
 
     TypeExpressionOperation token_type_mapped_to_operation[SHORTEN_OPERATORS_COUNT];

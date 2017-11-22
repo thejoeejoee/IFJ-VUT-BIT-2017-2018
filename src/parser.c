@@ -597,9 +597,9 @@ bool parser_parse_variable_declaration(Parser* parser) {
                             );
 
                             if(parser->parser_semantic->actual_variable == NULL) {
-                        token_free(&token);
-                        return false;
-                    }
+                                token_free(&token);
+                                return false;
+                            }
                     }
             );
             CODE_GENERATION(
@@ -1129,6 +1129,10 @@ bool parser_parse_identifier_assignment(Parser* parser) {
                                             parser->parser_semantic->register_,
                                             token.data
                                     );
+
+                                    if (parser->parser_semantic->actual_variable == NULL) {
+                                            parser->parser_semantic->error_report.error_code = ERROR_SEMANTIC_DEFINITION;
+                                    }
                             }
                     )
             );

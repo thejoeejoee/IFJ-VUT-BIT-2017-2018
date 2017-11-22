@@ -130,8 +130,8 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
                 STORE_CHAR(c);
                 return LEX_FSM__BINARY_UNFINISHED;
             }
-
-            return LEX_FSM__ERROR;
+            REWIND_CHAR(c);
+            return LEX_FSM__INTEGER_LITERAL_FINISHED;
 
         case LEX_FSM__BINARY_UNFINISHED:
 
@@ -149,8 +149,8 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
                 STORE_CHAR(c);
                 return LEX_FSM__OCTA_UNFINISHED;
             }
-
-            return LEX_FSM__ERROR;
+                REWIND_CHAR(c);
+                return  LEX_FSM__INTEGER_LITERAL_FINISHED;
 
         case LEX_FSM__OCTA_UNFINISHED:
 
@@ -168,8 +168,8 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
                 STORE_CHAR(tolower(c));
                 return LEX_FSM__HEXA_UNFINISHED;
             }
-
-            return LEX_FSM__ERROR;
+            REWIND_CHAR(c);
+            return LEX_FSM__INTEGER_LITERAL_FINISHED;
 
         case LEX_FSM__HEXA_UNFINISHED:
 

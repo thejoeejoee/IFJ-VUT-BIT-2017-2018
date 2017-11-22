@@ -141,7 +141,6 @@ void code_optimizer_free(CodeOptimizer** optimizer) {
     memory_free((*optimizer)->temp3_identifier);
     memory_free((*optimizer)->temp4_identifier);
     memory_free((*optimizer)->temp5_identifier);
-
     symbol_table_free((*optimizer)->variables_meta_data);
     symbol_table_free((*optimizer)->functions_meta_data);
     symbol_table_free((*optimizer)->labels_meta_data);
@@ -373,6 +372,7 @@ bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer) {
     NULL_POINTER_CHECK(optimizer, false);
 
     CodeInstruction* instruction = optimizer->generator->first;
+
     const size_t max_operands_count = 3;
     bool remove_something = false;
     MetaType expression_purity = META_TYPE_PURE;

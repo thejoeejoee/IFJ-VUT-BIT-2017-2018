@@ -17,6 +17,13 @@ CodeInstructionOperand* code_optimizer_expr_eval(
     if((t2 != NULL && !t2->is_constant))
         return NULL;
 
+    NULL_POINTER_CHECK(t1->instruction, NULL);
+    NULL_POINTER_CHECK(t1->instruction->op0, NULL);
+    if(t2 != NULL) {
+        NULL_POINTER_CHECK(t2->instruction, NULL);
+        NULL_POINTER_CHECK(t2->instruction->op0, NULL);
+    }
+
     // expecting correct data types - by implicit conversions czech check
 
     int result_i = 0;
@@ -139,6 +146,35 @@ CodeInstructionOperand* code_optimizer_expr_eval(
                     default:
                         LOG_WARNING("Unknown operation");
                 }
+                break;
+            }
+            case OPERATION_NOT_EQUAL:
+            case OPERATION_EQUAL: {
+                if(t1->data_type == DATA_TYPE_STRING && t2->data_type == DATA_TYPE_STRING) {
+                    result_i = 0 == strcmp(
+                            string_content(t1->instruction->op0->data.constant.data.string),
+                            string_content(t2->instruction->op0->data.constant.data.string)
+                    );
+                } else {
+                    TRY_TO_PERFORM_OPERATION(t1, DATA_TYPE_DOUBLE, result_d, +);
+                    TRY_TO_PERFORM_OPERATION(t1, DATA_TYPE_INTEGER, result_i, +);
+                    TRY_TO_PERFORM_OPERATION(t1, DATA_TYPE_BOOLEAN, result_i, +);
+
+                    TRY_TO_PERFORM_OPERATION(t2, DATA_TYPE_DOUBLE, result_d, ==);
+                    TRY_TO_PERFORM_OPERATION(t2, DATA_TYPE_INTEGER, result_i, ==);
+                    TRY_TO_PERFORM_OPERATION(t2, DATA_TYPE_BOOLEAN, result_i, ==);
+                }
+                if(signature->operation_type == OPERATION_NOT_EQUAL)
+                    result_i = !result_i;
+                break;
+            }
+
+            case OPERATION_LESSER: {
+                TRY_TO_PERFORM_OPERATION(t1, DATA_TYPE_DOUBLE, result_d, +);
+                TRY_TO_PERFORM_OPERATION(t1, DATA_TYPE_INTEGER, result_i, +);
+
+                TRY_TO_PERFORM_OPERATION(t2, DATA_TYPE_DOUBLE, result_d, <);
+                TRY_TO_PERFORM_OPERATION(t2, DATA_TYPE_INTEGER, result_i, <);
                 break;
             }
 

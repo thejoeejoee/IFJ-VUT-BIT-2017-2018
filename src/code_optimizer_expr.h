@@ -11,6 +11,8 @@
 
 #define TRY_TO_PERFORM_OPERATION(token, data_type_, result, op) do { \
     if((token)->data_type == (data_type_)) {\
+        NULL_POINTER_CHECK((token)->instruction, NULL); \
+        NULL_POINTER_CHECK((token)->instruction->op0, NULL); \
         if ((data_type_) == DATA_TYPE_INTEGER)\
             (result) = (result) op (token)->instruction->op0->data.constant.data.integer; \
         else if ((data_type_) == DATA_TYPE_DOUBLE)\
@@ -19,6 +21,9 @@
             (result) = (result) op (token)->instruction->op0->data.constant.data.boolean; \
         else LOG_WARNING("Unknown data type"); \
 }} while(0)
+
+#define OPERAND_VALUE(operand) \
+    (operand)->data.constant.data_type == DATA_TYPE_INTEGER ? (operand)->data.constant.data.integer
 
 /**
  * Try 'constantize' operation `E op E` by defined signature, source T1 a T2 and result E.

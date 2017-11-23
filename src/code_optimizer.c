@@ -929,8 +929,11 @@ void code_optimizer_removing_instruction(CodeOptimizer* optimizer, CodeInstructi
 
         if(instruction_type == I_READ) {
             VariableMetaData* meta_data = code_optimizer_variable_meta_data(optimizer, operands[i]->data.variable);
-            meta_data->occurrences_count--;
-            meta_data->read_usage_count--;
+
+            if(meta_data->occurrences_count > 0)
+                meta_data->occurrences_count--;
+            if(meta_data->read_usage_count > 0)
+                meta_data->read_usage_count--;
             if(meta_data->read_usage_count == 0)
                 meta_data->purity_type &= ~META_TYPE_DYNAMIC_DEPENDENT;
             break;
@@ -938,7 +941,8 @@ void code_optimizer_removing_instruction(CodeOptimizer* optimizer, CodeInstructi
 
         else {
             VariableMetaData* meta_data = code_optimizer_variable_meta_data(optimizer, operands[i]->data.variable);
-            meta_data->occurrences_count--;
+            if(meta_data->occurrences_count > 0)
+                meta_data->occurrences_count--;
         }
     }
 }

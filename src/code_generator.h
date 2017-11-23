@@ -151,6 +151,7 @@ void code_generator_flush_buffer(CodeGenerator* generator);
 
 
 CodeInstruction* code_generator_last_instruction(CodeGenerator* generator);
+short code_generator_instruction_operands_count(CodeGenerator* generator, TypeInstruction instruction_type);
 
 /**
  * Render all generated instruction into given stream.

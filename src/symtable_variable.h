@@ -21,6 +21,8 @@ typedef struct symbol_variable_t {
 
     size_t scope_depth;
     char* scope_alias;
+
+    char* _cached_identifier;
 } SymbolVariable;
 
 /**

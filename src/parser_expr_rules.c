@@ -606,8 +606,27 @@ bool expression_rule_equal(Parser* parser, LList* expr_token_buffer, ExprIdx* ex
     CREATE_EXPR_RESULT_OF_BINARY_OPERATION(OPERATION_EQUAL);
 
     CodeConstructor* constructor = parser->code_constructor;
-    GENERATE_IMPLICIT_CONVERSIONS_FOR_BINARY_OPERATION_SIGNATURE();
-    GENERATE_CODE(I_EQUAL_STACK);
+    CodeInstructionOperand* evaluated_operand = code_optimizer_expr_eval(
+            parser->optimizer,
+            EXPR_LOWER_OPERAND,
+            EXPR_HIGHER_OPERAND,
+            e,
+            operation_signature
+    );
+
+    if(evaluated_operand != NULL) {
+        code_generator_remove_instruction(constructor->generator, EXPR_LOWER_OPERAND->instruction);
+        code_generator_remove_instruction(constructor->generator, EXPR_HIGHER_OPERAND->instruction);
+    }
+
+    if(evaluated_operand != NULL) {
+        e->instruction = GENERATE_CODE(I_PUSH_STACK, evaluated_operand);
+    }
+
+    else {
+        GENERATE_IMPLICIT_CONVERSIONS_FOR_BINARY_OPERATION_SIGNATURE();
+        GENERATE_CODE(I_EQUAL_STACK);
+    }
 
     EXPR_RULE_REPLACE(e);
 
@@ -630,9 +649,28 @@ bool expression_rule_not_equal(Parser* parser, LList* expr_token_buffer, ExprIdx
     CREATE_EXPR_RESULT_OF_BINARY_OPERATION(OPERATION_NOT_EQUAL);
 
     CodeConstructor* constructor = parser->code_constructor;
-    GENERATE_IMPLICIT_CONVERSIONS_FOR_BINARY_OPERATION_SIGNATURE();
-    GENERATE_CODE(I_EQUAL_STACK);
-    GENERATE_CODE(I_NOT_STACK);
+    CodeInstructionOperand* evaluated_operand = code_optimizer_expr_eval(
+            parser->optimizer,
+            EXPR_LOWER_OPERAND,
+            EXPR_HIGHER_OPERAND,
+            e,
+            operation_signature
+    );
+
+    if(evaluated_operand != NULL) {
+        code_generator_remove_instruction(constructor->generator, EXPR_LOWER_OPERAND->instruction);
+        code_generator_remove_instruction(constructor->generator, EXPR_HIGHER_OPERAND->instruction);
+    }
+
+    if(evaluated_operand != NULL) {
+        e->instruction = GENERATE_CODE(I_PUSH_STACK, evaluated_operand);
+    }
+
+    else {
+        GENERATE_IMPLICIT_CONVERSIONS_FOR_BINARY_OPERATION_SIGNATURE();
+        GENERATE_CODE(I_EQUAL_STACK);
+        GENERATE_CODE(I_NOT_STACK);
+    }
 
     EXPR_RULE_REPLACE(e);
 
@@ -655,8 +693,27 @@ bool expression_rule_greater(Parser* parser, LList* expr_token_buffer, ExprIdx* 
     CREATE_EXPR_RESULT_OF_BINARY_OPERATION(OPERATION_GREATER);
 
     CodeConstructor* constructor = parser->code_constructor;
-    GENERATE_IMPLICIT_CONVERSIONS_FOR_BINARY_OPERATION_SIGNATURE();
-    GENERATE_CODE(I_GREATER_THEN_STACK);
+    CodeInstructionOperand* evaluated_operand = code_optimizer_expr_eval(
+            parser->optimizer,
+            EXPR_LOWER_OPERAND,
+            EXPR_HIGHER_OPERAND,
+            e,
+            operation_signature
+    );
+
+    if(evaluated_operand != NULL) {
+        code_generator_remove_instruction(constructor->generator, EXPR_LOWER_OPERAND->instruction);
+        code_generator_remove_instruction(constructor->generator, EXPR_HIGHER_OPERAND->instruction);
+    }
+
+    if(evaluated_operand != NULL) {
+        e->instruction = GENERATE_CODE(I_PUSH_STACK, evaluated_operand);
+    }
+
+    else {
+        GENERATE_IMPLICIT_CONVERSIONS_FOR_BINARY_OPERATION_SIGNATURE();
+        GENERATE_CODE(I_GREATER_THEN_STACK);
+    }
 
     EXPR_RULE_REPLACE(e);
 
@@ -679,10 +736,29 @@ bool expression_rule_greater_or_equal(Parser* parser, LList* expr_token_buffer, 
     CREATE_EXPR_RESULT_OF_BINARY_OPERATION(OPERATION_GREATER_OR_EQUAL);
 
     CodeConstructor* constructor = parser->code_constructor;
-    GENERATE_IMPLICIT_CONVERSIONS_FOR_BINARY_OPERATION_SIGNATURE();
+    CodeInstructionOperand* evaluated_operand = code_optimizer_expr_eval(
+            parser->optimizer,
+            EXPR_LOWER_OPERAND,
+            EXPR_HIGHER_OPERAND,
+            e,
+            operation_signature
+    );
 
-    GENERATE_CODE(I_LESSER_THEN_STACK);
-    GENERATE_CODE(I_NOT_STACK);
+    if(evaluated_operand != NULL) {
+        code_generator_remove_instruction(constructor->generator, EXPR_LOWER_OPERAND->instruction);
+        code_generator_remove_instruction(constructor->generator, EXPR_HIGHER_OPERAND->instruction);
+    }
+
+    if(evaluated_operand != NULL) {
+        e->instruction = GENERATE_CODE(I_PUSH_STACK, evaluated_operand);
+    }
+
+    else {
+        GENERATE_IMPLICIT_CONVERSIONS_FOR_BINARY_OPERATION_SIGNATURE();
+
+        GENERATE_CODE(I_LESSER_THEN_STACK);
+        GENERATE_CODE(I_NOT_STACK);
+    }
 
     EXPR_RULE_REPLACE(e);
 
@@ -705,9 +781,28 @@ bool expression_rule_lesser(Parser* parser, LList* expr_token_buffer, ExprIdx* e
     CREATE_EXPR_RESULT_OF_BINARY_OPERATION(OPERATION_LESSER);
 
     CodeConstructor* constructor = parser->code_constructor;
-    GENERATE_IMPLICIT_CONVERSIONS_FOR_BINARY_OPERATION_SIGNATURE();
+    CodeInstructionOperand* evaluated_operand = code_optimizer_expr_eval(
+            parser->optimizer,
+            EXPR_LOWER_OPERAND,
+            EXPR_HIGHER_OPERAND,
+            e,
+            operation_signature
+    );
 
-    GENERATE_CODE(I_LESSER_THEN_STACK);
+    if(evaluated_operand != NULL) {
+        code_generator_remove_instruction(constructor->generator, EXPR_LOWER_OPERAND->instruction);
+        code_generator_remove_instruction(constructor->generator, EXPR_HIGHER_OPERAND->instruction);
+    }
+
+    if(evaluated_operand != NULL) {
+        e->instruction = GENERATE_CODE(I_PUSH_STACK, evaluated_operand);
+    }
+
+    else {
+        GENERATE_IMPLICIT_CONVERSIONS_FOR_BINARY_OPERATION_SIGNATURE();
+
+        GENERATE_CODE(I_LESSER_THEN_STACK);
+    }
 
     EXPR_RULE_REPLACE(e);
 
@@ -731,10 +826,29 @@ bool expression_rule_lesser_or_equal(Parser* parser, LList* expr_token_buffer, E
 
     // generate conversion
     CodeConstructor* constructor = parser->code_constructor;
-    GENERATE_IMPLICIT_CONVERSIONS_FOR_BINARY_OPERATION_SIGNATURE();
+    CodeInstructionOperand* evaluated_operand = code_optimizer_expr_eval(
+            parser->optimizer,
+            EXPR_LOWER_OPERAND,
+            EXPR_HIGHER_OPERAND,
+            e,
+            operation_signature
+    );
 
-    GENERATE_CODE(I_GREATER_THEN_STACK);
-    GENERATE_CODE(I_NOT_STACK);
+    if(evaluated_operand != NULL) {
+        code_generator_remove_instruction(constructor->generator, EXPR_LOWER_OPERAND->instruction);
+        code_generator_remove_instruction(constructor->generator, EXPR_HIGHER_OPERAND->instruction);
+    }
+
+    if(evaluated_operand != NULL) {
+        e->instruction = GENERATE_CODE(I_PUSH_STACK, evaluated_operand);
+    }
+
+    else {
+        GENERATE_IMPLICIT_CONVERSIONS_FOR_BINARY_OPERATION_SIGNATURE();
+
+        GENERATE_CODE(I_GREATER_THEN_STACK);
+        GENERATE_CODE(I_NOT_STACK);
+    }
 
     EXPR_RULE_REPLACE(e);
 

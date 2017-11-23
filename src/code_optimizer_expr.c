@@ -149,6 +149,61 @@ CodeInstructionOperand* code_optimizer_expr_eval(
                 break;
             }
 
+            case OPERATION_GREATER: {
+                switch(signature->result_type) {
+                    case DATA_TYPE_BOOLEAN:
+                        TRY_TO_PERFORM_BINARY_OPERATION(t1, t2, DATA_TYPE_INTEGER, DATA_TYPE_INTEGER, result_i, >);
+                        TRY_TO_PERFORM_BINARY_OPERATION(t1, t2, DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE, result_i, >);
+                        TRY_TO_PERFORM_BINARY_OPERATION(t1, t2, DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER, result_i, >);
+                        TRY_TO_PERFORM_BINARY_OPERATION(t1, t2, DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE, result_i, >);
+                        break;
+                    default:
+                        LOG_WARNING("Unknown operation");
+                }
+                break;
+            }
+
+            case OPERATION_GREATER_OR_EQUAL: {
+                switch(signature->result_type) {
+                    case DATA_TYPE_BOOLEAN:
+                        TRY_TO_PERFORM_BINARY_OPERATION(t1, t2, DATA_TYPE_INTEGER, DATA_TYPE_INTEGER, result_i, >=);
+                        TRY_TO_PERFORM_BINARY_OPERATION(t1, t2, DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE, result_i, >=);
+                        TRY_TO_PERFORM_BINARY_OPERATION(t1, t2, DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER, result_i, >=);
+                        TRY_TO_PERFORM_BINARY_OPERATION(t1, t2, DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE, result_i, >=);
+                        break;
+                    default:
+                        LOG_WARNING("Unknown operation");
+                }
+                break;
+            }
+
+            case OPERATION_LESSER: {
+                switch(signature->result_type) {
+                    case DATA_TYPE_BOOLEAN:
+                        TRY_TO_PERFORM_BINARY_OPERATION(t1, t2, DATA_TYPE_INTEGER, DATA_TYPE_INTEGER, result_i, <);
+                        TRY_TO_PERFORM_BINARY_OPERATION(t1, t2, DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE, result_i, <);
+                        TRY_TO_PERFORM_BINARY_OPERATION(t1, t2, DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER, result_i, <);
+                        TRY_TO_PERFORM_BINARY_OPERATION(t1, t2, DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE, result_i, <);
+                        break;
+                    default:
+                        LOG_WARNING("Unknown operation");
+                }
+                break;
+            }
+
+            case OPERATION_LESSER_OR_EQUAL: {
+                switch(signature->result_type) {
+                    case DATA_TYPE_BOOLEAN:
+                        TRY_TO_PERFORM_BINARY_OPERATION(t1, t2, DATA_TYPE_INTEGER, DATA_TYPE_INTEGER, result_i, <=);
+                        TRY_TO_PERFORM_BINARY_OPERATION(t1, t2, DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE, result_i, <=);
+                        TRY_TO_PERFORM_BINARY_OPERATION(t1, t2, DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER, result_i, <=);
+                        TRY_TO_PERFORM_BINARY_OPERATION(t1, t2, DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE, result_i, <=);
+                        break;
+                    default:
+                        LOG_WARNING("Unknown operation");
+                }
+                break;
+            }
             default:
                 LOG_WARNING("Unknown binary operation %d.", signature->operation_type);
         }

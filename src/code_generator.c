@@ -161,6 +161,7 @@ CodeGenerator* code_generator_init() {
     for(int i = 0; i < I__LAST; ++i) {
         generator->instruction_signatures[i].type = I__NONE;
         generator->instruction_signatures[i].identifier = NULL;
+        generator->instruction_signatures[i].operand_count = 0;
     }
 
     code_generator_register_signatures(generator);

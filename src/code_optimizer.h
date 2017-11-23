@@ -133,8 +133,6 @@ void code_optimizer_removing_instruction(CodeOptimizer* optimizer, CodeInstructi
 
 void code_optimizer_update_meta_data(CodeOptimizer* optimizer);
 
-void code_optimizer_update_variable_meta_data(CodeOptimizer* optimizer, CodeInstruction* instruction);
-
 void code_optimizer_update_function_meta_data(CodeOptimizer* optimizer, CodeInstruction* instruction,
                                               const char* current_func_label);
 

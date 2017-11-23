@@ -225,8 +225,7 @@ void code_optimizer_update_meta_data(CodeOptimizer* optimizer) {
         if(instruction->meta_data.type == CODE_INSTRUCTION_META_TYPE_FUNCTION_END)
             current_function = NULL;
 
-        code_optimizer_update_variable_meta_data(optimizer, instruction);
-        code_optimizer_update_label_meta_data(optimizer, instruction);
+        code_optimizer_adding_instruction(optimizer, instruction);
         code_optimizer_update_function_meta_data(optimizer, instruction, current_function);
 
         instruction = instruction->next;
@@ -298,45 +297,6 @@ void code_optimizer_update_label_meta_data(CodeOptimizer* optimizer, CodeInstruc
             break;
         default:
             break;
-    }
-}
-
-void code_optimizer_update_variable_meta_data(CodeOptimizer* optimizer, CodeInstruction* instruction) {
-    NULL_POINTER_CHECK(optimizer,);
-    NULL_POINTER_CHECK(instruction,);
-
-    if(instruction->type == I_READ) {
-        // TODO do something with variable meta data
-        VariableMetaData* variable_meta_data =
-                code_optimizer_variable_meta_data(optimizer, instruction->op0->data.variable);
-        variable_meta_data->purity_type |= META_TYPE_DYNAMIC_DEPENDENT;
-        variable_meta_data->occurrences_count++;
-        variable_meta_data->read_usage_count++;
-        return;
-    }
-
-    if(instruction->type == I_POP_STACK && instruction->meta_data.type == CODE_INSTRUCTION_META_TYPE_EXPRESSION_END)
-        return;
-    if(instruction->type == I_DEF_VAR)
-        return;
-
-    const size_t max_operands_count = 3;
-    const CodeInstructionOperand* operands[] = {
-            instruction->op0, instruction->op1, instruction->op2
-    };
-
-    for(size_t i = 0; i < max_operands_count; i++) {
-        if(operands[i] == NULL)
-            continue;
-        if(operands[i]->type != TYPE_INSTRUCTION_OPERAND_VARIABLE)
-            continue;
-
-        VariableMetaData* var_meta_data = code_optimizer_variable_meta_data(optimizer, operands[i]->data.variable);
-
-        if(instruction->type == I_MOVE && i == 0) // it's first operand
-            continue;
-
-        var_meta_data->occurrences_count++;
     }
 }
 
@@ -443,9 +403,6 @@ bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer) {
     bool remove_something = false;
     MetaType expression_purity = META_TYPE_PURE;
 
-    // null and analyze
-    code_optimizer_update_meta_data(optimizer);
-
     // optimize
     instruction = optimizer->generator->first;
 
@@ -482,6 +439,7 @@ bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer) {
 
         if(delete_instruction) {
             CodeInstruction* temp = instruction->next;
+            code_optimizer_removing_instruction(optimizer, instruction);
             code_generator_remove_instruction(optimizer->generator, instruction);
             instruction = temp;
         } else if(delete_expression) {
@@ -490,6 +448,7 @@ bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer) {
 
             while(expr_instruction->meta_data.type != CODE_INSTRUCTION_META_TYPE_EXPRESSION_START) {
                 prev_expr_instruction = expr_instruction->prev;
+                code_optimizer_removing_instruction(optimizer, expr_instruction);
                 code_generator_remove_instruction(optimizer->generator, expr_instruction);
                 expr_instruction = prev_expr_instruction;
             }
@@ -642,7 +601,6 @@ bool code_optimizer_peep_hole_optimization(CodeOptimizer* optimizer) {
     CodeInstruction* instruction = optimizer->generator->first;
     PeepHolePattern* pattern = NULL;
     bool removed_something = false;
-    code_optimizer_update_meta_data(optimizer);
 
     while(instruction != NULL) {
         bool removed_instruction = false;
@@ -874,6 +832,9 @@ void code_optimizer_adding_instruction(CodeOptimizer* optimizer, CodeInstruction
     const short operands_count = code_generator_instruction_operands_count(optimizer->generator, instruction->type);
     const CodeInstructionOperand* operands[] = { instruction->op0, instruction->op1, instruction->op2};
 
+    // handle label
+    code_optimizer_update_label_meta_data(optimizer, instruction);
+
     for(int i = 0; i < operands_count; i++) {
         if(operands[i] == NULL) {
             LOG_WARNING("Operand is null when it shoul not.");
@@ -885,6 +846,9 @@ void code_optimizer_adding_instruction(CodeOptimizer* optimizer, CodeInstruction
         // update meta data
 
         if(operand_type != TYPE_INSTRUCTION_OPERAND_VARIABLE)
+            continue;
+
+        if(instruction->type == I_MOVE && i == 0) // it's first operand
             continue;
 
         if(instruction_type == I_READ) {
@@ -911,6 +875,23 @@ void code_optimizer_removing_instruction(CodeOptimizer* optimizer, CodeInstructi
     if(instruction_type == I_DEF_VAR || instruction_type == I_POP_STACK)
         return;
 
+    // handle labels
+    switch(instruction->type) {
+        case I_CALL:
+        case I_JUMP:
+        case I_JUMP_IF_EQUAL:
+        case I_JUMP_IF_NOT_EQUAL:
+        case I_JUMP_IF_EQUAL_STACK:
+        case I_JUMP_IF_NOT_EQUAL_STACK: {
+            LabelMetaData* meta_data = code_optimizer_label_meta_data(optimizer, instruction->op0->data.label);
+            if(meta_data->occurrences_count > 0)
+                meta_data->occurrences_count--;
+            return;
+        }
+        default:
+            break;
+    }
+
     const short operands_count = code_generator_instruction_operands_count(optimizer->generator, instruction->type);
     const CodeInstructionOperand* operands[] = { instruction->op0, instruction->op1, instruction->op2};
 
@@ -925,6 +906,9 @@ void code_optimizer_removing_instruction(CodeOptimizer* optimizer, CodeInstructi
         // update meta data
 
         if(operand_type != TYPE_INSTRUCTION_OPERAND_VARIABLE)
+            continue;
+
+        if(instruction->type == I_MOVE && i == 0) // it's first operand
             continue;
 
         if(instruction_type == I_READ) {

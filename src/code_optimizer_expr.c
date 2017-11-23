@@ -11,6 +11,8 @@ CodeInstructionOperand* code_optimizer_expr_eval(
     NULL_POINTER_CHECK(signature, NULL);
     NULL_POINTER_CHECK(t1, NULL);
     NULL_POINTER_CHECK(result, NULL);
+    // temporary disabled
+    return NULL;
 
     if(!t1->is_constant)
         return NULL;
@@ -71,11 +73,15 @@ CodeInstructionOperand* code_optimizer_expr_eval(
                     case DATA_TYPE_STRING:
                         if(t1->data_type == DATA_TYPE_STRING)
                             string_append(result_s, t1->instruction->op0->data.constant.data.string);
-                        else LOG_WARNING("Unknown data type");
+                        else {
+                            LOG_WARNING("Unknown data type");
+                        }
 
                         if(t2->data_type == DATA_TYPE_STRING)
                             string_append(result_s, t2->instruction->op0->data.constant.data.string);
-                        else LOG_WARNING("Unknown data type");
+                        else {
+                            LOG_WARNING("Unknown data type");
+                        }
 
                         break;
                     default:
@@ -120,6 +126,7 @@ CodeInstructionOperand* code_optimizer_expr_eval(
                 break;
             }
             case OPERATION_DIVIDE:
+                // return NULL;
             case OPERATION_INT_DIVIDE: {
                 switch(signature->result_type) {
                     case DATA_TYPE_DOUBLE:

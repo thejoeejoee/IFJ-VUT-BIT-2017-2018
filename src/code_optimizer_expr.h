@@ -17,7 +17,7 @@
             (result) = (result) op (token)->instruction->op0->data.constant.data.double_; \
         else if ((data_type_) == DATA_TYPE_BOOLEAN)\
             (result) = (result) op (token)->instruction->op0->data.constant.data.boolean; \
-        else LOG_WARNING("Unknown data type"); \
+        else { LOG_WARNING("Unknown data type"); } \
 }} while(0)
 
 /**

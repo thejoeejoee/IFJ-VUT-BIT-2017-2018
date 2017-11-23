@@ -189,6 +189,7 @@ void code_optimizer_reset_variable_meta_data(const char* key, void* item, void* 
     VariableMetaData* v = (VariableMetaData*) item;
     v->occurrences_count = 0;
     v->purity_type = META_TYPE_PURE;
+    v->read_usage_count = 0;
 }
 
 void code_optimizer_reset_label_meta_data(const char* key, void* item, void* data) {
@@ -309,6 +310,8 @@ void code_optimizer_update_variable_meta_data(CodeOptimizer* optimizer, CodeInst
         VariableMetaData* variable_meta_data =
                 code_optimizer_variable_meta_data(optimizer, instruction->op0->data.variable);
         variable_meta_data->purity_type |= META_TYPE_DYNAMIC_DEPENDENT;
+        variable_meta_data->occurrences_count++;
+        variable_meta_data->read_usage_count++;
         return;
     }
 
@@ -385,6 +388,7 @@ void init_variable_meta_data(SymbolTableBaseItem* item) {
     VariableMetaData* v = (VariableMetaData*) item;
     v->occurrences_count = 0;
     v->purity_type = META_TYPE_PURE;
+    v->read_usage_count = 0;
 }
 
 
@@ -555,7 +559,7 @@ SymbolTable* code_optimizer_check_ph_pattern(CodeOptimizer* optimizer,
     NULL_POINTER_CHECK(ph_pattern, NULL);
     NULL_POINTER_CHECK(instruction, NULL);
 
-    code_optimizer_update_meta_data(optimizer);
+//    code_optimizer_update_meta_data(optimizer);
 
     PeepHolePatternInstruction* pattern_instruction =
             (PeepHolePatternInstruction*) ph_pattern->matching_instructions->head;
@@ -638,6 +642,7 @@ bool code_optimizer_peep_hole_optimization(CodeOptimizer* optimizer) {
     CodeInstruction* instruction = optimizer->generator->first;
     PeepHolePattern* pattern = NULL;
     bool removed_something = false;
+    code_optimizer_update_meta_data(optimizer);
 
     while(instruction != NULL) {
         bool removed_instruction = false;
@@ -661,6 +666,7 @@ bool code_optimizer_peep_hole_optimization(CodeOptimizer* optimizer) {
                 const size_t matching_pattern_instruction_count = llist_length(pattern->matching_instructions);
                 for(size_t i = 0; i < matching_pattern_instruction_count; i++) {
                     CodeInstruction* temp = instruction->next;
+                    code_optimizer_removing_instruction(optimizer, instruction);
                     code_generator_remove_instruction(optimizer->generator, instruction);
                     instruction = temp;
                     removed_instruction = true;
@@ -702,13 +708,13 @@ CodeInstruction* code_optimizer_new_instruction_with_mapped_operands(CodeOptimiz
     NULL_POINTER_CHECK(ph_pattern_instruction, NULL);
     NULL_POINTER_CHECK(mapped_operands, NULL);
 
-    const int operands_max_count = 3;
+    const TypeInstruction instruction_type = ph_pattern_instruction->type;
+    const short operands_count = code_generator_instruction_operands_count(optimizer->generator, instruction_type);
     const char* op_aliases[] = {ph_pattern_instruction->op0_alias, ph_pattern_instruction->op1_alias,
                                 ph_pattern_instruction->op2_alias};
-    CodeInstructionOperand* operands[operands_max_count];
+    CodeInstructionOperand* operands[] = { NULL, NULL, NULL};
 
-    for(int i = 0; i < operands_max_count; i++) {
-        operands[i] = NULL;
+    for(int i = 0; i < operands_count; i++) {
         if(op_aliases[i] != NULL) {
             operands[i] = code_instruction_operand_copy(
                     ((MappedOperand*) symbol_table_get_or_create(mapped_operands, op_aliases[i]))->operand);
@@ -720,6 +726,9 @@ CodeInstruction* code_optimizer_new_instruction_with_mapped_operands(CodeOptimiz
             ph_pattern_instruction->type,
             operands[0], operands[1], operands[2]
     );
+
+    code_optimizer_adding_instruction(optimizer, instruction);
+
     return instruction;
 }
 
@@ -851,4 +860,85 @@ bool code_optimizer_remove_unused_functions(CodeOptimizer* optimizer) {
         }
     }
     return removed_something;
+}
+
+void code_optimizer_adding_instruction(CodeOptimizer* optimizer, CodeInstruction* instruction)
+{
+    NULL_POINTER_CHECK(optimizer, );
+    NULL_POINTER_CHECK(instruction, );
+
+    const TypeInstruction instruction_type = instruction->type;
+    if(instruction_type == I_DEF_VAR || instruction_type == I_POP_STACK)
+        return;
+
+    const short operands_count = code_generator_instruction_operands_count(optimizer->generator, instruction->type);
+    const CodeInstructionOperand* operands[] = { instruction->op0, instruction->op1, instruction->op2};
+
+    for(int i = 0; i < operands_count; i++) {
+        if(operands[i] == NULL) {
+            LOG_WARNING("Operand is null when it shoul not.");
+            return;
+        }
+
+        const TypeInstructionOperand operand_type = operands[i]->type;
+
+        // update meta data
+
+        if(operand_type != TYPE_INSTRUCTION_OPERAND_VARIABLE)
+            continue;
+
+        if(instruction_type == I_READ) {
+            VariableMetaData* meta_data = code_optimizer_variable_meta_data(optimizer, operands[i]->data.variable);
+            meta_data->occurrences_count++;
+            meta_data->purity_type |= META_TYPE_DYNAMIC_DEPENDENT;
+            meta_data->read_usage_count++;
+            break;
+        }
+
+        else {
+            VariableMetaData* meta_data = code_optimizer_variable_meta_data(optimizer, operands[i]->data.variable);
+            meta_data->occurrences_count++;
+        }
+    }
+}
+
+void code_optimizer_removing_instruction(CodeOptimizer* optimizer, CodeInstruction* instruction)
+{
+    NULL_POINTER_CHECK(optimizer, );
+    NULL_POINTER_CHECK(instruction, );
+
+    const TypeInstruction instruction_type = instruction->type;
+    if(instruction_type == I_DEF_VAR || instruction_type == I_POP_STACK)
+        return;
+
+    const short operands_count = code_generator_instruction_operands_count(optimizer->generator, instruction->type);
+    const CodeInstructionOperand* operands[] = { instruction->op0, instruction->op1, instruction->op2};
+
+    for(int i = 0; i < operands_count; i++) {
+        if(operands[i] == NULL) {
+            LOG_WARNING("Operand is null when it shoul not.");
+            return;
+        }
+
+        const TypeInstructionOperand operand_type = operands[i]->type;
+
+        // update meta data
+
+        if(operand_type != TYPE_INSTRUCTION_OPERAND_VARIABLE)
+            continue;
+
+        if(instruction_type == I_READ) {
+            VariableMetaData* meta_data = code_optimizer_variable_meta_data(optimizer, operands[i]->data.variable);
+            meta_data->occurrences_count--;
+            meta_data->read_usage_count--;
+            if(meta_data->read_usage_count == 0)
+                meta_data->purity_type &= ~META_TYPE_DYNAMIC_DEPENDENT;
+            break;
+        }
+
+        else {
+            VariableMetaData* meta_data = code_optimizer_variable_meta_data(optimizer, operands[i]->data.variable);
+            meta_data->occurrences_count--;
+        }
+    }
 }

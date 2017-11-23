@@ -240,7 +240,7 @@ bool parser_semantic_set_function_return_data_type(ParserSemantic* parser_semant
     } else if(parser_semantic->actual_action == SEMANTIC_ACTION__FUNCTION_DEFINITION) {
 
         if(parser_semantic->actual_function->return_data_type != data_type) {
-            parser_semantic->error_report.error_code = ERROR_SEMANTIC_TYPE;
+            parser_semantic->error_report.error_code = ERROR_SEMANTIC_DEFINITION;
             return false;
         }
     }
@@ -309,7 +309,7 @@ bool parser_semantic_check_count_of_function_arguments(ParserSemantic* parser_se
     if(parser_semantic->actual_action == SEMANTIC_ACTION__FUNCTION_DEFINITION &&
        parser_semantic->actual_function->arguments_count != parser_semantic->argument_index &&
        parser_semantic->was_actual_function_declared) {
-        parser_semantic->error_report.error_code = ERROR_SEMANTIC_TYPE;
+        parser_semantic->error_report.error_code = ERROR_SEMANTIC_DEFINITION;
         return false;
     }
 

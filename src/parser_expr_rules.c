@@ -104,6 +104,7 @@ bool expression_rule_id(Parser* parser, LList* expr_token_buffer, ExprIdx* expre
 
     } else if(i->type == EXPR_TOKEN_BOOLEAN_LITERAL) {
         e->data_type = DATA_TYPE_BOOLEAN;
+        e->is_constant = true;
 
         GENERATE_CODE(I_PUSH_STACK, code_instruction_operand_init_boolean(i->data.b));
 

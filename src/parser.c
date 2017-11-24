@@ -625,8 +625,9 @@ bool parser_parse_variable_declaration(Parser* parser) {
             );
             CODE_GENERATION(
                     {
-
-                            parser->parser_semantic->actual_variable->frame = VARIABLE_FRAME_LOCAL;
+                            parser->parser_semantic->actual_variable->frame =
+                                    parser->parser_semantic->actual_function == NULL ? VARIABLE_FRAME_GLOBAL
+                                                                                     : VARIABLE_FRAME_LOCAL;
                             code_constructor_variable_declaration(
                             parser->code_constructor,
                             parser->parser_semantic->actual_variable

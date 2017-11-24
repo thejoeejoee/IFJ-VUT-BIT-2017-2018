@@ -40,7 +40,7 @@ void symbol_register_push_variables_table(SymbolRegister* register_) {
     SymbolTableSymbolVariableStackItem* item = memory_alloc(sizeof(SymbolTableSymbolVariableStackItem));
     item->symbol_table = symbol_table_variable_init(16);
     item->parent = register_->variables;
-    item->scope_identifier = register_->variables_table_counter++;
+    item->scope_identifier = ++register_->variables_table_counter;
     item->scope_alias = NULL;
     register_->variables = item;
 }

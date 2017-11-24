@@ -204,6 +204,50 @@ CodeInstructionOperand* code_optimizer_expr_eval(
                 }
                 break;
             }
+
+            case OPERATION_EQUAL: {
+                switch(signature->result_type) {
+                    printf("something\n");
+                    case DATA_TYPE_BOOLEAN:
+                        TRY_TO_PERFORM_BINARY_OPERATION(t1, t2, DATA_TYPE_INTEGER, DATA_TYPE_INTEGER, result_i, ==);
+                        TRY_TO_PERFORM_BINARY_OPERATION(t1, t2, DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE, result_i, ==);
+                        TRY_TO_PERFORM_BINARY_OPERATION(t1, t2, DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER, result_i, ==);
+                        TRY_TO_PERFORM_BINARY_OPERATION(t1, t2, DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE, result_i, ==);
+                        TRY_TO_PERFORM_BINARY_OPERATION(t1, t2, DATA_TYPE_BOOLEAN, DATA_TYPE_BOOLEAN, result_i, ==);
+                        const DataType t1_type = t1->instruction->op0->data.constant.data_type;
+                        const DataType t2_type = t2->instruction->op0->data.constant.data_type;
+
+                        if(t1_type == DATA_TYPE_STRING && t2_type == DATA_TYPE_STRING) {
+                            result_i = strcmp(t1->instruction->op0->data.constant.data.string->content, t2->instruction->op0->data.constant.data.string->content) == 0;
+                        }
+                        break;
+                    default:
+                        LOG_WARNING("Unknown operation");
+                }
+                break;
+            }
+
+            case OPERATION_NOT_EQUAL: {
+                switch(signature->result_type) {
+                    case DATA_TYPE_BOOLEAN:
+                        TRY_TO_PERFORM_BINARY_OPERATION(t1, t2, DATA_TYPE_INTEGER, DATA_TYPE_INTEGER, result_i, !=);
+                        TRY_TO_PERFORM_BINARY_OPERATION(t1, t2, DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE, result_i, !=);
+                        TRY_TO_PERFORM_BINARY_OPERATION(t1, t2, DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER, result_i, !=);
+                        TRY_TO_PERFORM_BINARY_OPERATION(t1, t2, DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE, result_i, !=);
+                        TRY_TO_PERFORM_BINARY_OPERATION(t1, t2, DATA_TYPE_BOOLEAN, DATA_TYPE_BOOLEAN, result_i, !=);
+                        const DataType t1_type = t1->instruction->op0->data.constant.data_type;
+                        const DataType t2_type = t2->instruction->op0->data.constant.data_type;
+
+                        if(t1_type == DATA_TYPE_STRING && t2_type == DATA_TYPE_STRING) {
+                            result_i = strcmp(t1->instruction->op0->data.constant.data.string->content, t2->instruction->op0->data.constant.data.string->content) != 0;
+                        }
+                        break;
+                    default:
+                        LOG_WARNING("Unknown operation");
+                }
+                break;
+            }
+
             default:
                 LOG_WARNING("Unknown binary operation %d.", signature->operation_type);
         }

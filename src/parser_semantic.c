@@ -68,6 +68,12 @@ ParserSemantic* parser_semantic_init() {
     parser_semantic_add_operation_signature(parser_semantic, OPERATION_INT_DIVIDE,
                                             DATA_TYPE_INTEGER, DATA_TYPE_INTEGER,
                                             DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER);
+    parser_semantic_add_operation_signature(parser_semantic, OPERATION_INT_DIVIDE,
+                                            DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE,
+                                            DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER);
+    parser_semantic_add_operation_signature(parser_semantic, OPERATION_INT_DIVIDE,
+                                            DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE,
+                                            DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER);
 
 	parser_semantic_add_operation_signature(parser_semantic, OPERATION_AND,
 		DATA_TYPE_BOOLEAN, DATA_TYPE_BOOLEAN,

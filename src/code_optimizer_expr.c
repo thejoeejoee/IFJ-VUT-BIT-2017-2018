@@ -63,9 +63,9 @@ CodeInstructionOperand* code_optimizer_expr_eval(
     } else {
         switch(signature->operation_type) {
             case OPERATION_ADD: {
-                CEE_ENABLED_CHECK();
                 switch(signature->result_type) {
                     case DATA_TYPE_DOUBLE:
+                        CEE_ENABLED_CHECK();
                         TRY_TO_PERFORM_OPERATION(t1, DATA_TYPE_DOUBLE, result_d, +);
                         TRY_TO_PERFORM_OPERATION(t1, DATA_TYPE_INTEGER, result_d, +);
                         TRY_TO_PERFORM_OPERATION(t2, DATA_TYPE_DOUBLE, result_d, +);
@@ -73,6 +73,7 @@ CodeInstructionOperand* code_optimizer_expr_eval(
                         break;
 
                     case DATA_TYPE_INTEGER:
+                        CEE_ENABLED_CHECK();
                         TRY_TO_PERFORM_OPERATION(t1, DATA_TYPE_INTEGER, result_i, +);
                         TRY_TO_PERFORM_OPERATION(t2, DATA_TYPE_INTEGER, result_i, +);
                         break;

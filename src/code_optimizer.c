@@ -394,7 +394,7 @@ LabelMetaData* code_optimizer_label_meta_data(CodeOptimizer* optimizer, const ch
     return (LabelMetaData*) symbol_table_get_or_create(optimizer->labels_meta_data, label);
 }
 
-bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer) {
+bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer, bool hard_remove) {
     NULL_POINTER_CHECK(optimizer, false);
 
     CodeInstruction* instruction = optimizer->generator->first;
@@ -431,6 +431,8 @@ bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer) {
                 delete_expression = instruction->type == I_POP_STACK &&
                                     instruction->meta_data.type == CODE_INSTRUCTION_META_TYPE_EXPRESSION_END &&
                                     expression_purity == META_TYPE_PURE;
+                if(!hard_remove)
+                    delete_instruction = true;
                 delete_instruction = !delete_expression;
                 remove_something = true;
                 break;

@@ -139,7 +139,7 @@ void code_optimizer_update_function_meta_data(CodeOptimizer* optimizer, CodeInst
 void code_optimizer_update_label_meta_data(CodeOptimizer* optimizer, CodeInstruction* instruction);
 
 // optimizing functions
-bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer);
+bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer, bool hard_remove);
 bool code_optimizer_peep_hole_optimization(CodeOptimizer* optimizer);
 bool code_optimizer_remove_unused_functions(CodeOptimizer* optimizer);
 

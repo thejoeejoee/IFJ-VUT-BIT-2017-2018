@@ -517,13 +517,20 @@ bool expression_rule_div_int(Parser* parser, LList* expr_token_buffer, ExprIdx* 
     if(evaluated_operand != NULL) {
         e->instruction = GENERATE_CODE(I_PUSH_STACK, evaluated_operand);
     } else {
-        if(operation_signature != NULL)
+        if(operation_signature != NULL) {
             GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(
-                    EXPR_LOWER_OPERAND->data_type,
-                    EXPR_HIGHER_OPERAND->data_type,
-                    DATA_TYPE_INTEGER
+                        EXPR_LOWER_OPERAND->data_type,
+                        EXPR_HIGHER_OPERAND->data_type,
+                        DATA_TYPE_INTEGER
+                        );
+
+            GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(
+                    DATA_TYPE_INTEGER,
+                    DATA_TYPE_INTEGER,
+                    operation_signature->conversion_target_type
             );
-        GENERATE_IMPLICIT_CONVERSIONS_FOR_BINARY_OPERATION_SIGNATURE();
+        }
+
         GENERATE_CODE(I_DIV_STACK);
         GENERATE_CODE(I_FLOAT_TO_INT_STACK);
     }

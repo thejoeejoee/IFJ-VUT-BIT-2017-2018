@@ -7,6 +7,13 @@
 
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 
+#define NULL_POINTER_CHECK(pointer, return_value) do {\
+        if ((pointer) == NULL) {\
+            LOG_WARNING("NULL pointer `" #pointer "`.");\
+            return return_value;\
+        }\
+    } while (0)
+
 #ifndef NDEBUG
 
 #define LOG_VERBOSITY_DEBUG 2
@@ -31,13 +38,6 @@ do {\
 
 #define DEBUG_CODE(code) code
 
-#define NULL_POINTER_CHECK(pointer, return_value) DEBUG_CODE({\
-        if ((pointer) == NULL) {\
-            LOG_WARNING("NULL pointer `" #pointer "`.");\
-            return return_value;\
-        }\
-    })
-
 #define ASSERT(expression) DEBUG_CODE({\
         if (!(expression)) {\
             LOG_WARNING("Assertion failed: `" #expression "`.");\
@@ -60,7 +60,6 @@ do {\
 #define LOG_INFO(...)
 #define LOG_WARNING(...)
 #define DEBUG_CODE(...)
-#define NULL_POINTER_CHECK(...)
 #define ASSERT(...)
 #define OVERRIDE_VERBOSITY(verbosity, code) code
 #define DISABLE_LOG(code) code

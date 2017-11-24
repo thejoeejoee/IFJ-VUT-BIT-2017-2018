@@ -572,13 +572,11 @@ bool parser_parse_eols(Parser* parser) {
 
 
     NULL_POINTER_CHECK(parser, false);
-    Token token = lexer_next_token(parser->lexer);
-    lexer_rewind_token(parser->lexer, token);
-
-    while(token.type == TOKEN_EOL) {
+    Token token = {.data=NULL};
+    do {
         token_free(&token);
         token = lexer_next_token(parser->lexer);
-    }
+    } while(token.type == TOKEN_EOL);
     lexer_rewind_token(parser->lexer, token);
 
     return true;

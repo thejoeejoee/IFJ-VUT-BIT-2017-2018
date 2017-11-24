@@ -1,6 +1,11 @@
 #include "code_optimizer_expr.h"
 #include "code_instruction_operand.h"
 
+#ifdef CEE_ENABLED
+#define CEE_ENABLED_CHECK() do { } while(0)
+#else
+#define CEE_ENABLED_CHECK() do { return NULL; } while(0)
+#endif
 
 CodeInstructionOperand* code_optimizer_expr_eval(
         CodeOptimizer* optimizer,
@@ -11,8 +16,6 @@ CodeInstructionOperand* code_optimizer_expr_eval(
     NULL_POINTER_CHECK(signature, NULL);
     NULL_POINTER_CHECK(t1, NULL);
     NULL_POINTER_CHECK(result, NULL);
-    // temporary disabled
-    return NULL;
 
     if(!t1->is_constant)
         return NULL;
@@ -24,6 +27,9 @@ CodeInstructionOperand* code_optimizer_expr_eval(
     int result_i = 0;
     double result_d = 0;
     String* result_s = string_init();
+    // sorry, but too many cases here
+    memory_free_lazy(result_s);
+    memory_free_lazy(result_s->content);
 
     if(t2 == NULL) {
         // unary op
@@ -57,6 +63,7 @@ CodeInstructionOperand* code_optimizer_expr_eval(
     } else {
         switch(signature->operation_type) {
             case OPERATION_ADD: {
+                CEE_ENABLED_CHECK();
                 switch(signature->result_type) {
                     case DATA_TYPE_DOUBLE:
                         TRY_TO_PERFORM_OPERATION(t1, DATA_TYPE_DOUBLE, result_d, +);
@@ -90,6 +97,7 @@ CodeInstructionOperand* code_optimizer_expr_eval(
                 break;
             }
             case OPERATION_SUB: {
+                CEE_ENABLED_CHECK();
                 switch(signature->result_type) {
                     case DATA_TYPE_DOUBLE:
                         TRY_TO_PERFORM_OPERATION(t1, DATA_TYPE_DOUBLE, result_d, +);
@@ -108,6 +116,8 @@ CodeInstructionOperand* code_optimizer_expr_eval(
                 break;
             }
             case OPERATION_MULTIPLY: {
+
+                CEE_ENABLED_CHECK();
                 switch(signature->result_type) {
                     case DATA_TYPE_DOUBLE:
                         TRY_TO_PERFORM_OPERATION(t1, DATA_TYPE_DOUBLE, result_d, +);
@@ -126,8 +136,8 @@ CodeInstructionOperand* code_optimizer_expr_eval(
                 break;
             }
             case OPERATION_DIVIDE:
-                // return NULL;
             case OPERATION_INT_DIVIDE: {
+                CEE_ENABLED_CHECK();
                 switch(signature->result_type) {
                     case DATA_TYPE_DOUBLE:
                         TRY_TO_PERFORM_OPERATION(t1, DATA_TYPE_DOUBLE, result_d, +);
@@ -145,6 +155,20 @@ CodeInstructionOperand* code_optimizer_expr_eval(
 
                     default:
                         LOG_WARNING("Unknown operation");
+                }
+                break;
+            }
+            case OPERATION_OR:
+            case OPERATION_AND: {
+                if(t1->data_type == DATA_TYPE_BOOLEAN && t2->data_type == DATA_TYPE_BOOLEAN) {
+                    if(signature->operation_type == OPERATION_AND)
+                        result_i = t1->instruction->op0->data.constant.data.boolean &&
+                                   t2->instruction->op0->data.constant.data.boolean;
+                    else
+                        result_i = t1->instruction->op0->data.constant.data.boolean ||
+                                   t2->instruction->op0->data.constant.data.boolean;
+                } else {
+                    LOG_WARNING("Unsupported operand types to 'and' or 'or' operation.");
                 }
                 break;
             }
@@ -205,9 +229,9 @@ CodeInstructionOperand* code_optimizer_expr_eval(
                 break;
             }
 
+            case OPERATION_NOT_EQUAL:
             case OPERATION_EQUAL: {
                 switch(signature->result_type) {
-                    printf("something\n");
                     case DATA_TYPE_BOOLEAN:
                         TRY_TO_PERFORM_BINARY_OPERATION(t1, t2, DATA_TYPE_INTEGER, DATA_TYPE_INTEGER, result_i, ==);
                         TRY_TO_PERFORM_BINARY_OPERATION(t1, t2, DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE, result_i, ==);
@@ -218,32 +242,16 @@ CodeInstructionOperand* code_optimizer_expr_eval(
                         const DataType t2_type = t2->instruction->op0->data.constant.data_type;
 
                         if(t1_type == DATA_TYPE_STRING && t2_type == DATA_TYPE_STRING) {
-                            result_i = strcmp(t1->instruction->op0->data.constant.data.string->content, t2->instruction->op0->data.constant.data.string->content) == 0;
+                            result_i = 0 == strcmp(
+                                    t1->instruction->op0->data.constant.data.string->content,
+                                    t2->instruction->op0->data.constant.data.string->content
+                            );
                         }
+                        if(signature->operation_type == OPERATION_NOT_EQUAL)
+                            result_i = !result_i;
                         break;
                     default:
-                        LOG_WARNING("Unknown operation");
-                }
-                break;
-            }
-
-            case OPERATION_NOT_EQUAL: {
-                switch(signature->result_type) {
-                    case DATA_TYPE_BOOLEAN:
-                        TRY_TO_PERFORM_BINARY_OPERATION(t1, t2, DATA_TYPE_INTEGER, DATA_TYPE_INTEGER, result_i, !=);
-                        TRY_TO_PERFORM_BINARY_OPERATION(t1, t2, DATA_TYPE_INTEGER, DATA_TYPE_DOUBLE, result_i, !=);
-                        TRY_TO_PERFORM_BINARY_OPERATION(t1, t2, DATA_TYPE_DOUBLE, DATA_TYPE_INTEGER, result_i, !=);
-                        TRY_TO_PERFORM_BINARY_OPERATION(t1, t2, DATA_TYPE_DOUBLE, DATA_TYPE_DOUBLE, result_i, !=);
-                        TRY_TO_PERFORM_BINARY_OPERATION(t1, t2, DATA_TYPE_BOOLEAN, DATA_TYPE_BOOLEAN, result_i, !=);
-                        const DataType t1_type = t1->instruction->op0->data.constant.data_type;
-                        const DataType t2_type = t2->instruction->op0->data.constant.data_type;
-
-                        if(t1_type == DATA_TYPE_STRING && t2_type == DATA_TYPE_STRING) {
-                            result_i = strcmp(t1->instruction->op0->data.constant.data.string->content, t2->instruction->op0->data.constant.data.string->content) != 0;
-                        }
-                        break;
-                    default:
-                        LOG_WARNING("Unknown operation");
+                        LOG_WARNING("Unknown data type of operands.");
                 }
                 break;
             }

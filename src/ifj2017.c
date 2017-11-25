@@ -21,13 +21,17 @@ int main(int argc, char** argv) {
 
     setbuf(stdout, NULL);
 
+    code_optimizer_update_meta_data(parser->optimizer);
 
     while(
-            code_optimizer_remove_unused_variables(parser->optimizer) ||
-            code_optimizer_peep_hole_optimization(parser->optimizer) ||
-            code_optimizer_remove_unused_functions(parser->optimizer)
+    code_optimizer_remove_unused_variables(parser->optimizer, true) ||
+    code_optimizer_remove_unused_functions(parser->optimizer));
+
+    while(
+            code_optimizer_peep_hole_optimization(parser->optimizer)
             );
 
+    code_optimizer_remove_unused_variables(parser->optimizer, false);
     code_generator_render(parser->code_constructor->generator, stdout);
 
     fflush(stdout);

@@ -33,7 +33,7 @@ void exit_with_code(ErrorCode code) {
 void exit_with_detail_information(ErrorReport error_report) {
     switch(error_report.error_code) {
         case ERROR_LEXER:
-            fprintf(stderr, "Error during lexical analyse. On the line %zd, ", error_report.line);
+            fprintf(stderr, "Error during lexical analyse. On the line %lu, ", (long unsigned) error_report.line);
 
             switch(error_report.detail_information) {
                 case LEXER_ERROR__STRING_FORMAT:
@@ -51,19 +51,19 @@ void exit_with_detail_information(ErrorReport error_report) {
 
             break;
         case ERROR_SYNTAX:
-            fprintf(stderr, "Error during syntax analyse on the line %zd.", error_report.line);
+            fprintf(stderr, "Error during syntax analyse on the line %lu.", (long unsigned) error_report.line);
             break;
         case ERROR_SEMANTIC_DEFINITION:
-            fprintf(stderr, "Error in semantic definition on the line %zd.", error_report.line);
+            fprintf(stderr, "Error in semantic definition on the line %lu.", (long unsigned) error_report.line);
             break;
         case ERROR_SEMANTIC_TYPE:
-            fprintf(stderr, "Error semantic type definition on the line %zd.", error_report.line);
+            fprintf(stderr, "Error semantic type definition on the line %lu.", (long unsigned) error_report.line);
             break;
         case ERROR_SEMANTIC_OTHER:
-            fprintf(stderr, "Error in semantic on the line %zd.", error_report.line);
+            fprintf(stderr, "Error in semantic on the line %lu.", (long unsigned) error_report.line);
             break;
         case ERROR_INTERNAL:
-            fprintf(stderr, "Internal compiler error on the line %zd.", error_report.line);
+            fprintf(stderr, "Internal compiler error on the line %lu.", (long unsigned) error_report.line);
             break;
         default:
             break;

@@ -40,8 +40,7 @@ void code_instruction_operand_free(CodeInstructionOperand** operand_) {
     *operand_ = NULL;
 }
 
-CodeInstructionOperand* code_instruction_operand_copy(CodeInstructionOperand* other)
-{
+CodeInstructionOperand* code_instruction_operand_copy(CodeInstructionOperand* other) {
     if(other == NULL)
         return NULL;
 
@@ -135,8 +134,7 @@ char* code_instruction_operand_render(CodeInstructionOperand* operand) {
     size_t length = 1; // null terminator
     if(operand->type == TYPE_INSTRUCTION_OPERAND_CONSTANT && operand->data.constant.data_type == DATA_TYPE_STRING) {
         length += string_length(operand->data.constant.data.string) * 4;
-    }
-    else if(operand->type == TYPE_INSTRUCTION_OPERAND_LABEL)
+    } else if(operand->type == TYPE_INSTRUCTION_OPERAND_LABEL)
         length += strlen(operand->data.label);
 
     else if(operand->type == TYPE_INSTRUCTION_OPERAND_VARIABLE) {
@@ -167,7 +165,6 @@ char* code_instruction_operand_render(CodeInstructionOperand* operand) {
                 case DATA_TYPE_STRING:
                     snprintf(rendered, length, "string");
                     break;
-                case DATA_TYPE_NONE:
                 default:
                     LOG_WARNING("Unknown data type to render: %d.", operand->data.constant.data_type);
             }
@@ -183,7 +180,7 @@ char* code_instruction_operand_render(CodeInstructionOperand* operand) {
                     break;
 
                 case DATA_TYPE_DOUBLE:
-                    snprintf(rendered, length, "float@%g", operand->data.constant.data.double_);
+                    snprintf(rendered, length, "float@%a", operand->data.constant.data.double_);
                     break;
 
                 case DATA_TYPE_BOOLEAN:
@@ -247,10 +244,10 @@ CodeInstructionOperand* code_instruction_operand_implicit_value(DataType data_ty
             return NULL;
     }
 }
-void code_instruction_operand_render_variable_identifier(SymbolVariable* variable, char* rendered, size_t length)
-{
-    NULL_POINTER_CHECK(variable, );
-    NULL_POINTER_CHECK(rendered, );
+
+void code_instruction_operand_render_variable_identifier(SymbolVariable* variable, char* rendered, size_t length) {
+    NULL_POINTER_CHECK(variable,);
+    NULL_POINTER_CHECK(rendered,);
 
     const char* frame = NULL;
     switch(variable->frame) {
@@ -261,9 +258,9 @@ void code_instruction_operand_render_variable_identifier(SymbolVariable* variabl
             frame = "GF";
             if(variable->scope_depth > 0 && variable->scope_alias == NULL) {
                 LOG_WARNING(
-                        "Variable %s without scope alias on global frame has non-zero scope depth: %zd.",
+                        "Variable %s without scope alias on global frame has non-zero scope depth: %lu.",
                         variable->base.key,
-                        variable->scope_depth
+                        (long unsigned) variable->scope_depth
                 );
             }
             break;
@@ -283,9 +280,9 @@ void code_instruction_operand_render_variable_identifier(SymbolVariable* variabl
         snprintf(
                 rendered,
                 length,
-                "%s@%%%05zd_%s",
+                "%s@%%%05lu_%s",
                 frame,
-                variable->scope_depth,
+                (long unsigned) variable->scope_depth,
                 variable->alias_name == NULL ?
                 variable->base.key : variable->alias_name
         );
@@ -301,8 +298,7 @@ void code_instruction_operand_render_variable_identifier(SymbolVariable* variabl
         );
 }
 
-size_t code_instruction_rendered_variable_identifier_max_len(SymbolVariable* variable)
-{
+size_t code_instruction_rendered_variable_identifier_max_len(SymbolVariable* variable) {
     NULL_POINTER_CHECK(variable, 0);
 
     size_t length = 65;
@@ -314,8 +310,7 @@ size_t code_instruction_rendered_variable_identifier_max_len(SymbolVariable* var
     return length;
 }
 
-char* code_instruction_render_variable_identifier(SymbolVariable* variable)
-{
+char* code_instruction_render_variable_identifier(SymbolVariable* variable) {
     NULL_POINTER_CHECK(variable, NULL);
 
     const size_t max_len = code_instruction_rendered_variable_identifier_max_len(variable);
@@ -325,8 +320,7 @@ char* code_instruction_render_variable_identifier(SymbolVariable* variable)
     return rendered;
 }
 
-bool code_instruction_operand_cmp(CodeInstructionOperand* first, CodeInstructionOperand* second)
-{
+bool code_instruction_operand_cmp(CodeInstructionOperand* first, CodeInstructionOperand* second) {
     if(first == NULL || second == NULL)
         return (first == NULL && second == NULL);
 
@@ -334,15 +328,11 @@ bool code_instruction_operand_cmp(CodeInstructionOperand* first, CodeInstruction
         return false;
 
     if(first->type == TYPE_INSTRUCTION_OPERAND_VARIABLE) {
-        char* first_identifier = code_instruction_operand_render(first);
-        char* second_identifier = code_instruction_operand_render(second);
-        bool cmp_res = strcmp(first_identifier, second_identifier);
-        memory_free(first_identifier);
-        memory_free(second_identifier);
-
-        return cmp_res == 0;
-    }
-    else if(first->type == TYPE_INSTRUCTION_OPERAND_LABEL)
+        return symbol_variable_cmp(
+                first->data.variable,
+                second->data.variable
+        );
+    } else if(first->type == TYPE_INSTRUCTION_OPERAND_LABEL)
         return strcmp(first->data.label, second->data.label) == 0;
     else if(first->type == TYPE_INSTRUCTION_OPERAND_DATA_TYPE)
         return first->data.constant.data_type == second->data.constant.data_type;

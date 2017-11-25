@@ -119,6 +119,7 @@ typedef struct {
 typedef struct code_instruction_signature_t {
     TypeInstruction type;
     const char* identifier;
+    short operand_count;
     TypeInstructionOperand type0;
     TypeInstructionOperand type1;
     TypeInstructionOperand type2;

@@ -32,6 +32,10 @@ typedef struct symbol_table_t {
 
 /**
  * Construct new hash table with given size.
+ * @param size count of buckets
+ * @param item_size size of one item to correct memory allocating for inherited symtables
+ * @param init_data_callback call back to init data for item
+ * @param free_data_callback call back to free data for item
  * @return Ptr to allocated hash table, NULL in case of error.
  */
 SymbolTable* symbol_table_init(

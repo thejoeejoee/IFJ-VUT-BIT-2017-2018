@@ -24,12 +24,18 @@ typedef struct variable_meta_data_t {
     SymbolTableBaseItem base;
     int occurrences_count;
     MetaType purity_type;
+
+    size_t read_usage_count;
 } VariableMetaData;
 
 typedef struct function_meta_data_t {
     SymbolTableBaseItem base;
     unsigned int call_count;
     MetaType purity_type;
+
+    // has read
+    // has write
+    // has global mod
 } FunctionMetaData;
 
 typedef struct label_meta_data_t {
@@ -122,9 +128,10 @@ SymbolTable* code_optimizer_check_ph_pattern(CodeOptimizer* optimizer, PeepHoleP
 CodeInstruction* code_optimizer_new_instruction_with_mapped_operands(CodeOptimizer* optimizer, PeepHolePatternInstruction*  ph_pattern_instruction, SymbolTable* mapped_operands);
 
 // updating meta data
-void code_optimizer_update_meta_data(CodeOptimizer* optimizer);
+void code_optimizer_adding_instruction(CodeOptimizer* optimizer, CodeInstruction* instruction);
+void code_optimizer_removing_instruction(CodeOptimizer* optimizer, CodeInstruction* instruction);
 
-void code_optimizer_update_variable_meta_data(CodeOptimizer* optimizer, CodeInstruction* instruction);
+void code_optimizer_update_meta_data(CodeOptimizer* optimizer);
 
 void code_optimizer_update_function_meta_data(CodeOptimizer* optimizer, CodeInstruction* instruction,
                                               const char* current_func_label);
@@ -132,7 +139,7 @@ void code_optimizer_update_function_meta_data(CodeOptimizer* optimizer, CodeInst
 void code_optimizer_update_label_meta_data(CodeOptimizer* optimizer, CodeInstruction* instruction);
 
 // optimizing functions
-bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer);
+bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer, bool hard_remove);
 bool code_optimizer_peep_hole_optimization(CodeOptimizer* optimizer);
 bool code_optimizer_remove_unused_functions(CodeOptimizer* optimizer);
 

@@ -128,7 +128,7 @@ String* symbol_function_get_param_name_alias(SymbolFunction* function, SymbolFun
     NULL_POINTER_CHECK(actual, NULL);
 
     char* tmp = memory_alloc(sizeof(char) * 16);
-    snprintf(tmp, 15, "%05zd", index);
+    snprintf(tmp, 15, "%05lu", (long unsigned) index);
     string_append_s(
             string,
             tmp

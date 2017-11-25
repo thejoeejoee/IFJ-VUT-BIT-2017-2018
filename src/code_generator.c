@@ -161,6 +161,7 @@ CodeGenerator* code_generator_init() {
     for(int i = 0; i < I__LAST; ++i) {
         generator->instruction_signatures[i].type = I__NONE;
         generator->instruction_signatures[i].identifier = NULL;
+        generator->instruction_signatures[i].operand_count = 0;
     }
 
     code_generator_register_signatures(generator);
@@ -386,4 +387,17 @@ CodeInstruction* code_generator_last_instruction(CodeGenerator* generator) {
     if(generator->to_buffer)
         return generator->buffer_last;
     return generator->last;
+}
+
+short code_generator_instruction_operands_count(CodeGenerator* generator, TypeInstruction instruction_type)
+{
+    NULL_POINTER_CHECK(generator, 0);
+
+    if(instruction_type >= I__LAST) {
+        LOG_WARNING("Passed invalid instruction type.");
+        return 0;
+    }
+
+    const CodeInstructionSignature* signature = generator->instruction_signatures + instruction_type;
+    return signature->operand_count;
 }

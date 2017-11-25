@@ -61,13 +61,6 @@ void code_constructor_free(CodeConstructor** constructor) {
 void code_constructor_scope_start(CodeConstructor* constructor) {
     NULL_POINTER_CHECK(constructor,);
 
-    if(constructor->scope_depth == 0) {
-        // main program scope, generate label for jump from start of this file
-
-        GENERATE_CODE(I_CREATE_FRAME);
-        GENERATE_CODE(I_PUSH_FRAME);
-    }
-
     constructor->scope_depth++;
 }
 
@@ -365,15 +358,15 @@ char* code_constructor_generate_label(CodeConstructor* constructor, const char* 
     NULL_POINTER_CHECK(constructor, NULL);
     NULL_POINTER_CHECK(type, NULL);
 
-    const char* format = "%%LABEL_%zd_DEPTH_%zd_$%s";
+    const char* format = "%%LABEL_%lu_DEPTH_%lu_$%s";
     size_t len = strlen(type) + 2 * strlen(format);
     char* label = memory_alloc(len * sizeof(char));
     snprintf(
             label,
             len,
             format,
-            constructor->_label_counter++,
-            constructor->control_statement_depth,
+            (long unsigned) constructor->_label_counter++,
+            (long unsigned) constructor->control_statement_depth,
             type
     );
 
@@ -505,9 +498,6 @@ void code_constructor_scope_end(CodeConstructor* constructor) {
     NULL_POINTER_CHECK(constructor,);
 
     constructor->scope_depth--;
-    if(constructor->scope_depth == 0) {
-        GENERATE_CODE(I_POP_FRAME);
-    }
 }
 
 void code_constructor_stack_type_conversion(CodeConstructor* constructor, DataType current_type, DataType target_type) {

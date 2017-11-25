@@ -448,6 +448,3 @@ LexerFSMState lexer_fsm_get_identifier_state(const char* name) {
     return LEX_FSM__IDENTIFIER_FINISHED;
 }
 
-bool lexer_fsm_is_final_state(LexerFSMState state) {
-    return state >= LEX_FSM__ADD;
-}

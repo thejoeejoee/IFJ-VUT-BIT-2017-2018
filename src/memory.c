@@ -18,7 +18,7 @@ void* memory_manager_malloc(
     UNUSED(func);
 
     if(!size) {
-        LOG_WARNING("Invalid size %zd .", size);
+        LOG_WARNING("Invalid size %lu .", (long unsigned) size);
         return NULL;
     }
     if(manager == NULL)

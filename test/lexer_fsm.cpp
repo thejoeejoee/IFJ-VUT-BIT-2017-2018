@@ -77,14 +77,14 @@ TEST_F(LexerFSMTestFixture, IsFinalStateTest) {
     for(const LexerFSMState state: final_states) {
 
         EXPECT_TRUE(
-                lexer_fsm_is_final_state(state)
+                LEXER_FSM_IS_FINAL_STATE(state)
         ) << "Error testing final state";
     }
 
     for(const LexerFSMState state: non_final_states) {
 
         EXPECT_FALSE(
-                lexer_fsm_is_final_state(state)
+                LEXER_FSM_IS_FINAL_STATE(state)
         ) << "Error testing final state";
     }
 

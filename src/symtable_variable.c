@@ -25,6 +25,10 @@ void symbol_variable_free_data(SymbolTableBaseItem* item) {
         memory_free(variable->scope_alias);
         variable->scope_alias = NULL;
     }
+    if(variable->_cached_identifier != NULL) {
+        memory_free(variable->_cached_identifier);
+        variable->_cached_identifier = NULL;
+    }
 }
 
 void symbol_variable_init_data(SymbolTableBaseItem* item) {
@@ -35,6 +39,7 @@ void symbol_variable_init_data(SymbolTableBaseItem* item) {
     variable->scope_depth = 0;
     variable->alias_name = NULL;
     variable->scope_alias = NULL;
+    variable->_cached_identifier = NULL;
 }
 
 SymbolVariable* symbol_variable_copy(SymbolVariable* variable) {

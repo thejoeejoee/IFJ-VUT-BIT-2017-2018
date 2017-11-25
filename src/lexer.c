@@ -46,17 +46,13 @@ void lexer_transform_integer_value(char** integer_value) {
     size_t target_length = (1 + strlen(*integer_value)) * 2;
     char* integer_value_copy = memory_alloc(target_length * sizeof(char));
 
-    int result = 0;
-
-    size_t multiplier = 0;
     int offset = 1;
-    size_t base;
+    int base;
     // First char is type of integer. [0-9] -> decimal, 'b' -> binary, 'o' -> octa, 'h' -> hexa
     switch(**integer_value) {
         case 'b':
             base = 2;
             break;
-
         case 'o':
             base = 8;
             break;
@@ -70,10 +66,7 @@ void lexer_transform_integer_value(char** integer_value) {
             break;
     }
 
-    for(int i = (int) (strlen(*integer_value) - 1); i >= offset; i--) {
-        result += hex_to_int((*integer_value)[i]) * pow(base, multiplier);
-        multiplier++;
-    }
+    int result = (int) strtol((*integer_value) + offset, NULL, base);
 
     snprintf(integer_value_copy, target_length, "%d", result);
 
@@ -104,7 +97,7 @@ Token lexer_next_token(Lexer* lexer) {
     do {
         // loop from init state to one of final state
         actual_state = lexer_fsm_next_state(lexer->lexer_fsm, actual_state);
-    } while(!lexer_fsm_is_final_state(actual_state));
+    } while(!LEXER_FSM_IS_FINAL_STATE(actual_state));
 
     token.type = (TokenType) actual_state;
 

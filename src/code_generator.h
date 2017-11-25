@@ -32,6 +32,10 @@
     generator->instruction_signatures[i_type].type0 = (type0_); \
     generator->instruction_signatures[i_type].type1 = (type1_); \
     generator->instruction_signatures[i_type].type2 = (type2_); \
+    generator->instruction_signatures[i_type].operand_count = \
+        (TYPE_INSTRUCTION_OPERAND_NONE != (type0_)) + \
+        (TYPE_INSTRUCTION_OPERAND_NONE != (type1_)) + \
+        (TYPE_INSTRUCTION_OPERAND_NONE != (type2_));  \
 } while(0)
 
 #define ADD_INSTRUCTION_SIGNATURE(...) MSVC_EXPAND(GET_OVERLOADED_MACRO12345(__VA_ARGS__, _INSTRUCTION_SIGNATURE_4, \
@@ -147,6 +151,7 @@ void code_generator_flush_buffer(CodeGenerator* generator);
 
 
 CodeInstruction* code_generator_last_instruction(CodeGenerator* generator);
+short code_generator_instruction_operands_count(CodeGenerator* generator, TypeInstruction instruction_type);
 
 /**
  * Render all generated instruction into given stream.

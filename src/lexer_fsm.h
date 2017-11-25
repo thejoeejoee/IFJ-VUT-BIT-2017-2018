@@ -5,8 +5,11 @@
 #include "char_stack.h"
 #include "dynamic_string.h"
 
-// Lenght of lexer buffer
+// Length of lexer buffer
 #define LEXER_FSM_STREAM_BUFFER_DEFAULT_LENGTH 2
+
+//lexer_fsm_is_final_state
+#define LEXER_FSM_IS_FINAL_STATE(state) ((state) >= LEX_FSM__ADD)
 
 /**
  * @brief Pointer to function, which streams the characters
@@ -65,6 +68,7 @@ typedef enum {
 
 
     // Comments
+
     LEX_FSM__COMMENT_LINE,
     LEX_FSM__SLASH,
     LEX_FSM__COMMENT_BLOCK,
@@ -93,6 +97,7 @@ typedef enum {
 
     // FINAL STATES
     // 128 is operator class
+
     LEX_FSM__ADD,
     LEX_FSM__SUBTRACT,
     LEX_FSM__DIVIDE,
@@ -114,6 +119,7 @@ typedef enum {
 
     // Brackets
     // 256 is brackets class
+
     LEX_FSM__LEFT_BRACKET,
     LEX_FSM__RIGHT_BRACKET,
 
@@ -200,13 +206,5 @@ LexerFSMState lexer_fsm_get_identifier_state(const char* name);
  * @return LexerFSMState Next state
  */
 LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state);
-
-/**
- * @brief Find out if the state is final
- *
- * @param LexerFSMState state actual state
- * @return bool
- */
-bool lexer_fsm_is_final_state(LexerFSMState state);
 
 #endif // _LEXER_FSM_H

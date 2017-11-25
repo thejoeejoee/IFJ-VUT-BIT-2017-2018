@@ -25,7 +25,7 @@ void string_free(String** string) {
 
 // helper function for allocating more space if needed
 static inline void string_update_capacity(String* string, size_t needed_size) {
-    NULL_POINTER_CHECK(string,)
+    NULL_POINTER_CHECK(string,);
     if(needed_size > string->capacity) {
         size_t new_capacity = 2 * string->capacity;
         new_capacity = new_capacity >= 2 ? new_capacity : 2;

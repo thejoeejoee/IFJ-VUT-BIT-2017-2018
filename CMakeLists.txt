@@ -14,7 +14,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_BINARY_DIR}/codecov-src/cmake" ${CMAKE_MODULE_PAT
 
 #init
 IF (CMAKE_COMPILER_IS_GNUCC)
-    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -pedantic -std=c99 -Wno-unused-parameter -Wno-variadic-macros -D__USE_MINGW_ANSI_STDIO")
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -pedantic -std=c99 -Wno-unused-parameter -Wno-variadic-macros")
 ELSEIF (MSVC)
     SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /D_CRT_SECURE_NO_WARNINGS /wd4200")
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_CRT_SECURE_NO_WARNINGS /wd4200")

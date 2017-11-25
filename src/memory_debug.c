@@ -14,7 +14,7 @@ void* memory_manager_malloc(
         MemoryManager* manager
 ) {
     if(!size) {
-        LOG_WARNING("Invalid size %zd.", size);
+        LOG_WARNING("Invalid size %lu.", (long unsigned) size);
         return NULL;
     }
     if(manager == NULL)
@@ -40,7 +40,7 @@ void* memory_manager_malloc(
 
     new_page->next = manager->head;
     manager->head = new_page;
-    LOG_DEBUG("Successfully allocated %zu bytes for %s.", new_page->size, new_page->info);
+    LOG_DEBUG("Successfully allocated %lu bytes for %s.", (long unsigned) new_page->size, new_page->info);
     return new_page->address;
 }
 
@@ -126,9 +126,9 @@ void memory_manager_exit(MemoryManager* manager) {
                 }
             }
             if(is_string) {
-                LOG_WARNING("Memory leak of %zu bytes from %s: %s.", page->size, page->info, string);
+                LOG_WARNING("Memory leak of %lu bytes from %s: %s.", (long unsigned) page->size, page->info, string);
             } else {
-                LOG_WARNING("Memory leak of %zu bytes from %s.", page->size, page->info);
+                LOG_WARNING("Memory leak of %lu bytes from %s.", (long unsigned) page->size, page->info);
             }
             free(page->address);
             page->address = NULL;

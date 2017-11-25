@@ -258,9 +258,9 @@ void code_instruction_operand_render_variable_identifier(SymbolVariable* variabl
             frame = "GF";
             if(variable->scope_depth > 0 && variable->scope_alias == NULL) {
                 LOG_WARNING(
-                        "Variable %s without scope alias on global frame has non-zero scope depth: %zd.",
+                        "Variable %s without scope alias on global frame has non-zero scope depth: %lu.",
                         variable->base.key,
-                        variable->scope_depth
+                        (long unsigned) variable->scope_depth
                 );
             }
             break;
@@ -280,9 +280,9 @@ void code_instruction_operand_render_variable_identifier(SymbolVariable* variabl
         snprintf(
                 rendered,
                 length,
-                "%s@%%%05zd_%s",
+                "%s@%%%05lu_%s",
                 frame,
-                variable->scope_depth,
+                (long unsigned) variable->scope_depth,
                 variable->alias_name == NULL ?
                 variable->base.key : variable->alias_name
         );

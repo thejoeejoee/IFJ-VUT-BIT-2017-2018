@@ -170,7 +170,7 @@ CodeInstructionOperand* code_optimizer_expr_eval(
 
                         if(t2->data_type == DATA_TYPE_DOUBLE)
                             result_i /= (int) round_even(t2->instruction->op0->data.constant.data.double_);
-                        TRY_TO_PERFORM_OPERATION(t2, DATA_TYPE_INTEGER, result_d, /);
+                        TRY_TO_PERFORM_OPERATION(t2, DATA_TYPE_INTEGER, result_i, /);
                         break;
 
                     default:

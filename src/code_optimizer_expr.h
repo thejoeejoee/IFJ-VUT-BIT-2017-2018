@@ -50,6 +50,8 @@
         else { LOG_WARNING("Unknown data type"); } \
 }} while(0)
 
+int round_even(double x);
+
 /**
  * Try 'constantize' operation `E op E` by defined signature, source T1 a T2 and result E.
  * @param optimizer instance

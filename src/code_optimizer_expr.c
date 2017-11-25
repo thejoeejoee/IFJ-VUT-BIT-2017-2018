@@ -153,11 +153,24 @@ CodeInstructionOperand* code_optimizer_expr_eval(
                         TRY_TO_PERFORM_OPERATION(t2, DATA_TYPE_INTEGER, result_d, /);
                         break;
 
+                    default:
+                        LOG_WARNING("Unknown operation");
+                        return NULL;
+                }
+                break;
+            }
+
+            case OPERATION_INT_DIVIDE: {
+                CEE_ENABLED_CHECK();
+                switch(signature->result_type) {
                     case DATA_TYPE_INTEGER:
-                        TRY_TO_PERFORM_OPERATION(t1, DATA_TYPE_DOUBLE, result_i, +);
+                        if(t1->data_type == DATA_TYPE_DOUBLE)
+                            result_i = (int) round_even(t1->instruction->op0->data.constant.data.double_);
                         TRY_TO_PERFORM_OPERATION(t1, DATA_TYPE_INTEGER, result_i, +);
-                        TRY_TO_PERFORM_OPERATION(t2, DATA_TYPE_DOUBLE, result_i, /);
-                        TRY_TO_PERFORM_OPERATION(t2, DATA_TYPE_INTEGER, result_i, /);
+
+                        if(t2->data_type == DATA_TYPE_DOUBLE)
+                            result_i /= (int) round_even(t2->instruction->op0->data.constant.data.double_);
+                        TRY_TO_PERFORM_OPERATION(t2, DATA_TYPE_INTEGER, result_d, /);
                         break;
 
                     default:
@@ -293,3 +306,7 @@ CodeInstructionOperand* code_optimizer_expr_eval(
     return NULL;
 }
 
+int round_even(double x) {
+    x -= remainder(x, 1.0);
+    return (int) x;
+}

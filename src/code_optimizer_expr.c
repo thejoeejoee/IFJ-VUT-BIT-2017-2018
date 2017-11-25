@@ -1,7 +1,7 @@
 #include "code_optimizer_expr.h"
 #include "code_instruction_operand.h"
 
-#ifdef CEE_ENABLED
+#ifndef CEE_ENABLED
 #define CEE_ENABLED_CHECK() do { } while(0)
 #else
 #define CEE_ENABLED_CHECK() do { return NULL; } while(0)
@@ -44,6 +44,7 @@ CodeInstructionOperand* code_optimizer_expr_eval(
                         break;
                     default:
                         LOG_WARNING("Unknown data type to process unary minus.");
+                        return NULL;
                 }
                 break;
             }
@@ -54,11 +55,13 @@ CodeInstructionOperand* code_optimizer_expr_eval(
                         break;
                     default:
                         LOG_WARNING("Unknown data type to process not.");
+                        return NULL;
                 }
                 break;
             }
             default:
                 LOG_WARNING("Unknown unary operation %d.", signature->operation_type);
+                return NULL;
         }
     } else {
         switch(signature->operation_type) {
@@ -83,17 +86,20 @@ CodeInstructionOperand* code_optimizer_expr_eval(
                             string_append(result_s, t1->instruction->op0->data.constant.data.string);
                         else {
                             LOG_WARNING("Unknown data type");
+                            return NULL;
                         }
 
                         if(t2->data_type == DATA_TYPE_STRING)
                             string_append(result_s, t2->instruction->op0->data.constant.data.string);
                         else {
                             LOG_WARNING("Unknown data type");
+                            return NULL;
                         }
 
                         break;
                     default:
                         LOG_WARNING("Unknown operation");
+                        return NULL;
                 }
                 break;
             }
@@ -113,11 +119,11 @@ CodeInstructionOperand* code_optimizer_expr_eval(
                         break;
                     default:
                         LOG_WARNING("Unknown operation");
+                        return NULL;
                 }
                 break;
             }
             case OPERATION_MULTIPLY: {
-
                 CEE_ENABLED_CHECK();
                 switch(signature->result_type) {
                     case DATA_TYPE_DOUBLE:
@@ -133,11 +139,11 @@ CodeInstructionOperand* code_optimizer_expr_eval(
                         break;
                     default:
                         LOG_WARNING("Unknown operation");
+                        return NULL;
                 }
                 break;
             }
-            case OPERATION_DIVIDE:
-            case OPERATION_INT_DIVIDE: {
+            case OPERATION_DIVIDE: {
                 CEE_ENABLED_CHECK();
                 switch(signature->result_type) {
                     case DATA_TYPE_DOUBLE:
@@ -156,6 +162,7 @@ CodeInstructionOperand* code_optimizer_expr_eval(
 
                     default:
                         LOG_WARNING("Unknown operation");
+                        return NULL;
                 }
                 break;
             }
@@ -170,6 +177,7 @@ CodeInstructionOperand* code_optimizer_expr_eval(
                                    t2->instruction->op0->data.constant.data.boolean;
                 } else {
                     LOG_WARNING("Unsupported operand types to 'and' or 'or' operation.");
+                    return NULL;
                 }
                 break;
             }
@@ -184,6 +192,7 @@ CodeInstructionOperand* code_optimizer_expr_eval(
                         break;
                     default:
                         LOG_WARNING("Unknown operation");
+                        return NULL;
                 }
                 break;
             }
@@ -198,6 +207,7 @@ CodeInstructionOperand* code_optimizer_expr_eval(
                         break;
                     default:
                         LOG_WARNING("Unknown operation");
+                        return NULL;
                 }
                 break;
             }
@@ -212,6 +222,7 @@ CodeInstructionOperand* code_optimizer_expr_eval(
                         break;
                     default:
                         LOG_WARNING("Unknown operation");
+                        return NULL;
                 }
                 break;
             }
@@ -226,6 +237,7 @@ CodeInstructionOperand* code_optimizer_expr_eval(
                         break;
                     default:
                         LOG_WARNING("Unknown operation");
+                        return NULL;
                 }
                 break;
             }
@@ -253,12 +265,14 @@ CodeInstructionOperand* code_optimizer_expr_eval(
                         break;
                     default:
                         LOG_WARNING("Unknown data type of operands.");
+                        return NULL;
                 }
                 break;
             }
 
             default:
                 LOG_WARNING("Unknown binary operation %d.", signature->operation_type);
+                return NULL;
         }
     }
 

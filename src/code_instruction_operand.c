@@ -180,7 +180,7 @@ char* code_instruction_operand_render(CodeInstructionOperand* operand) {
                     break;
 
                 case DATA_TYPE_DOUBLE:
-                    snprintf(rendered, length, "float@%g", operand->data.constant.data.double_);
+                    snprintf(rendered, length, "float@%a", operand->data.constant.data.double_);
                     break;
 
                 case DATA_TYPE_BOOLEAN:

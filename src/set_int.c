@@ -88,3 +88,17 @@ void set_int_clear(SetInt* set)
 
     set->head = set->tail = NULL;
 }
+
+void set_int_print(SetInt* set)
+{
+    NULL_POINTER_CHECK(set, );
+
+    SetIntItem* item = (SetIntItem*)set->head;
+    printf("Set(");
+
+    while(item) {
+        printf("%d, ", item->value);
+        item = (SetIntItem*)item->base.next;
+    }
+    printf(")");
+}

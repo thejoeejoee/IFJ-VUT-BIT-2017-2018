@@ -21,4 +21,6 @@ void set_int_add(SetInt* set, int value);
 void set_int_remove(SetInt* set, int value);
 void set_int_clear(SetInt* set);
 
+void set_int_print(SetInt* set);
+
 #endif // SETINT_H

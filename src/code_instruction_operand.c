@@ -256,13 +256,6 @@ void code_instruction_operand_render_variable_identifier(SymbolVariable* variabl
             break;
         case VARIABLE_FRAME_GLOBAL:
             frame = "GF";
-            if(variable->scope_depth > 0 && variable->scope_alias == NULL) {
-                LOG_WARNING(
-                        "Variable %s without scope alias on global frame has non-zero scope depth: %lu.",
-                        variable->base.key,
-                        (long unsigned) variable->scope_depth
-                );
-            }
             break;
         case VARIABLE_FRAME_TEMP:
             frame = "TF";

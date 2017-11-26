@@ -54,6 +54,7 @@ GraphNodeBase* oriented_graph_new_node(OrientedGraph* graph)
             assigned = true;
             new_node->id = i;
             new_node->out_edges = set_int_init();
+            new_node->in_edges = set_int_init();
 
             graph->nodes_count++;
             graph->nodes[i] = new_node;
@@ -77,8 +78,27 @@ void oriented_graph_remove_node(OrientedGraph* graph, unsigned int node_id)
     if(node == NULL)
         return;
 
+    SetIntItem* id = (SetIntItem*)node->in_edges->head;
+    GraphNodeBase* in_node = NULL;
+    while(id != NULL) {
+        in_node = oriented_graph_node(graph, id->value);
+        set_int_remove(in_node->out_edges, id->value);
+
+        id = (SetIntItem*)id->base.next;
+    }
+
+    id = (SetIntItem*)node->out_edges->head;
+    GraphNodeBase* out_node = NULL;
+    while(id != NULL) {
+        out_node = oriented_graph_node(graph, id->value);
+        set_int_remove(out_node->in_edges, id->value);
+
+        id = (SetIntItem*)id->base.next;
+    }
+
     graph->nodes[node_id] = NULL;
-    set_int_free(&(node->out_edges));
+    set_int_free(&node->out_edges);
+    set_int_free(&node->in_edges);
     memory_free(node);
 
     graph->nodes_count--;
@@ -100,6 +120,7 @@ void oriented_graph_clear(OrientedGraph* graph)
         if(graph->nodes[i] != NULL) {
             // TODO add free data callback
             set_int_free(&(graph->nodes[i]->out_edges));
+            set_int_free(&(graph->nodes[i]->in_edges));
             memory_free(graph->nodes[i]);
             graph->nodes[i] = NULL;
         }
@@ -131,6 +152,7 @@ void oriented_graph_connect_nodes(OrientedGraph* graph, GraphNodeBase* from, Gra
     NULL_POINTER_CHECK(to, );
 
     set_int_add(from->out_edges, to->id);
+    set_int_add(to->in_edges, from->id);
 }
 
 void oriented_graph_connect_nodes_by_ids(OrientedGraph* graph, unsigned int from, unsigned int to)

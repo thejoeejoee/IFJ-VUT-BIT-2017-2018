@@ -7,6 +7,7 @@
 typedef struct {
     unsigned int id;
     SetInt* out_edges;
+    SetInt* in_edges;
 } GraphNodeBase;
 
 typedef void(*oriented_graph_init_data_callback_f)(GraphNodeBase*);

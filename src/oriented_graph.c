@@ -1,11 +1,12 @@
 #include "oriented_graph.h"
 
-OrientedGraph* oriented_graph_init(size_t item_size)
+OrientedGraph* oriented_graph_init(size_t item_size, oriented_graph_init_data_callback_f init_callback)
 {
     OrientedGraph* graph = memory_alloc(sizeof(OrientedGraph));
     graph->nodes_count = 0;
     graph->item_size = item_size;
     graph->capacity = 32;
+    graph->init_data_callback = init_callback;
 
     graph->nodes = memory_alloc(sizeof(GraphNodeBase*) * graph->capacity);
     for(unsigned int i = 0; i < graph->capacity; i++)
@@ -56,6 +57,8 @@ GraphNodeBase* oriented_graph_new_node(OrientedGraph* graph)
 
             graph->nodes_count++;
             graph->nodes[i] = new_node;
+            if(graph->init_data_callback != NULL)
+                graph->init_data_callback(new_node);
             break;
         }
     }

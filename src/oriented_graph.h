@@ -9,14 +9,17 @@ typedef struct {
     SetInt* out_edges;
 } GraphNodeBase;
 
+typedef void(*oriented_graph_init_data_callback_f)(GraphNodeBase*);
+
 typedef struct {
     size_t capacity;
     size_t nodes_count;
     size_t item_size;
     GraphNodeBase** nodes;
+    oriented_graph_init_data_callback_f init_data_callback;
 } OrientedGraph;
 
-OrientedGraph* oriented_graph_init(size_t item_size);
+OrientedGraph* oriented_graph_init(size_t item_size, oriented_graph_init_data_callback_f init_callback);
 void oriented_graph_free(OrientedGraph** graph);
 
 GraphNodeBase* oriented_graph_new_node(OrientedGraph* graph);

@@ -216,9 +216,10 @@ TEST_F(CodeInstructionOperandTestFixture, DoubleRender0) {
     auto rendered = code_instruction_operand_render(operand);
 
 #ifdef __MINGW32__
-    const char* expected_value = "float@1.24713e+007";
+    // render format was changed but I have only gcc
+    const char* expected_value = "float@0x1.7c97adcb9960ep+23";
 #else
-    const char* expected_value = "float@1.24713e+07";
+    const char* expected_value = "float@0x1.7c97adcb9960ep+23";
 #endif
 
     EXPECT_STREQ(
@@ -234,7 +235,7 @@ TEST_F(CodeInstructionOperandTestFixture, DoubleRender1) {
     auto rendered = code_instruction_operand_render(operand);
     EXPECT_STREQ(
             rendered,
-            "float@-15.54"
+            "float@-0x1.f147ae147ae14p+3"
     );
     memory_free(rendered);
 }

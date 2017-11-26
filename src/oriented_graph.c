@@ -106,7 +106,6 @@ void oriented_graph_clear(OrientedGraph* graph)
     }
 
     graph->nodes_count = 0;
-    graph->capacity = 0;
 }
 
 void oriented_graph_print(OrientedGraph* graph)

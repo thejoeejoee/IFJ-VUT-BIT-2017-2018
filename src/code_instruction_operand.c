@@ -59,7 +59,8 @@ CodeInstructionOperand* code_instruction_operand_copy(CodeInstructionOperand* ot
             return code_instruction_operand_init_boolean(other->data.constant.data.boolean);
         else if(other->data.constant.data_type == DATA_TYPE_STRING)
             return code_instruction_operand_init_string(other->data.constant.data.string);
-    }
+        else LOG_WARNING("Unknown constant data type operand to copy.");
+    } else LOG_WARNING("Unknown code instruction operand to copy.");
 
     return NULL;
 }
@@ -314,6 +315,9 @@ char* code_instruction_render_variable_identifier(SymbolVariable* variable) {
 }
 
 bool code_instruction_operand_cmp(CodeInstructionOperand* first, CodeInstructionOperand* second) {
+    LOG_WARNING("Comparing operands: %s, %s", code_instruction_operand_render(first),
+                code_instruction_operand_render(second));
+
     if(first == NULL || second == NULL)
         return (first == NULL && second == NULL);
 
@@ -336,8 +340,22 @@ bool code_instruction_operand_cmp(CodeInstructionOperand* first, CodeInstruction
             return first->data.constant.data.double_ == second->data.constant.data.double_;
         else if(first->data.constant.data_type == DATA_TYPE_BOOLEAN)
             return first->data.constant.data.boolean == second->data.constant.data.boolean;
-        else if(first->data.constant.data_type == DATA_TYPE_STRING)
+        else if(first->data.constant.data_type == DATA_TYPE_STRING) {
+            LOG_WARNING("first: %p", (void*) first);
+            LOG_WARNING("second: %p", (void*) second);
+            LOG_WARNING("first string: %p", (void*) first->data.constant.data.string);
+            LOG_WARNING("second string: %p", (void*) second->data.constant.data.string);
+            LOG_WARNING("second string is null: %d", second->data.constant.data.string == NULL);
+
+            NULL_POINTER_CHECK(first, false);
+            NULL_POINTER_CHECK(first->data.constant.data.string, false);
+            NULL_POINTER_CHECK(first->data.constant.data.string->content, false);
+            NULL_POINTER_CHECK(second, false);
+            NULL_POINTER_CHECK(second->data.constant.data.string, false);
+
+            NULL_POINTER_CHECK(second->data.constant.data.string->content, false);
             return strcmp(first->data.constant.data.string->content, second->data.constant.data.string->content) == 0;
+        }
     }
 
     LOG_WARNING("Undefined operands comparison.");

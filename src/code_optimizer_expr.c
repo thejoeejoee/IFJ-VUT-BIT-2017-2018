@@ -16,7 +16,7 @@ CodeInstructionOperand* code_optimizer_expr_eval(
     NULL_POINTER_CHECK(signature, NULL);
     NULL_POINTER_CHECK(t1, NULL);
     NULL_POINTER_CHECK(result, NULL);
-
+    return NULL;
     if(!t1->is_constant)
         return NULL;
     if((t2 != NULL && !t2->is_constant))

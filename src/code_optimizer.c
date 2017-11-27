@@ -159,6 +159,69 @@ code_optimizer_init(CodeGenerator* generator, SymbolVariable* temp1, SymbolVaria
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_WRITE, "1a", NULL, NULL, -1, 0, 0);
     code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_WRITE, "b", NULL, NULL);
 
+
+    /* Double not on stack
+     * NOT              =>
+     * NOT
+     */
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_NOT_STACK, NULL, NULL, NULL, 0, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_NOT_STACK, NULL, NULL, NULL, 0, 0, 0);
+
+    /* Double not on stack
+     * PUSH true       => E
+     * ANDS
+     */
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "<", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_AND_STACK, NULL, NULL, NULL, 0, 0, 0);
+
+    /* Double not on stack
+     * PUSH true       => E
+     * EQS
+     */
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "<", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_EQUAL_STACK, NULL, NULL, NULL, 0, 0, 0);
+
+    /* Pattern expanding to always true
+     * PUSH <a>       => PUSH true
+     * PUSH <a>
+     * NOTS
+     * ORS
+     */
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "foobar", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "foobar", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_NOT_STACK, NULL, NULL, NULL, 0, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_OR_STACK, NULL, NULL, NULL, 0, 0, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "<true", NULL, NULL);
+
+    /* Pattern expanding to always true
+     * PUSH false       => NOTS
+     * EQS
+     */
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, ">", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_EQUAL_STACK, NULL, NULL, NULL, 0, 0, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_NOT_STACK, NULL, NULL, NULL);
+
+    /* Pattern expanding to always true
+     * LABEL <label>       => E
+     */
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_LABEL, "&l", NULL, NULL, 0, 0, 0);
+
+    /* Pattern expanding to always true
+     * JUMP <label>       => JUMP <label>
+     * JUMP <label>
+     */
+
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_JUMP, "&l", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_JUMP, "&l", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_JUMP, "&l", NULL, NULL);
+
     /* Shorten print (can reduce variable in general)
      * MOVE <a> <b>    => MOVE <a> <b>
      * WRITE <a>       => WRITE <b>
@@ -635,6 +698,9 @@ SymbolTable* code_optimizer_check_ph_pattern(CodeOptimizer* optimizer,
     MappedOperand* temp = (MappedOperand*) symbol_table_get_or_create(mapped_operands, "1temp");
     temp->operand = code_instruction_operand_init_variable(optimizer->temp1);
 
+    temp = (MappedOperand*) symbol_table_get_or_create(mapped_operands, "<true");
+    temp->operand = code_instruction_operand_init_boolean(true);
+
     const int operands_max_count = 3;
 
     while(pattern_instruction != NULL) {
@@ -676,7 +742,7 @@ SymbolTable* code_optimizer_check_ph_pattern(CodeOptimizer* optimizer,
                     goto patten_not_matched;
             }
 
-            // check occurreces count
+            // check occurrences count
             if(operands_occ_count[i] != -1) {
                 if(mapped_operand->operand->type == TYPE_INSTRUCTION_OPERAND_VARIABLE) {
                     const VariableMetaData* var_meta_data = code_optimizer_variable_meta_data(optimizer,

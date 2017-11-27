@@ -87,6 +87,7 @@ typedef enum {
     LEX_FSM__DOUBLE_UNFINISHED,
     LEX_FSM__DOUBLE_E,
     LEX_FSM__DOUBLE_E_UNFINISHED,
+    LEX_FSM__DOUBLE_E_SIGN,
 
     // String unfinished states
 

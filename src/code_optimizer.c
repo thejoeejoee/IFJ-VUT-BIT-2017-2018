@@ -600,9 +600,9 @@ bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer, bool hard_
                 delete_expression = instruction->type == I_POP_STACK &&
                                     instruction->meta_data.type == CODE_INSTRUCTION_META_TYPE_EXPRESSION_END &&
                                     expression_purity == META_TYPE_PURE;
+                delete_instruction = !delete_expression;
                 if(!hard_remove)
                     delete_instruction = true;
-                delete_instruction = !delete_expression;
                 remove_something = true;
                 break;
             }

@@ -9,7 +9,7 @@
 #ifndef _CODE_OPTIMIZER_EXPR_H
 #define _CODE_OPTIMIZER_EXPR_H
 
-#ifdef CEE_ENABLED
+#ifndef CEE_ENABLED
 #define CEE_ENABLED_CHECK() do { } while(0)
 #define CEE_ENABLED true
 #else

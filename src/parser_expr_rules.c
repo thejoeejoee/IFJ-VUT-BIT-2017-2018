@@ -932,41 +932,93 @@ bool expression_rule_fn_substr(Parser* parser, LList* expr_token_buffer, ExprIdx
     ExprToken* length_expr = get_n_expr(expr_token_buffer, 2);
     ExprToken* index_expr = get_n_expr(expr_token_buffer, 4);
     ExprToken* string_expr = get_n_expr(expr_token_buffer, 6);
+    ExprToken* e = create_expression((*expression_idx)++);
 
-    DataType params_data_types[3];
-    const unsigned int params_count = sizeof(params_data_types) / sizeof(*params_data_types);
-    // note it's NOT backwards
-    const DataType desired_params_data_types[3] = {
-            DATA_TYPE_STRING, DATA_TYPE_INTEGER, DATA_TYPE_INTEGER
-    };
-
-    for(unsigned int i = 1; i <= params_count; i++) {
-        params_data_types[i - 1] = get_n_expr(expr_token_buffer, (params_count - i + 1) * 2)
-                ->data_type;
-        EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION_FROM_DATA_TYPE(
-                OPERATION_IMPLICIT_CONVERSION,
-                params_data_types[i - 1],
-                desired_params_data_types[i - 1]
-        );
-    }
-
-    // NOTE: now we are processing rule regular way - from the left to the right
-
-    // SubStr(s As String, i As Integer, n As Integer) As String
-
-    code_constructor_fn_substr(
-            parser->code_constructor,
-            parser->parser_semantic->temp_variable1,
-            parser->parser_semantic->temp_variable2,
-            parser->parser_semantic->temp_variable3,
-            parser->parser_semantic->temp_variable4,
-            parser->parser_semantic->temp_variable5,
-            params_data_types[0],
-            params_data_types[1],
-            params_data_types[2]
+    EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION_FROM_DATA_TYPE(
+            OPERATION_IMPLICIT_CONVERSION,
+            length_expr->data_type,
+            DATA_TYPE_INTEGER
+    );
+    EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION_FROM_DATA_TYPE(
+            OPERATION_IMPLICIT_CONVERSION,
+            index_expr->data_type,
+            DATA_TYPE_INTEGER
+    );
+    EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION_FROM_DATA_TYPE(
+            OPERATION_IMPLICIT_CONVERSION,
+            string_expr->data_type,
+            DATA_TYPE_STRING
     );
 
-    ExprToken* e = create_expression((*expression_idx)++);
+    if(CEE_ENABLED && length_expr->is_constant && index_expr->is_constant && string_expr->is_constant) {
+        char* source_string = string_content(string_expr->instruction->op0->data.constant.data.string);
+        int source_string_length = (int) strlen(source_string);
+        String* result = string_init_with_capacity(strlen(source_string));
+        int index;
+        switch(index_expr->instruction->op0->data.constant.data_type) {
+            case DATA_TYPE_INTEGER:
+                index = index_expr->instruction->op0->data.constant.data.integer;
+                break;
+            case DATA_TYPE_DOUBLE:
+                index = round_even(index_expr->instruction->op0->data.constant.data.double_);
+                break;
+            default:
+                index = -1;
+                LOG_WARNING("Unknown index data type.");
+        }
+        int length;
+        switch(length_expr->instruction->op0->data.constant.data_type) {
+            case DATA_TYPE_INTEGER:
+                length = length_expr->instruction->op0->data.constant.data.integer;
+                break;
+            case DATA_TYPE_DOUBLE:
+                length = round_even(length_expr->instruction->op0->data.constant.data.double_);
+                break;
+            default:
+                length = -1;
+                LOG_WARNING("Unknown index data type.");
+        }
+
+        index--;
+        if(length < 0) {
+            length = source_string_length;
+        }
+        if(length + index > source_string_length) {
+            length = (int) (strlen(source_string) - index);
+        }
+        if(index > source_string_length) {
+            index = source_string_length;
+        }
+
+        source_string += index;
+        while((*source_string) != '\0' && length > 0) {
+            string_append_c(result, *source_string);
+            source_string++;
+            length--;
+        }
+
+        e->is_constant = true;
+        e->instruction = GENERATE_CODE(
+                I_PUSH_STACK,
+                code_instruction_operand_init_string(result)
+        );
+        code_generator_remove_instruction(constructor->generator, string_expr->instruction);
+        code_generator_remove_instruction(constructor->generator, index_expr->instruction);
+        code_generator_remove_instruction(constructor->generator, length_expr->instruction);
+    } else {
+        code_constructor_fn_substr(
+                parser->code_constructor,
+                parser->parser_semantic->temp_variable1,
+                parser->parser_semantic->temp_variable2,
+                parser->parser_semantic->temp_variable3,
+                parser->parser_semantic->temp_variable4,
+                parser->parser_semantic->temp_variable5,
+                string_expr->data_type,
+                index_expr->data_type,
+                length_expr->data_type
+        );
+    }
+    // SubStr(s As String, i As Integer, n As Integer) As String
     e->data_type = DATA_TYPE_STRING;
     EXPR_RULE_REPLACE(e);
     return true;

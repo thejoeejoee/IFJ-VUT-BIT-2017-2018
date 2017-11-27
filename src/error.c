@@ -37,10 +37,10 @@ void exit_with_detail_information(ErrorReport error_report) {
 
             switch(error_report.detail_information) {
                 case LEXER_ERROR__STRING_FORMAT:
-                    fprintf(stderr, "error string format!");
+                    fprintf(stderr, "wrong string format!");
                     break;
                 case LEXER_ERROR__DOUBLE_FORMAT:
-                    fprintf(stderr, "error double format!");
+                    fprintf(stderr, "wrong double format!");
                     break;
                 case LEXER_ERROR__ERROR_LEXEM:
                     fprintf(stderr, "unexpected lexical unit!");

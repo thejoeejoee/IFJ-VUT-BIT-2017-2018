@@ -13,6 +13,7 @@ ParserSemantic* parser_semantic_init() {
     parser_semantic->temp_variable3 = NULL;
     parser_semantic->temp_variable4 = NULL;
     parser_semantic->temp_variable5 = NULL;
+    parser_semantic->temp_variable6 = NULL;
     parser_semantic->error_report.error_code = ERROR_NONE;
 
 
@@ -335,29 +336,34 @@ void parser_semantic_setup_temp_variables(ParserSemantic* parser_semantic) {
 
     parser_semantic->temp_variable1 = symbol_table_variable_get_or_create(
             parser_semantic->register_->variables->symbol_table,
-            "%__temp_variable_1"
+            "&_"
     );
     parser_semantic->temp_variable2 = symbol_table_variable_get_or_create(
             parser_semantic->register_->variables->symbol_table,
-            "%__temp_variable_2"
+            "&__"
     );
     parser_semantic->temp_variable3 = symbol_table_variable_get_or_create(
             parser_semantic->register_->variables->symbol_table,
-            "%__temp_variable_3"
+            "&___"
     );
     parser_semantic->temp_variable4 = symbol_table_variable_get_or_create(
             parser_semantic->register_->variables->symbol_table,
-            "%__temp_variable_4"
+            "&_____"
     );
     parser_semantic->temp_variable5 = symbol_table_variable_get_or_create(
             parser_semantic->register_->variables->symbol_table,
-            "%__temp_variable_5"
+            "&______"
+    );
+    parser_semantic->temp_variable6 = symbol_table_variable_get_or_create(
+            parser_semantic->register_->variables->symbol_table,
+            "&_______"
     );
     parser_semantic->temp_variable1->frame =
     parser_semantic->temp_variable2->frame =
     parser_semantic->temp_variable3->frame =
     parser_semantic->temp_variable4->frame =
-    parser_semantic->temp_variable5->frame = VARIABLE_FRAME_GLOBAL;
+    parser_semantic->temp_variable5->frame =
+    parser_semantic->temp_variable6->frame = VARIABLE_FRAME_GLOBAL;
 }
 
 OperationSignature* parser_semantic_get_operation_signature(

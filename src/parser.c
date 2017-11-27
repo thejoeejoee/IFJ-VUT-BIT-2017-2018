@@ -20,7 +20,8 @@ Parser* parser_init(lexer_input_stream_f input_stream) {
                                             parser->parser_semantic->temp_variable2,
                                             parser->parser_semantic->temp_variable3,
                                             parser->parser_semantic->temp_variable4,
-                                            parser->parser_semantic->temp_variable5);
+                                            parser->parser_semantic->temp_variable5,
+                                            parser->parser_semantic->temp_variable6);
     parser->run_type = PARSER_RUN_TYPE_ALL;
     parser->body_statement = false;
     parser->error_report.error_code = ERROR_NONE;
@@ -95,6 +96,10 @@ bool parser_parse_program(Parser* parser) {
                 code_constructor_variable_declaration(
                         parser->code_constructor,
                         parser->parser_semantic->temp_variable5
+                );
+                code_constructor_variable_declaration(
+                        parser->code_constructor,
+                        parser->parser_semantic->temp_variable6
                 );
             }
     );

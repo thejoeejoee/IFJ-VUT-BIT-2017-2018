@@ -3,13 +3,14 @@
 
 CodeOptimizer*
 code_optimizer_init(CodeGenerator* generator, SymbolVariable* temp1, SymbolVariable* temp2, SymbolVariable* temp3,
-                    SymbolVariable* temp4, SymbolVariable* temp5) {
+                    SymbolVariable* temp4, SymbolVariable* temp5, SymbolVariable* temp6) {
     NULL_POINTER_CHECK(generator, NULL);
     NULL_POINTER_CHECK(temp1, NULL);
     NULL_POINTER_CHECK(temp2, NULL);
     NULL_POINTER_CHECK(temp3, NULL);
     NULL_POINTER_CHECK(temp4, NULL);
     NULL_POINTER_CHECK(temp5, NULL);
+    NULL_POINTER_CHECK(temp6, NULL);
 
 
     CodeOptimizer* optimizer = memory_alloc(sizeof(CodeOptimizer));
@@ -25,6 +26,7 @@ code_optimizer_init(CodeGenerator* generator, SymbolVariable* temp1, SymbolVaria
     optimizer->temp3 = temp3;
     optimizer->temp4 = temp4;
     optimizer->temp5 = temp5;
+    optimizer->temp6 = temp6;
 
     llist_init(&optimizer->peep_hole_patterns, sizeof(PeepHolePattern), &init_peep_hole_pattern,
                &free_peep_hole_pattern, NULL);
@@ -260,8 +262,8 @@ code_optimizer_init(CodeGenerator* generator, SymbolVariable* temp1, SymbolVaria
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_GREATER_THEN_STACK, NULL, NULL, NULL, 0, 0, 0);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, ">f", NULL, NULL, -1, 0, 0);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_JUMP_IF_EQUAL_STACK, "&l", NULL, NULL, -1, 0, 0);
-    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_GREATER_THEN, "1temp", "a", "b");
-    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_JUMP_IF_EQUAL, "&l", "1temp", ">f");
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_GREATER_THEN, "temp", "a", "b");
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_JUMP_IF_EQUAL, "&l", "temp", ">f");
 
     /* Shorten lesser condition
      * PUSHS <a>      =>  LT temp1 <a> <b>
@@ -276,8 +278,8 @@ code_optimizer_init(CodeGenerator* generator, SymbolVariable* temp1, SymbolVaria
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_LESSER_THEN_STACK, NULL, NULL, NULL, 0, 0, 0);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, ">f", NULL, NULL, -1, 0, 0);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_JUMP_IF_EQUAL_STACK, "&l", NULL, NULL, -1, 0, 0);
-    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_LESSER_THEN, "1temp", "a", "b");
-    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_JUMP_IF_EQUAL, "&l", "1temp", ">f");
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_LESSER_THEN, "temp", "a", "b");
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_JUMP_IF_EQUAL, "&l", "temp", ">f");
 
     /* Shorten lesser or equal condition
      * PUSHS <a>      =>  GT temp1 <a> <b>
@@ -294,8 +296,8 @@ code_optimizer_init(CodeGenerator* generator, SymbolVariable* temp1, SymbolVaria
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_NOT_STACK, NULL, NULL, NULL, 0, 0, 0);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, ">f", NULL, NULL, -1, 0, 0);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_JUMP_IF_EQUAL_STACK, "&l", NULL, NULL, -1, 0, 0);
-    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_GREATER_THEN, "1temp", "a", "b");
-    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_JUMP_IF_NOT_EQUAL, "&l", "1temp", ">f");
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_GREATER_THEN, "temp", "a", "b");
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_JUMP_IF_NOT_EQUAL, "&l", "temp", ">f");
 
 
     /* Shorten greater or equal condition
@@ -313,8 +315,8 @@ code_optimizer_init(CodeGenerator* generator, SymbolVariable* temp1, SymbolVaria
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_NOT_STACK, NULL, NULL, NULL, 0, 0, 0);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, ">f", NULL, NULL, -1, 0, 0);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_JUMP_IF_EQUAL_STACK, "&l", NULL, NULL, -1, 0, 0);
-    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_LESSER_THEN, "1temp", "a", "b");
-    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_JUMP_IF_NOT_EQUAL, "&l", "1temp", ">f");
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_LESSER_THEN, "temp", "a", "b");
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_JUMP_IF_NOT_EQUAL, "&l", "temp", ">f");
 
     /* Unreal jump.
      * PUSHS <t>        => E
@@ -563,7 +565,7 @@ LabelMetaData* code_optimizer_label_meta_data(CodeOptimizer* optimizer, const ch
     return (LabelMetaData*) symbol_table_get_or_create(optimizer->labels_meta_data, label);
 }
 
-bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer, bool hard_remove) {
+bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer, bool hard_remove, bool remove_special_temp) {
     NULL_POINTER_CHECK(optimizer, false);
 
     CodeInstruction* instruction = optimizer->generator->first;
@@ -595,11 +597,16 @@ bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer, bool hard_
                     optimizer,
                     variable
             )->occurrences_count;
-
             if(variable_occurrences_count == 0 && variable->frame != VARIABLE_FRAME_TEMP) {
                 delete_expression = instruction->type == I_POP_STACK &&
                                     instruction->meta_data.type == CODE_INSTRUCTION_META_TYPE_EXPRESSION_END &&
                                     expression_purity == META_TYPE_PURE;
+
+                if(!remove_special_temp && symbol_variable_cmp(variable, optimizer->temp6)) {
+                    delete_instruction = false;
+                    delete_expression = false;
+                    break;
+                }
                 delete_instruction = !delete_expression;
                 if(!hard_remove)
                     delete_instruction = true;
@@ -695,8 +702,8 @@ SymbolTable* code_optimizer_check_ph_pattern(CodeOptimizer* optimizer,
             (PeepHolePatternInstruction*) ph_pattern->matching_instructions->head;
     SymbolTable* mapped_operands = symbol_table_init(32, sizeof(MappedOperand), &init_mapped_operand_item,
                                                      &free_mapped_operand_item);
-    MappedOperand* temp = (MappedOperand*) symbol_table_get_or_create(mapped_operands, "1temp");
-    temp->operand = code_instruction_operand_init_variable(optimizer->temp1);
+    MappedOperand* temp = (MappedOperand*) symbol_table_get_or_create(mapped_operands, "temp");
+    temp->operand = code_instruction_operand_init_variable(optimizer->temp6);
 
     temp = (MappedOperand*) symbol_table_get_or_create(mapped_operands, "<true");
     temp->operand = code_instruction_operand_init_boolean(true);

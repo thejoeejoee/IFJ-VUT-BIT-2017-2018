@@ -18,6 +18,7 @@ typedef struct code_optimizer_t {
     SymbolVariable* temp3;
     SymbolVariable* temp4;
     SymbolVariable* temp5;
+    SymbolVariable* temp6;
 } CodeOptimizer;
 
 typedef struct variable_meta_data_t {
@@ -88,7 +89,9 @@ typedef struct mapped_operand_t {
 } MappedOperand;
 
 MetaPHPatternFlag extract_flag(const char* alias);
-bool code_optimizer_check_operand_with_meta_type_flag(CodeOptimizer* optimizer, CodeInstructionOperand* operand, MetaPHPatternFlag meta_type_flag);
+
+bool code_optimizer_check_operand_with_meta_type_flag(CodeOptimizer* optimizer, CodeInstructionOperand* operand,
+                                                      MetaPHPatternFlag meta_type_flag);
 
 // meta data sub item
 void init_variable_meta_data(SymbolTableBaseItem* item);
@@ -104,31 +107,47 @@ FunctionMetaData* code_optimizer_function_meta_data(CodeOptimizer* optimizer, co
 LabelMetaData* code_optimizer_label_meta_data(CodeOptimizer* optimizer, const char* label);
 
 // init/free
-CodeOptimizer* code_optimizer_init(CodeGenerator* generator, SymbolVariable* temp1, SymbolVariable* temp2, SymbolVariable* temp3, SymbolVariable* temp4, SymbolVariable* temp5);
+CodeOptimizer*
+code_optimizer_init(CodeGenerator* generator, SymbolVariable* temp1, SymbolVariable* temp2, SymbolVariable* temp3,
+                    SymbolVariable* temp4, SymbolVariable* temp5, SymbolVariable* temp6);
 
 void code_optimizer_free(CodeOptimizer** optimizer);
 
 // peep hole patterns sub item
 void init_mapped_operand_item(SymbolTableBaseItem* item);
+
 void free_mapped_operand_item(SymbolTableBaseItem* item);
+
 void init_peep_hole_pattern(LListBaseItem* item);
+
 void free_peep_hole_pattern(LListBaseItem* item);
 
 // peep hole patterns managing
 PeepHolePattern* code_optimizer_new_ph_pattern(CodeOptimizer* optimizer);
 
-void _code_optimizer_add_instruction_to_ph_pattern(LList* pattern_instruction_sub_list, TypeInstruction instruction, const char* op1_alias, const char* op2_alias, const char* op3_alias, int op0_occ_count, int op1_occ_count, int op2_occ_count);
+void _code_optimizer_add_instruction_to_ph_pattern(LList* pattern_instruction_sub_list, TypeInstruction instruction,
+                                                   const char* op1_alias, const char* op2_alias, const char* op3_alias,
+                                                   int op0_occ_count, int op1_occ_count, int op2_occ_count);
 
-void code_optimizer_add_matching_instruction_to_ph_pattern(PeepHolePattern* ph_pattern, TypeInstruction instruction, const char* op1_alias, const char* op2_alias, const char* op3_alias, int op0_occ_count, int op1_occ_count, int op2_occ_count);
+void code_optimizer_add_matching_instruction_to_ph_pattern(PeepHolePattern* ph_pattern, TypeInstruction instruction,
+                                                           const char* op1_alias, const char* op2_alias,
+                                                           const char* op3_alias, int op0_occ_count, int op1_occ_count,
+                                                           int op2_occ_count);
 
-void code_optimizer_add_replacement_instruction_to_ph_pattern(PeepHolePattern* ph_pattern, TypeInstruction instruction, const char* op1_alias, const char* op2_alias, const char* op3_alias);
+void code_optimizer_add_replacement_instruction_to_ph_pattern(PeepHolePattern* ph_pattern, TypeInstruction instruction,
+                                                              const char* op1_alias, const char* op2_alias,
+                                                              const char* op3_alias);
 
-SymbolTable* code_optimizer_check_ph_pattern(CodeOptimizer* optimizer, PeepHolePattern* ph_pattern, CodeInstruction* instruction);
+SymbolTable*
+code_optimizer_check_ph_pattern(CodeOptimizer* optimizer, PeepHolePattern* ph_pattern, CodeInstruction* instruction);
 
-CodeInstruction* code_optimizer_new_instruction_with_mapped_operands(CodeOptimizer* optimizer, PeepHolePatternInstruction*  ph_pattern_instruction, SymbolTable* mapped_operands);
+CodeInstruction* code_optimizer_new_instruction_with_mapped_operands(CodeOptimizer* optimizer,
+                                                                     PeepHolePatternInstruction* ph_pattern_instruction,
+                                                                     SymbolTable* mapped_operands);
 
 // updating meta data
 void code_optimizer_adding_instruction(CodeOptimizer* optimizer, CodeInstruction* instruction);
+
 void code_optimizer_removing_instruction(CodeOptimizer* optimizer, CodeInstruction* instruction);
 
 void code_optimizer_update_meta_data(CodeOptimizer* optimizer);
@@ -139,8 +158,10 @@ void code_optimizer_update_function_meta_data(CodeOptimizer* optimizer, CodeInst
 void code_optimizer_update_label_meta_data(CodeOptimizer* optimizer, CodeInstruction* instruction);
 
 // optimizing functions
-bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer, bool hard_remove);
+bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer, bool hard_remove, bool remove_special_temp);
+
 bool code_optimizer_peep_hole_optimization(CodeOptimizer* optimizer);
+
 bool code_optimizer_remove_unused_functions(CodeOptimizer* optimizer);
 
 #endif // CODE_OPTIMIZER_H

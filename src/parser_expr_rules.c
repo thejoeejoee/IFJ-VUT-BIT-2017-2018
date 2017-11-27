@@ -878,7 +878,7 @@ bool expression_rule_fn_length(Parser* parser, LList* expr_token_buffer, ExprIdx
     ExprToken* source_expr = get_n_expr(expr_token_buffer, 2);
     const DataType param_data_type = source_expr->data_type;
     ExprToken* e = create_expression((*expression_idx)++);
-    if(source_expr->is_constant) {
+    if(CEE_ENABLED && source_expr->is_constant) {
         e->is_constant = true;
         e->instruction = GENERATE_CODE(
                 I_PUSH_STACK,
@@ -928,6 +928,10 @@ bool expression_rule_fn_substr(Parser* parser, LList* expr_token_buffer, ExprIdx
     EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_LEFT_BRACKET);
     EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_FN_SUBSTR);
     EXPR_RULE_CHECK_FINISH();
+
+    ExprToken* length_expr = get_n_expr(expr_token_buffer, 2);
+    ExprToken* index_expr = get_n_expr(expr_token_buffer, 4);
+    ExprToken* string_expr = get_n_expr(expr_token_buffer, 6);
 
     DataType params_data_types[3];
     const unsigned int params_count = sizeof(params_data_types) / sizeof(*params_data_types);
@@ -1005,7 +1009,7 @@ bool expression_rule_fn_asc(Parser* parser, LList* expr_token_buffer, ExprIdx* e
     );
 
     ExprToken* e = create_expression((*expression_idx)++);
-    if(source_string_expr->is_constant && index_expr->is_constant) {
+    if(CEE_ENABLED && source_string_expr->is_constant && index_expr->is_constant) {
         int index;
         switch(index_expr->instruction->op0->data.constant.data_type) {
             case DATA_TYPE_INTEGER:
@@ -1079,7 +1083,7 @@ bool expression_rule_fn_chr(Parser* parser, LList* expr_token_buffer, ExprIdx* e
             source_expr->data_type,
             DATA_TYPE_INTEGER
     );
-    if(source_expr->is_constant) {
+    if(CEE_ENABLED && source_expr->is_constant) {
         int char_;
         switch(source_expr->instruction->op0->data.constant.data_type) {
             case DATA_TYPE_INTEGER:
@@ -1106,6 +1110,7 @@ bool expression_rule_fn_chr(Parser* parser, LList* expr_token_buffer, ExprIdx* e
                     code_constructor_fn_chr(
                             parser->code_constructor,
                             parser->parser_semantic->temp_variable1,
+                            parser->parser_semantic->temp_variable2,
                             source_expr->data_type
                     );
                 }

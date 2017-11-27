@@ -1,11 +1,6 @@
 #include "code_optimizer_expr.h"
 #include "code_instruction_operand.h"
 
-#ifndef CEE_ENABLED
-#define CEE_ENABLED_CHECK() do { } while(0)
-#else
-#define CEE_ENABLED_CHECK() do { return NULL; } while(0)
-#endif
 
 CodeInstructionOperand* code_optimizer_expr_eval(
         CodeOptimizer* optimizer,

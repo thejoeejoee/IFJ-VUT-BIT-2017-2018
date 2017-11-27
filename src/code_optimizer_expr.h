@@ -9,6 +9,14 @@
 #ifndef _CODE_OPTIMIZER_EXPR_H
 #define _CODE_OPTIMIZER_EXPR_H
 
+#ifdef CEE_ENABLED
+#define CEE_ENABLED_CHECK() do { } while(0)
+#define CEE_ENABLED true
+#else
+#define CEE_ENABLED_CHECK() do { return NULL; } while(0)
+#define CEE_ENABLED false
+#endif
+
 #define TRY_TO_PERFORM_BINARY_OPERATION(token_1, token_2, data_type_1, data_type_2, result, op) do {\
     if((token_1)->data_type == (data_type_1) && (token_2)->data_type == (data_type_2)) {\
         if ((data_type_1) == DATA_TYPE_INTEGER && (data_type_2) == DATA_TYPE_INTEGER)\

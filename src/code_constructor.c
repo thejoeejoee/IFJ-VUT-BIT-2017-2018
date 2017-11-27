@@ -583,9 +583,11 @@ void code_constructor_fn_length(CodeConstructor* constructor, SymbolVariable* tm
 }
 
 
-void code_constructor_fn_chr(CodeConstructor* constructor, SymbolVariable* tmp_variable, DataType param_type) {
+void code_constructor_fn_chr(CodeConstructor* constructor, SymbolVariable* tmp1, SymbolVariable* tmp2,
+                             DataType param_type) {
     NULL_POINTER_CHECK(constructor,);
-    NULL_POINTER_CHECK(tmp_variable,);
+    NULL_POINTER_CHECK(tmp1,);
+    NULL_POINTER_CHECK(tmp2,);
 
     GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(param_type, DATA_TYPE_INTEGER);
     GENERATE_CODE(I_INT_TO_CHAR_STACK);

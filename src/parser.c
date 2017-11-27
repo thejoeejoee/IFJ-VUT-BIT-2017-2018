@@ -162,7 +162,7 @@ bool parser_parse_scope(Parser* parser) {
             );
             CHECK_TOKEN(TOKEN_EOL);
             CHECK_RULE(eols);
-            CHECK_RULE(body_statements);
+            CALL_RULE_STATEMENTS();
             CHECK_TOKEN(TOKEN_END);
             CHECK_TOKEN(TOKEN_SCOPE);
             CODE_GENERATION(
@@ -315,7 +315,7 @@ bool parser_parse_function_statements(Parser* parser) {
             CHECK_RULE(
                     token_type != TOKEN_INPUT && token_type != TOKEN_RETURN && token_type != TOKEN_IF &&
                     token_type != TOKEN_DIM && token_type != TOKEN_PRINT && token_type != TOKEN_DO &&
-                    token_type != TOKEN_IDENTIFIER && token_type != TOKEN_STATIC,
+                    token_type != TOKEN_IDENTIFIER && token_type != TOKEN_STATIC && token_type != TOKEN_SCOPE,
                     epsilon,
                     NO_CODE
             );
@@ -379,14 +379,15 @@ bool parser_parse_function_statement_single(Parser* parser) {
     RULES(
             CONDITIONAL_RULES(
                     CHECK_RULE(token_type == TOKEN_IDENTIFIER, identifier_assignment, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_INPUT, input, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_RETURN, return_, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_PRINT, print, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_IF, condition, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_DO, while_, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_DIM, variable_declaration, REWIND_AND_SUCCESS);
-            CHECK_RULE(token_type == TOKEN_STATIC, static_variable_declaration, REWIND_AND_SUCCESS);
-    );
+                    CHECK_RULE(token_type == TOKEN_INPUT, input, REWIND_AND_SUCCESS);
+                    CHECK_RULE(token_type == TOKEN_RETURN, return_, REWIND_AND_SUCCESS);
+                    CHECK_RULE(token_type == TOKEN_PRINT, print, REWIND_AND_SUCCESS);
+                    CHECK_RULE(token_type == TOKEN_IF, condition, REWIND_AND_SUCCESS);
+                    CHECK_RULE(token_type == TOKEN_DO, while_, REWIND_AND_SUCCESS);
+                    CHECK_RULE(token_type == TOKEN_DIM, variable_declaration, REWIND_AND_SUCCESS);
+                    CHECK_RULE(token_type == TOKEN_STATIC, static_variable_declaration, REWIND_AND_SUCCESS);
+                    CHECK_RULE(token_type == TOKEN_SCOPE, scope, REWIND_AND_SUCCESS);
+            );
     );
     return false;
 }

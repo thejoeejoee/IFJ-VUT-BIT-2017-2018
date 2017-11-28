@@ -53,25 +53,34 @@ GraphNodeBase* oriented_graph_new_node(OrientedGraph* graph)
     }
 
     bool assigned = false;
-    GraphNodeBase* new_node = memory_alloc(graph->item_size);
+    GraphNodeBase* new_node = _oriented_graph_init_node(graph);
 
     for(unsigned int i = 0; i < graph->capacity; i++) {
         if(graph->nodes[i] == NULL) {
             assigned = true;
             new_node->id = i;
-            new_node->out_edges = set_int_init();
-            new_node->in_edges = set_int_init();
 
             graph->nodes_count++;
             graph->nodes[i] = new_node;
-            if(graph->init_data_callback != NULL)
-                graph->init_data_callback(new_node);
             break;
         }
     }
 
     if(!assigned)
         LOG_WARNING("Graph internal error in insertion.");
+
+    return new_node;
+}
+
+GraphNodeBase* _oriented_graph_init_node(OrientedGraph* graph)
+{
+    NULL_POINTER_CHECK(graph, NULL);
+
+    GraphNodeBase* new_node = memory_alloc(graph->item_size);
+    new_node->out_edges = set_int_init();
+    new_node->in_edges = set_int_init();
+    if(graph->init_data_callback != NULL)
+        graph->init_data_callback(new_node);
 
     return new_node;
 }
@@ -227,4 +236,46 @@ void _oriented_graph_expand_nodes(OrientedGraph* graph, SetInt* layer)
 
     set_int_union(layer, expanded);
     set_int_free(&expanded);
+}
+
+OrientedGraph* oriented_graph_transpose(OrientedGraph* graph)
+{
+    NULL_POINTER_CHECK(graph, NULL);
+
+    OrientedGraph* transposed = oriented_graph_init_with_capacity(
+                                    graph->item_size,
+                                    graph->capacity,
+                                    graph->init_data_callback,
+                                    graph->free_data_callback);
+    transposed->nodes_count = graph->nodes_count;
+
+    // add nodes
+    for(size_t i = 0; i < graph->capacity; i++) {
+        if(graph->nodes[i] == NULL)
+            continue;
+
+        GraphNodeBase* node = _oriented_graph_init_node(graph);
+        node->id = i;
+        transposed->nodes[i] = node;
+    }
+
+    // set connections
+    for(size_t i = 0; i < graph->capacity; i++) {
+        if(graph->nodes[i] == NULL)
+            continue;
+
+        GraphNodeBase* node = graph->nodes[i];
+
+        SetIntItem* out_node_id = (SetIntItem*) node->out_edges->head;
+        while(out_node_id != NULL) {
+            oriented_graph_connect_nodes_by_ids(
+                        transposed,
+                        out_node_id->value,
+                        node->id);
+
+            out_node_id = (SetIntItem*) out_node_id->base.next;
+        }
+    }
+
+    return transposed;
 }

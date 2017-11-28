@@ -29,6 +29,8 @@ OrientedGraph* oriented_graph_init_with_capacity(size_t item_size, size_t capaci
 void oriented_graph_free(OrientedGraph** graph);
 
 GraphNodeBase* oriented_graph_new_node(OrientedGraph* graph);
+GraphNodeBase* _oriented_graph_init_node(OrientedGraph* graph);
+
 void oriented_graph_remove_node(OrientedGraph* graph, unsigned int node_id);
 
 GraphNodeBase* oriented_graph_node(OrientedGraph* graph, unsigned int node_id);
@@ -43,6 +45,8 @@ void oriented_graph_print(OrientedGraph* graph);
 bool oriented_graph_node_is_in_cycle_by_id(OrientedGraph* graph, unsigned int id);
 bool oriented_graph_node_is_in_cycle(OrientedGraph* graph, GraphNodeBase* node);
 void _oriented_graph_expand_nodes(OrientedGraph* graph, SetInt* layer);
+
+OrientedGraph* oriented_graph_transpose(OrientedGraph* graph);
 
 
 #endif // ORIENTEDGRAPH_H

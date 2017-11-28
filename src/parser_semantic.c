@@ -329,9 +329,12 @@ bool parser_semantic_check_count_of_function_arguments(ParserSemantic* parser_se
 bool parser_semantic_check_function_definitions(ParserSemantic* parser_semantic) {
     NULL_POINTER_CHECK(parser_semantic, false);
 
-    return symbol_function_find_declared_function_without_definition(
-            parser_semantic->register_->functions
-    ) == NULL;
+    bool result = symbol_function_find_declared_function_without_definition(parser_semantic->register_->functions);
+
+    if(!result)
+        parser_semantic->error_report.error_code = ERROR_SEMANTIC_DEFINITION
+
+    return result;
 }
 
 void parser_semantic_setup_temp_variables(ParserSemantic* parser_semantic) {

@@ -72,3 +72,28 @@ char* code_instruction_render(CodeInstruction* instruction) {
     return formatted;
 }
 
+TypeInstructionClass instruction_class(CodeInstruction* instruction)
+{
+    if(instruction == NULL)
+        return INSTRUCTION_TYPE_INVALID;
+
+    switch (instruction->type) {
+        case I_READ:
+        case I_MOVE:
+        case I_POP_STACK:
+            return INSTRUCTION_TYPE_WRITE;
+
+        case I_JUMP:
+        case I_CALL:
+            return INSTRUCTION_TYPE_DIRECT_JUMP;
+
+        case I_JUMP_IF_EQUAL:
+        case I_JUMP_IF_EQUAL_STACK:
+        case I_JUMP_IF_NOT_EQUAL:
+        case I_JUMP_IF_NOT_EQUAL_STACK:
+            return INSTRUCTION_TYPE_CONDITIONAL_JUMP;
+
+        default:
+            return INSTRUCTION_TYPE_OTHER;
+    }
+}

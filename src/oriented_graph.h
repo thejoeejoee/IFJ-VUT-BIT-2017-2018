@@ -37,4 +37,9 @@ void oriented_graph_clear(OrientedGraph* graph);
 
 void oriented_graph_print(OrientedGraph* graph);
 
+bool oriented_graph_node_is_in_cycle_by_id(OrientedGraph* graph, unsigned int id);
+bool oriented_graph_node_is_in_cycle(OrientedGraph* graph, GraphNodeBase* node);
+void _oriented_graph_expand_nodes(OrientedGraph* graph, SetInt* layer);
+
+
 #endif // ORIENTEDGRAPH_H

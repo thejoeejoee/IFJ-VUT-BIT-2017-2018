@@ -171,3 +171,55 @@ void oriented_graph_connect_nodes_by_ids(OrientedGraph* graph, unsigned int from
 
     oriented_graph_connect_nodes(graph, from_node, to_node);
 }
+
+bool oriented_graph_node_is_in_cycle_by_id(OrientedGraph* graph, unsigned int id)
+{
+    NULL_POINTER_CHECK(graph, false);
+
+    return oriented_graph_node_is_in_cycle(graph, oriented_graph_node(graph, id));
+}
+
+bool oriented_graph_node_is_in_cycle(OrientedGraph* graph, GraphNodeBase* node)
+{
+    NULL_POINTER_CHECK(graph, false);
+    NULL_POINTER_CHECK(node, false);
+
+    SetInt* ids = set_int_init();
+    const unsigned int node_id = node->id;
+
+    set_int_union(ids, node->out_edges);
+    size_t previous_size;
+    size_t current_size;
+
+    do {
+        if(set_int_contains(ids, node->id)) {
+            set_int_free(&ids);
+            return true;
+        }
+
+        previous_size = set_int_size(ids);
+        _oriented_graph_expand_nodes(graph, ids);
+        current_size = set_int_size(ids);
+    } while(previous_size != current_size);
+
+    set_int_free(&ids);
+    return false;
+}
+
+void _oriented_graph_expand_nodes(OrientedGraph* graph, SetInt* layer)
+{
+    SetInt* expanded = set_int_init();
+    SetIntItem* item = (SetIntItem*) layer->head;
+
+    while(item != NULL) {
+        const GraphNodeBase* node = oriented_graph_node(graph, (unsigned int) item->value);
+        if(node == NULL)
+            continue;
+
+        set_int_union(expanded, node->out_edges);
+        item = (SetIntItem*) item->base.next;
+    }
+
+    set_int_union(layer, expanded);
+    set_int_free(&expanded);
+}

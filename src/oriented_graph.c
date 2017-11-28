@@ -2,10 +2,15 @@
 
 OrientedGraph* oriented_graph_init(size_t item_size, oriented_graph_init_data_callback_f init_callback, oriented_graph_free_data_callback_f free_callback)
 {
+    return oriented_graph_init_with_capacity(item_size, 32, init_callback, free_callback);
+}
+
+OrientedGraph* oriented_graph_init_with_capacity(size_t item_size, size_t capacity, oriented_graph_init_data_callback_f init_callback, oriented_graph_free_data_callback_f free_callback)
+{
     OrientedGraph* graph = memory_alloc(sizeof(OrientedGraph));
     graph->nodes_count = 0;
     graph->item_size = item_size;
-    graph->capacity = 32;
+    graph->capacity = capacity;
     graph->init_data_callback = init_callback;
     graph->free_data_callback = free_callback;
 

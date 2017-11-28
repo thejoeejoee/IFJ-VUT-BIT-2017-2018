@@ -23,6 +23,9 @@ typedef struct {
 } OrientedGraph;
 
 OrientedGraph* oriented_graph_init(size_t item_size, oriented_graph_init_data_callback_f init_callback, oriented_graph_free_data_callback_f free_callback);
+
+OrientedGraph* oriented_graph_init_with_capacity(size_t item_size, size_t capacity, oriented_graph_init_data_callback_f init_callback, oriented_graph_free_data_callback_f free_callback);
+
 void oriented_graph_free(OrientedGraph** graph);
 
 GraphNodeBase* oriented_graph_new_node(OrientedGraph* graph);

@@ -192,7 +192,7 @@ bool oriented_graph_node_is_in_cycle(OrientedGraph* graph, GraphNodeBase* node)
     size_t current_size;
 
     do {
-        if(set_int_contains(ids, node->id)) {
+        if(set_int_contains(ids, node_id)) {
             set_int_free(&ids);
             return true;
         }

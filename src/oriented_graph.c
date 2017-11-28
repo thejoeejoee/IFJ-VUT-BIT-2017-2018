@@ -1,12 +1,13 @@
 #include "oriented_graph.h"
 
-OrientedGraph* oriented_graph_init(size_t item_size, oriented_graph_init_data_callback_f init_callback)
+OrientedGraph* oriented_graph_init(size_t item_size, oriented_graph_init_data_callback_f init_callback, oriented_graph_free_data_callback_f free_callback)
 {
     OrientedGraph* graph = memory_alloc(sizeof(OrientedGraph));
     graph->nodes_count = 0;
     graph->item_size = item_size;
     graph->capacity = 32;
     graph->init_data_callback = init_callback;
+    graph->free_data_callback = free_callback;
 
     graph->nodes = memory_alloc(sizeof(GraphNodeBase*) * graph->capacity);
     for(unsigned int i = 0; i < graph->capacity; i++)
@@ -96,6 +97,8 @@ void oriented_graph_remove_node(OrientedGraph* graph, unsigned int node_id)
         id = (SetIntItem*)id->base.next;
     }
 
+    if(graph->free_data_callback != NULL)
+        graph->free_data_callback(node);
     graph->nodes[node_id] = NULL;
     set_int_free(&node->out_edges);
     set_int_free(&node->in_edges);
@@ -118,7 +121,9 @@ void oriented_graph_clear(OrientedGraph* graph)
 {
     for(unsigned int i = 0; i < graph->capacity; i++) {
         if(graph->nodes[i] != NULL) {
-            // TODO add free data callback
+            if(graph->free_data_callback != NULL)
+                graph->free_data_callback(graph->nodes[i]);
+
             set_int_free(&(graph->nodes[i]->out_edges));
             set_int_free(&(graph->nodes[i]->in_edges));
             memory_free(graph->nodes[i]);

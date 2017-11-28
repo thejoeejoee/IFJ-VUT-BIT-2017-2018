@@ -12,6 +12,11 @@ typedef struct symbol_table_base_list_item_t {
     struct symbol_table_base_list_item_t* next;
 } SymbolTableBaseItem;
 
+typedef struct {
+    SymbolTableBaseItem base;
+    int value;
+} SymbolTableIntItem;
+
 /**
  * Callback, which frees data pointer from hash table item.
  */

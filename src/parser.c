@@ -379,15 +379,15 @@ bool parser_parse_function_statement_single(Parser* parser) {
     RULES(
             CONDITIONAL_RULES(
                     CHECK_RULE(token_type == TOKEN_IDENTIFIER, identifier_assignment, REWIND_AND_SUCCESS);
-                    CHECK_RULE(token_type == TOKEN_INPUT, input, REWIND_AND_SUCCESS);
-                    CHECK_RULE(token_type == TOKEN_RETURN, return_, REWIND_AND_SUCCESS);
-                    CHECK_RULE(token_type == TOKEN_PRINT, print, REWIND_AND_SUCCESS);
-                    CHECK_RULE(token_type == TOKEN_IF, condition, REWIND_AND_SUCCESS);
-                    CHECK_RULE(token_type == TOKEN_DO, while_, REWIND_AND_SUCCESS);
-                    CHECK_RULE(token_type == TOKEN_DIM, variable_declaration, REWIND_AND_SUCCESS);
-                    CHECK_RULE(token_type == TOKEN_STATIC, static_variable_declaration, REWIND_AND_SUCCESS);
-                    CHECK_RULE(token_type == TOKEN_SCOPE, scope, REWIND_AND_SUCCESS);
-            );
+            CHECK_RULE(token_type == TOKEN_INPUT, input, REWIND_AND_SUCCESS);
+            CHECK_RULE(token_type == TOKEN_RETURN, return_, REWIND_AND_SUCCESS);
+            CHECK_RULE(token_type == TOKEN_PRINT, print, REWIND_AND_SUCCESS);
+            CHECK_RULE(token_type == TOKEN_IF, condition, REWIND_AND_SUCCESS);
+            CHECK_RULE(token_type == TOKEN_DO, while_, REWIND_AND_SUCCESS);
+            CHECK_RULE(token_type == TOKEN_DIM, variable_declaration, REWIND_AND_SUCCESS);
+            CHECK_RULE(token_type == TOKEN_STATIC, static_variable_declaration, REWIND_AND_SUCCESS);
+            CHECK_RULE(token_type == TOKEN_SCOPE, scope, REWIND_AND_SUCCESS);
+    );
     );
     return false;
 }
@@ -725,6 +725,11 @@ bool parser_parse_static_variable_declaration(Parser* parser) {
 
     NULL_POINTER_CHECK(parser, false);
     char* name = NULL;
+
+    if(parser->parser_semantic->expression_result != NULL) {
+        expr_token_free(parser->parser_semantic->expression_result);
+        parser->parser_semantic->expression_result = NULL;
+    }
     RULES(
             CHECK_TOKEN(TOKEN_STATIC);
             CHECK_TOKEN(
@@ -764,6 +769,13 @@ bool parser_parse_static_variable_declaration(Parser* parser) {
                     }
             );
             CALL_RULE(declaration_assignment);
+            if(
+                    parser->parser_semantic->expression_result != NULL &&
+                    !parser->parser_semantic->expression_result->is_constant
+                    ) {
+                parser->parser_semantic->error_report.error_code = ERROR_SEMANTIC_OTHER;
+                return false;
+            }
             CODE_GENERATION(
                     {
                             code_constructor_static_variable_declaration_end(
@@ -783,16 +795,15 @@ bool parser_parse_return_(Parser* parser) {
      * <statement> -> RETURN <expr>
      */
     NULL_POINTER_CHECK(parser, false);
-    DataType expression_data_type;
     CodeConstructor* constructor;
     RULES(
             CHECK_TOKEN(TOKEN_RETURN);
-            CALL_EXPRESSION_RULE(expression_data_type);
+            CALL_EXPRESSION_RULE();
             CODE_GENERATION(
                     {
                             constructor = parser->code_constructor;
                             GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(
-                            expression_data_type,
+                            parser->parser_semantic->expression_result->data_type,
                             parser->parser_semantic->actual_function->return_data_type
                     );
                     }
@@ -869,10 +880,8 @@ bool parser_parse_print_expression(Parser* parser) {
      * <print_expression> -> <expression> SEMICOLON
      */
     NULL_POINTER_CHECK(parser, false);
-    DataType expression_data_type;
-
     RULES(
-            CALL_EXPRESSION_RULE(expression_data_type);
+            CALL_EXPRESSION_RULE();
             CODE_GENERATION(
                     {
                             code_constructor_print_expression(
@@ -892,7 +901,6 @@ bool parser_parse_while_(Parser* parser) {
      * <while_> -> DO WHILE <expression> EOL <eols> <statements> LOOP
      */
     NULL_POINTER_CHECK(parser, false);
-    DataType expression_data_type;
 
     RULES(
             CHECK_TOKEN(TOKEN_DO);
@@ -907,10 +915,13 @@ bool parser_parse_while_(Parser* parser) {
                             code_constructor_while_before_condition(parser->code_constructor);
                     }
             );
-            CALL_EXPRESSION_RULE(expression_data_type);
+            CALL_EXPRESSION_RULE();
             SEMANTIC_ANALYSIS(
                     {
-                            CHECK_IMPLICIT_CONVERSION(DATA_TYPE_BOOLEAN, expression_data_type);
+                            CHECK_IMPLICIT_CONVERSION(
+                                    DATA_TYPE_BOOLEAN,
+                                    parser->parser_semantic->expression_result->data_type
+                            );
                     }
             );
             CODE_GENERATION(
@@ -978,14 +989,16 @@ bool parser_parse_condition(Parser* parser) {
      * <condition> -> IF <expr> THEN EOL <eols> <statements> <condition_elseif> <condition_else> END IF
      */
     NULL_POINTER_CHECK(parser, false);
-    DataType expression_data_type;
 
     RULES(
             CHECK_TOKEN(TOKEN_IF);
-            CALL_EXPRESSION_RULE(expression_data_type);
+            CALL_EXPRESSION_RULE();
             SEMANTIC_ANALYSIS(
                     {
-                            CHECK_IMPLICIT_CONVERSION(DATA_TYPE_BOOLEAN, expression_data_type);
+                            CHECK_IMPLICIT_CONVERSION(
+                                    DATA_TYPE_BOOLEAN,
+                                    parser->parser_semantic->expression_result->data_type
+                            );
                     }
             );
             CODE_GENERATION(
@@ -1033,7 +1046,6 @@ bool parser_parse_condition_elseif(Parser* parser) {
      */
 
     NULL_POINTER_CHECK(parser, false);
-    DataType expression_data_type;
 
     RULES(
             CONDITIONAL_RULES(
@@ -1062,10 +1074,11 @@ bool parser_parse_condition_elseif(Parser* parser) {
                             symbol_register_pop_variables_table(parser->parser_semantic->register_);
                     }
             );
-            CALL_EXPRESSION_RULE(expression_data_type);
+            CALL_EXPRESSION_RULE();
             SEMANTIC_ANALYSIS(
                     {
-                            CHECK_IMPLICIT_CONVERSION(DATA_TYPE_BOOLEAN, expression_data_type);
+                            CHECK_IMPLICIT_CONVERSION(DATA_TYPE_BOOLEAN,
+                                                      parser->parser_semantic->expression_result->data_type);
                     }
             );
             CODE_GENERATION(
@@ -1144,7 +1157,6 @@ bool parser_parse_declaration_assignment(Parser* parser) {
      * <declaration_assignment> -> <assignment>
      */
     NULL_POINTER_CHECK(parser, false);
-
     RULES(
 
             CONDITIONAL_RULES(
@@ -1194,9 +1206,10 @@ bool parser_parse_assignment(Parser* parser) {
      */
 
     NULL_POINTER_CHECK(parser, false);
-    DataType expression_data_type;
     SymbolVariable* actual_variable = parser->parser_semantic->actual_variable;
     CodeConstructor* constructor = parser->code_constructor;
+
+    CodeInstruction* before_expression_instruction = NULL;
     UNUSED(constructor);
 
     RULES(
@@ -1217,32 +1230,33 @@ bool parser_parse_assignment(Parser* parser) {
                     )
             );
     );
-
             CHECK_TOKEN(TOKEN_EQUAL);
-            CodeInstruction* before_expression_instruction = NULL;
-            UNUSED(before_expression_instruction);
-
             CODE_GENERATION(
+    {
             before_expression_instruction = code_generator_last_instruction(parser->code_constructor->generator);
-    );
-            CALL_EXPRESSION_RULE(expression_data_type);
-            CODE_GENERATION(
-            before_expression_instruction->next
-            ->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_START;
+    });
+            CALL_EXPRESSION_RULE();
+            CODE_GENERATION( {
+            before_expression_instruction->next->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_START;
+    }
+
     );
     );
     SEMANTIC_ANALYSIS(
             {
                 if(actual_variable == NULL)
                     return false;
-                CHECK_IMPLICIT_CONVERSION(actual_variable->data_type, expression_data_type);
+                CHECK_IMPLICIT_CONVERSION(
+                        actual_variable->data_type,
+                        parser->parser_semantic->expression_result->data_type
+                );
             }
     );
 
     CODE_GENERATION(
             {
                 GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(
-                        expression_data_type,
+                        parser->parser_semantic->expression_result->data_type,
                         actual_variable->data_type
                 );
                 code_constructor_variable_expression_assignment(
@@ -1250,7 +1264,8 @@ bool parser_parse_assignment(Parser* parser) {
                         actual_variable
                 );
                 code_generator_last_instruction(
-                        parser->code_constructor->generator)->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_END;
+                        parser->code_constructor->generator
+                )->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_END;
             }
     );
 
@@ -1286,8 +1301,6 @@ bool parser_parse_modify_assignment(Parser* parser) {
     token_type_mapped_to_instruction[TOKEN_ASSIGN_MULTIPLY - map_diff] = I_MUL_STACK;
     token_type_mapped_to_instruction[TOKEN_ASSIGN_INT_DIVIDE - map_diff] = I_DIV_STACK;
     token_type_mapped_to_instruction[TOKEN_ASSIGN_DIVIDE - map_diff] = I_DIV_STACK;
-
-    DataType expression_data_type;
     SymbolVariable* actual_variable = parser->parser_semantic->actual_variable;
 
     TypeExpressionOperation operation_type;
@@ -1302,13 +1315,15 @@ bool parser_parse_modify_assignment(Parser* parser) {
             UNUSED(constructor);
             CodeInstruction* before_expression_instruction = NULL;
             CODE_GENERATION(
-                    before_expression_instruction = code_generator_last_instruction(
-                            parser->code_constructor->generator);
-    );
-            CALL_EXPRESSION_RULE(expression_data_type);
+                    {
+                            before_expression_instruction = code_generator_last_instruction(
+                                    parser->code_constructor->generator);
+                    }
+            );
+            CALL_EXPRESSION_RULE();
             CODE_GENERATION(
-            before_expression_instruction->next
-            ->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_START;
+                    before_expression_instruction->next
+                            ->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_START;
     );
     );
 
@@ -1319,7 +1334,7 @@ bool parser_parse_modify_assignment(Parser* parser) {
                 CHECK_BINARY_OPERATION_IMPLICIT_CONVERSION(
                         operation_type,
                         actual_variable->data_type,
-                        expression_data_type
+                        parser->parser_semantic->expression_result->data_type
                 );
             }
     );
@@ -1330,14 +1345,14 @@ bool parser_parse_modify_assignment(Parser* parser) {
                         parser->parser_semantic,
                         operation_type,
                         actual_variable->data_type,
-                        expression_data_type,
+                        parser->parser_semantic->expression_result->data_type,
                         DATA_TYPE_ANY
                 );
 
                 CodeConstructor* constructor = parser->code_constructor;
                 if(
                         operation_type == OPERATION_ADD &&
-                        expression_data_type == DATA_TYPE_STRING &&
+                        parser->parser_semantic->expression_result->data_type == DATA_TYPE_STRING &&
                         actual_variable->data_type == DATA_TYPE_STRING
                         ) {
                     // special case for string concat
@@ -1353,7 +1368,7 @@ bool parser_parse_modify_assignment(Parser* parser) {
                     );
                 } else {
                     GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(
-                            expression_data_type,
+                            parser->parser_semantic->expression_result->data_type,
                             operation_signature->conversion_target_type
                     );
                     GENERATE_CODE(

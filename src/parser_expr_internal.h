@@ -11,7 +11,7 @@ extern const char* prec_table;
 
 typedef enum {
     // Terminals
-    EXPR_TOKEN_UNARY_MINUS = 1,
+            EXPR_TOKEN_UNARY_MINUS = 1,
     EXPR_TOKEN_MULTIPLY = 2,
     EXPR_TOKEN_DIVIDE = 3,
     EXPR_TOKEN_INTEGER_DIVIDE = 4,
@@ -35,23 +35,23 @@ typedef enum {
     EXPR_TOKEN_IDENTIFIER = 19,
     EXPR_TOKEN_$ = 20,
 
-	// --- BLOCK of same precedence as identifier ---
-    EXPR_TOKEN_BOOLEAN_LITERAL = 21,
+    // --- BLOCK of same precedence as identifier ---
+            EXPR_TOKEN_BOOLEAN_LITERAL = 21,
     EXPR_TOKEN_INTEGER_LITERAL = 22,
     EXPR_TOKEN_DOUBLE_LITERAL = 23,
     EXPR_TOKEN_STRING_LITERAL = 24,
 
-	EXPR_TOKEN_FN_LENGTH = 25,
-	EXPR_TOKEN_FN_SUBSTR = 26,
-	EXPR_TOKEN_FN_ASC = 27,
-	EXPR_TOKEN_FN_CHR = 28,
-	// --- END of BLOCK ---
+    EXPR_TOKEN_FN_LENGTH = 25,
+    EXPR_TOKEN_FN_SUBSTR = 26,
+    EXPR_TOKEN_FN_ASC = 27,
+    EXPR_TOKEN_FN_CHR = 28,
+    // --- END of BLOCK ---
 
     // Mask
-    EXPR_TERMINALS_MASK = 127, //for internal usage
+            EXPR_TERMINALS_MASK = 127, //for internal usage
 
     // Others
-    EXPR_EXPRESSION = 128,    // E
+            EXPR_EXPRESSION = 128,    // E
     EXPR_LEFT_SHARP = 129, EXPR_SHIFT = EXPR_LEFT_SHARP,      // <
     EXPR_RIGHT_SHARP = 130, EXPR_REDUCE = EXPR_RIGHT_SHARP,   // >
     EXPR_SAME = 131,    // =
@@ -75,29 +75,43 @@ typedef struct expr_token_t {
     ExprData data;
 
     DataType data_type;
-	bool is_constant;
-	CodeInstruction* instruction;
+    bool is_constant;
+    CodeInstruction* instruction;
 } ExprToken;
 
 ExprToken* expr_token_init();
+
 void expr_token_free(ExprToken* t);
 
+ExprToken* expr_token_copy(ExprToken* t);
+
 int expr_llist_type_cmp(LListBaseItem* a, LListBaseItem* b);
+
 void expr_llist_free(LListBaseItem* item);
 
 ExprToken* get_n_expr(LList* expression_list, size_t n);
 
-ExprToken* expr_get_precedence(ExprToken *a, ExprToken *b);
+ExprToken* expr_get_precedence(ExprToken* a, ExprToken* b);
+
 bool is_expr_parsing_complete(LList* expr_token_buffer, ExprToken* token);
+
 ExprToken* load_expr_token(Lexer* lexer, Token* last_token);
+
 ExprToken* create_expr_token(ExprTokenType type);
+
 ExprToken* create_expression(ExprIdx index);
-ExprToken* expr_last_terminal(LList *expr_token_buffer);
-void expr_llist_append_after_last_terminal(LList *expr_token_buffer, ExprToken* token);
+
+ExprToken* expr_last_terminal(LList* expr_token_buffer);
+
+void expr_llist_append_after_last_terminal(LList* expr_token_buffer, ExprToken* token);
+
 void expr_token_update_unary(ExprToken* minus, const ExprToken* previous);
+
 ExprToken* get_next_expr(LListBaseItem** expr_token_buffer_item);
+
 LListBaseItem* get_next_expr_item(LListBaseItem** expr_token_buffer_item);
-void expr_replace(LList *expr_token_buffer, LListBaseItem* expr_token_buffer_left_sharp, ExprToken* single_expression);
+
+void expr_replace(LList* expr_token_buffer, LListBaseItem* expr_token_buffer_left_sharp, ExprToken* single_expression);
 
 
 #endif //_PARSER_EXPR_INTERNAL_H

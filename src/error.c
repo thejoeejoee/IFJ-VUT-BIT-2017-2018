@@ -25,7 +25,7 @@ void exit_with_code(ErrorCode code) {
             break;
         default:;
     }
-    // free all allocated memory blocksor
+    // free all allocated memory blocks
     memory_manager_exit(&memory_manager);
     exit(code);
 }

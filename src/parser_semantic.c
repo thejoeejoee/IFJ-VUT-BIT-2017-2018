@@ -14,6 +14,7 @@ ParserSemantic* parser_semantic_init() {
     parser_semantic->temp_variable4 = NULL;
     parser_semantic->temp_variable5 = NULL;
     parser_semantic->temp_variable6 = NULL;
+    parser_semantic->expression_result = NULL;
     parser_semantic->error_report.error_code = ERROR_NONE;
 
 
@@ -155,6 +156,8 @@ void parser_semantic_free(ParserSemantic** parser) {
     for(int i = 0; i < (int) OPERATION__LAST; i++)
         llist_free(&((*parser)->operations_signatures[i]));
 
+    if((*parser)->expression_result != NULL)
+        expr_token_free((*parser)->expression_result);
     symbol_register_free(&(*parser)->register_);
     memory_free(*parser);
     *parser = NULL;

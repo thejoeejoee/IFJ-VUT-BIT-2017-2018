@@ -21,9 +21,8 @@ bool expression_reduce(Parser* parser, LList* expr_token_buffer, ExprIdx* expres
     return pass;
 }
 
-bool parser_parse_expression(Parser* parser, DataType* expression_data_type) {
+bool parser_parse_expression(Parser* parser) {
     NULL_POINTER_CHECK(parser, false);
-    NULL_POINTER_CHECK(expression_data_type, false);
 
     Token last_token;
     last_token.data = NULL;
@@ -55,7 +54,10 @@ bool parser_parse_expression(Parser* parser, DataType* expression_data_type) {
 
             // Check completion of expression parsing
             if(is_expr_parsing_complete(buffer, token)) {
-                *expression_data_type = ((ExprToken*)buffer->tail)->data_type;
+                if(parser->parser_semantic->expression_result != NULL)
+                    expr_token_free(parser->parser_semantic->expression_result);
+                parser->parser_semantic->expression_result = expr_token_copy((ExprToken*) buffer->tail);
+
                 expr_token_free(token);
                 expr_token_free(precedence);
                 // Cleanup

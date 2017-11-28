@@ -93,11 +93,11 @@ void oriented_graph_remove_node(OrientedGraph* graph, unsigned int node_id)
     if(node == NULL)
         return;
 
-    SetIntItem* id = (SetIntItem*)node->in_edges->head;
+    SetIntItem* id = (SetIntItem*) node->in_edges->head;
     GraphNodeBase* in_node = NULL;
     while(id != NULL) {
         in_node = oriented_graph_node(graph, id->value);
-        set_int_remove(in_node->out_edges, id->value);
+        set_int_remove(in_node->out_edges, node_id);
 
         id = (SetIntItem*)id->base.next;
     }
@@ -106,7 +106,7 @@ void oriented_graph_remove_node(OrientedGraph* graph, unsigned int node_id)
     GraphNodeBase* out_node = NULL;
     while(id != NULL) {
         out_node = oriented_graph_node(graph, id->value);
-        set_int_remove(out_node->in_edges, id->value);
+        set_int_remove(out_node->in_edges, node_id);
 
         id = (SetIntItem*)id->base.next;
     }

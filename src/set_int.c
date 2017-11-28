@@ -115,3 +115,24 @@ void set_int_union(SetInt* set, SetInt* other)
         item = (SetIntItem*)item->base.next;
     }
 }
+
+void set_int_difference(SetInt* set, SetInt* other)
+{
+    NULL_POINTER_CHECK(set, );
+    NULL_POINTER_CHECK(other, );
+
+    SetIntItem* item = (SetIntItem*)other->head;
+
+    while(item != NULL) {
+        set_int_remove(set, item->value);
+        item = (SetIntItem*)item->base.next;
+    }
+}
+
+SetInt* set_int_copy(SetInt* other)
+{
+    SetInt* new_set = set_int_init();
+    set_int_union(new_set, other);
+
+    return new_set;
+}

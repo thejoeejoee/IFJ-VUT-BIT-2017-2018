@@ -158,6 +158,8 @@ void oriented_graph_print(OrientedGraph* graph)
         const GraphNodeBase* node = graph->nodes[i];
         printf("Node %d -> ", node->id);
         set_int_print(node->out_edges);
+        printf(" | ");
+        set_int_print(node->in_edges);
         printf("\n");
     }
 

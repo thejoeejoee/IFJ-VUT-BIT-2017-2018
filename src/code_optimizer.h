@@ -60,6 +60,8 @@ void code_optimizer_update_function_meta_data(CodeOptimizer* optimizer, CodeInst
 
 void code_optimizer_update_label_meta_data(CodeOptimizer* optimizer, CodeInstruction* instruction);
 
+void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer, CodeBlock* block, SymbolTable* constants_table, bool add_constants_to_table);
+
 // optimizing functions
 bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer, bool hard_remove);
 bool code_optimizer_peep_hole_optimization(CodeOptimizer* optimizer);

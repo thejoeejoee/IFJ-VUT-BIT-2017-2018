@@ -11,7 +11,7 @@ StackItemSymtable* init_data_stack_item_symtable(SymbolTable* table)
     NULL_POINTER_CHECK(table, NULL);
 
     StackItemSymtable* new_item = memory_alloc(sizeof(StackItemSymtable*));
-    new_item = symbol_table_copy(table);
+    new_item->symtable = symbol_table_copy(table);
 
     return new_item;
 }

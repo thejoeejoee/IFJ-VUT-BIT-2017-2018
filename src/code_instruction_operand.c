@@ -343,3 +343,11 @@ bool code_instruction_operand_cmp(CodeInstructionOperand* first, CodeInstruction
     LOG_WARNING("Undefined operands comparison.");
     return false;
 }
+
+char* variable_cached_identifier(SymbolVariable* variable)
+{
+    NULL_POINTER_CHECK(variable, NULL);
+    if(variable->_cached_identifier == NULL)
+        variable->_cached_identifier = code_instruction_render_variable_identifier(variable);
+    return variable->_cached_identifier;
+}

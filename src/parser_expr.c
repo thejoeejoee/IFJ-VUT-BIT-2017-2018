@@ -63,6 +63,11 @@ bool parser_parse_expression(Parser* parser) {
                 // Cleanup
                 token_free(&last_token);
                 llist_free(&buffer);
+                LOG_INFO(
+                        "Expression success, data type %d, constant: %d.",
+                        parser->parser_semantic->expression_result->data_type,
+                        parser->parser_semantic->expression_result->is_constant
+                );
                 return true;
             }
 
@@ -73,6 +78,11 @@ bool parser_parse_expression(Parser* parser) {
             } else if(precedence->type == EXPR_SAME) {
                 expr_token_free(precedence);
             } else {
+                LOG_INFO(
+                        "Expression fail, precedence: %d, token: %d.",
+                        precedence->type,
+                        last_token.type
+                );
                 expr_token_free(token);
                 expr_token_free(precedence);
                 // Cleanup

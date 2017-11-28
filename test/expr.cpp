@@ -16,7 +16,6 @@ class ParserExpressionTestFixture : public ::testing::Test {
     protected:
         Parser* parser;
         StringByCharProvider* provider;
-        DataType data_type = DATA_TYPE_NONE;
         Token tmp;
 
         void SetUp() override {
@@ -328,7 +327,7 @@ TEST_F(ParserExpressionTestFixture, StringSimple) {
     ) << "Error parsing <expression> rule";
 
     EXPECT_EQ(
-            data_type,
+            parser->parser_semantic->expression_result->data_type,
             DATA_TYPE_STRING
     );
 
@@ -348,7 +347,7 @@ TEST_F(ParserExpressionTestFixture, UnaryMinus0) {
     ) << "Error parsing <expression> rule";
 
     EXPECT_EQ(
-            data_type,
+            parser->parser_semantic->expression_result->data_type,
             DATA_TYPE_INTEGER
     );
 

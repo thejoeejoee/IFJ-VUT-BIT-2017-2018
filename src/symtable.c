@@ -15,6 +15,8 @@ SymbolTable* symbol_table_init(size_t size, size_t item_size, symtable_init_data
     table->item_count = 0;
     table->free_data_callback = free_data_callback;
     table->init_data_callback = init_data_callback;
+    table->copy_data_callback = NULL;
+
     for(size_t i = 0; i < size; ++i)
         table->items[i] = NULL;
 
@@ -167,6 +169,7 @@ SymbolTable* symbol_table_move(size_t new_size, SymbolTable* source) {
     if(destination == NULL) return NULL;
 
     destination->bucket_count = new_size;
+    destination->copy_data_callback = source->copy_data_callback;
 
     SymbolTableBaseItem* item = NULL;
     SymbolTableBaseItem* next = NULL;
@@ -224,4 +227,34 @@ size_t hash(const char* str) {
         hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
 
     return hash;
+}
+
+SymbolTable* symbol_table_copy(SymbolTable* other)
+{
+    SymbolTable* new_table = symbol_table_init(other->bucket_count,
+                                               other->item_size,
+                                               other->init_data_callback,
+                                               other->free_data_callback);
+    new_table->item_count = other->item_count;
+    new_table->copy_data_callback = other->copy_data_callback;
+
+    SymbolTableBaseItem* copied_item;
+    for(size_t i = 0; i < other->bucket_count; ++i) {
+        new_table->items[i] = NULL;
+        copied_item = other->items[i];
+        while(copied_item != NULL) {
+            SymbolTableBaseItem* new_item = memory_alloc(new_table->item_size);
+            char* copied_key = c_string_copy(copied_item->key);
+            NULL_POINTER_CHECK(copied_key, NULL);
+
+            new_item->key = copied_key;
+            new_item->next = new_table->items[i];
+            new_table->items[i] = new_item;
+            if(new_table->copy_data_callback != NULL)
+                new_table->copy_data_callback(new_item, copied_item);
+
+            copied_item = copied_item->next;
+        }
+    }
+    return new_table;
 }

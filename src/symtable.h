@@ -19,6 +19,8 @@ typedef void(* symtable_free_data_callback_f)(SymbolTableBaseItem*);
 
 typedef void(* symtable_init_data_callback_f)(SymbolTableBaseItem*);
 
+typedef void(* symtable_copy_data_callback_f)(SymbolTableBaseItem*, SymbolTableBaseItem*);
+
 typedef void(* symtable_foreach_callback_f)(const char* key, void* data, void* static_data);
 
 typedef struct symbol_table_t {
@@ -27,6 +29,7 @@ typedef struct symbol_table_t {
     size_t item_count;
     symtable_free_data_callback_f free_data_callback;
     symtable_init_data_callback_f init_data_callback;
+    symtable_copy_data_callback_f copy_data_callback;
     SymbolTableBaseItem* items[];
 } SymbolTable;
 
@@ -104,5 +107,8 @@ bool symbol_table_remove(SymbolTable* table, const char* key);
  * Dealloc all items with key from given hash table.
  */
 void symbol_table_clear_buckets(SymbolTable* table);
+
+// TODO doc
+SymbolTable* symbol_table_copy(SymbolTable* other);
 
 #endif //_SYMTABLE_H

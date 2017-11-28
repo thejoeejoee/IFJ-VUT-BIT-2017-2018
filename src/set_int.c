@@ -96,9 +96,22 @@ void set_int_print(SetInt* set)
     SetIntItem* item = (SetIntItem*)set->head;
     printf("Set(");
 
-    while(item) {
+    while(item != NULL) {
         printf("%d, ", item->value);
         item = (SetIntItem*)item->base.next;
     }
     printf(")");
+}
+
+void set_int_union(SetInt* set, SetInt* other)
+{
+    NULL_POINTER_CHECK(set, );
+    NULL_POINTER_CHECK(other, );
+
+    SetIntItem* item = (SetIntItem*)other->head;
+
+    while(item != NULL) {
+        set_int_add(set, item->value);
+        item = (SetIntItem*)item->base.next;
+    }
 }

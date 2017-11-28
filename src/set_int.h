@@ -22,5 +22,7 @@ void set_int_remove(SetInt* set, int value);
 void set_int_clear(SetInt* set);
 
 void set_int_print(SetInt* set);
+// TODO test
+void set_int_union(SetInt* set, SetInt* other);
 
 #endif // SETINT_H

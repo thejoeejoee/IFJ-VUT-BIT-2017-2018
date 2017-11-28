@@ -3,6 +3,7 @@
 
 #include "llist.h"
 #include "symtable.h"
+#include "meta_data_mapped_operand.h"
 #include "code_instruction.h"
 
 typedef enum {
@@ -44,16 +45,9 @@ typedef struct peep_hole_pattern_instruction_t {
     int op2_occurrences_count;
 } PeepHolePatternInstruction;
 
-typedef struct mapped_operand_t {
-    SymbolTableBaseItem base;
-    CodeInstructionOperand* operand;
-} MappedOperand;
-
 MetaPHPatternFlag extract_flag(const char* alias);
 
 // peep hole patterns sub item
-void init_mapped_operand_item(SymbolTableBaseItem* item);
-void free_mapped_operand_item(SymbolTableBaseItem* item);
 void init_peep_hole_pattern(LListBaseItem* item);
 void free_peep_hole_pattern(LListBaseItem* item);
 

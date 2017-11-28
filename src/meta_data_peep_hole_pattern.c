@@ -1,20 +1,5 @@
 #include "meta_data_peep_hole_pattern.h"
 
-void init_mapped_operand_item(SymbolTableBaseItem* item) {
-    NULL_POINTER_CHECK(item,);
-
-    MappedOperand* v = (MappedOperand*) item;
-    v->operand = NULL;
-}
-
-void free_mapped_operand_item(SymbolTableBaseItem* item) {
-    NULL_POINTER_CHECK(item,);
-
-    MappedOperand* v = (MappedOperand*) item;
-    if(v->operand != NULL)
-        code_instruction_operand_free(&v->operand);
-}
-
 void init_peep_hole_pattern(LListBaseItem* item) {
     PeepHolePattern* v = (PeepHolePattern*) item;
     llist_init(&v->matching_instructions, sizeof(PeepHolePatternInstruction), NULL, NULL, NULL);

@@ -125,9 +125,10 @@ bool expression_rule_id(Parser* parser, LList* expr_token_buffer, ExprIdx* expre
                 }
         );
 
+        e->is_variable = true;
         CODE_GENERATION(
                 {
-                    GENERATE_CODE(
+                    e->instruction = GENERATE_CODE(
                             I_PUSH_STACK,
                             code_instruction_operand_init_variable(variable)
                     );
@@ -260,21 +261,61 @@ bool expression_rule_fn(Parser* parser, LList* expr_token_buffer, ExprIdx* expre
                             param->data_type
                     );
 
-                    // generate implicit conversion
-                    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(
-                            token->data_type,
-                            param->data_type
-                    );
+
                     // declare local variable on TF
                     GENERATE_CODE(
                             I_DEF_VAR,
                             code_instruction_operand_init_variable_from_param(function, param)
                     );
-                    // fill with (already converted) value from stack
-                    GENERATE_CODE(
-                            I_POP_STACK,
-                            code_instruction_operand_init_variable_from_param(function, param)
-                    );
+
+                    CodeInstructionOperand* new_operand = NULL;
+                    if(token->is_constant) {
+                        if(token->data_type == param->data_type) {
+                            new_operand = code_instruction_operand_copy(
+                                    token->instruction->op0
+                            );
+                        } else if(token->data_type == DATA_TYPE_INTEGER && param->data_type == DATA_TYPE_DOUBLE) {
+                            new_operand = code_instruction_operand_init_double(
+                                    token->instruction->op0->data.constant.data.integer
+                            );
+                        } else if(token->data_type == DATA_TYPE_DOUBLE && param->data_type == DATA_TYPE_INTEGER) {
+                            new_operand = code_instruction_operand_init_integer(
+                                    round_even(token->instruction->op0->data.constant.data.double_)
+                            );
+                        } else {
+                            LOG_WARNING(
+                                    "Unknown combination of source data type %d and target data type %d.",
+                                    token->data_type,
+                                    param->data_type
+                            );
+                        }
+                    } else if(token->is_variable) {
+                        if(token->data_type == param->data_type) {
+                            new_operand = code_instruction_operand_init_variable(
+                                    token->instruction->op0->data.variable
+                            );
+                        }
+                    }
+
+                    if(new_operand != NULL) {
+                        GENERATE_CODE(
+                                I_MOVE,
+                                code_instruction_operand_init_variable_from_param(function, param),
+                                new_operand
+                        );
+                        // fill with (already converted) value from stack
+                        code_generator_remove_instruction(constructor->generator, token->instruction);
+                    } else {
+                        // generate implicit conversion
+                        GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(
+                                token->data_type,
+                                param->data_type
+                        );
+                        GENERATE_CODE(
+                                I_POP_STACK,
+                                code_instruction_operand_init_variable_from_param(function, param)
+                        );
+                    }
 
                     param = param->prev;
                 }

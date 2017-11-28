@@ -74,5 +74,6 @@ CodeInstructionOperand* code_optimizer_expr_eval(
         ExprToken* t1, ExprToken* t2, ExprToken* result, const OperationSignature* signature
 );
 
+void code_optimizer_optimize_type_casts(CodeOptimizer* optimizer);
 
 #endif //_CODE_OPTIMIZER_EXPR_H

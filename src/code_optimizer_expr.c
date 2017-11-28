@@ -305,3 +305,79 @@ int round_even(double x) {
     x -= remainder(x, 1.0);
     return (int) x;
 }
+
+void code_optimizer_optimize_type_casts(CodeOptimizer* optimizer) {
+    NULL_POINTER_CHECK(optimizer,);
+    CodeGenerator* generator = optimizer->generator;
+    CodeInstruction* start = generator->first;
+    CodeInstruction* end = generator->last;
+    NULL_POINTER_CHECK(start,);
+    NULL_POINTER_CHECK(end,);
+
+    CodeInstruction* actual = start;
+    CodeInstruction* next;
+    CodeInstruction* replacement;
+    do {
+        next = actual->next;
+        switch(actual->type) {
+            case I_FLOAT_ROUND_TO_EVEN_INT_STACK: {
+                if(actual->prev != NULL &&
+                   actual->prev->type == I_PUSH_STACK &&
+                   actual->prev->op0->type == TYPE_INSTRUCTION_OPERAND_CONSTANT) {
+                    if(actual->prev->op0->data.constant.data_type != DATA_TYPE_DOUBLE) {
+                        LOG_WARNING("Invalid operand to type cast.");
+                        continue;
+                    }
+
+                    replacement = code_generator_new_instruction(
+                            generator,
+                            I_PUSH_STACK,
+                            code_instruction_operand_init_integer(
+                                    round_even(actual->prev->op0->data.constant.data.double_)
+                            ),
+                            NULL,
+                            NULL
+                    );
+                    code_generator_insert_instruction_before(
+                            generator,
+                            replacement,
+                            actual->prev
+                    );
+                    code_generator_remove_instruction(generator, actual->prev);
+                    code_generator_remove_instruction(generator, actual);
+                    next = replacement;
+                }
+            }
+            case I_INT_TO_FLOAT_STACK: {
+                if(actual->prev != NULL &&
+                   actual->prev->type == I_PUSH_STACK &&
+                   actual->prev->op0->type == TYPE_INSTRUCTION_OPERAND_CONSTANT) {
+                    if(actual->prev->op0->data.constant.data_type != DATA_TYPE_INTEGER) {
+                        LOG_WARNING("Invalid operand to type cast.");
+                        continue;
+                    }
+
+                    replacement = code_generator_new_instruction(
+                            generator,
+                            I_PUSH_STACK,
+                            code_instruction_operand_init_double(
+                                    actual->prev->op0->data.constant.data.integer
+                            ),
+                            NULL,
+                            NULL
+                    );
+                    code_generator_insert_instruction_before(
+                            generator,
+                            replacement,
+                            actual->prev
+                    );
+                    code_generator_remove_instruction(generator, actual->prev);
+                    code_generator_remove_instruction(generator, actual);
+                    next = replacement;
+                }
+            }
+            default:;
+        }
+        actual = next;
+    } while(actual != end);
+}

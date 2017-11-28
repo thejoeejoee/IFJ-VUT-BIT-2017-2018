@@ -274,7 +274,7 @@ void code_instruction_operand_render_variable_identifier(SymbolVariable* variabl
         snprintf(
                 rendered,
                 length,
-                "%s@%%%05lu_%s",
+                "%s@%%%lu_%s",
                 frame,
                 (long unsigned) variable->scope_depth,
                 variable->alias_name == NULL ?

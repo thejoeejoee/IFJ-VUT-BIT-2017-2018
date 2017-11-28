@@ -342,27 +342,27 @@ void parser_semantic_setup_temp_variables(ParserSemantic* parser_semantic) {
 
     parser_semantic->temp_variable1 = symbol_table_variable_get_or_create(
             parser_semantic->register_->variables->symbol_table,
-            "&_"
+            "&1"
     );
     parser_semantic->temp_variable2 = symbol_table_variable_get_or_create(
             parser_semantic->register_->variables->symbol_table,
-            "&__"
+            "&2"
     );
     parser_semantic->temp_variable3 = symbol_table_variable_get_or_create(
             parser_semantic->register_->variables->symbol_table,
-            "&___"
+            "&3"
     );
     parser_semantic->temp_variable4 = symbol_table_variable_get_or_create(
             parser_semantic->register_->variables->symbol_table,
-            "&_____"
+            "&4"
     );
     parser_semantic->temp_variable5 = symbol_table_variable_get_or_create(
             parser_semantic->register_->variables->symbol_table,
-            "&______"
+            "&5"
     );
     parser_semantic->temp_variable6 = symbol_table_variable_get_or_create(
             parser_semantic->register_->variables->symbol_table,
-            "&_______"
+            "&6"
     );
     parser_semantic->temp_variable1->frame =
     parser_semantic->temp_variable2->frame =

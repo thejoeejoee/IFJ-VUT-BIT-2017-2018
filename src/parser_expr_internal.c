@@ -218,6 +218,7 @@ ExprToken* create_expression(ExprIdx index) {
     t->type = EXPR_EXPRESSION;
     t->data.idx = index;
     t->is_constant = false;
+    t->is_variable = false;
     t->instruction = NULL;
     t->data_type = DATA_TYPE_NONE;
     return t;
@@ -292,6 +293,7 @@ ExprToken* expr_token_copy(ExprToken* t) {
     NULL_POINTER_CHECK(t, NULL);
     ExprToken* new = create_expr_token(t->type);
     new->is_constant = t->is_constant;
+    new->is_variable = t->is_variable;
     new->instruction = t->instruction;
     new->data_type = t->data_type;
     new->base.next = new->base.previous = NULL;

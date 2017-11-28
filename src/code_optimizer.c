@@ -176,6 +176,7 @@ void code_optimizer_free(CodeOptimizer** optimizer) {
     NULL_POINTER_CHECK(optimizer,);
     NULL_POINTER_CHECK(*optimizer,);
 
+    oriented_graph_free(&(*optimizer)->code_graph);
     symbol_table_free((*optimizer)->variables_meta_data);
     symbol_table_free((*optimizer)->functions_meta_data);
     symbol_table_free((*optimizer)->labels_meta_data);
@@ -804,4 +805,74 @@ void code_optimizer_removing_instruction(CodeOptimizer* optimizer, CodeInstructi
                 meta_data->occurrences_count--;
         }
     }
+}
+
+void code_optimizer_split_code_to_graph(CodeOptimizer* optimizer)
+{
+    NULL_POINTER_CHECK(optimizer, );
+
+    oriented_graph_clear(optimizer->code_graph);
+
+    CodeInstruction* instruction = optimizer->generator->first;
+    CodeBlock* code_block = (CodeBlock*) oriented_graph_new_node(optimizer->code_graph);
+    SymbolTable* mapped_blocks = symbol_table_init(32, sizeof(SymbolTableIntItem), NULL, NULL);
+
+    while(instruction != NULL) {
+        const TypeInstructionClass prev_instruction_type_class = instruction_class(instruction->prev);
+        const bool prev_is_direct_jump = (prev_instruction_type_class == INSTRUCTION_TYPE_DIRECT_JUMP);
+        const bool prev_is_cond_jump = (prev_instruction_type_class == INSTRUCTION_TYPE_CONDITIONAL_JUMP);
+
+        // creating new block
+        if(instruction->type == I_LABEL || prev_is_cond_jump || prev_is_direct_jump) {
+            CodeBlock* new_code_block = (CodeBlock*) oriented_graph_new_node(optimizer->code_graph);
+
+            // map block
+            if(instruction->type == I_LABEL) {
+                SymbolTableIntItem* mapped_block = (SymbolTableIntItem*) symbol_table_get_or_create(mapped_blocks, instruction->op0->data.label);
+                mapped_block->value = (int) new_code_block->base.id;
+            }
+
+            // can connect  direct blocks
+            if(prev_is_cond_jump || (instruction->type == I_LABEL && !prev_is_direct_jump)
+                    || (instruction->prev != NULL && instruction->prev->type == I_CALL)) {
+                oriented_graph_connect_nodes(
+                            optimizer->code_graph,
+                            (GraphNodeBase*) code_block,
+                            (GraphNodeBase*) new_code_block);
+            }
+            code_block = new_code_block;
+        }
+
+        code_block_add_instruction(code_block, instruction);
+
+        instruction = instruction->next;
+    }
+
+    // connect nodes
+    OrientedGraph* graph = optimizer->code_graph;
+    for(size_t i = 0; i < graph->capacity; i++) {
+        if(graph->nodes[i] == NULL)
+            continue;
+
+        CodeBlock* block = (CodeBlock*) graph->nodes[i];
+        const TypeInstructionClass last_block_instruction_type_class = instruction_class(block->last_instruction);
+        if(last_block_instruction_type_class == INSTRUCTION_TYPE_DIRECT_JUMP ||
+                last_block_instruction_type_class == INSTRUCTION_TYPE_CONDITIONAL_JUMP) {
+            SymbolTableIntItem* mapped_block = (SymbolTableIntItem*) symbol_table_get_or_create(
+                                                   mapped_blocks,
+                                                   block->last_instruction->op0->data.label);
+
+            if(mapped_block == NULL) {
+                LOG_WARNING("Split code internal error");
+                return;
+            }
+
+            // make connection
+            if(last_block_instruction_type_class == INSTRUCTION_TYPE_CONDITIONAL_JUMP)
+                set_int_add(block->conditional_jump, (unsigned int) mapped_block->value);
+            oriented_graph_connect_nodes_by_ids(graph, block->base.id, (unsigned int) mapped_block->value);
+        }
+    }
+
+    symbol_table_free(mapped_blocks);
 }

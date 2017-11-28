@@ -332,7 +332,7 @@ bool parser_semantic_check_function_definitions(ParserSemantic* parser_semantic)
     bool result = symbol_function_find_declared_function_without_definition(parser_semantic->register_->functions);
 
     if(!result)
-        parser_semantic->error_report.error_code = ERROR_SEMANTIC_DEFINITION
+        parser_semantic->error_report.error_code = ERROR_SEMANTIC_DEFINITION;
 
     return result;
 }

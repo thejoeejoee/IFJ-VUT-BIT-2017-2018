@@ -37,5 +37,6 @@ void set_int_union(SetInt* set, SetInt* other);
 
 // TODO test
 void set_int_difference(SetInt* set, SetInt* other);
+bool set_int_difference_is_empty(SetInt* set, SetInt* other);
 
 #endif // SETINT_H

@@ -129,6 +129,22 @@ void set_int_difference(SetInt* set, SetInt* other)
     }
 }
 
+bool set_int_difference_is_empty(SetInt* set, SetInt* other)
+{
+    NULL_POINTER_CHECK(set, false);
+    NULL_POINTER_CHECK(other, false);
+
+    SetIntItem* item = (SetIntItem*)other->head;
+
+    while(item != NULL) {
+        if(set_int_contains(set, item->value))
+            return false;
+        item = (SetIntItem*)item->base.next;
+    }
+
+    return true;
+}
+
 SetInt* set_int_copy(SetInt* other)
 {
     SetInt* new_set = set_int_init();

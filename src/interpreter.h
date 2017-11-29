@@ -34,7 +34,7 @@ CodeInstructionOperand* interpreter_evaluate_instruction_block(
     case case_: { \
         CodeInstructionOperandConstantData op1 = interpreter_data_stack_pop(interpreter); \
         CodeInstructionOperandConstantData op2 = interpreter_data_stack_pop(interpreter); \
-        if (op1.data_type == op2.data_type); { \
+        if (op1.data_type != op2.data_type) { \
             LOG_WARNING("Operands type mismatch %d:%d.", op1.data_type, op2.data_type);\
             return NULL; \
         }\
@@ -58,13 +58,14 @@ CodeInstructionOperand* interpreter_evaluate_instruction_block(
                 LOG_WARNING("Unsupported data type %d.", op1.data_type); \
                 return NULL; \
         } \
+        break; \
     }
 
 #define DATA_STACK_CMP_OPERATION(case_, op) \
     case case_: { \
         CodeInstructionOperandConstantData op1 = interpreter_data_stack_pop(interpreter); \
         CodeInstructionOperandConstantData op2 = interpreter_data_stack_pop(interpreter); \
-        if (op1.data_type == op2.data_type); { \
+        if (op1.data_type != op2.data_type) { \
             LOG_WARNING("Operands type mismatch %d:%d.", op1.data_type, op2.data_type);\
             return NULL; \
         }\
@@ -83,6 +84,7 @@ CodeInstructionOperand* interpreter_evaluate_instruction_block(
                 LOG_WARNING("Unsupported data type %d.", op1.data_type); \
                 return NULL; \
         } \
+        break; \
     }
 
 

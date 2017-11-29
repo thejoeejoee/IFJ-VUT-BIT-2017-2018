@@ -38,6 +38,7 @@ void interpreter_free(Interpreter** interpreter) {
     NULL_POINTER_CHECK(interpreter,);
     NULL_POINTER_CHECK(*interpreter,);
 
+    stack_free(&(*interpreter)->data_stack);
     memory_free(*interpreter);
 }
 
@@ -72,6 +73,7 @@ CodeInstructionOperand* interpreter_evaluate_instruction_block(
                 }
                 to_not.data.boolean = !to_not.data.boolean;
                 interpreter_data_stack_push(interpreter, to_not);
+                break;
             }
 
             case I_INT_TO_FLOAT_STACK: {
@@ -87,8 +89,9 @@ CodeInstructionOperand* interpreter_evaluate_instruction_block(
                         }
                 };
                 interpreter_data_stack_push(interpreter, casted);
+                break;
             }
-            case I_FLOAT_ROUND_TO_EVEN_INT: {
+            case I_FLOAT_ROUND_TO_EVEN_INT_STACK: {
                 CodeInstructionOperandConstantData to_cast = interpreter_data_stack_pop(interpreter);
                 if(to_cast.data_type != DATA_TYPE_DOUBLE) {
                     LOG_WARNING("Invalid data type to convert: %d", to_cast.data_type);
@@ -101,6 +104,7 @@ CodeInstructionOperand* interpreter_evaluate_instruction_block(
                         }
                 };
                 interpreter_data_stack_push(interpreter, casted);
+                break;
             }
 
             case I_PUSH_STACK: {
@@ -147,7 +151,7 @@ CodeInstructionOperand* interpreter_evaluate_instruction_block(
                 LOG_WARNING("Unsupported instruction %d.", actual->type);
                 return NULL;
         }
-    } while((actual = actual->next) != end);
+    } while((actual = actual->next) != end->next);
 
     data = interpreter_data_stack_pop(interpreter);
     switch(data.data_type) {

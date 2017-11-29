@@ -46,6 +46,7 @@ void stack_push(Stack* stack, StackBaseItem* item);
  * @return StackBaseItem* Popped item
  */
 StackBaseItem* stack_pop(Stack* stack);
+void stack_pop_free(Stack* stack);
 
 StackBaseItem* stack_get_by_index(Stack* stack, size_t index);
 

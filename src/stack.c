@@ -63,3 +63,7 @@ StackBaseItem* stack_item_int_init(int value)
     return (StackBaseItem*) item;
 }
 
+void stack_pop_free(Stack* stack)
+{
+    memory_free(stack_pop(stack));
+}

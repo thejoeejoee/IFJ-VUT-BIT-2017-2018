@@ -8,7 +8,16 @@ typedef struct {
     int value;
 } SetIntItem;
 
+
 typedef LList SetInt;
+
+typedef struct {
+    LListBaseItem base;
+    SetInt* set;
+} LListItemSet;
+
+void llist_set_int_init(LListBaseItem* item);
+void llist_set_int_free(LListBaseItem* item);
 
 SetInt* set_int_init();
 SetInt* set_int_copy(SetInt* other);

@@ -136,3 +136,19 @@ SetInt* set_int_copy(SetInt* other)
 
     return new_set;
 }
+
+void llist_set_int_init(LListBaseItem* item)
+{
+    NULL_POINTER_CHECK(item, );
+
+    LListItemSet* v = (LListItemSet*) item;
+    v->set = set_int_init();
+}
+
+void llist_set_int_free(LListBaseItem* item)
+{
+    NULL_POINTER_CHECK(item, );
+
+    LListItemSet* v = (LListItemSet*) item;
+    set_int_free(&v->set);
+}

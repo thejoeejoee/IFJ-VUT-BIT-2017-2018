@@ -20,7 +20,7 @@ Pro syntaktickou analýzu programu jako celku byla použita syntaktická
 analýza shora dolů, konkrétně metoda rekurzivního sestupu. Implementace se nachází v modulu \ic|parser.c|
 
 Pro analýzu výrazů není analýza shora dolů příliš vhodná, proto byla
-použita metoda zdola nahorů v našem případě založená na precedenční
+použita metoda zdola nahoru v našem případě založená na precedenční
 syntaktické analýza implementovaná v souboru \ic|parser_expr.c|.
 
 Přepínání mezi metodami je realizováno následujícím mechanismem. Na celý program je použita funkce \ic|parser_parse|
@@ -28,6 +28,13 @@ z modulu \ic|parser.c|. V případě že je jako neterminál očekáván výraz,
 z modulu \ic|parser_expr.c|, která provede precedenční syntaktickou analýzu výrazu.
 
 \subsection{Precedenční analýza výrazů}
+Precedenční analýza je řízena precedenční tabulkou, kterou se vyhodnocuje pořadí zpracování tokenů. Tato tabulka je k nalezení v příloze a v kódu potom v modulu 
+\ic|parser_expr_prec_table_data.c|. V tabulce se nachází jak binární, tak i unární mínus. 
+Lexikální analyzátor nám ovšem poskytuje pouze jeden token mínus a proto se unární a binární mínus 
+musí vyhodnotit podle kontextu. Precedenční analýza využívá se obousměrně vázaného seznamu, do kterého se ukládají terminály, 
+precedenční symboly a neterminály. Pomocí redukčních pravidel, která jsou vypsána v příloze, se postupně výraz redukuje. 
+Jelikož překladač je založen na přímém překladu, tak při redukování pomocí pravidel konstruktor kódu rovnou generuje kód programu.
+
 \todo{Describe a case-by-case analysis}
 \subsection{Konstruktor kódu}
 Konstruktor cílového kódu je komponenta překladače, která má za odpovědnost smysl a jednotlivé návaznosti vygenerovaného tříadresného kódu.

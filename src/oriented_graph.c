@@ -310,7 +310,18 @@ LList* oriented_graph_scc(OrientedGraph* graph)
             oriented_graph_scc_util(graph, i, disc, low, stack, stack_member, &discovery_time, components);
     }
 
-    // TODO remove on and zero sized sets
+    // remove on and zero sized sets
+    LListItemSet* item = (LListItemSet*) components->head;
+
+    while(item != NULL) {
+        LListItemSet* next_item = (LListItemSet*) item->base.next;
+
+        if(set_int_size(item->set) <= 1) {
+            llist_remove_item(components, (LListBaseItem*) item);
+        }
+        item = next_item;
+    }
+
     stack_free(&stack);
     return components;
 }

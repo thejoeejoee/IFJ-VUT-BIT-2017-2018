@@ -54,3 +54,12 @@ StackBaseItem* stack_get_by_index(Stack* stack, size_t index) {
     }
     return item;
 }
+
+StackBaseItem* stack_item_int_init(int value)
+{
+    StackItemInt* item = memory_alloc(sizeof(StackItemInt));
+    item->value = value;
+
+    return (StackBaseItem*) item;
+}
+

@@ -9,6 +9,11 @@ typedef struct stack_base_item_t {
     struct stack_base_item_t* next;
 } StackBaseItem;
 
+typedef struct {
+    StackBaseItem base;
+    int value;
+} StackItemInt;
+
 typedef void (* stack_item_free_callback_f)(StackBaseItem* item);
 
 typedef struct stack__t {
@@ -43,5 +48,7 @@ void stack_push(Stack* stack, StackBaseItem* item);
 StackBaseItem* stack_pop(Stack* stack);
 
 StackBaseItem* stack_get_by_index(Stack* stack, size_t index);
+
+StackBaseItem* stack_item_int_init(int value);
 
 #endif //_STACK_H

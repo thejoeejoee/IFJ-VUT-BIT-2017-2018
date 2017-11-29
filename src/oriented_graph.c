@@ -1,4 +1,5 @@
 #include "oriented_graph.h"
+#include "math.h"
 
 OrientedGraph* oriented_graph_init(size_t item_size, oriented_graph_init_data_callback_f init_callback, oriented_graph_free_data_callback_f free_callback)
 {
@@ -280,4 +281,76 @@ OrientedGraph* oriented_graph_transpose(OrientedGraph* graph)
     }
 
     return transposed;
+}
+
+LList* oriented_graph_scc(OrientedGraph* graph)
+{
+    NULL_POINTER_CHECK(graph, NULL);
+    LList* components;
+    llist_init(&components, sizeof(LListItemSet), &llist_set_int_init, &llist_set_int_free, NULL);
+    llist_new_tail_item(components);
+    Stack* stack = stack_init(NULL);
+
+    int disc[graph->capacity];
+    int low[graph->capacity];
+    bool stack_member[graph->capacity];
+    int discovery_time = 0;
+
+    for(size_t i = 0; i < graph->capacity; i++) {
+        disc[i] = -1;
+        low[i] = -1;
+        stack_member[i] = false;
+    }
+
+    for(size_t i = 0; i < graph->capacity; i++) {
+        if(graph->nodes[i] == NULL)
+            continue;
+
+        if(disc[i] == -1)
+            oriented_graph_scc_util(graph, i, disc, low, stack, stack_member, &discovery_time, components);
+    }
+
+    // TODO remove on and zero sized sets
+    stack_free(&stack);
+    return components;
+}
+
+void oriented_graph_scc_util(OrientedGraph* graph, unsigned int u, int disc[], int low[], Stack* stack, bool stack_member[], int* discovery_time, LList* components)
+{
+    NULL_POINTER_CHECK(graph, );
+    NULL_POINTER_CHECK(stack, );
+
+    disc[u] = low[u] = ++(*discovery_time);
+    stack_member[u] = true;
+    stack_push(stack, stack_item_int_init(u));
+
+    SetIntItem* v_item = (SetIntItem*) graph->nodes[u]->out_edges->head;
+    while(v_item != NULL) {
+        unsigned int v = (unsigned int) v_item->value;
+        if(disc[v] == -1) {
+            oriented_graph_scc_util(graph, v, disc, low, stack, stack_member, discovery_time, components);
+            low[u] = (low[u] < low[v]) ?low[u] :low[v];
+        }
+
+        else if(stack_member[v] == true)
+            low[u] = (low[u] < disc[v]) ?low[u] :disc[v];
+
+        v_item = (SetIntItem*) v_item->base.next;
+    }
+
+    unsigned int w = 0;
+    if(low[u] == disc[u]) {
+        while((unsigned int) ((StackItemInt*) stack->head)->value != u) {
+            w = (unsigned int) ((StackItemInt*) stack->head)->value;
+            set_int_add(((LListItemSet*) components->tail)->set, (int) w);
+            stack_member[w] = false;
+            stack_pop_free(stack);
+        }
+
+        w = (unsigned int) ((StackItemInt*) stack->head)->value;
+        set_int_add(((LListItemSet*) components->tail)->set, (int) w);
+        llist_new_tail_item(components);
+        stack_member[w] = false;
+        stack_pop_free(stack);
+    }
 }

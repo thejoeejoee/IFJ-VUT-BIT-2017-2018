@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include "set_int.h"
+#include "stack.h"
 
 typedef struct {
     unsigned int id;
@@ -47,6 +48,7 @@ bool oriented_graph_node_is_in_cycle(OrientedGraph* graph, GraphNodeBase* node);
 void _oriented_graph_expand_nodes(OrientedGraph* graph, SetInt* layer);
 
 OrientedGraph* oriented_graph_transpose(OrientedGraph* graph);
-
+LList* oriented_graph_scc(OrientedGraph* graph);
+void oriented_graph_scc_util(OrientedGraph* graph, unsigned int u, int disc[], int low[], Stack* stack, bool stack_member[], int* discovery_time, LList* components);
 
 #endif // ORIENTEDGRAPH_H

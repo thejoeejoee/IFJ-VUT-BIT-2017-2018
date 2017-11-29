@@ -164,3 +164,20 @@ LListBaseItem* llist_get_n_from_end(LList* list, size_t n)
 
     return item;
 }
+
+void llist_item_str_init(LListBaseItem* item)
+{
+    NULL_POINTER_CHECK(item, );
+
+    LListItemStr* v = (LListItemStr*) item;
+    v->str = NULL;
+}
+
+void llist_item_str_free(LListBaseItem* item)
+{
+    NULL_POINTER_CHECK(item, );
+
+    LListItemStr* v = (LListItemStr*) item;
+    if(v->str != NULL)
+        memory_free(v->str);
+}

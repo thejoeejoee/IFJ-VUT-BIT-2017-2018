@@ -135,7 +135,7 @@ bool set_int_difference_is_empty(SetInt* set, SetInt* other)
     NULL_POINTER_CHECK(other, false);
 
     SetIntItem* item = (SetIntItem*)other->head;
-    int match_count = 0;
+    unsigned int match_count = 0;
 
     while(item != NULL) {
         if(set_int_contains(set, item->value))

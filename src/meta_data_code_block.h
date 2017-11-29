@@ -3,6 +3,8 @@
 
 #include "oriented_graph.h"
 #include "code_instruction.h"
+#include "symtable.h"
+#include "llist.h"
 
 typedef struct {
     GraphNodeBase base;
@@ -12,6 +14,12 @@ typedef struct {
     CodeInstruction* last_instruction;
     SetInt* conditional_jump;
 } CodeBlock;
+
+typedef struct {
+    LListBaseItem base;
+    SetInt* blocks_in_cycle;
+    SymbolTable* modified_variables;
+} CycledBlockModVariables;
 
 void init_code_block(GraphNodeBase* base);
 void free_code_block(GraphNodeBase* base);

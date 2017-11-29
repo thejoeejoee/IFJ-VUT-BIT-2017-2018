@@ -13,11 +13,19 @@ obsahuje implementaci deterministického konečného automatu. Modul \ic|lexer.c
 která vrací další token.
 
 \subsection{Synataktická analýza}
-Naším úkolem bylo implementovat syntaxí řízený překlad. To znamená
-že syntaktická analýza řídí činnost překladače.
+Syntaxí řízený překlad je naimplementován v modulu \ic|parser.c|, pro syntaktickou analýzu programu jako takového je
+použita SA shoda dolů, konkrétně metoda rekurzivního sestupu. Pro každé pravidlo z LL gramatiky existuje v tomto
+modulu funkce realizující toto pravidlo. Pro snažší zápis v jazyce C byla naimplementována makra,
+která konkrétní pravidlo zavolají a zkontrolují jeho splnění - at už pro terminály \ic|CHECK_TOKEN(TOKEN_THEN)|,
+nebo pro neterminály \ic|CALL_RULE(condition_elseif);|. Pro podmínečná volání pravidel poté makro ve stylu
+\ic|CHECK_RULE(token_type == TOKEN_DIM, variable_declaration, REWIND_AND_SUCCESS)| - toto konkrétní zavolá pravidlo
+\ic|variable_declaration| v případě, že je následující token typu \ic|TOKEN_DIM| a jestliže bylo úspěšné, další načtený
+token navrátí zpět a prohlásí volání za úspěšné.
 
-Pro syntaktickou analýzu programu jako celku byla použita syntaktická
-analýza shora dolů, konkrétně metoda rekurzivního sestupu. Implementace se nachází v modulu \ic|parser.c|
+Všechny pravidla pracují nad strukturou \ic|Parser|, která zapouzdřuje základní komponenty pro syntaxí řízený překlad.
+Jedná se především od dvojici struktur \ic!ParserSemantic! a \ic!CodeConstructor!. První zmíněná zajištuje sémantické
+kontroly programu; uchovává \emph{registr symbolů}, dočasné proměnné, pravidla pro implicitní konverze datových typů či
+aktuální scénář SA. Konstruktor kódu je poté popsán v příslušné sekci \ref{subsec:code-constructor}.
 
 Pro analýzu výrazů není analýza shora dolů příliš vhodná, proto byla
 použita metoda zdola nahoru v našem případě založená na precedenční
@@ -36,34 +44,45 @@ precedenční symboly a neterminály. Pomocí redukčních pravidel, která jsou
 Jelikož překladač je založen na přímém překladu, tak při redukování pomocí pravidel konstruktor kódu rovnou generuje kód programu.
 
 \todo{Describe a case-by-case analysis}
-\subsection{Konstruktor kódu}
-Konstruktor cílového kódu je komponenta překladače, která má za odpovědnost smysl a jednotlivé návaznosti vygenerovaného tříadresného kódu.
 
-Implementačně je založen na struktuře \ic|CodeConstructor|, obsahující pomocnou komponentu generátoru \ic|CodeGenerator|. Dále obsahuje následující položky: 
+\subsection{Konstruktor kódu}
+\label{subsec:code-constructor}
+Konstruktor cílového kódu je komponenta překladače, která má za odpovědnost smysl a jednotlivé návaznosti vygenerovaného
+tříadresného kódu.
+
+Implementačně je založen na struktuře \ic|CodeConstructor|, obsahující pomocnou komponentu generátoru \ic|CodeGenerator|. Dále obsahuje následující položky:
 \begin{description}[style=nextline]
-	\item[zásobník návěští]
-		\todo{je vůbec potřeba?}
-	\item[zásobník návěští pro podmínky]
-		Slouží pro uchování cílů skoků mezi jednotlivými větvemi podmínkového příkazu \ic|IF .. THEN|, \ic|ELSEIF ... THEN| a \ic|ELSE|.
-	\item[zásobník návěští pro cykly]
-		Obdobně jako záasobník pro podmínkové návěští, slouží tento zásobník pro uschování vygenerovaných návěští pro skoky na podmínku cyklu či mimo cyklus.
-	\item[aktuální hloubku zanoření \texttt{SCOPE}]
-		Určuje hlavní \ic|SCOPE| celého programu, podle které je poté generován cíl skoku do hlavního programu a vytvoření lokálního rámce.
-	\item[zásobník počátečních instrukcí cyklu]
-		Je určen pro uschování počátečních instrukcí cyklů \ic|LABEL|, které slouží jako zarážky pro vygenerování instrukcí před začátek bloku cyklu. Tedy například vygenerování instrukcí \ic|DEFVAR| před tělo cyklu - pro zamezení duplicitní definice. 
-	\item[hloubka zanoření řídících struktur]
-		Definuje čítač pro automatické generování sekvence návěští pro cykly, podmínky, funkce a další použití.
-	\item[seznam implicitních konverzí]
-		Pomocný seznam typů instrukcí používaných pro konkrétní implicitní konverze operandů - je nutný pro plně automatickou kontrolu implicitních konverzí včetně generování konverzních instrukcí.
-	\item[čítač vygenerovaných návěští]
-		Interní čítač určený pro unikátní odlišení všech vygenerovaných instrukcí v rámci programu.
+    \item[zásobník návěští]
+    \todo{je vůbec potřeba?}
+    \item[zásobník návěští pro podmínky]
+    Slouží pro uchování cílů skoků mezi jednotlivými větvemi podmínkového příkazu \ic|IF .. THEN|, \ic|ELSEIF ... THEN| a \ic|ELSE|.
+    \item[zásobník návěští pro cykly]
+    Obdobně jako záasobník pro podmínkové návěští, slouží tento zásobník pro uschování vygenerovaných návěští pro skoky na podmínku cyklu či mimo cyklus.
+    \item[aktuální hloubku zanoření \texttt{SCOPE}]
+    Určuje hlavní \ic|SCOPE| celého programu, podle které je poté generován cíl skoku do hlavního programu a vytvoření lokálního rámce.
+    \item[zásobník počátečních instrukcí cyklu]
+    Je určen pro uschování počátečních instrukcí cyklů \ic|LABEL|, které slouží jako zarážky pro vygenerování instrukcí před začátek bloku cyklu. Tedy například vygenerování instrukcí \ic|DEFVAR| před tělo cyklu - pro zamezení duplicitní definice.
+    \item[hloubka zanoření řídících struktur]
+    Definuje čítač pro automatické generování sekvence návěští pro cykly, podmínky, funkce a další použití.
+    \item[seznam implicitních konverzí]
+    Pomocný seznam typů instrukcí používaných pro konkrétní implicitní konverze operandů - je nutný pro plně automatickou kontrolu implicitních konverzí včetně generování konverzních instrukcí.
+    \item[čítač vygenerovaných návěští]
+    Interní čítač určený pro unikátní odlišení všech vygenerovaných instrukcí v rámci programu.
 \end{description}
 
 \subsection{Generátor cílového kódu}
-Generátor kódu je nízkoúrovňová komponenta zastřešující skládání, validaci a vykreslování cílového kódu \ic|IFJcode17|. Kontroluje generované instrukce a její operandy, tedy správné kombinace typů operandů (přístupy do rámců, konstatní literály, návěští či datové typy) u konkrétních instrukcí. 
+Generátor kódu je nízkoúrovňová komponenta zastřešující skládání, validaci a vykreslování cílového kódu \ic|IFJcode17|.
+Kontroluje generované instrukce a její operandy, tedy správné kombinace typů operandů (přístupy do rámců, konstatní
+literály, návěští či datové typy) u konkrétních instrukcí.
 
-Interní implementace spoléhá na \emph{obousměrně svázaný lineární seznam} struktur \ic|CodeInstruction|, které kromě režijních ukazatelů uchovávají typ instrukce a ukazatele na až tři operandy, struktury \ic|CodeInstructionOperand|. Tento seznam je uložen v datové struktuře \ic|CodeGenerator|, která dále obsahuje pole podpisů\footnote{Podpis instrukce je složena z bitových masek definující povolené typy operandů a její textové reprezentace v kódu \texttt{IFJcode17}.} instrukcí pro jejich validace.
-Struktura \ic|CodeInstructionOperand| uchovává informace o svém typu a poté unii dat pro konkrétní typ operandu, tedy ukazatel na proměnnou \ic|SymbolVariable|, data konstanty \ic|CodeInstructionOperandConstantData| v unii s datovým typem nebo řetězec uchovávající název návěští.
+Interní implementace spoléhá na \emph{obousměrně svázaný lineární seznam} struktur \ic|CodeInstruction|, které kromě
+režijních ukazatelů uchovávají typ instrukce a ukazatele na až tři operandy, struktury \ic|CodeInstructionOperand|.
+Tento seznam je uložen v datové struktuře \ic|CodeGenerator|, která dále obsahuje pole podpisů\footnote{Podpis
+instrukce je složena z bitových masek definující povolené typy operandů a její textové reprezentace v kódu
+\texttt{IFJcode17}.} instrukcí pro jejich validace.
+Struktura \ic|CodeInstructionOperand| uchovává informace o svém typu a poté unii dat pro konkrétní typ operandu, tedy
+ukazatel na proměnnou \ic|SymbolVariable|,
+data konstanty \ic|CodeInstructionOperandConstantData| v unii s datovým typem nebo řetězec uchovávající název návěští.
 
 \subsection{Interpret}
 \todo{Describe something about interpret}

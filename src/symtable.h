@@ -113,7 +113,11 @@ bool symbol_table_remove(SymbolTable* table, const char* key);
  */
 void symbol_table_clear_buckets(SymbolTable* table);
 
-// TODO doc
-SymbolTable* symbol_table_copy(SymbolTable* other);
+/**
+ * Creates new table with copied all items from source.
+ * @param source source table
+ * @return new table
+ */
+SymbolTable* symbol_table_copy(SymbolTable* source);
 
 #endif //_SYMTABLE_H

@@ -261,3 +261,55 @@ TEST_F(SymbolTableWithDataTestFixture, Foreach) {
             keys.size()
     ) << "Callback function should be called 5 times";
 }
+
+
+TEST_F(SymbolTableWithDataTestFixture, Copy) {
+    SymbolTable* new_table = symbol_table_copy(symbol_table);
+
+    EXPECT_EQ(
+            symbol_table_size(new_table),
+            keys.size()
+    );
+
+    symbol_table_free(new_table);
+}
+
+TEST_F(SymbolTableWithDataTestFixture, CopyAdvanced) {
+    SymbolTable* new_table = symbol_table_copy(symbol_table);
+
+    EXPECT_EQ(
+            symbol_table_size(new_table),
+            keys.size()
+    );
+
+    for(auto value : keys) {
+        ASSERT_NE(
+                symbol_table_get(new_table, value),
+                nullptr
+        );
+        ASSERT_NE(
+                symbol_table_get(symbol_table, value),
+                nullptr
+        );
+        EXPECT_NE(
+                symbol_table_get(symbol_table, value),
+                symbol_table_get(new_table, value)
+        );
+        EXPECT_STREQ(
+                symbol_table_get(symbol_table, value)->key,
+                symbol_table_get(new_table, value)->key
+        );
+    }
+
+    EXPECT_EQ(
+            symbol_table_get(symbol_table, "foobar"),
+            nullptr
+    );
+
+    SymbolTableBaseItem* new_item = symbol_table_get_or_create(new_table, "new_item");
+    EXPECT_EQ(
+            symbol_table_get(symbol_table, new_item->key),
+            nullptr
+    );
+    symbol_table_free(new_table);
+}

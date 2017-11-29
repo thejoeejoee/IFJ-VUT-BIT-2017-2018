@@ -5,6 +5,7 @@ void init_mapped_operand_item(SymbolTableBaseItem* item) {
 
     MappedOperand* v = (MappedOperand*) item;
     v->operand = NULL;
+    v->blocked = false;
 }
 
 void free_mapped_operand_item(SymbolTableBaseItem* item) {
@@ -21,4 +22,5 @@ void copy_mapped_operand_item(SymbolTableBaseItem* to, SymbolTableIntItem* from)
     MappedOperand* v_from = (MappedOperand*) from;
 
     v_to->operand = code_instruction_operand_copy(v_from->operand);
+    v_to->blocked = v_from->blocked;
 }

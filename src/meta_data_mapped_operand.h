@@ -7,6 +7,7 @@
 typedef struct mapped_operand_t {
     SymbolTableBaseItem base;
     CodeInstructionOperand* operand;
+    bool blocked;
 } MappedOperand;
 
 void init_mapped_operand_item(SymbolTableBaseItem* item);

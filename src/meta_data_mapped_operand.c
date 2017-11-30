@@ -16,7 +16,7 @@ void free_mapped_operand_item(SymbolTableBaseItem* item) {
         code_instruction_operand_free(&v->operand);
 }
 
-void copy_mapped_operand_item(SymbolTableBaseItem* to, SymbolTableIntItem* from)
+void copy_mapped_operand_item(SymbolTableBaseItem* to, SymbolTableBaseItem* from)
 {
     MappedOperand* v_to = (MappedOperand*) to;
     MappedOperand* v_from = (MappedOperand*) from;

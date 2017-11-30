@@ -12,6 +12,6 @@ typedef struct mapped_operand_t {
 
 void init_mapped_operand_item(SymbolTableBaseItem* item);
 void free_mapped_operand_item(SymbolTableBaseItem* item);
-void copy_mapped_operand_item(SymbolTableBaseItem* to, SymbolTableIntItem* from);
+void copy_mapped_operand_item(SymbolTableBaseItem* to, SymbolTableBaseItem* from);
 
 #endif // META_DATA_MAPPED_OPERAND_H

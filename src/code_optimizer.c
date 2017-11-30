@@ -909,6 +909,7 @@ void code_optimizer_propate_constants_optimization(CodeOptimizer* optimizer)
     SymbolTable* constants = symbol_table_init(32, sizeof(MappedOperand),
                                                      &init_mapped_operand_item,
                                                      &free_mapped_operand_item);
+    constants->copy_data_callback = &copy_mapped_operand_item;
     stack_push(constants_tables_stack, (StackBaseItem*) constants_table_stack_item_init(constants));
     CodeBlock* block = (CodeBlock*) oriented_graph_node(graph, 0);
 

@@ -919,7 +919,6 @@ void code_optimizer_propate_constants_optimization(CodeOptimizer* optimizer)
     llist_free(&cycled_blocks_mod_vars);
     stack_free(&constants_tables_stack);
     set_int_free(&proccessed_blocks);
-    symbol_table_free(constants);
 }
 
 
@@ -973,10 +972,6 @@ void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
         cycled_blocks = (MetaDataCycledBlocksModVars*) cycled_blocks->base.next;
     }
 
-    // push table on stack
-    ConstantsTableStackItem* stack_table = constants_table_stack_item_init(constants_table);
-    stack_table->is_direct_table = !is_conditional_block;
-
     CodeInstruction* instruction = block->instructions;
     for(size_t i = 0; i < block->instructions_count; i++) {
         const TypeInstruction instruction_type = instruction->type;
@@ -1001,13 +996,12 @@ void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
         if(instruction->op0 != NULL &&
                 instruction->op0->type == TYPE_INSTRUCTION_OPERAND_VARIABLE &&
                 instruction_cls != INSTRUCTION_TYPE_WRITE &&
-                instruction->type != I_DEF_VAR &&
-                instruction->op0->type == TYPE_INSTRUCTION_OPERAND_VARIABLE) {
+                instruction->type != I_DEF_VAR) {
             SymbolVariable* variable = instruction->op0->data.variable;
             MappedOperand* operand = (MappedOperand*) symbol_table_get(
                                          constants_table, variable_cached_identifier(variable));
 
-            if(operand->operand != NULL) {
+            if(operand != NULL && operand->operand != NULL) {
                 code_instruction_operand_free(&instruction->op0);
                 instruction->op0 = code_instruction_operand_copy(operand->operand);
             }
@@ -1015,6 +1009,11 @@ void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
 
         instruction = instruction->next;
     }
+
+    // push table on stack
+    ConstantsTableStackItem* stack_table = constants_table_stack_item_init(constants_table);
+    stack_table->is_direct_table = !is_conditional_block;
+    stack_push(constants_tables_stack, (StackBaseItem*) stack_table);
 
     SetInt* next_blocks_id = block->base.out_edges;
     set_int_print(next_blocks_id);
@@ -1055,8 +1054,8 @@ SymbolTable* code_optimizer_modified_vars_in_blocks(CodeOptimizer* optimizer, Se
                 MappedOperand* operand = (MappedOperand*) symbol_table_get_or_create(
                                              mod_vars, variable_cached_identifier(variable));
                 operand->blocked = true;
-                if(operand->operand != NULL)
-                    code_instruction_operand_free(&operand->operand);
+//                if(operand->operand != NULL)
+//                    code_instruction_operand_free(&operand->operand);
             }
         }
 

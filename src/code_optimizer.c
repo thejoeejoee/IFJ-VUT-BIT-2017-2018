@@ -921,6 +921,20 @@ void code_optimizer_propate_constants_optimization(CodeOptimizer* optimizer)
     set_int_free(&proccessed_blocks);
 }
 
+void print_keys(const char* key, void* a, void* b) {
+    if(a != NULL) {
+        CodeInstructionOperand* operand = ((MappedOperand*)a)->operand;
+        if(operand != NULL) {
+            char* re = code_instruction_operand_render(operand);
+            printf("key: %s %s\n", key, re);
+            memory_free(re);
+        }
+        else
+            printf("key: %s NULL OPERAND\n", key);
+    }
+    else
+        printf("key: %s NULL ALL\n", key);
+}
 
 void block_variables_in_constants_table(const char* key, void* item, void* data)
 {
@@ -962,6 +976,11 @@ void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
         return;
     }
 
+    // TODO remove debug
+//    printf("Keys %u (\n", block->base.id);
+//    symbol_table_foreach(constants_table, &print_keys, NULL);
+//    printf(")\n");
+
     // remove modified variables in cycles if block is in cycle
     MetaDataCycledBlocksModVars* cycled_blocks = (MetaDataCycledBlocksModVars*) cycled_block_mod_vars->head;
     while(cycled_blocks != NULL) {
@@ -980,6 +999,7 @@ void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
         // remove variable from constants table
         if(instruction_cls == INSTRUCTION_TYPE_WRITE) {
             SymbolVariable* variable = instruction->op0->data.variable;
+//            printf("%u Removing %s\n", block->base.id, variable_cached_identifier(variable));
             MappedOperand* operand = (MappedOperand*) symbol_table_get_or_create(
                                          constants_table, variable_cached_identifier(variable));
             if(operand->operand != NULL)
@@ -989,10 +1009,40 @@ void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
             if(!operand->blocked && instruction_type == I_MOVE &&
                     instruction->op1->type == TYPE_INSTRUCTION_OPERAND_CONSTANT) {
                 operand->operand = code_instruction_operand_copy(instruction->op1);
+//                printf("%u Adding %s\n", block->base.id, variable_cached_identifier(variable));
             }
         }
 
         // replace variables with constant
+//        CodeInstructionOperand** operands[OPERANDS_MAX_COUNT] = {
+//            &instruction->op0,
+//            &instruction->op1,
+//            &instruction->op2
+//        };
+
+//        const TypeInstructionOperand operands_type[OPERANDS_MAX_COUNT] = {
+//            instruction->signature_buffer->type0,
+//            instruction->signature_buffer->type1,
+//            instruction->signature_buffer->type2,
+//        };
+
+
+        /*for(int j = 0; j < OPERANDS_MAX_COUNT; j++) {
+            if((*(operands[j])) != NULL &&
+                    (*(operands[j]))->type == TYPE_INSTRUCTION_OPERAND_VARIABLE &&
+                    instruction_cls != INSTRUCTION_TYPE_WRITE &&
+                    operands_type[j] == TYPE_INSTRUCTION_OPERAND_SYMBOL) {
+                SymbolVariable* variable = (*(operands[j]))->data.variable;
+                MappedOperand* operand = (MappedOperand*) symbol_table_get(
+                                             constants_table, variable_cached_identifier(variable));
+
+                if(operand != NULL && operand->operand != NULL && !operand->blocked) {
+                    code_instruction_operand_free(&(*(operands[j])));
+                    (*(operands[j])) = code_instruction_operand_copy(operand->operand);
+                }
+            }
+        }*/
+
         if(instruction->op0 != NULL &&
                 instruction->op0->type == TYPE_INSTRUCTION_OPERAND_VARIABLE &&
                 instruction_cls != INSTRUCTION_TYPE_WRITE &&
@@ -1001,9 +1051,37 @@ void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
             MappedOperand* operand = (MappedOperand*) symbol_table_get(
                                          constants_table, variable_cached_identifier(variable));
 
-            if(operand != NULL && operand->operand != NULL) {
+            if(operand != NULL && operand->operand != NULL && !operand->blocked) {
                 code_instruction_operand_free(&instruction->op0);
                 instruction->op0 = code_instruction_operand_copy(operand->operand);
+            }
+        }
+
+        // replace variables with constant
+        if(instruction->op1 != NULL &&
+                instruction->op1->type == TYPE_INSTRUCTION_OPERAND_VARIABLE &&
+                instruction->type != I_DEF_VAR) {
+            SymbolVariable* variable = instruction->op1->data.variable;
+            MappedOperand* operand = (MappedOperand*) symbol_table_get(
+                                         constants_table, variable_cached_identifier(variable));
+
+            if(operand != NULL && operand->operand != NULL && !operand->blocked) {
+                code_instruction_operand_free(&instruction->op1);
+                instruction->op1 = code_instruction_operand_copy(operand->operand);
+            }
+        }
+
+        // replace variables with constant
+        if(instruction->op2 != NULL &&
+                instruction->op2->type == TYPE_INSTRUCTION_OPERAND_VARIABLE &&
+                instruction->type != I_DEF_VAR) {
+            SymbolVariable* variable = instruction->op2->data.variable;
+            MappedOperand* operand = (MappedOperand*) symbol_table_get(
+                                         constants_table, variable_cached_identifier(variable));
+
+            if(operand != NULL && operand->operand != NULL && !operand->blocked) {
+                code_instruction_operand_free(&instruction->op2);
+                instruction->op2 = code_instruction_operand_copy(operand->operand);
             }
         }
 
@@ -1016,7 +1094,6 @@ void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
     stack_push(constants_tables_stack, (StackBaseItem*) stack_table);
 
     SetInt* next_blocks_id = block->base.out_edges;
-    set_int_print(next_blocks_id);
     SetIntItem* next_block_id = (SetIntItem*) next_blocks_id->head;
     while(next_block_id != NULL) {
         code_optimizer_propagate_constants_in_block(
@@ -1054,12 +1131,17 @@ SymbolTable* code_optimizer_modified_vars_in_blocks(CodeOptimizer* optimizer, Se
                 MappedOperand* operand = (MappedOperand*) symbol_table_get_or_create(
                                              mod_vars, variable_cached_identifier(variable));
                 operand->blocked = true;
+                char* rendered = code_instruction_render(instruction);
+//                printf("-- Block %u| %s\n", block->base.id, rendered);
+                memory_free(rendered);
+
 //                if(operand->operand != NULL)
 //                    code_instruction_operand_free(&operand->operand);
             }
 
             instruction = instruction->next;
         }
+//        printf("---------------------------\n");
 
         item = (SetIntItem*) item->base.next;
     }

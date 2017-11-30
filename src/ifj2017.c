@@ -35,21 +35,40 @@ int main(int argc, char** argv) {
 
     code_optimizer_split_code_to_graph(parser->optimizer);
 //    oriented_graph_print(parser->optimizer->code_graph);
+//    LList* components = oriented_graph_scc(parser->optimizer->code_graph);
+//    LListItemSet* item = (LListItemSet* )components->head;
+//    while(item != NULL) {
+//        set_int_print(item->set);
+//        item = (LListItemSet*) item->base.next;
+//    }
+//    llist_free(&components);
+//    for(unsigned int i = 0; i < parser->optimizer->code_graph->nodes_count; i++) {
+//        CodeBlock* code_block = (CodeBlock*) oriented_graph_node(parser->optimizer->code_graph, i);
+
+//        CodeInstruction* instruction = code_block->instructions;
+//        printf("\nBlock %d - count %d\n", code_block->base.id, code_block->instructions_count);
+//        for(unsigned int j = 0; j < code_block->instructions_count; j++) {
+//            char* rendered = code_instruction_render(instruction);
+//            printf("%s\n", rendered);
+//            memory_free(rendered);
+//            instruction = instruction->next;
+//        }
+//    }
+
     code_optimizer_propate_constants_optimization(parser->optimizer);
-    for(unsigned int i = 0; i < parser->optimizer->code_graph->nodes_count; i++) {
-        CodeBlock* code_block = (CodeBlock*) oriented_graph_node(parser->optimizer->code_graph, i);
+//        for(unsigned int i = 0; i < parser->optimizer->code_graph->nodes_count; i++) {
+//            CodeBlock* code_block = (CodeBlock*) oriented_graph_node(parser->optimizer->code_graph, i);
 
-        CodeInstruction* instruction = code_block->instructions;
-        printf("\nBlock %d - count %d\n", code_block->base.id, code_block->instructions_count);
-        for(unsigned int j = 0; j < code_block->instructions_count; j++) {
-            char* rendered = code_instruction_render(instruction);
-            printf("%s\n", rendered);
-            memory_free(rendered);
-            instruction = instruction->next;
-        }
-    }
-
-//    code_generator_render(parser->code_constructor->generator, stdout);
+//            CodeInstruction* instruction = code_block->instructions;
+//            printf("\nBlock %d - count %d\n", code_block->base.id, code_block->instructions_count);
+//            for(unsigned int j = 0; j < code_block->instructions_count; j++) {
+//                char* rendered = code_instruction_render(instruction);
+//                printf("%s\n", rendered);
+//                memory_free(rendered);
+//                instruction = instruction->next;
+//            }
+//        }
+    code_generator_render(parser->code_constructor->generator, stdout);
     fflush(stdout);
 
     parser_free(&parser);

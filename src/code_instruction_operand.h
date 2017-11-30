@@ -8,6 +8,8 @@
 #include "symtable_variable.h"
 #include "symtable_function.h"
 
+#define OPERANDS_MAX_COUNT 3
+
 typedef enum type_instruction_operand_t {
     TYPE_INSTRUCTION_OPERAND_NONE = 0,
 

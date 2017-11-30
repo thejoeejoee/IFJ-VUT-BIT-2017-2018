@@ -1057,6 +1057,8 @@ SymbolTable* code_optimizer_modified_vars_in_blocks(CodeOptimizer* optimizer, Se
 //                if(operand->operand != NULL)
 //                    code_instruction_operand_free(&operand->operand);
             }
+
+            instruction = instruction->next;
         }
 
         item = (SetIntItem*) item->base.next;

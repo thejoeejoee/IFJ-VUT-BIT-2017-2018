@@ -20,8 +20,7 @@ void stack_free(Stack** stack) {
         next = item->next;
         if(stack_item_free_callback != NULL)
             stack_item_free_callback(item);
-        else
-            memory_free(item);
+        memory_free(item);
         item = next;
     }
     memory_free(*stack);

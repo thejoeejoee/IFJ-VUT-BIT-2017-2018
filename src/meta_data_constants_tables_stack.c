@@ -22,7 +22,8 @@ void constants_table_stack_item_free(StackBaseItem* item)
     NULL_POINTER_CHECK(item, );
 
     ConstantsTableStackItem* v = (ConstantsTableStackItem*) item;
-    symbol_table_free(v->constants);
+    if(v->constants != NULL)
+        symbol_table_free(v->constants);
 }
 
 ConstantsTableStackItem* constants_tables_stack_get_lowest_direct_table(Stack* stack)

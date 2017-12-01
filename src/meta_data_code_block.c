@@ -5,7 +5,6 @@ void init_code_block(GraphNodeBase* base)
     NULL_POINTER_CHECK(base, );
 
     CodeBlock* v = (CodeBlock*)base;
-    v->direct_jump = false;
     v->instructions_count = 0;
     v->instructions = NULL;
     v->last_instruction = NULL;

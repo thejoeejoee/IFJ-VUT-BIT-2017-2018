@@ -8,7 +8,6 @@
 
 typedef struct {
     GraphNodeBase base;
-    bool direct_jump;
     size_t instructions_count;
     CodeInstruction* instructions;
     CodeInstruction* last_instruction;

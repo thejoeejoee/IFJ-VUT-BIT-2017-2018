@@ -1,84 +1,104 @@
-// Celý program
 <prog> -> <body> <eols> EOF
-<body> -> <definitions> <statement_scope>
+<body> -> <definitions> <scope> <shared_variables_declarations>
+<scope> -> SCOPE EOL <eols> <body_statements> END SCOPE
 
-// Definiční část
-<definitions> -> <eols> <definition> EOL <eols> <definitions>
+<definitions> -> <eols> <definition> <definitions>
 <definitions> -> <eols> E
 
 <definition> -> <function_declaration>
 <definition> -> <function_definition>
+<definition> -> <shared_variable_declaration>
 
-// Deklarace a definice funcí
+<function_definition> -> <function_header> EOL <eols> <statements> END FUNCTION
 <function_declaration> -> DECLARE <function_header> EOL <eols>
-<function_definition> -> <function_header> EOL <eols> <function_statements> END FUNCTION
 
-<function_header> -> FUNCTION IDENTIFIER (<function_params>) AS TYPE
+<function_header> -> FUNCTION IDENTIFIER (<function_params>) AS <type>
+
 <function_params> -> E
 <function_params> -> <function_param> <function_n_param>
+
 <function_n_param> -> E
-<function_n_param> -> , <function_param> <function_n_param>
-<function_param> -> <id> AS <type>
+<function_n_param> -> <function_param> <function_n_param>
 
-// Příkazy ve funkcí
-<function_statements> -> E
-<function_statements> -> <function_statement_single> EOL <eols> <statements>
+<function_param> -> IDENTIFIER AS <type>
 
-// Příkazy ve scope
 <body_statements> -> E
-<body_statements> -> <body_statement_single> EOL <eols> <statements>
+<body_statements> -> <body_statement_single> EOL <eols> <body_statements>
 
-// Použitelné v těle funkce
-<function_statement_single> -> <statement_assigment>
-<function_statement_single> -> <statement_input>
-<function_statement_single> -> <statement_print>
-<function_statement_single> -> <statement_return>
-<function_statement_single> -> <statement_scope>
+<function_statements> -> E
+<function_statements> -> <function_statement_single> EOL <eols> <function_statements>
 
-// Použitelné ve scope
-<body_statement_single> -> <statement_assigment>
-<body_statement_single> -> <statement_input>
-<body_statement_single> -> <statement_print>
-<body_statement_single> -> <statement_5>
-<body_statement_single> -> <statement_scope>
+<function_statement_single> -> <identifier_assignment>
+<function_statement_single> -> <input>
+<function_statement_single> -> <return>
+<function_statement_single> -> <print>
+<function_statement_single> -> <condition>
+<function_statement_single> -> <while_>
+<function_statement_single> -> <variable_declaration>
+<function_statement_single> -> <static_variable_declaration>
+<function_statement_single> -> <for>
 
-<statement_assigment> -> <id> EQUAL <expression> // přiřazení
-<statement_input> -> INPUT IDENTIFIER // načtení ze vstupu
-<statement_print> -> PRINT <print_expression> <print_expressions> // tisk na výstup, alespoň jeden příkaz, každý se středníkem
-<statement_return> -> RETURN <expression>
-<statement_5> -> <print_expression> // TODO nevíme, spekulativní
-<statement_scope> -> SCOPE EOL <body_statements> END SCOPE
+<body_statement_single> -> <input>
+<body_statement_single> -> <identifier_assignment>
+<body_statement_single> -> <while_>
+<body_statement_single> -> <print>
+<body_statement_single> -> <scope>
+<body_statement_single> -> <condition>
+<body_statement_single> -> <variable_declaration>
 
-// Tisk řetězce
-<print_expression> -> <expression> SEMICOLON
-<print_expressions> -> E
-<print_expressions> -> <print_expression> <print_expressions>
+<cycle_statement_single> -> <identifier_assignment>
+<cycle_statement_single> -> <input>
+<function_statement_single> -> <for>
+<cycle_statement_single> -> <return>
+<cycle_statement_single> -> <print>
+<cycle_statement_single> -> <condition>
+<cycle_statement_single> -> <while_>
+<cycle_statement_single> -> <variable_declaration>
 
-// Deklarace proměnné
-<variable_declaration> -> DIM <id> AS <type> <declaration_assigment>
-
+<variable_declaration> -> DIM IDENTIFIER AS <type> <declaration_assignment>
 <declaration_assignment> -> E
 <declaration_assignment> -> <assignment>
+<type> -> INTEGER
+<type> -> BOOLEAN
+<type> -> STRING
+<type> -> DOUBLE
+
+<identifier_assignment> -> IDENTIF <assignment>
 
 <assignment> -> = <expression>
+<assignment> -> <modify_assignment>
 
-// podmínky
-<condition> -> IF <expression> THEN EOL <eols> <statements> <else_section> END IF
-<else_section> -> E
-<else_section> -> ELSE EOL <eols> <statements>
-<do_while> -> DO WHILE <expression> EOL <eols> <statements> LOOP
+<shared_variables_declarations> -> E
+<shared_variables_declarations> -> <shared_variable_declaration>
+<shared_variable_declaration> -> DIM SHARED IDENTIFIER AS <type> <declaration_assignment>
 
-// volání funkce (pravidlo volané z expression kvůli rekurzi)
-<function> = IDENTIFIER (<function_args>)
-<function_args> -> E
-<function_args> -> <function_arg> <function_n_arg>
-<function_n_arg> -> E
-<function_n_arg> -> , <function_arg> <function_n_arg>
-<function_arg> -> <expression>
+<static_variable_declaration> -> STATIC IDENTIFIER AS <type> <declaration_assignment>
 
-// Todo: Bonusové zadání, for
-<for> -> FOR <id> EQUAL <expression> TO <expression> <step>.....?
+<return> -> RETURN <expr>
 
-<type> ->
+<assignment> -> <modify> <expression>
+<modify> -> +=
+<modify> -> -=
+<modify> -> *=
+<modify> -> /=
+<modify> -> \=
+
+<print> -> PRINT <print_expression> <print_expressions>
+<print_expressions> -> E
+<print_expressions> -> <print_expression> <print_expressions>
+<print_expression> -> <expression> SEMICOLON
+
+<while_> -> DO WHILE <expression> EOL <eols> <cycle_statements> LOOP
+
+<input> -> INPUT IDENTIFIER
+
+<condition> -> IF <expr> THEN EOL <eols> <statements>
+			   <condition_elseif> <condition_else> END IF
+<condition_elseif> -> E
+<condition_elseif> -> ELSEIF <expr> THEN EOL <statements> <condition_elseif>
+
+<condition_else> -> E
+<condition_else> -> ELSE EOL <eols> <statements>
+
 <eols> -> E
 <eols> -> EOL <eols>

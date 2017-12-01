@@ -26,4 +26,4 @@ install:
 	apt-get update && apt install --no-install-recommends texlive-latex-base texlive-latex-extra texlive-fonts-recommended texlive-lang-czechslovak texlive-science texlive-latex-recommended
 
 clean:
-	rm -fr $(TARGET_DIR) $(ASSETS_DIR)/*.pdf_tex $(ASSETS_DIR)/*.pdf
+	rm -fr $(TARGET_DIR) $(ASSETS_DIR)/*.pdf_texd

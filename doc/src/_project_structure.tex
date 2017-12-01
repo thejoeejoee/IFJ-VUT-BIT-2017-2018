@@ -5,7 +5,8 @@ je jako tokeny.
 
 Lexikální analyzátor je implementací deterministického konečného
 automatu. Jediný nedeterministický případ nastává tehdy, když má automat načítat znak ve tvatu $\backslash$ddd.
-Případ je vyřešen implementací interního čítače počtu číslic.
+Případ je vyřešen implementací interního čítače počtu číslic. Pokud čítač dosáhne hodnoty 3 a číslo je
+v intervalu $<001-255>$, je znak úspěšné načten, v opačném případě je vygenerována chyba
 
 Lexikální analyzátor je rozdělen do tří modulů: \ic|lexer.c|, \ic|lexer_fsm.c| a \ic|token.c|
 . Modul \ic|token.c| obsahuje implementaci abstraktního datového typu token. Modul \ic|lexer_fsm.c|
@@ -24,7 +25,7 @@ Syntaxí řízený překlad je naimplementován v modulu \ic|parser.c|, pro synt
 použita SA shoda dolů, konkrétně metoda rekurzivního sestupu. Pro každé pravidlo z LL gramatiky existuje v tomto
 modulu funkce realizující toto pravidlo.
 
-Pro snažší zápis v jazyce C byl implementován poloautomatický systém generování funkcí reprezentující tato pravidla za pomocí maker.
+Pro snažší zápis v jazyce C byl implementován poloautomatický systém generování funkcí reprezentujících tato pravidla za pomocí maker.
 Makra konkrétní pravidlo zavolají a zkontrolují jeho splnění. Pro kontrolu terminálu bylo naimplemntováno makro
 \ic|CHECK_TOKEN(TOKEN_TYPE)|,
 Pro zavolání pravidla bylo naimplementováno pravidlo \ic|CALL_RULE(NAME_OF_RULE);|.
@@ -47,8 +48,13 @@ Přepínání mezi metodami je realizováno následujícím mechanismem. Na cel�
 z modulu \ic|parser.c|. V případě že je jako neterminál očekáván výraz, je volána funkce \ic|parser_parse_expr|
 z modulu \ic|parser_expr.c|, která provede precedenční syntaktickou analýzu výrazu.
 
-\subsubsection{Gramatika}
+Pravidlo <statements> obsahuje i derivace, které nemohou v určitém kontextu nastat.
+Například return se nemůže vyskytovat v hlavním bloku. Kdybychom toto chtěli řešit
+přímo pomocí gramatiky, bylo by to možné ale gramatika by narozstla do monstrózních rozměrů.
+Proto nám v tomto napomáhají sémantické akce.
 
+\subsubsection{Gramatika}
+\begin{normalsize}
 \begin{enumerate}
 \item <prog> $\rightarrow$ <body> <eols> EOF
 \item <body> $\rightarrow$ <definitions> <scope> <shared\_variables\_declarations>
@@ -134,12 +140,14 @@ z modulu \ic|parser_expr.c|, která provede precedenční syntaktickou analýzu 
 \item <eols> $\rightarrow$ EOL <eols>
 
 \end{enumerate}
-\newpage
+\end{normalsize}
 \subsection{Precedenční analýza výrazů}
 Precedenční analýza je řízena precedenční tabulkou, kterou se vyhodnocuje pořadí zpracování tokenů. \ref{table:prec}
 \ic|parser_expr_prec_table_data.c|. V tabulce se nachází jak binární, tak i unární mínus. 
-Lexikální analyzátor nám ovšem poskytuje pouze jeden token mínus a proto se unární a binární mínus 
-musí vyhodnotit podle kontextu. Precedenční analýza využívá se obousměrně vázaného seznamu, do kterého se ukládají terminály, 
+Lexikální analyzátor nám ovšem poskytuje pouze jeden token mínus a proto se unární a binární mínus
+musí vyhodnotit podle kontextu.
+
+Precedenční analýza využívá zásobníku v podobě obousměrně vázaného seznamu, do kterého se ukládají terminály,
 precedenční symboly a neterminály. Pomocí redukčních pravidel, která jsou vypsána v příloze, se postupně výraz redukuje. 
 Jelikož překladač je založen na přímém překladu, tak při redukování pomocí pravidel konstruktor kódu rovnou generuje kód programu.
 
@@ -192,31 +200,16 @@ $i$ & x &$>$&$>$&$>$&$>$&$>$&$>$&$>$&$>$&$>$&$>$&$>$& x &$>$&$>$& = &$>$&$>$& x 
 \end{tabular}
 \end{table}
 
+\subsection{Sémantická analýza}
+Sémantické kontroly jsou přidruženy k syntaktickým pravidlům v rekurzivním sestupu a
+precedenční syntaktické analýze výrazů. Jsou organizovány do tzv. scénářů. Jeden
+sémantický scénář sémanticky popisuje související část kódu. Například definici
+nebo deklaraci funkce. Sémantická analýza nám také pomáhá hlídat některé gramatické aspekty,
+které by byly pro LL gramatiku příliš kompikované, nebo by měly příliš dlouhý zápis.
 
 \subsection{Konstruktor kódu}
 \label{subsec:code-constructor}
-Konstruktor cílového kódu je komponenta překladače, která má za odpovědnost smysl a jednotlivé návaznosti vygenerovaného
-tříadresného kódu.
-
-Implementačně je založen na struktuře \ic|CodeConstructor|, obsahující pomocnou komponentu generátoru \ic|CodeGenerator|. Dále obsahuje následující položky:
-\begin{description}[style=nextline]
-    \item[zásobník návěští]
-    \todo{je vůbec potřeba?}
-    \item[zásobník návěští pro podmínky]
-    Slouží pro uchování cílů skoků mezi jednotlivými větvemi podmínkového příkazu \ic|IF .. THEN|, \ic|ELSEIF ... THEN| a \ic|ELSE|.
-    \item[zásobník návěští pro cykly]
-    Obdobně jako záasobník pro podmínkové návěští, slouží tento zásobník pro uschování vygenerovaných návěští pro skoky na podmínku cyklu či mimo cyklus.
-    \item[aktuální hloubku zanoření \texttt{SCOPE}]
-    Určuje hlavní \ic|SCOPE| celého programu, podle které je poté generován cíl skoku do hlavního programu a vytvoření lokálního rámce.
-    \item[zásobník počátečních instrukcí cyklu]
-    Je určen pro uschování počátečních instrukcí cyklů \ic|LABEL|, které slouží jako zarážky pro vygenerování instrukcí před začátek bloku cyklu. Tedy například vygenerování instrukcí \ic|DEFVAR| před tělo cyklu - pro zamezení duplicitní definice.
-    \item[hloubka zanoření řídících struktur]
-    Definuje čítač pro automatické generování sekvence návěští pro cykly, podmínky, funkce a další použití.
-    \item[seznam implicitních konverzí]
-    Pomocný seznam typů instrukcí používaných pro konkrétní implicitní konverze operandů - je nutný pro plně automatickou kontrolu implicitních konverzí včetně generování konverzních instrukcí.
-    \item[čítač vygenerovaných návěští]
-    Interní čítač určený pro unikátní odlišení všech vygenerovaných instrukcí v rámci programu.
-\end{description}
+Konstruktor cílového kódu je komponenta překladače, který hlídá význam a odpovědnosti vygenerovaného tříadresného kódu.
 
 \subsection{Generátor cílového kódu}
 Generátor kódu je nízkoúrovňová komponenta zastřešující skládání, validaci a vykreslování cílového kódu \ic|IFJcode17|.
@@ -231,3 +224,38 @@ instrukce je složena z bitových masek definující povolené typy operandů a 
 Struktura \ic|CodeInstructionOperand| uchovává informace o svém typu a poté unii dat pro konkrétní typ operandu, tedy
 ukazatel na proměnnou \ic|SymbolVariable|,
 data konstanty \ic|CodeInstructionOperandConstantData| v unii s datovým typem nebo řetězec uchovávající název návěští.
+
+\subsection{Správa paměti}
+\todo{Sony, dopiš to prosím, nerozumím tomu. Jen pár vět :D}
+
+\subsection{Rozšíření}
+
+\subsubsection{SCOPE}
+Pro rozšíření bylo třeba upravit tabulku symbolů, sekci proměnných tak, aby
+měla zásobníkovou strukturu a umožňovala libovolné operace push a pop na úrovni tabulek.
+Dále byly vytvořeny sémantické akce pro vyhledání v libovolné z těchto tabulek,
+nebo jen v tabulce která je na vrcholu zásobníku. Definice proměnných v těle cyklu
+bylo vyřešeno přesunutím instrukce defvar před cyklus samotný.
+\subsubsection{GLOBAL}
+Rozšíření GLOBAL bylo zapotřebí implementovat gramaticky přidáním
+nových pravidel pro definici statických a globálních proměnných.
+Dále bla upravena tabulka proměnných, ve které je jedna tabulka vyhrazena
+pro globální proměnné a statické proměnné které jsou prefixovány
+jménem funkce ve které se vyskytují.
+\subsubsection{UNARY}
+Rozšíření UNARY jsme implementovali jako nová gramatická pravidla. Sémantické
+akce odpovídají přiřazení, liší se pouze vygenerovaný kód.
+\subsubsection{BASE}
+Rozšíření bylo implementováno v lexikálním analýzatoru. Jsme schopni rozpoznat
+lexémy označující čísla ve dvojkové, osmičkové a šestnáctkové soustavě a
+výsledek převést na desítkové číslo se kterým již nakládáme stejně.
+\subsubsection{FUNEXP}
+Volání funkcí bylo implementováno na úrovni precedenční syntaktické analýzy,
+takže lze ve výrazu volat libovolné funkce.
+\subsubsection{IFTHEN}
+Implementováno na gramatické úrovni přidáním nepovinných částí
+elseif a odstraněních povinnosti mít část if.
+\subsubsection{BOOLOP}
+Bylo potřeba upravit precedenční tabulku tak, aby podporovala nové
+operace AND a OR, dále gramatiku tak, abychom jako datový typ mohli
+použít typ boolean a sémantické akce pro ověření nového datového typu.

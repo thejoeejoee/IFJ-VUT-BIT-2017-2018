@@ -84,7 +84,6 @@ TypeInstructionClass instruction_class(CodeInstruction* instruction)
             return INSTRUCTION_TYPE_WRITE;
 
         case I_JUMP:
-        case I_CALL:
             return INSTRUCTION_TYPE_DIRECT_JUMP;
 
         case I_JUMP_IF_EQUAL:

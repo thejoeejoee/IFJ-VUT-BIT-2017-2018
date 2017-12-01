@@ -837,8 +837,7 @@ void code_optimizer_split_code_to_graph(CodeOptimizer* optimizer)
             }
 
             // can connect  direct blocks
-            if(prev_is_cond_jump || (instruction->type == I_LABEL && !prev_is_direct_jump)
-                    || (instruction->prev != NULL && instruction->prev->type == I_CALL)) {
+            if(prev_is_cond_jump || (instruction->type == I_LABEL && !prev_is_direct_jump)) {
                 oriented_graph_connect_nodes(
                             optimizer->code_graph,
                             (GraphNodeBase*) code_block,
@@ -859,6 +858,8 @@ void code_optimizer_split_code_to_graph(CodeOptimizer* optimizer)
             continue;
 
         CodeBlock* block = (CodeBlock*) graph->nodes[i];
+        if(block->last_instruction->type == I_RETURN)
+            continue;
         const TypeInstructionClass last_block_instruction_type_class = instruction_class(block->last_instruction);
         if(last_block_instruction_type_class == INSTRUCTION_TYPE_DIRECT_JUMP ||
                 last_block_instruction_type_class == INSTRUCTION_TYPE_CONDITIONAL_JUMP) {
@@ -963,7 +964,8 @@ void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
     set_int_add(processed_blocks_ids, (int) block->base.id);
 
     // get constants table
-    SymbolTable* constants_table;
+    SymbolTable* constants_table = NULL;
+
     if(!is_conditional_block)
         constants_table = ((ConstantsTableStackItem*) constants_tables_stack->head)->constants;
     else

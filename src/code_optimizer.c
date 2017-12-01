@@ -1128,9 +1128,9 @@ SymbolTable* code_optimizer_modified_vars_in_blocks(CodeOptimizer* optimizer, Se
             const TypeInstructionClass instruction_cls = instruction_class(instruction);
             if(instruction_cls == INSTRUCTION_TYPE_WRITE) {
                 SymbolVariable* variable = instruction->op0->data.variable;
-                MappedOperand* operand = (MappedOperand*) symbol_table_get_or_create(
+                symbol_table_get_or_create(
                                              mod_vars, variable_cached_identifier(variable));
-                operand->blocked = true;
+//                operand->blocked = true;
                 char* rendered = code_instruction_render(instruction);
 //                printf("-- Block %u| %s\n", block->base.id, rendered);
                 memory_free(rendered);

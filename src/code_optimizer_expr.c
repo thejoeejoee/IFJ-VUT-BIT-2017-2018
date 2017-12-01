@@ -348,6 +348,7 @@ void code_optimizer_optimize_type_casts(CodeOptimizer* optimizer) {
                     next = replacement;
                 }
             }
+                break;
             case I_INT_TO_FLOAT_STACK: {
                 if(actual->prev != NULL &&
                    actual->prev->type == I_PUSH_STACK &&

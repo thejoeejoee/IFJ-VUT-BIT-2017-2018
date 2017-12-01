@@ -11,6 +11,7 @@
 #include "token.h"
 #include "code_constructor.h"
 #include "code_optimizer.h"
+#include "parser_expr_internal.h"
 
 //Todo: we need to invent better macros
 #define GET_NEXT_TOKEN_TYPE() do { \
@@ -21,8 +22,8 @@
 
 
 #define CALL_RULE(Rule) if (!parser_parse_##Rule(parser)) { token_free(&token); return false; }
-#define CALL_EXPRESSION_RULE(data_type_var) do { \
-    if (!parser_parse_expression(parser, &(data_type_var))) { \
+#define CALL_EXPRESSION_RULE() do { \
+    if (!parser_parse_expression(parser)) { \
         token_free(&token); \
         return false; \
     } \

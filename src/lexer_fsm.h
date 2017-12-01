@@ -61,7 +61,8 @@ typedef enum {
     LEX_FSM__HEXA_UNFINISHED,
 
     // Unfinished states for operators
-            LEX_FSM__ADD_UNFINISHED,
+
+    LEX_FSM__ADD_UNFINISHED,
     LEX_FSM__SUBTRACT_UNFINISHED,
     LEX_FSM__MULTIPLY_UNFINISHED,
     LEX_FSM__INTEGER_DIVIDE_UNFINISHED,
@@ -87,6 +88,7 @@ typedef enum {
     LEX_FSM__DOUBLE_UNFINISHED,
     LEX_FSM__DOUBLE_E,
     LEX_FSM__DOUBLE_E_UNFINISHED,
+    LEX_FSM__DOUBLE_E_SIGN,
 
     // String unfinished states
 

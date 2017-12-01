@@ -21,9 +21,8 @@ bool expression_reduce(Parser* parser, LList* expr_token_buffer, ExprIdx* expres
     return pass;
 }
 
-bool parser_parse_expression(Parser* parser, DataType* expression_data_type) {
+bool parser_parse_expression(Parser* parser) {
     NULL_POINTER_CHECK(parser, false);
-    NULL_POINTER_CHECK(expression_data_type, false);
 
     Token last_token;
     last_token.data = NULL;
@@ -55,12 +54,20 @@ bool parser_parse_expression(Parser* parser, DataType* expression_data_type) {
 
             // Check completion of expression parsing
             if(is_expr_parsing_complete(buffer, token)) {
-                *expression_data_type = ((ExprToken*)buffer->tail)->data_type;
+                if(parser->parser_semantic->expression_result != NULL)
+                    expr_token_free(parser->parser_semantic->expression_result);
+                parser->parser_semantic->expression_result = expr_token_copy((ExprToken*) buffer->tail);
+
                 expr_token_free(token);
                 expr_token_free(precedence);
                 // Cleanup
                 token_free(&last_token);
                 llist_free(&buffer);
+                LOG_INFO(
+                        "Expression success, data type %d, constant: %d.",
+                        parser->parser_semantic->expression_result->data_type,
+                        parser->parser_semantic->expression_result->is_constant
+                );
                 return true;
             }
 
@@ -71,6 +78,11 @@ bool parser_parse_expression(Parser* parser, DataType* expression_data_type) {
             } else if(precedence->type == EXPR_SAME) {
                 expr_token_free(precedence);
             } else {
+                LOG_INFO(
+                        "Expression fail, precedence: %d, token: %d.",
+                        precedence->type,
+                        last_token.type
+                );
                 expr_token_free(token);
                 expr_token_free(precedence);
                 // Cleanup

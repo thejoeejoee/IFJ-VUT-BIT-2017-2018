@@ -2,6 +2,7 @@
 #include "memory.h"
 #include "common.h"
 #include "debug.h"
+#include "code_instruction.h"
 
 
 void code_generator_register_signatures(const CodeGenerator* generator) {
@@ -325,6 +326,8 @@ void code_generator_render(CodeGenerator* generator, FILE* file) {
     while(instruction != NULL) {
         rendered = code_instruction_render(instruction);
         NULL_POINTER_CHECK(rendered,);
+        if(instruction->meta_data.type & CODE_INSTRUCTION_META_TYPE_FUNCTION_START)
+            fprintf(file, "\n");
         fprintf(file, "%s\n", rendered);
         instruction = instruction->next;
         memory_free(rendered);
@@ -389,8 +392,7 @@ CodeInstruction* code_generator_last_instruction(CodeGenerator* generator) {
     return generator->last;
 }
 
-short code_generator_instruction_operands_count(CodeGenerator* generator, TypeInstruction instruction_type)
-{
+short code_generator_instruction_operands_count(CodeGenerator* generator, TypeInstruction instruction_type) {
     NULL_POINTER_CHECK(generator, 0);
 
     if(instruction_type >= I__LAST) {

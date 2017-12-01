@@ -13,6 +13,8 @@ ParserSemantic* parser_semantic_init() {
     parser_semantic->temp_variable3 = NULL;
     parser_semantic->temp_variable4 = NULL;
     parser_semantic->temp_variable5 = NULL;
+    parser_semantic->temp_variable6 = NULL;
+    parser_semantic->expression_result = NULL;
     parser_semantic->error_report.error_code = ERROR_NONE;
 
 
@@ -154,6 +156,8 @@ void parser_semantic_free(ParserSemantic** parser) {
     for(int i = 0; i < (int) OPERATION__LAST; i++)
         llist_free(&((*parser)->operations_signatures[i]));
 
+    if((*parser)->expression_result != NULL)
+        expr_token_free((*parser)->expression_result);
     symbol_register_free(&(*parser)->register_);
     memory_free(*parser);
     *parser = NULL;
@@ -325,9 +329,12 @@ bool parser_semantic_check_count_of_function_arguments(ParserSemantic* parser_se
 bool parser_semantic_check_function_definitions(ParserSemantic* parser_semantic) {
     NULL_POINTER_CHECK(parser_semantic, false);
 
-    return symbol_function_find_declared_function_without_definition(
-            parser_semantic->register_->functions
-    ) == NULL;
+    bool result = (symbol_function_find_declared_function_without_definition(parser_semantic->register_->functions) == NULL);
+
+    if(!result)
+        parser_semantic->error_report.error_code = ERROR_SEMANTIC_DEFINITION;
+
+    return result;
 }
 
 void parser_semantic_setup_temp_variables(ParserSemantic* parser_semantic) {
@@ -335,29 +342,34 @@ void parser_semantic_setup_temp_variables(ParserSemantic* parser_semantic) {
 
     parser_semantic->temp_variable1 = symbol_table_variable_get_or_create(
             parser_semantic->register_->variables->symbol_table,
-            "%__temp_variable_1"
+            "&1"
     );
     parser_semantic->temp_variable2 = symbol_table_variable_get_or_create(
             parser_semantic->register_->variables->symbol_table,
-            "%__temp_variable_2"
+            "&2"
     );
     parser_semantic->temp_variable3 = symbol_table_variable_get_or_create(
             parser_semantic->register_->variables->symbol_table,
-            "%__temp_variable_3"
+            "&3"
     );
     parser_semantic->temp_variable4 = symbol_table_variable_get_or_create(
             parser_semantic->register_->variables->symbol_table,
-            "%__temp_variable_4"
+            "&4"
     );
     parser_semantic->temp_variable5 = symbol_table_variable_get_or_create(
             parser_semantic->register_->variables->symbol_table,
-            "%__temp_variable_5"
+            "&5"
+    );
+    parser_semantic->temp_variable6 = symbol_table_variable_get_or_create(
+            parser_semantic->register_->variables->symbol_table,
+            "&6"
     );
     parser_semantic->temp_variable1->frame =
     parser_semantic->temp_variable2->frame =
     parser_semantic->temp_variable3->frame =
     parser_semantic->temp_variable4->frame =
-    parser_semantic->temp_variable5->frame = VARIABLE_FRAME_GLOBAL;
+    parser_semantic->temp_variable5->frame =
+    parser_semantic->temp_variable6->frame = VARIABLE_FRAME_GLOBAL;
 }
 
 OperationSignature* parser_semantic_get_operation_signature(

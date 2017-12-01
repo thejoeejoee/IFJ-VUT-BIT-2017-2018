@@ -111,19 +111,30 @@ SymbolVariable* symbol_variable_init_flag_for_static_variable(
     return declaration_flag_variable;
 }
 
-bool symbol_variable_cmp(SymbolVariable* first, SymbolVariable* second)
-{
+bool symbol_variable_cmp(SymbolVariable* first, SymbolVariable* second) {
     if(first->frame != second->frame)
         return false;
 
-    if((first->alias_name != second->alias_name && first->alias_name == NULL) ||
-            (first->alias_name == NULL && strcmp(first->base.key, second->base.key) != 0) ||
-            (first->alias_name != NULL && strcmp(first->alias_name, second->alias_name) != 0))
+    if(first->scope_alias == NULL && second->scope_alias == NULL) {
+        if(first->scope_depth != second->scope_depth)
+            // different alias
+            return false;
+    } else if(first->scope_alias == NULL || second->scope_alias == NULL)
+        // one is null, another not
+        return false;
+    else if(strcmp(first->scope_alias, second->scope_alias) != 0)
+        // different scope aliases
         return false;
 
-    if((first->scope_alias != second->scope_alias && first->scope_alias == NULL) ||
-            (first->scope_alias == NULL && first->scope_depth != second->scope_depth) ||
-            (first->scope_alias != NULL && strcmp(first->scope_alias, second->scope_alias) != 0))
+    if(first->alias_name == NULL && second->alias_name == NULL) {
+        if(strcmp(first->base.key, second->base.key) != 0)
+            // different name
+            return false;
+    } else if(first->alias_name == NULL || second->alias_name == NULL)
+        // one is null, another not
+        return false;
+    else if(strcmp(first->alias_name, second->alias_name) != 0)
+        // different scope aliases
         return false;
 
     return true;

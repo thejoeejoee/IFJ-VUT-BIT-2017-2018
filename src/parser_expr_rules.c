@@ -125,9 +125,10 @@ bool expression_rule_id(Parser* parser, LList* expr_token_buffer, ExprIdx* expre
                 }
         );
 
+        e->is_variable = true;
         CODE_GENERATION(
                 {
-                    GENERATE_CODE(
+                    e->instruction = GENERATE_CODE(
                             I_PUSH_STACK,
                             code_instruction_operand_init_variable(variable)
                     );
@@ -260,21 +261,61 @@ bool expression_rule_fn(Parser* parser, LList* expr_token_buffer, ExprIdx* expre
                             param->data_type
                     );
 
-                    // generate implicit conversion
-                    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(
-                            token->data_type,
-                            param->data_type
-                    );
+
                     // declare local variable on TF
                     GENERATE_CODE(
                             I_DEF_VAR,
                             code_instruction_operand_init_variable_from_param(function, param)
                     );
-                    // fill with (already converted) value from stack
-                    GENERATE_CODE(
-                            I_POP_STACK,
-                            code_instruction_operand_init_variable_from_param(function, param)
-                    );
+
+                    CodeInstructionOperand* new_operand = NULL;
+                    if(token->is_constant) {
+                        if(token->data_type == param->data_type) {
+                            new_operand = code_instruction_operand_copy(
+                                    token->instruction->op0
+                            );
+                        } else if(token->data_type == DATA_TYPE_INTEGER && param->data_type == DATA_TYPE_DOUBLE) {
+                            new_operand = code_instruction_operand_init_double(
+                                    token->instruction->op0->data.constant.data.integer
+                            );
+                        } else if(token->data_type == DATA_TYPE_DOUBLE && param->data_type == DATA_TYPE_INTEGER) {
+                            new_operand = code_instruction_operand_init_integer(
+                                    round_even(token->instruction->op0->data.constant.data.double_)
+                            );
+                        } else {
+                            LOG_WARNING(
+                                    "Unknown combination of source data type %d and target data type %d.",
+                                    token->data_type,
+                                    param->data_type
+                            );
+                        }
+                    } else if(token->is_variable) {
+                        if(token->data_type == param->data_type) {
+                            new_operand = code_instruction_operand_init_variable(
+                                    token->instruction->op0->data.variable
+                            );
+                        }
+                    }
+
+                    if(new_operand != NULL) {
+                        GENERATE_CODE(
+                                I_MOVE,
+                                code_instruction_operand_init_variable_from_param(function, param),
+                                new_operand
+                        );
+                        // fill with (already converted) value from stack
+                        code_generator_remove_instruction(constructor->generator, token->instruction);
+                    } else {
+                        // generate implicit conversion
+                        GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(
+                                token->data_type,
+                                param->data_type
+                        );
+                        GENERATE_CODE(
+                                I_POP_STACK,
+                                code_instruction_operand_init_variable_from_param(function, param)
+                        );
+                    }
 
                     param = param->prev;
                 }
@@ -519,10 +560,10 @@ bool expression_rule_div_int(Parser* parser, LList* expr_token_buffer, ExprIdx* 
     } else {
         if(operation_signature != NULL) {
             GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(
-                        EXPR_LOWER_OPERAND->data_type,
-                        EXPR_HIGHER_OPERAND->data_type,
-                        DATA_TYPE_INTEGER
-                        );
+                    EXPR_LOWER_OPERAND->data_type,
+                    EXPR_HIGHER_OPERAND->data_type,
+                    DATA_TYPE_INTEGER
+            );
 
             GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(
                     DATA_TYPE_INTEGER,
@@ -635,9 +676,7 @@ bool expression_rule_equal(Parser* parser, LList* expr_token_buffer, ExprIdx* ex
 
     if(evaluated_operand != NULL) {
         e->instruction = GENERATE_CODE(I_PUSH_STACK, evaluated_operand);
-    }
-
-    else {
+    } else {
         GENERATE_IMPLICIT_CONVERSIONS_FOR_BINARY_OPERATION_SIGNATURE();
         GENERATE_CODE(I_EQUAL_STACK);
     }
@@ -678,9 +717,7 @@ bool expression_rule_not_equal(Parser* parser, LList* expr_token_buffer, ExprIdx
 
     if(evaluated_operand != NULL) {
         e->instruction = GENERATE_CODE(I_PUSH_STACK, evaluated_operand);
-    }
-
-    else {
+    } else {
         GENERATE_IMPLICIT_CONVERSIONS_FOR_BINARY_OPERATION_SIGNATURE();
         GENERATE_CODE(I_EQUAL_STACK);
         GENERATE_CODE(I_NOT_STACK);
@@ -722,9 +759,7 @@ bool expression_rule_greater(Parser* parser, LList* expr_token_buffer, ExprIdx* 
 
     if(evaluated_operand != NULL) {
         e->instruction = GENERATE_CODE(I_PUSH_STACK, evaluated_operand);
-    }
-
-    else {
+    } else {
         GENERATE_IMPLICIT_CONVERSIONS_FOR_BINARY_OPERATION_SIGNATURE();
         GENERATE_CODE(I_GREATER_THEN_STACK);
     }
@@ -765,9 +800,7 @@ bool expression_rule_greater_or_equal(Parser* parser, LList* expr_token_buffer, 
 
     if(evaluated_operand != NULL) {
         e->instruction = GENERATE_CODE(I_PUSH_STACK, evaluated_operand);
-    }
-
-    else {
+    } else {
         GENERATE_IMPLICIT_CONVERSIONS_FOR_BINARY_OPERATION_SIGNATURE();
 
         GENERATE_CODE(I_LESSER_THEN_STACK);
@@ -810,9 +843,7 @@ bool expression_rule_lesser(Parser* parser, LList* expr_token_buffer, ExprIdx* e
 
     if(evaluated_operand != NULL) {
         e->instruction = GENERATE_CODE(I_PUSH_STACK, evaluated_operand);
-    }
-
-    else {
+    } else {
         GENERATE_IMPLICIT_CONVERSIONS_FOR_BINARY_OPERATION_SIGNATURE();
 
         GENERATE_CODE(I_LESSER_THEN_STACK);
@@ -855,9 +886,7 @@ bool expression_rule_lesser_or_equal(Parser* parser, LList* expr_token_buffer, E
 
     if(evaluated_operand != NULL) {
         e->instruction = GENERATE_CODE(I_PUSH_STACK, evaluated_operand);
-    }
-
-    else {
+    } else {
         GENERATE_IMPLICIT_CONVERSIONS_FOR_BINARY_OPERATION_SIGNATURE();
 
         GENERATE_CODE(I_GREATER_THEN_STACK);
@@ -887,22 +916,33 @@ bool expression_rule_fn_length(Parser* parser, LList* expr_token_buffer, ExprIdx
     EXPR_RULE_CHECK_FINISH();
 
     // Length(s As String) As Integer
-    const DataType param_data_type = get_n_expr(expr_token_buffer, 2)->data_type;
-    EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION_FROM_DATA_TYPE(
-            OPERATION_IMPLICIT_CONVERSION,
-            param_data_type,
-            DATA_TYPE_STRING
-    );
-
-
-    CODE_GENERATION(
-            {
-                code_constructor_fn_length(parser->code_constructor, parser->parser_semantic->temp_variable1,
-                                           param_data_type);
-            }
-    );
-
+    ExprToken* source_expr = get_n_expr(expr_token_buffer, 2);
+    const DataType param_data_type = source_expr->data_type;
     ExprToken* e = create_expression((*expression_idx)++);
+    if(CEE_ENABLED && source_expr->is_constant) {
+        e->is_constant = true;
+        e->instruction = GENERATE_CODE(
+                I_PUSH_STACK,
+                code_instruction_operand_init_integer(
+                        string_length(source_expr->instruction->op0->data.constant.data.string
+                        )
+                )
+        );
+        code_generator_remove_instruction(constructor->generator, source_expr->instruction);
+    } else {
+        EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION_FROM_DATA_TYPE(
+                OPERATION_IMPLICIT_CONVERSION,
+                param_data_type,
+                DATA_TYPE_STRING
+        );
+
+        CODE_GENERATION(
+                {
+                    code_constructor_fn_length(parser->code_constructor, parser->parser_semantic->temp_variable1,
+                                               param_data_type);
+                }
+        );
+    }
     e->data_type = DATA_TYPE_INTEGER;
     EXPR_RULE_REPLACE(e);
     return true;
@@ -930,40 +970,96 @@ bool expression_rule_fn_substr(Parser* parser, LList* expr_token_buffer, ExprIdx
     EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_FN_SUBSTR);
     EXPR_RULE_CHECK_FINISH();
 
-    DataType params_data_types[3];
-    const unsigned int params_count = sizeof(params_data_types) / sizeof(*params_data_types);
-    // note it's NOT backwards
-    const DataType desired_params_data_types[3] = {
-            DATA_TYPE_STRING, DATA_TYPE_INTEGER, DATA_TYPE_INTEGER
-    };
+    ExprToken* length_expr = get_n_expr(expr_token_buffer, 2);
+    ExprToken* index_expr = get_n_expr(expr_token_buffer, 4);
+    ExprToken* string_expr = get_n_expr(expr_token_buffer, 6);
+    ExprToken* e = create_expression((*expression_idx)++);
 
-    for(unsigned int i = 1; i <= params_count; i++) {
-        params_data_types[i - 1] = get_n_expr(expr_token_buffer, (params_count - i + 1) * 2)
-                ->data_type;
-        EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION_FROM_DATA_TYPE(
-                OPERATION_IMPLICIT_CONVERSION,
-                params_data_types[i - 1],
-                desired_params_data_types[i - 1]
-        );
-    }
-
-    // NOTE: now we are processing rule regular way - from the left to the right
-
-    // SubStr(s As String, i As Integer, n As Integer) As String
-
-    code_constructor_fn_substr(
-            parser->code_constructor,
-            parser->parser_semantic->temp_variable1,
-            parser->parser_semantic->temp_variable2,
-            parser->parser_semantic->temp_variable3,
-            parser->parser_semantic->temp_variable4,
-            parser->parser_semantic->temp_variable5,
-            params_data_types[0],
-            params_data_types[1],
-            params_data_types[2]
+    EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION_FROM_DATA_TYPE(
+            OPERATION_IMPLICIT_CONVERSION,
+            length_expr->data_type,
+            DATA_TYPE_INTEGER
+    );
+    EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION_FROM_DATA_TYPE(
+            OPERATION_IMPLICIT_CONVERSION,
+            index_expr->data_type,
+            DATA_TYPE_INTEGER
+    );
+    EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION_FROM_DATA_TYPE(
+            OPERATION_IMPLICIT_CONVERSION,
+            string_expr->data_type,
+            DATA_TYPE_STRING
     );
 
-    ExprToken* e = create_expression((*expression_idx)++);
+    if(CEE_ENABLED && length_expr->is_constant && index_expr->is_constant && string_expr->is_constant) {
+        char* source_string = string_content(string_expr->instruction->op0->data.constant.data.string);
+        int source_string_length = (int) strlen(source_string);
+        String* result = string_init_with_capacity(strlen(source_string));
+        int index;
+        switch(index_expr->instruction->op0->data.constant.data_type) {
+            case DATA_TYPE_INTEGER:
+                index = index_expr->instruction->op0->data.constant.data.integer;
+                break;
+            case DATA_TYPE_DOUBLE:
+                index = round_even(index_expr->instruction->op0->data.constant.data.double_);
+                break;
+            default:
+                index = -1;
+                LOG_WARNING("Unknown index data type.");
+        }
+        int length;
+        switch(length_expr->instruction->op0->data.constant.data_type) {
+            case DATA_TYPE_INTEGER:
+                length = length_expr->instruction->op0->data.constant.data.integer;
+                break;
+            case DATA_TYPE_DOUBLE:
+                length = round_even(length_expr->instruction->op0->data.constant.data.double_);
+                break;
+            default:
+                length = -1;
+                LOG_WARNING("Unknown index data type.");
+        }
+
+        index--;
+        if(length < 0) {
+            length = source_string_length;
+        }
+        if(length + index > source_string_length) {
+            length = (int) (strlen(source_string) - index);
+        }
+        if(index > source_string_length) {
+            index = source_string_length;
+        }
+
+        source_string += index;
+        while((*source_string) != '\0' && length > 0) {
+            string_append_c(result, *source_string);
+            source_string++;
+            length--;
+        }
+
+        e->is_constant = true;
+        e->instruction = GENERATE_CODE(
+                I_PUSH_STACK,
+                code_instruction_operand_init_string(result)
+        );
+        code_generator_remove_instruction(constructor->generator, string_expr->instruction);
+        code_generator_remove_instruction(constructor->generator, index_expr->instruction);
+        code_generator_remove_instruction(constructor->generator, length_expr->instruction);
+    } else {
+        code_constructor_fn_substr(
+                parser->code_constructor,
+                parser->parser_semantic->temp_variable1,
+                parser->parser_semantic->temp_variable2,
+                parser->parser_semantic->temp_variable3,
+                parser->parser_semantic->temp_variable4,
+                parser->parser_semantic->temp_variable5,
+                string_expr->data_type,
+                index_expr->data_type,
+                length_expr->data_type
+        );
+    }
+    // SubStr(s As String, i As Integer, n As Integer) As String
     e->data_type = DATA_TYPE_STRING;
     EXPR_RULE_REPLACE(e);
     return true;
@@ -989,39 +1085,64 @@ bool expression_rule_fn_asc(Parser* parser, LList* expr_token_buffer, ExprIdx* e
     EXPR_RULE_CHECK_TYPE(EXPR_TOKEN_FN_ASC);
     EXPR_RULE_CHECK_FINISH();
 
+    ExprToken* source_string_expr = get_n_expr(expr_token_buffer, 4);
+    ExprToken* index_expr = get_n_expr(expr_token_buffer, 2);
 
     // Asc(s As String, i As Integer) As Integer
-    DataType params_data_types[2];
-    const unsigned int params_count = sizeof(params_data_types) / sizeof(*params_data_types);
-    // note it's NOT backwards
-    const DataType desired_params_data_types[2] = {
-            DATA_TYPE_STRING, DATA_TYPE_INTEGER
-    };
+    EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION_FROM_DATA_TYPE(
+            OPERATION_IMPLICIT_CONVERSION,
+            source_string_expr->data_type,
+            DATA_TYPE_STRING
+    );
 
-    for(unsigned int i = 1; i <= params_count; i++) {
-        params_data_types[i - 1] = get_n_expr(expr_token_buffer, (params_count - i + 1) * 2)
-                ->data_type;
-        EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION_FROM_DATA_TYPE(
-                OPERATION_IMPLICIT_CONVERSION,
-                params_data_types[i - 1],
-                desired_params_data_types[i - 1]
-        );
-    }
-
-    CODE_GENERATION(
-            {
-                code_constructor_fn_asc(
-                        parser->code_constructor,
-                        parser->parser_semantic->temp_variable1,
-                        parser->parser_semantic->temp_variable2,
-                        parser->parser_semantic->temp_variable3,
-                        params_data_types[0],
-                        params_data_types[1]
-                );
-            }
+    EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION_FROM_DATA_TYPE(
+            OPERATION_IMPLICIT_CONVERSION,
+            index_expr->data_type,
+            DATA_TYPE_INTEGER
     );
 
     ExprToken* e = create_expression((*expression_idx)++);
+    if(CEE_ENABLED && source_string_expr->is_constant && index_expr->is_constant) {
+        int index;
+        switch(index_expr->instruction->op0->data.constant.data_type) {
+            case DATA_TYPE_INTEGER:
+                index = index_expr->instruction->op0->data.constant.data.integer;
+                break;
+            case DATA_TYPE_DOUBLE:
+                index = round_even(index_expr->instruction->op0->data.constant.data.double_);
+                break;
+            default:
+                index = -1;
+                LOG_WARNING("Unknown index data type.");
+        }
+        char* string = string_content(source_string_expr->instruction->op0->data.constant.data.string);
+        int string_len = (int) strlen(string);
+        int result = 0;
+        if(index > 0 && index < string_len + 1) {
+            result = (int) ((unsigned char*) string)[index - 1];
+        }
+        e->instruction = GENERATE_CODE(
+                I_PUSH_STACK,
+                code_instruction_operand_init_integer(result)
+        );
+        e->is_constant = true;
+        code_generator_remove_instruction(constructor->generator, source_string_expr->instruction);
+        code_generator_remove_instruction(constructor->generator, index_expr->instruction);
+    } else {
+        CODE_GENERATION(
+                {
+                    code_constructor_fn_asc(
+                            parser->code_constructor,
+                            parser->parser_semantic->temp_variable1,
+                            parser->parser_semantic->temp_variable2,
+                            parser->parser_semantic->temp_variable3,
+                            source_string_expr->data_type,
+                            index_expr->data_type
+                    );
+                }
+        );
+    }
+
     e->data_type = DATA_TYPE_INTEGER;
     EXPR_RULE_REPLACE(e);
     return true;
@@ -1048,21 +1169,46 @@ bool expression_rule_fn_chr(Parser* parser, LList* expr_token_buffer, ExprIdx* e
     // NOTE: now we are processing rule regular way - from the left to the right
 
     // Chr(i As Integer) As String
-    DataType param_data_type = get_n_expr(expr_token_buffer, 2)->data_type;
+    ExprToken* source_expr = get_n_expr(expr_token_buffer, 2);
+    ExprToken* e = create_expression((*expression_idx)++);
     EXPR_CHECK_UNARY_OPERATION_IMPLICIT_CONVERSION_FROM_DATA_TYPE(
             OPERATION_IMPLICIT_CONVERSION,
-            param_data_type,
+            source_expr->data_type,
             DATA_TYPE_INTEGER
     );
-
-    CODE_GENERATION(
-            {
-                code_constructor_fn_chr(parser->code_constructor, parser->parser_semantic->temp_variable1,
-                                        param_data_type);
-            }
-    );
-
-    ExprToken* e = create_expression((*expression_idx)++);
+    if(CEE_ENABLED && source_expr->is_constant) {
+        int char_;
+        switch(source_expr->instruction->op0->data.constant.data_type) {
+            case DATA_TYPE_INTEGER:
+                char_ = source_expr->instruction->op0->data.constant.data.integer;
+                break;
+            case DATA_TYPE_DOUBLE:
+                char_ = round_even(source_expr->instruction->op0->data.constant.data.double_);
+                break;
+            default:
+                char_ = -1;
+                LOG_WARNING("Unknown index data type.");
+        }
+        String* result = string_init_with_capacity(1);
+        string_append_c(result, (char) char_);
+        e->instruction = GENERATE_CODE(
+                I_PUSH_STACK,
+                code_instruction_operand_init_string(result)
+        );
+        e->is_constant = true;
+        code_generator_remove_instruction(constructor->generator, source_expr->instruction);
+    } else {
+        CODE_GENERATION(
+                {
+                    code_constructor_fn_chr(
+                            parser->code_constructor,
+                            parser->parser_semantic->temp_variable1,
+                            parser->parser_semantic->temp_variable2,
+                            source_expr->data_type
+                    );
+                }
+        );
+    }
     e->data_type = DATA_TYPE_STRING;
     EXPR_RULE_REPLACE(e);
     return true;

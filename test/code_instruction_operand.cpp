@@ -94,8 +94,7 @@ TEST_F(CodeInstructionOperandTestFixture, StringEscape2) {
     memory_free(escaped);
 }
 
-TEST_F(CodeInstructionOperandTestFixture, StringEscape3
-) {
+TEST_F(CodeInstructionOperandTestFixture, StringEscape3) {
     auto string = string_init();
     string_append_c(string,
                     (char) 238);
@@ -110,10 +109,38 @@ TEST_F(CodeInstructionOperandTestFixture, StringEscape3
     memory_free(escaped);
 }
 
-TEST_F(CodeInstructionOperandTestFixture, StringRender) {
+TEST_F(CodeInstructionOperandTestFixture, StringEscape4) {
     auto string = string_init();
-    string_append_s(string,
-                    "foobarman\xfe");
+    string_append_s(string, "Ahoj\nSve'te\\\x22");
+    char* escaped = code_instruction_operand_escaped_string(string);
+    auto to_compare = R"(Ahoj\010Sve'te\092")";
+
+    EXPECT_STREQ(
+            escaped,
+            to_compare
+    );
+
+    string_free(&string);
+    memory_free(escaped);
+}
+
+TEST_F(CodeInstructionOperandTestFixture, StringRender1) {
+    auto string = string_init();
+    string_append_s(string, "Ahoj\nSve'te\\\x22");
+    operand = code_instruction_operand_init_string(string);
+    auto rendered = code_instruction_operand_render(operand);
+    EXPECT_STREQ(
+            rendered,
+            "string@Ahoj\\010Sve'te\\092\""
+    );
+
+    string_free(&string);
+    memory_free(rendered);
+}
+
+TEST_F(CodeInstructionOperandTestFixture, StringRender2) {
+    auto string = string_init();
+    string_append_s(string, "foobarman\xfe");
     operand = code_instruction_operand_init_string(string);
     auto rendered = code_instruction_operand_render(operand);
     EXPECT_STREQ(
@@ -216,9 +243,10 @@ TEST_F(CodeInstructionOperandTestFixture, DoubleRender0) {
     auto rendered = code_instruction_operand_render(operand);
 
 #ifdef __MINGW32__
-    const char* expected_value = "float@1.24713e+007";
+    // render format was changed but I have only gcc
+    const char* expected_value = "float@0x1.7c97adcb9960ep+23";
 #else
-    const char* expected_value = "float@1.24713e+07";
+    const char* expected_value = "float@0x1.7c97adcb9960ep+23";
 #endif
 
     EXPECT_STREQ(
@@ -234,7 +262,7 @@ TEST_F(CodeInstructionOperandTestFixture, DoubleRender1) {
     auto rendered = code_instruction_operand_render(operand);
     EXPECT_STREQ(
             rendered,
-            "float@-15.54"
+            "float@-0x1.f147ae147ae14p+3"
     );
     memory_free(rendered);
 }

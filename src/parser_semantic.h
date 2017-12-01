@@ -5,6 +5,7 @@
 #include "token.h"
 #include "error.h"
 #include "llist.h"
+#include "parser_expr_internal.h"
 
 typedef enum {
     SEMANTIC_ACTION__NONE,
@@ -66,7 +67,9 @@ typedef struct parser_semantic_t {
     SymbolVariable* temp_variable3;
     SymbolVariable* temp_variable4;
     SymbolVariable* temp_variable5;
+    SymbolVariable* temp_variable6;
     LList* operations_signatures[OPERATION__LAST];
+    ExprToken* expression_result;
 } ParserSemantic;
 
 /**

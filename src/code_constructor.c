@@ -358,7 +358,7 @@ char* code_constructor_generate_label(CodeConstructor* constructor, const char* 
     NULL_POINTER_CHECK(constructor, NULL);
     NULL_POINTER_CHECK(type, NULL);
 
-    const char* format = "%%LABEL_%lu_DEPTH_%lu_$%s";
+    const char* format = "%%%lu_%lu__%s";
     size_t len = strlen(type) + 2 * strlen(format);
     char* label = memory_alloc(len * sizeof(char));
     snprintf(
@@ -583,9 +583,11 @@ void code_constructor_fn_length(CodeConstructor* constructor, SymbolVariable* tm
 }
 
 
-void code_constructor_fn_chr(CodeConstructor* constructor, SymbolVariable* tmp_variable, DataType param_type) {
+void code_constructor_fn_chr(CodeConstructor* constructor, SymbolVariable* tmp1, SymbolVariable* tmp2,
+                             DataType param_type) {
     NULL_POINTER_CHECK(constructor,);
-    NULL_POINTER_CHECK(tmp_variable,);
+    NULL_POINTER_CHECK(tmp1,);
+    NULL_POINTER_CHECK(tmp2,);
 
     GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(param_type, DATA_TYPE_INTEGER);
     GENERATE_CODE(I_INT_TO_CHAR_STACK);

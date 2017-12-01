@@ -294,7 +294,8 @@ void code_constructor_fn_length(CodeConstructor* constructor, SymbolVariable* tm
  * @param tmp_variable temp variable
  * @param stack_param_type data type of argument
  */
-void code_constructor_fn_chr(CodeConstructor* constructor, SymbolVariable* tmp_variable, DataType param_type);
+void code_constructor_fn_chr(CodeConstructor* constructor, SymbolVariable* tmp_variable, SymbolVariable* tmp1,
+                             DataType param_type);
 
 /**
  * Generates built-in function for asc using three temp variables.

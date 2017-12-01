@@ -28,7 +28,7 @@ LexerFSM* lexer_fsm_init(lexer_input_stream_f input_stream) {
 void lexer_fsm_free(LexerFSM** lexer_fsm) {
     NULL_POINTER_CHECK(lexer_fsm,);
     NULL_POINTER_CHECK(*lexer_fsm,);
-
+;
     char_stack_free(&(*lexer_fsm)->stack);
     string_free(&(*lexer_fsm)->stream_buffer);
     memory_free(*lexer_fsm);
@@ -226,7 +226,8 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
             }
 
         case LEX_FSM__STRING_LOAD:
-            if(c < 32) {
+
+            if(c < 32 || c == EOF) {
                 lexer_fsm->lexer_error = LEXER_ERROR__STRING_FORMAT;
                 return LEX_FSM__ERROR;
             }
@@ -332,6 +333,15 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
                 return LEX_FSM__DOUBLE_E_UNFINISHED;
             } else if(c == '-' || c == '+') {
                 STORE_CHAR(c);
+                return LEX_FSM__DOUBLE_E_SIGN;
+            } else {
+                lexer_fsm->lexer_error = LEXER_ERROR__DOUBLE_FORMAT;
+                return LEX_FSM__ERROR;
+            }
+
+        case LEX_FSM__DOUBLE_E_SIGN:
+            if(isdigit(c)) {
+                STORE_CHAR(c);
                 return LEX_FSM__DOUBLE_E_UNFINISHED;
             } else {
                 lexer_fsm->lexer_error = LEXER_ERROR__DOUBLE_FORMAT;
@@ -370,7 +380,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
 
             // Identifiers
         case LEX_FSM__IDENTIFIER_UNFINISHED:
-            if(c == '_' || isdigit(c) || isalpha(c)) {
+            if(c == '_' || isalnum(c)) {
                 STORE_CHAR(tolower(c));
                 return LEX_FSM__IDENTIFIER_UNFINISHED;
             } else {

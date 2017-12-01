@@ -5,8 +5,8 @@
 #include "common.h"
 
 static ExprTokenType _expr_internal_fn_literal_to_id(ExprTokenType t) {
-    if( t >= EXPR_TOKEN_BOOLEAN_LITERAL &&
-        t <= EXPR_TOKEN_FN_CHR  ) {
+    if(t >= EXPR_TOKEN_BOOLEAN_LITERAL &&
+       t <= EXPR_TOKEN_FN_CHR) {
         t = EXPR_TOKEN_IDENTIFIER;
     }
     return t;
@@ -148,19 +148,19 @@ ExprToken* load_expr_token(Lexer* lexer, Token* last_token) {
             expr_t->type = EXPR_TOKEN_STRING_LITERAL;
             expr_t->data.s = c_string_copy(last_token->data);
             break;
-			// Internal functions
-		case TOKEN_LENGTH:
-			expr_t->type = EXPR_TOKEN_FN_LENGTH;
-			break;
-		case TOKEN_SUBSTR:
-			expr_t->type = EXPR_TOKEN_FN_SUBSTR;
-			break;
-		case TOKEN_ASC:
-			expr_t->type = EXPR_TOKEN_FN_ASC;
-			break;
-		case TOKEN_CHR:
-			expr_t->type = EXPR_TOKEN_FN_CHR;
-			break;
+            // Internal functions
+        case TOKEN_LENGTH:
+            expr_t->type = EXPR_TOKEN_FN_LENGTH;
+            break;
+        case TOKEN_SUBSTR:
+            expr_t->type = EXPR_TOKEN_FN_SUBSTR;
+            break;
+        case TOKEN_ASC:
+            expr_t->type = EXPR_TOKEN_FN_ASC;
+            break;
+        case TOKEN_CHR:
+            expr_t->type = EXPR_TOKEN_FN_CHR;
+            break;
         default:
             expr_t->type = EXPR_UNKNOWN;
             break;
@@ -183,6 +183,7 @@ void expr_token_free(ExprToken* t) {
     }
 }
 
+
 int expr_llist_type_cmp(LListBaseItem* a, LListBaseItem* b) {
     ASSERT(a != NULL && b != NULL);
     if(((ExprToken*) a)->type == ((ExprToken*) b)->type) {
@@ -194,7 +195,7 @@ int expr_llist_type_cmp(LListBaseItem* a, LListBaseItem* b) {
 
 void expr_llist_free(LListBaseItem* item) {
     ASSERT(item != NULL);
-    ExprToken* t = (ExprToken*)item;
+    ExprToken* t = (ExprToken*) item;
     if(t != NULL) {
         if((t->type == EXPR_TOKEN_IDENTIFIER ||
             t->type == EXPR_TOKEN_INTEGER_LITERAL ||
@@ -217,6 +218,7 @@ ExprToken* create_expression(ExprIdx index) {
     t->type = EXPR_EXPRESSION;
     t->data.idx = index;
     t->is_constant = false;
+    t->is_variable = false;
     t->instruction = NULL;
     t->data_type = DATA_TYPE_NONE;
     return t;
@@ -285,4 +287,16 @@ ExprToken* expr_token_init() {
 ExprToken* get_n_expr(LList* expression_list, size_t n) {
     NULL_POINTER_CHECK(expression_list, NULL);
     return ((ExprToken*) llist_get_n_from_end(expression_list, n));
+}
+
+ExprToken* expr_token_copy(ExprToken* t) {
+    NULL_POINTER_CHECK(t, NULL);
+    ExprToken* new = create_expr_token(t->type);
+    new->is_constant = t->is_constant;
+    new->is_variable = t->is_variable;
+    new->instruction = t->instruction;
+    new->data_type = t->data_type;
+    new->base.next = new->base.previous = NULL;
+    new->data.s = NULL;
+    return new;
 }

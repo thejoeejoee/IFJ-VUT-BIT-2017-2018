@@ -10,18 +10,16 @@
 
 typedef struct code_optimizer_t {
     CodeGenerator* generator;
-
     SymbolTable* variables_meta_data;
     SymbolTable* functions_meta_data;
     SymbolTable* labels_meta_data;
-
     LList* peep_hole_patterns;
-
     SymbolVariable* temp1;
     SymbolVariable* temp2;
     SymbolVariable* temp3;
     SymbolVariable* temp4;
     SymbolVariable* temp5;
+    SymbolVariable* temp6;
 
     OrientedGraph* code_graph;
 } CodeOptimizer;
@@ -35,7 +33,9 @@ FunctionMetaData* code_optimizer_function_meta_data(CodeOptimizer* optimizer, co
 LabelMetaData* code_optimizer_label_meta_data(CodeOptimizer* optimizer, const char* label);
 
 // init/free
-CodeOptimizer* code_optimizer_init(CodeGenerator* generator, SymbolVariable* temp1, SymbolVariable* temp2, SymbolVariable* temp3, SymbolVariable* temp4, SymbolVariable* temp5);
+CodeOptimizer*
+code_optimizer_init(CodeGenerator* generator, SymbolVariable* temp1, SymbolVariable* temp2, SymbolVariable* temp3,
+                    SymbolVariable* temp4, SymbolVariable* temp5, SymbolVariable* temp6);
 
 void code_optimizer_free(CodeOptimizer** optimizer);
 
@@ -47,10 +47,13 @@ PeepHolePattern* code_optimizer_new_ph_pattern(CodeOptimizer* optimizer);
 
 SymbolTable* code_optimizer_check_ph_pattern(CodeOptimizer* optimizer, PeepHolePattern* ph_pattern, CodeInstruction* instruction);
 
-CodeInstruction* code_optimizer_new_instruction_with_mapped_operands(CodeOptimizer* optimizer, PeepHolePatternInstruction*  ph_pattern_instruction, SymbolTable* mapped_operands);
+CodeInstruction* code_optimizer_new_instruction_with_mapped_operands(CodeOptimizer* optimizer,
+                                                                     PeepHolePatternInstruction* ph_pattern_instruction,
+                                                                     SymbolTable* mapped_operands);
 
 // updating meta data
 void code_optimizer_adding_instruction(CodeOptimizer* optimizer, CodeInstruction* instruction);
+
 void code_optimizer_removing_instruction(CodeOptimizer* optimizer, CodeInstruction* instruction);
 
 void code_optimizer_update_meta_data(CodeOptimizer* optimizer);
@@ -73,8 +76,10 @@ void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
 SymbolTable* code_optimizer_modified_vars_in_blocks(CodeOptimizer* optimizer, SetInt* blocks_ids);
 
 // optimizing functions
-bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer, bool hard_remove);
+bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer, bool hard_remove, bool remove_special_temp);
+
 bool code_optimizer_peep_hole_optimization(CodeOptimizer* optimizer);
+
 bool code_optimizer_remove_unused_functions(CodeOptimizer* optimizer);
 void code_optimizer_propate_constants_optimization(CodeOptimizer* optimizer);
 

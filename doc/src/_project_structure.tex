@@ -58,10 +58,11 @@ Proto nám v tomto napomáhají sémantické akce.
 \begin{enumerate}
 \item <prog> $\rightarrow$ <body> <eols> EOF
 \item <body> $\rightarrow$ <definitions> <scope> <shared\_variables\_declarations>
-\item <body> $\rightarrow$ <definitions> <statement\_scope>
 
-\item <definitions> $\rightarrow$ <eols> <definition> <definitions>
-\item <definitions> $\rightarrow$ <eols> E
+\item <definitions\_block> $\rightarrow$ <eols> <definitions>
+
+\item <definitions> $\rightarrow$ <definition> <definitions\_block>
+\item <definitions> $\rightarrow$ $\varepsilon$
 
 \item <definition> $\rightarrow$ <function\_declaration>
 \item <definition> $\rightarrow$ <function\_definition>
@@ -139,6 +140,109 @@ Proto nám v tomto napomáhají sémantické akce.
 \item <eols> $\rightarrow$ E
 \item <eols> $\rightarrow$ EOL <eols>
 
+\begin{footnotesize}
+
+\begin{table}[htbp]
+\label{table:prec}
+\centering
+\caption{LL tabulka}
+\label{precedencni-tabulka}
+\begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|}
+\hline
+& {\rotatebox[origin=c]{90}{Mathematic operator}}  & ( & ) & {\rotatebox[origin=c]{90}{identifier}}
+& {\rotatebox[origin=c]{90}{integer literal}} & = & ; & {\rotatebox[origin=c]{90}{as}}
+& {\rotatebox[origin=c]{90}{asc}}
+
+& {\rotatebox[origin=c]{90}{delcare}} & {\rotatebox[origin=c]{90}{dim}}
+& {\rotatebox[origin=c]{90}{do}} & {\rotatebox[origin=c]{90}{double}}
+& {\rotatebox[origin=c]{90}{else}} & {\rotatebox[origin=c]{90}{end}}
+& {\rotatebox[origin=c]{90}{chr}} & {\rotatebox[origin=c]{90}{function}}
+
+& {\rotatebox[origin=c]{90}{if}} & {\rotatebox[origin=c]{90}{input}}
+& {\rotatebox[origin=c]{90}{integer}} & {\rotatebox[origin=c]{90}{length}}
+& {\rotatebox[origin=c]{90}{loop}} & {\rotatebox[origin=c]{90}{print}}
+& {\rotatebox[origin=c]{90}{return}}
+\\ \hline
+
+<prog>&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1
+\\ \hline
+<body>&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2
+\\ \hline
+<def\_b>&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3
+\\ \hline
+<defs>&&&&&&&&&&4&&&&&&&4&&&&&&&
+\\ \hline
+<def>&&&&&&&&&&6&&&&&&&7&&&&&&&
+\\ \hline
+<f\_def>&&&&&&&&&&&&&&&&&9&&&&&&&
+\\ \hline
+<f\_he>&&&&&&&&&&&&&&&&&10&&&&&&&
+\\ \hline
+<f\_pas>&&&12&13&&&&&&&&&&&&&&&&&&&&
+\\ \hline
+<f\_n\_p>&&&14&15&&&&&&&&&&&&&&&&&&&&
+\\ \hline
+<f\_pa>&&&&16&&&&&&&&&&&&&&&&&&&&
+\\ \hline
+<type>&&&&&&&&&&&&&20&&&&&&&17&&&&
+\\ \hline
+<sts>&&&&&&&&&&&&&&&21&&&&&&&&&
+\\ \hline
+<stsi>&&&23&&&&&&&&29&28&&&&&&27&24&&&&26&25
+\\ \hline
+\end{tabular}
+\vspace{22px}
+
+\begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|}
+\hline
+
+
+ & {\rotatebox[origin=c]{90}{scope}}
+& {\rotatebox[origin=c]{90}{string}} & {\rotatebox[origin=c]{90}{substr}}
+& {\rotatebox[origin=c]{90}{then}} & {\rotatebox[origin=c]{90}{while}}
+& {\rotatebox[origin=c]{90}{and}} & {\rotatebox[origin=c]{90}{boolean}}
+& {\rotatebox[origin=c]{90}{continue}} & {\rotatebox[origin=c]{90}{elseif}}
+& {\rotatebox[origin=c]{90}{exit}} & {\rotatebox[origin=c]{90}{false}}
+& {\rotatebox[origin=c]{90}{for}} & {\rotatebox[origin=c]{90}{next}}
+& {\rotatebox[origin=c]{90}{not}} & {\rotatebox[origin=c]{90}{or}}
+& {\rotatebox[origin=c]{90}{shared}} & {\rotatebox[origin=c]{90}{static}}
+& {\rotatebox[origin=c]{90}{true}} & {\rotatebox[origin=c]{90}{double literal}}
+& {\rotatebox[origin=c]{90}{string value}} & {\rotatebox[origin=c]{90}{comma}}
+& {\rotatebox[origin=c]{90}{EOL}}
+& {\rotatebox[origin=c]{90}{error}} & {\rotatebox[origin=c]{90}{EOF}}
+\\ \hline
+<prog>&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1
+\\ \hline
+<body>&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2
+\\ \hline
+<def\_b>&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3
+\\ \hline
+<defs>&5&&&&&&&&&&&&&&&4&&&&&&&&
+\\ \hline
+<def>&5&&&&&&&&&&&&&&&8&&&&&&&&
+\\ \hline
+<f\_def>&&&&&&&&&&&&&&&&&&&&&&&&
+\\ \hline
+<f\_he>&&&&&&&&&&&&&&&&&&&&&&&&
+\\ \hline
+<f\_pas>&&&&&&&&&&&&&&&&&&&&&&&&
+\\ \hline
+<f\_n\_p>&&&&&&&&&&&&&&&&&&&&&&&&
+\\ \hline
+<f\_pa>&&&&&&&&&&&&&&&&&&&&&&&&
+\\ \hline
+<type>&&19&&&&&18&&&&&&&&&&&&&&&&&
+\\ \hline
+<sts>&&&&&&&&&&&&&&&&&&&&&&&&
+\\ \hline
+<stsi>&31&&&&&&&&&&&&&&&30&&&&&&&&
+\\ \hline
+\end{tabular}
+
+\end{table}
+
+\end{footnotesize}
+
 \end{enumerate}
 \end{normalsize}
 \subsection{Precedenční analýza výrazů}
@@ -152,6 +256,7 @@ precedenční symboly a neterminály. Pomocí redukčních pravidel, která jsou
 Jelikož překladač je založen na přímém překladu, tak při redukování pomocí pravidel konstruktor kódu rovnou generuje kód programu.
 
 \subsubsection{Redukční pravidla}
+
 
 \begin{table}[htbp]
 \centering

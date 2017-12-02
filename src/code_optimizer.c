@@ -1308,15 +1308,35 @@ void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
         for(int j = 0; j < OPERANDS_MAX_COUNT; j++) {
             if((*(operands[j])) != NULL &&
                     (*(operands[j]))->type == TYPE_INSTRUCTION_OPERAND_VARIABLE &&
-                    instruction_cls != INSTRUCTION_TYPE_WRITE &&
                     operands_type[j] == TYPE_INSTRUCTION_OPERAND_SYMBOL ) {
                 SymbolVariable* variable = (*(operands[j]))->data.variable;
                 MappedOperand* operand = (MappedOperand*) symbol_table_get(
                                              constants_table, variable_cached_identifier(variable));
 
+                // replace operand
                 if(operand != NULL && operand->operand != NULL && !operand->blocked) {
                     code_instruction_operand_free(&(*(operands[j])));
                     (*(operands[j])) = code_instruction_operand_copy(operand->operand);
+
+                    // if instruction is move and second operand was replaced with literal
+                    // then add variable to constants table
+                    if(instruction_type == I_MOVE  &&
+                            instruction->op1->type == TYPE_INSTRUCTION_OPERAND_CONSTANT) {
+                        variable = instruction->op0->data.variable;
+                        operand = (MappedOperand*) symbol_table_get_or_create(
+                                                     constants_table,
+                                                     variable_cached_identifier(variable));
+                        if(!(!propagate_global_vars &&
+                             variable->frame == VARIABLE_FRAME_GLOBAL)) {
+                            if(operand->operand != NULL)
+                                code_instruction_operand_free(&operand->operand);
+                            if(!operand->blocked) {
+                                operand->operand = code_instruction_operand_copy(instruction->op1);
+
+                            }
+                        }
+                    }
+
                 }
             }
         }

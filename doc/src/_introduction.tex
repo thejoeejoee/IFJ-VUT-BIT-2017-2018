@@ -1,5 +1,5 @@
 \section{Úvod}
-Následující dokument popisuje způsob implementace kompilátoru jazyka IFJ17 do mezikódu
+Následující dokument popisuje způsob implementace kompilátoru z jazyka IFJ17 do mezikódu
 IFJcode17 ve variantě 2. Jedná se o projekt,
 který byl vyprácován posle zadání do předmětů IAL a IF na Fakultě
 informačních technologiích Vysokého učení technického v Brně.
@@ -8,7 +8,7 @@ Dokumentace popisuje způsob řešení, dekompozici překladače na jednotlivé 
 způsob práce v týmů a detailní popis použitých algoritmů a datových struktur. Dokumentace je logicky členěna na
 jednotlivé sekce, které jsou následně dále rozděleny do podsekcí..
 
-\section{Teoretický rozbor zadání}
+\section{Teoretický rozbor projektu}
 Naším úkolem bylo implementoval překladač z podmnožiny jazyka Free Basic pracovně nazvaného
 IFJ17 do mezikódu IFJcode17. Program tedy čte zdrojový kód ze standartního vstupu v případě korektně zapsaného
 programu generuje cílový kód, v případě chyby vrací správný návratový kód chyby.
@@ -28,8 +28,8 @@ Implementaci překladače byla se nám tedy rozdělila na několik částí.
     \item Optimalizátor kódu
 \end{itemize}
 
-Jelikož výstupem překladu je jistá forma mezikódu, používáme metodu generování tohoto kódu přímo bez generování
-abstraktního syntaktického stromu nebo zásobníkového kódu.
+Jelikož výstupem překladu je jistá forma mezikódu, používáme metodu generování tohoto kódu přímo ze syntaktické
+analýzy bez generování abstraktního syntaktického stromu nebo zásobníkového kódu.
 
 Propojení jednotlivých komponent naznačuje následující schéma.
 \vspace*{16px}

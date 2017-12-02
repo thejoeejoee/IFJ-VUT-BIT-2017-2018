@@ -65,6 +65,7 @@ void code_optimizer_update_label_meta_data(CodeOptimizer* optimizer, CodeInstruc
 
 // constants propagating
 void block_variables_in_constants_table(const char* key, void* item, void* data);
+void remove_variables_in_constants_table(const char* key, void* item, void* data);
 
 void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
         CodeBlock* block,

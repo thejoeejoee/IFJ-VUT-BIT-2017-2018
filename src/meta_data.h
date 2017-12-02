@@ -24,9 +24,7 @@ typedef struct function_meta_data_t {
     unsigned int call_count;
     MetaType purity_type;
 
-    // has read
-    // has write
-    // has global mod
+    SymbolTable* mod_global_vars;
 } FunctionMetaData;
 
 typedef struct label_meta_data_t {
@@ -38,6 +36,7 @@ typedef struct label_meta_data_t {
 void init_variable_meta_data(SymbolTableBaseItem* item);
 
 void init_function_meta_data(SymbolTableBaseItem* item);
+void free_function_meta_data(SymbolTableBaseItem* item);
 
 void init_label_meta_data(SymbolTableBaseItem* item);
 

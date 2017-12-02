@@ -92,6 +92,29 @@ TypeInstructionClass instruction_class(CodeInstruction* instruction)
         case I_JUMP_IF_NOT_EQUAL_STACK:
             return INSTRUCTION_TYPE_CONDITIONAL_JUMP;
 
+        case I_ADD:
+        case I_SUB:
+        case I_MUL:
+        case I_DIV:
+        case I_LESSER_THEN:
+        case I_GREATER_THEN:
+        case I_EQUAL:
+        case I_AND:
+        case I_OR:
+        case I_NOT:
+        case I_INT_TO_FLOAT:
+        case I_FLOAT_TO_INT:
+        case I_FLOAT_ROUND_TO_EVEN_INT:
+        case I_FLOAT_ROUND_TO_ODD_INT:
+        case I_INT_TO_CHAR:
+        case I_STRING_TO_INT:
+        case I_CONCAT_STRING:
+        case I_STRING_LENGTH:
+        case I_GET_CHAR:
+        case I_SET_CHAR:
+        case I_TYPE:
+            return INSTRUCTION_TYPE_VAR_MODIFIERS;
+
         default:
             return INSTRUCTION_TYPE_OTHER;
     }

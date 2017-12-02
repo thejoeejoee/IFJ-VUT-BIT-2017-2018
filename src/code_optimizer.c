@@ -18,7 +18,7 @@ code_optimizer_init(CodeGenerator* generator, SymbolVariable* temp1, SymbolVaria
     CodeOptimizer* optimizer = memory_alloc(sizeof(CodeOptimizer));
     optimizer->variables_meta_data = symbol_table_init(32, sizeof(VariableMetaData), &init_variable_meta_data, NULL);
 
-    optimizer->functions_meta_data = symbol_table_init(32, sizeof(FunctionMetaData), &init_function_meta_data, NULL);
+    optimizer->functions_meta_data = symbol_table_init(32, sizeof(FunctionMetaData), &init_function_meta_data, &free_function_meta_data);
 
     optimizer->labels_meta_data = symbol_table_init(32, sizeof(LabelMetaData), &init_label_meta_data, NULL);
 
@@ -407,6 +407,7 @@ void code_optimizer_reset_function_meta_data(const char* key, void* item, void* 
     FunctionMetaData* v = (FunctionMetaData*) item;
     v->call_count = 0;
     v->purity_type = META_TYPE_PURE;
+    symbol_table_clear_buckets(v->mod_global_vars);
 }
 
 void code_optimizer_update_meta_data(CodeOptimizer* optimizer) {
@@ -483,7 +484,18 @@ void code_optimizer_update_function_meta_data(CodeOptimizer* optimizer, CodeInst
            instruction->op0->data.variable->frame == VARIABLE_FRAME_GLOBAL)
             flags |= META_TYPE_WITH_SIDE_EFFECT;
     }
-    code_optimizer_function_meta_data(optimizer, current_func_label)->purity_type |= flags;
+    FunctionMetaData* meta_data = code_optimizer_function_meta_data(optimizer, current_func_label);
+    meta_data->purity_type |= flags;
+
+    // set modified global variables
+    const TypeInstructionClass instruction_cls = instruction_class(instruction);
+    if(instruction_cls == INSTRUCTION_TYPE_WRITE ||
+            instruction_cls == INSTRUCTION_TYPE_VAR_MODIFIERS) {
+        SymbolVariable* variable = instruction->op0->data.variable;
+        if(variable->frame == VARIABLE_FRAME_GLOBAL) {
+            symbol_table_get_or_create(meta_data->mod_global_vars, variable_cached_identifier(variable));
+        }
+    }
 }
 
 void code_optimizer_update_label_meta_data(CodeOptimizer* optimizer, CodeInstruction* instruction) {
@@ -1134,6 +1146,15 @@ void block_variables_in_constants_table(const char* key, void* item, void* data)
     op->blocked = true;
 }
 
+void remove_variables_in_constants_table(const char* key, void* item, void* data)
+{
+    NULL_POINTER_CHECK(item, );
+    SymbolTable* constants_table = (SymbolTable*) data;
+    MappedOperand* op = (MappedOperand*) symbol_table_function_get_or_create(constants_table, key);
+    if(op->operand != NULL)
+        code_instruction_operand_free(&op->operand);
+}
+
 
 void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
         CodeBlock* block,
@@ -1182,8 +1203,18 @@ void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
         const TypeInstruction instruction_type = instruction->type;
         const TypeInstructionClass instruction_cls = instruction_class(instruction);
 
+        // remove modified globals from function
+        if(instruction->type == I_CALL) {
+            SymbolTable* modified_globals = code_optimizer_function_meta_data(optimizer, instruction->op0->data.label)->mod_global_vars;
+            if(modified_globals == NULL)
+                LOG_WARNING("Error getting function modified gloval vars table.");
+
+            symbol_table_foreach(modified_globals, &remove_variables_in_constants_table, constants_table);
+        }
+
         // remove variable from constants table
-        if(instruction_cls == INSTRUCTION_TYPE_WRITE) {
+        if(instruction_cls == INSTRUCTION_TYPE_WRITE ||
+                instruction_cls == INSTRUCTION_TYPE_VAR_MODIFIERS) {
             SymbolVariable* variable = instruction->op0->data.variable;
             MappedOperand* operand = (MappedOperand*) symbol_table_get_or_create(
                                          constants_table, variable_cached_identifier(variable));
@@ -1267,7 +1298,8 @@ SymbolTable* code_optimizer_modified_vars_in_blocks(CodeOptimizer* optimizer, Se
         CodeInstruction* instruction = block->instructions;
         for(size_t i = 0; i < block->instructions_count; i++) {
             const TypeInstructionClass instruction_cls = instruction_class(instruction);
-            if(instruction_cls == INSTRUCTION_TYPE_WRITE) {
+            if(instruction_cls == INSTRUCTION_TYPE_WRITE ||
+                    instruction_cls == INSTRUCTION_TYPE_VAR_MODIFIERS) {
                 SymbolVariable* variable = instruction->op0->data.variable;
                 symbol_table_get_or_create(
                                              mod_vars, variable_cached_identifier(variable));

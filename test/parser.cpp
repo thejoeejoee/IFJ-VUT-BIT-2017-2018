@@ -1025,7 +1025,7 @@ a = foo()
 print a;
 end scope
 )");
-    EXPECT_FALSE(
+    EXPECT_TRUE(
             parser_parse_program(parser)
     );
 }

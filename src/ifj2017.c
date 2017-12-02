@@ -1,6 +1,7 @@
 #include <signal.h>
 #include "ifj2017.h"
 #include "code_optimizer.h"
+#include "code_optimizer_expr.h"
 
 int stdin_stream() {
     return getchar();
@@ -21,6 +22,7 @@ int main(int argc, char** argv) {
 
     setbuf(stdout, NULL);
 
+    code_optimizer_optimize_type_casts(parser->optimizer);
     code_optimizer_update_meta_data(parser->optimizer);
 
     while(
@@ -31,7 +33,9 @@ int main(int argc, char** argv) {
             code_optimizer_peep_hole_optimization(parser->optimizer)
             );
 
+
     code_optimizer_remove_unused_variables(parser->optimizer, false, true);
+
     code_generator_render(parser->code_constructor->generator, stdout);
 
     fflush(stdout);

@@ -358,7 +358,7 @@ char* code_constructor_generate_label(CodeConstructor* constructor, const char* 
     NULL_POINTER_CHECK(constructor, NULL);
     NULL_POINTER_CHECK(type, NULL);
 
-    const char* format = "%%LABEL_%lu_DEPTH_%lu__%s";
+    const char* format = "%%%lu_%lu__%s";
     size_t len = strlen(type) + 2 * strlen(format);
     char* label = memory_alloc(len * sizeof(char));
     snprintf(

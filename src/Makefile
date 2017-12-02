@@ -18,6 +18,10 @@ $(TARGETS): $(OBJECTS)
 clean:
 	rm -f *.o Makefile.deps $(TARGETS)
 
+test:
+	printf "xkobel02\nxtests99\n" | python3 tests/test.py -v -i ./ic17int ./ifj2017
+
+
 # Makefile DEPS
 Makefile.deps: *.h *.c
 	$(CC) $(CFLAGS) -MM *.h $(SOURCES) > Makefile.deps

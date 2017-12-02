@@ -329,9 +329,12 @@ bool parser_semantic_check_count_of_function_arguments(ParserSemantic* parser_se
 bool parser_semantic_check_function_definitions(ParserSemantic* parser_semantic) {
     NULL_POINTER_CHECK(parser_semantic, false);
 
-    return symbol_function_find_declared_function_without_definition(
-            parser_semantic->register_->functions
-    ) == NULL;
+    bool result = (symbol_function_find_declared_function_without_definition(parser_semantic->register_->functions) == NULL);
+
+    if(!result)
+        parser_semantic->error_report.error_code = ERROR_SEMANTIC_DEFINITION;
+
+    return result;
 }
 
 void parser_semantic_setup_temp_variables(ParserSemantic* parser_semantic) {
@@ -339,27 +342,27 @@ void parser_semantic_setup_temp_variables(ParserSemantic* parser_semantic) {
 
     parser_semantic->temp_variable1 = symbol_table_variable_get_or_create(
             parser_semantic->register_->variables->symbol_table,
-            "&_"
+            "&1"
     );
     parser_semantic->temp_variable2 = symbol_table_variable_get_or_create(
             parser_semantic->register_->variables->symbol_table,
-            "&__"
+            "&2"
     );
     parser_semantic->temp_variable3 = symbol_table_variable_get_or_create(
             parser_semantic->register_->variables->symbol_table,
-            "&___"
+            "&3"
     );
     parser_semantic->temp_variable4 = symbol_table_variable_get_or_create(
             parser_semantic->register_->variables->symbol_table,
-            "&_____"
+            "&4"
     );
     parser_semantic->temp_variable5 = symbol_table_variable_get_or_create(
             parser_semantic->register_->variables->symbol_table,
-            "&______"
+            "&5"
     );
     parser_semantic->temp_variable6 = symbol_table_variable_get_or_create(
             parser_semantic->register_->variables->symbol_table,
-            "&_______"
+            "&6"
     );
     parser_semantic->temp_variable1->frame =
     parser_semantic->temp_variable2->frame =

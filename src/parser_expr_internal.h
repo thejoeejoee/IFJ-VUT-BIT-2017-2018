@@ -76,6 +76,7 @@ typedef struct expr_token_t {
 
     DataType data_type;
     bool is_constant;
+    bool is_variable;
     CodeInstruction* instruction;
 } ExprToken;
 

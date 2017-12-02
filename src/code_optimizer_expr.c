@@ -1,6 +1,26 @@
 #include "code_optimizer_expr.h"
 #include "code_instruction_operand.h"
 
+bool is_rounded_zero_integer(ExprToken* token) {
+    NULL_POINTER_CHECK(token, true);
+    if(token->instruction == NULL) {
+        return true;
+    }
+    if(token->instruction->op0 == NULL) {
+        return true;
+    }
+    if(token->instruction->op0->type != TYPE_INSTRUCTION_OPERAND_CONSTANT) {
+        return true;
+    }
+    if(token->instruction->op0->data.constant.data_type == DATA_TYPE_INTEGER) {
+        return token->instruction->op0->data.constant.data.integer == 0;
+    } else if(token->instruction->op0->data.constant.data_type == DATA_TYPE_DOUBLE) {
+        return round_even(token->instruction->op0->data.constant.data.double_) == 0;
+    }
+
+    return true;
+
+}
 
 CodeInstructionOperand* code_optimizer_expr_eval(
         CodeOptimizer* optimizer,
@@ -140,6 +160,8 @@ CodeInstructionOperand* code_optimizer_expr_eval(
             }
             case OPERATION_DIVIDE: {
                 CEE_ENABLED_CHECK();
+                if(is_rounded_zero_integer(t2))
+                    return NULL;
                 switch(signature->result_type) {
                     case DATA_TYPE_DOUBLE:
                         TRY_TO_PERFORM_OPERATION(t1, DATA_TYPE_DOUBLE, result_d, +);
@@ -157,14 +179,16 @@ CodeInstructionOperand* code_optimizer_expr_eval(
 
             case OPERATION_INT_DIVIDE: {
                 CEE_ENABLED_CHECK();
+                if(is_rounded_zero_integer(t2))
+                    return NULL;
                 switch(signature->result_type) {
                     case DATA_TYPE_INTEGER:
                         if(t1->data_type == DATA_TYPE_DOUBLE)
-                            result_i = (int) round_even(t1->instruction->op0->data.constant.data.double_);
+                            result_i = round_even(t1->instruction->op0->data.constant.data.double_);
                         TRY_TO_PERFORM_OPERATION(t1, DATA_TYPE_INTEGER, result_i, +);
 
                         if(t2->data_type == DATA_TYPE_DOUBLE)
-                            result_i /= (int) round_even(t2->instruction->op0->data.constant.data.double_);
+                            result_i /= round_even(t2->instruction->op0->data.constant.data.double_);
                         TRY_TO_PERFORM_OPERATION(t2, DATA_TYPE_INTEGER, result_i, /);
                         break;
 
@@ -304,4 +328,81 @@ CodeInstructionOperand* code_optimizer_expr_eval(
 int round_even(double x) {
     x -= remainder(x, 1.0);
     return (int) x;
+}
+
+void code_optimizer_optimize_type_casts(CodeOptimizer* optimizer) {
+    NULL_POINTER_CHECK(optimizer,);
+    CodeGenerator* generator = optimizer->generator;
+    CodeInstruction* start = generator->first;
+    CodeInstruction* end = generator->last;
+    NULL_POINTER_CHECK(start,);
+    NULL_POINTER_CHECK(end,);
+
+    CodeInstruction* actual = start;
+    CodeInstruction* next;
+    CodeInstruction* replacement;
+    do {
+        next = actual->next;
+        switch(actual->type) {
+            case I_FLOAT_ROUND_TO_EVEN_INT_STACK: {
+                if(actual->prev != NULL &&
+                   actual->prev->type == I_PUSH_STACK &&
+                   actual->prev->op0->type == TYPE_INSTRUCTION_OPERAND_CONSTANT) {
+                    if(actual->prev->op0->data.constant.data_type != DATA_TYPE_DOUBLE) {
+                        LOG_WARNING("Invalid operand to type cast.");
+                        continue;
+                    }
+
+                    replacement = code_generator_new_instruction(
+                            generator,
+                            I_PUSH_STACK,
+                            code_instruction_operand_init_integer(
+                                    round_even(actual->prev->op0->data.constant.data.double_)
+                            ),
+                            NULL,
+                            NULL
+                    );
+                    code_generator_insert_instruction_before(
+                            generator,
+                            replacement,
+                            actual->prev
+                    );
+                    code_generator_remove_instruction(generator, actual->prev);
+                    code_generator_remove_instruction(generator, actual);
+                    next = replacement;
+                }
+            }
+                break;
+            case I_INT_TO_FLOAT_STACK: {
+                if(actual->prev != NULL &&
+                   actual->prev->type == I_PUSH_STACK &&
+                   actual->prev->op0->type == TYPE_INSTRUCTION_OPERAND_CONSTANT) {
+                    if(actual->prev->op0->data.constant.data_type != DATA_TYPE_INTEGER) {
+                        LOG_WARNING("Invalid operand to type cast.");
+                        continue;
+                    }
+
+                    replacement = code_generator_new_instruction(
+                            generator,
+                            I_PUSH_STACK,
+                            code_instruction_operand_init_double(
+                                    actual->prev->op0->data.constant.data.integer
+                            ),
+                            NULL,
+                            NULL
+                    );
+                    code_generator_insert_instruction_before(
+                            generator,
+                            replacement,
+                            actual->prev
+                    );
+                    code_generator_remove_instruction(generator, actual->prev);
+                    code_generator_remove_instruction(generator, actual);
+                    next = replacement;
+                }
+            }
+            default:;
+        }
+        actual = next;
+    } while(actual != end);
 }

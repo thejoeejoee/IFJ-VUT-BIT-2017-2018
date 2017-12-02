@@ -226,7 +226,8 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
             }
 
         case LEX_FSM__STRING_LOAD:
-            if(c < 32) {
+
+            if(c < 32 || c == EOF) {
                 lexer_fsm->lexer_error = LEXER_ERROR__STRING_FORMAT;
                 return LEX_FSM__ERROR;
             }
@@ -379,7 +380,7 @@ LexerFSMState lexer_fsm_next_state(LexerFSM* lexer_fsm, LexerFSMState prev_state
 
             // Identifiers
         case LEX_FSM__IDENTIFIER_UNFINISHED:
-            if(c == '_' || isdigit(c) || isalpha(c)) {
+            if(c == '_' || isalnum(c)) {
                 STORE_CHAR(tolower(c));
                 return LEX_FSM__IDENTIFIER_UNFINISHED;
             } else {

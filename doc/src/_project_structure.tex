@@ -57,7 +57,7 @@ Proto nám v tomto napomáhají sémantické akce.
 \begin{normalsize}
 \begin{enumerate}
 \item <prog> $\rightarrow$ <body> <eols> EOF
-\item <body> $\rightarrow$ <definitions> <scope> <shared\_variables\_declarations>
+\item <body> $\rightarrow$ <definitions\_block> <scope> <shared\_variables\_declarations>
 
 \item <definitions\_block> $\rightarrow$ <eols> <definitions>
 
@@ -73,10 +73,10 @@ Proto nám v tomto napomáhají sémantické akce.
 
 \item <function\_header> $\rightarrow$ FUNCTION IDENTIFIER (<function\_params>) AS <type>
 
-\item <function\_params> $\rightarrow$ E
+\item <function\_params> $\rightarrow$ $\varepsilon$
 \item <function\_params> $\rightarrow$ <function\_param> <function\_n\_param>
 
-\item <function\_n\_param> $\rightarrow$ E
+\item <function\_n\_param> $\rightarrow$ $\varepsilon$
 \item <function\_n\_param> $\rightarrow$ <function\_param> <function\_n\_param>
 
 \item <function\_param> $\rightarrow$ IDENTIFIER AS <type>
@@ -87,7 +87,7 @@ Proto nám v tomto napomáhají sémantické akce.
 \item <type> $\rightarrow$ STRING
 \item <type> $\rightarrow$ DOUBLE
 
-\item <statements> $\rightarrow$ E
+\item <statements> $\rightarrow$ $\varepsilon$
 \item <statements> $\rightarrow$ <statement\_single> EOL <eols> <statements>
 
 
@@ -113,6 +113,7 @@ Proto nám v tomto napomáhají sémantické akce.
 
 \item <return> $\rightarrow$ RETURN <expr>
 
+\item <assignment> $\rightarrow$ = <expression>
 \item <assignment> $\rightarrow$ <modify> <expression>
 \item <modify> $\rightarrow$ +=
 \item <modify> $\rightarrow$ -=
@@ -129,27 +130,28 @@ Proto nám v tomto napomáhají sémantické akce.
 
 \item <input> $\rightarrow$ INPUT IDENTIFIER
 
-\item <condition> -> IF <expr> THEN EOL <eols> <statements>
-\item <condition\_elseif> <condition\_else> END IF
-\item <condition\_elseif> -> E
-\item <condition\_elseif> -> ELSEIF <expr> THEN EOL <statements> <condition\_elseif>
+\item <identifier\_assignment> $\rightarrow$  IDENTIF <assignment>
 
-\item <condition\_else> -> E
-\item <condition\_else> -> ELSE EOL <eols> <statements>
+\item <condition> $\rightarrow$ IF <expr> THEN EOL <eols> <statements> <condition\_elseif> <condition\_else> END IF
+\item <condition\_elseif> <condition\_else>
+\item <condition\_elseif> $\rightarrow$ $\varepsilon$
+\item <condition\_elseif> $\rightarrow$ ELSEIF <expr> THEN EOL <eols> <statements> <condition\_elseif>
 
-\item <eols> $\rightarrow$ E
+\item <condition\_else> $\rightarrow$ $\varepsilon$
+\item <condition\_else> $\rightarrow$ ELSE EOL <eols> <statements>
+
+\item <eols> $\rightarrow$ $\varepsilon$
 \item <eols> $\rightarrow$ EOL <eols>
 
-\begin{footnotesize}
-
+\newpage
+\begin{landscape}
 \begin{table}[htbp]
 \label{table:prec}
 \centering
-\caption{LL tabulka}
-\label{precedencni-tabulka}
+\caption{LL tabulka 1. část}
 \begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|}
 \hline
-& {\rotatebox[origin=c]{90}{Mathematic operator}}  & ( & ) & {\rotatebox[origin=c]{90}{identifier}}
+& {\rotatebox[origin=c]{90}{Operátor}}  & ( & ) & {\rotatebox[origin=c]{90}{identifier}}
 & {\rotatebox[origin=c]{90}{integer literal}} & = & ; & {\rotatebox[origin=c]{90}{as}}
 & {\rotatebox[origin=c]{90}{asc}}
 
@@ -164,11 +166,11 @@ Proto nám v tomto napomáhají sémantické akce.
 & {\rotatebox[origin=c]{90}{return}}
 \\ \hline
 
-<prog>&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1
+<prog>&&&&&&&&&&1&&&&&&&1&&&&&&&
 \\ \hline
-<body>&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2
+<body>&&&&&&&&&&2&&&&&&&2&&&&&&&
 \\ \hline
-<def\_b>&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3
+<def\_b>&&&&&&&&&&3&&&&&&&3&&&&&&&
 \\ \hline
 <defs>&&&&&&&&&&4&&&&&&&4&&&&&&&
 \\ \hline
@@ -190,10 +192,50 @@ Proto nám v tomto napomáhají sémantické akce.
 \\ \hline
 <stsi>&&&23&&&&&&&&29&28&&&&&&27&24&&&&26&25
 \\ \hline
+<va\_de>&&&&&&&&&&&32&&&&&&&&&&&&&
+\\ \hline
+<va\_as>&&&&&&34&&&&&32&&&&&&&&&&&&&
+\\ \hline
+<s\_v\_ds>&&&&&&&&&&35&36&&&&&&35&&&&&&&
+\\ \hline
+<st\_v\_d>&&&&&&&&&&35&36&&&&&&35&&&&&&&
+\\ \hline
+<ret>&&&&&&&&&&&&&&&&&&&&&&&&39
+\\ \hline
+<ass>&&&&&&40&&&&&&&&&&&&&&&&&&
+\\ \hline
+<mod>&&&&&&&&&&&&&&&&&&&&&&&&
+\\ \hline
+<pr>&&&&&&&&&&&&&&&&&&&&&&&47&
+\\ \hline
+<pr\_es>&49&49&49&&&&&&&&&&&&&&&&&&&&48&
+\\ \hline
+<pr\_e>&50&50&50&&&&&&&&&&&&&&&&&&&&&
+\\ \hline
+<while>&&&&&&&&&&&&51&&&&&&&&&&&&
+\\ \hline
+<input>&&&&&&&&&&&&&&&&&&&52&&&&&
+\\ \hline
+<id\_a>&&&&53&&&&&&&&&&&&&&&&&&&&
+\\ \hline
+<con>&&&&&&&&&&&&&&&&&&54&&&&&&
+\\ \hline
+<con\_ei>&&&&&&&&&&&&&&&&&&54&&&&&&
+\\ \hline
+<con\_e>&&&&&&&&&&&&&&&&&&&&&&&&
+\\ \hline
+<con\_eols>&60&60&60&60&60&60&60&60&60&60&60&60&60&60&60&60&60&60&60&60&60&60&60&60
+\\ \hline
 \end{tabular}
-\vspace{22px}
-
-\begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|}
+\end{table}
+\end{landscape}
+\newpage
+\begin{landscape}
+\begin{table}[htbp]
+    \label{table:prec2}
+    \centering
+    \caption{LL tabulka 2. část}
+\begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|}
 \hline
 
 
@@ -210,39 +252,74 @@ Proto nám v tomto napomáhají sémantické akce.
 & {\rotatebox[origin=c]{90}{string value}} & {\rotatebox[origin=c]{90}{comma}}
 & {\rotatebox[origin=c]{90}{EOL}}
 & {\rotatebox[origin=c]{90}{error}} & {\rotatebox[origin=c]{90}{EOF}}
+& {\rotatebox[origin=c]{90}{+=}} & {\rotatebox[origin=c]{90}{-=}}
+& {\rotatebox[origin=c]{90}{*=}} & {\rotatebox[origin=c]{90}{/=}}
+& {\rotatebox[origin=c]{90}{\textbackslash=}}
 \\ \hline
-<prog>&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1&1
+<prog>&1&&&&&&&&&&&&&&&1&&&&&&1&&&&&&&
 \\ \hline
-<body>&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2&2
+<body>&2&&&&&&&&&&&&&&&2&&&&&&2&&&&&&&
 \\ \hline
-<def\_b>&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3&3
+<def\_b>&3&&&&&&&&&&&&&&&3&&&&&&3&&&&&&&
 \\ \hline
-<defs>&5&&&&&&&&&&&&&&&4&&&&&&&&
+<defs>&5&&&&&&&&&&&&&&&4&&&&&&&&&&&&&
 \\ \hline
-<def>&5&&&&&&&&&&&&&&&8&&&&&&&&
+<def>&5&&&&&&&&&&&&&&&8&&&&&&&&&&&&&
 \\ \hline
-<f\_def>&&&&&&&&&&&&&&&&&&&&&&&&
+<f\_def>&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 \\ \hline
-<f\_he>&&&&&&&&&&&&&&&&&&&&&&&&
+<f\_he>&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 \\ \hline
-<f\_pas>&&&&&&&&&&&&&&&&&&&&&&&&
+<f\_pas>&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 \\ \hline
-<f\_n\_p>&&&&&&&&&&&&&&&&&&&&&&&&
+<f\_n\_p>&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 \\ \hline
-<f\_pa>&&&&&&&&&&&&&&&&&&&&&&&&
+<f\_pa>&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 \\ \hline
-<type>&&19&&&&&18&&&&&&&&&&&&&&&&&
+<type>&&19&&&&&18&&&&&&&&&&&&&&&&&&&&&&
 \\ \hline
-<sts>&&&&&&&&&&&&&&&&&&&&&&&&
+<sts>&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 \\ \hline
-<stsi>&31&&&&&&&&&&&&&&&30&&&&&&&&
+<va\_de>&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+\\ \hline
+<va\_as>&&&&&&&&&&&&&&&&&&&&&&33&&&&&&&
+\\ \hline
+<s\_v\_ds>&1&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+\\ \hline
+<st\_v\_d>&&&&&&&&&&&&&&&&&38&&&&&&&&&&&&
+\\ \hline
+<ret>&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+\\ \hline
+<ass>&&&&&&&&&&&&&&&&&&&&&&&&&41&41&41&41&41
+\\ \hline
+<mod>&&&&&&&&&&&&&&&&&&&&&&&&&42&43&44&45&46
+\\ \hline
+<pr>&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+\\ \hline
+<pr\_es>&&&49&&&&&&&&&&&&&&&&&&&48&&&&&&&
+\\ \hline
+<pr\_e>&&&50&&&&&&&&&&&&&&&&&&&&&&&&&&
+\\ \hline
+<while>&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+\\ \hline
+<input>&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+\\ \hline
+<id\_a>&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+\\ \hline
+<con>&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+\\ \hline
+<con\_ei>&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+\\ \hline
+<con\_e>&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+\\ \hline
+<con\_eols>&60&60&60&60&60&60&60&60&60&60&60&60&60&60&60&60&60&60&60&60&60&61&60&60&60&60&60&60&60
+
 \\ \hline
 \end{tabular}
 
 \end{table}
-
-\end{footnotesize}
-
+\end{landscape}
+\newpage
 \end{enumerate}
 \end{normalsize}
 \subsection{Precedenční analýza výrazů}
@@ -305,12 +382,14 @@ $i$ & x &$>$&$>$&$>$&$>$&$>$&$>$&$>$&$>$&$>$&$>$&$>$& x &$>$&$>$& = &$>$&$>$& x 
 \end{tabular}
 \end{table}
 
+
 \subsection{Sémantická analýza}
 Sémantické kontroly jsou přidruženy k syntaktickým pravidlům v rekurzivním sestupu a
 precedenční syntaktické analýze výrazů. Jsou organizovány do tzv. scénářů. Jeden
 sémantický scénář sémanticky popisuje související část kódu. Například definici
 nebo deklaraci funkce. Sémantická analýza nám také pomáhá hlídat některé gramatické aspekty,
 které by byly pro LL gramatiku příliš kompikované, nebo by měly příliš dlouhý zápis.
+
 
 \subsection{Konstruktor kódu}
 \label{subsec:code-constructor}
@@ -329,11 +408,9 @@ instrukce je složena z bitových masek definující povolené typy operandů a 
 Struktura \ic|CodeInstructionOperand| uchovává informace o svém typu a poté unii dat pro konkrétní typ operandu, tedy
 ukazatel na proměnnou \ic|SymbolVariable|,
 data konstanty \ic|CodeInstructionOperandConstantData| v unii s datovým typem nebo řetězec uchovávající název návěští.
-
-\subsection{Správa paměti}
-\todo{Sony, dopiš to prosím, nerozumím tomu. Jen pár vět :D}
-
-\subsection{Rozšíření}
+\subsection{Optimalizátor kódu}
+\todo{Sony alespoň pár odstavečků by to chtělo}
+\section{Rozšíření}
 
 \subsubsection{SCOPE}
 Pro rozšíření bylo třeba upravit tabulku symbolů, sekci proměnných tak, aby

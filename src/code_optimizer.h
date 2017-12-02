@@ -72,7 +72,8 @@ void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
         Stack* constants_tables_stack,
         SetInt* processed_blocks_ids,
         LList* cycled_block_mod_vars,
-        bool is_conditional_block);
+        bool is_conditional_block,
+        bool propagate_global_vars);
 
 SymbolTable* code_optimizer_modified_vars_in_blocks(CodeOptimizer* optimizer, SetInt* blocks_ids);
 

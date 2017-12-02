@@ -1052,12 +1052,15 @@ void code_optimizer_split_code_to_graph(CodeOptimizer* optimizer)
                 mapped_block->value = (int) new_code_block->base.id;
             }
 
-            // can connect  direct blocks
-            if(prev_is_cond_jump || (instruction->type == I_LABEL && !prev_is_direct_jump)) {
+            // can connect  indirect blocks
+            if((prev_is_cond_jump || (instruction->type == I_LABEL && !prev_is_direct_jump)) &&
+                    code_block->last_instruction->type != I_RETURN) {
                 oriented_graph_connect_nodes(
                             optimizer->code_graph,
                             (GraphNodeBase*) code_block,
                             (GraphNodeBase*) new_code_block);
+                if(prev_is_cond_jump)
+                    set_int_add(code_block->conditional_jump, (int) new_code_block->base.id);
             }
             code_block = new_code_block;
         }
@@ -1122,7 +1125,28 @@ void code_optimizer_propate_constants_optimization(CodeOptimizer* optimizer)
     }
     llist_free(&blocks_in_cycles);
 
-    // get first block
+    // propagate constants in functions
+    for(unsigned int i = 0; i < graph->capacity; i++) {
+        CodeBlock* block = (CodeBlock*) oriented_graph_node(graph, i);
+        if(block == NULL)
+            continue;
+
+        if((block->instructions->meta_data.type & CODE_INSTRUCTION_META_TYPE_FUNCTION_START) == 0)
+            continue;
+
+        SymbolTable* constants = symbol_table_init(32, sizeof(MappedOperand),
+                                                         &init_mapped_operand_item,
+                                                         &free_mapped_operand_item);
+        constants->copy_data_callback = &copy_mapped_operand_item;
+        stack_push(constants_tables_stack, (StackBaseItem*) constants_table_stack_item_init(constants));
+
+        code_optimizer_propagate_constants_in_block(optimizer, block, constants_tables_stack, proccessed_blocks, cycled_blocks_mod_vars, false, false);
+        StackBaseItem* old_table = stack_pop(constants_tables_stack);
+        constants_table_stack_item_free(old_table);
+        memory_free(old_table);
+    }
+
+    // propagate first block
     SymbolTable* constants = symbol_table_init(32, sizeof(MappedOperand),
                                                      &init_mapped_operand_item,
                                                      &free_mapped_operand_item);
@@ -1131,7 +1155,7 @@ void code_optimizer_propate_constants_optimization(CodeOptimizer* optimizer)
     CodeBlock* block = (CodeBlock*) oriented_graph_node(graph, 0);
 
     // start
-    code_optimizer_propagate_constants_in_block(optimizer, block, constants_tables_stack, proccessed_blocks, cycled_blocks_mod_vars, false);
+    code_optimizer_propagate_constants_in_block(optimizer, block, constants_tables_stack, proccessed_blocks, cycled_blocks_mod_vars, false, true);
 
     llist_free(&cycled_blocks_mod_vars);
     stack_free(&constants_tables_stack);
@@ -1161,7 +1185,8 @@ void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
         Stack* constants_tables_stack,
         SetInt* processed_blocks_ids,
         LList* cycled_block_mod_vars,
-        bool is_conditional_block)
+        bool is_conditional_block,
+        bool propagate_global_vars)
 {
     NULL_POINTER_CHECK(optimizer, );
     NULL_POINTER_CHECK(block, );
@@ -1175,11 +1200,33 @@ void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
 
     // get constants table
     SymbolTable* constants_table = NULL;
+    // not copied lowest direct table
+    SymbolTable* origin_constants_table = NULL;
 
-    if(!is_conditional_block)
+    // determining direct parent blocks
+    SetIntItem* parent_id = (SetIntItem*) block->base.in_edges->head;
+    int direct_parent_blocks_count =  0;
+
+    while(parent_id != NULL) {
+        CodeBlock* parent_block = (CodeBlock*) oriented_graph_node(optimizer->code_graph, (unsigned int) parent_id->value);
+        if(parent_block) {
+            if(!set_int_contains(parent_block->conditional_jump, (int) block->base.id))
+                direct_parent_blocks_count++;
+        }
+
+        else
+            LOG_WARNING("Internal error getting parent code block.");
+
+        parent_id = (SetIntItem*) parent_id->base.next;
+    }
+
+    // choose constants table
+    if(!is_conditional_block && direct_parent_blocks_count <= 1)
         constants_table = ((ConstantsTableStackItem*) constants_tables_stack->head)->constants;
-    else
+    else {
         constants_table = constants_tables_stack_get_lowest_direct_table(constants_tables_stack)->constants;
+        origin_constants_table = constants_table;
+    }
     constants_table = symbol_table_copy(constants_table);
 
     // error
@@ -1217,14 +1264,27 @@ void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
                 instruction_cls == INSTRUCTION_TYPE_VAR_MODIFIERS) {
             SymbolVariable* variable = instruction->op0->data.variable;
             MappedOperand* operand = (MappedOperand*) symbol_table_get_or_create(
-                                         constants_table, variable_cached_identifier(variable));
+                                         constants_table,
+                                         variable_cached_identifier(variable));
+
+            MappedOperand* origin_table_operand = NULL;
+            if(origin_constants_table != NULL) {
+                origin_table_operand = (MappedOperand*) symbol_table_get_or_create(
+                                           origin_constants_table,
+                                           variable_cached_identifier(variable));
+            }
+
+            if(origin_table_operand != NULL && origin_table_operand->operand != NULL)
+                code_instruction_operand_free(&origin_table_operand->operand);
             if(operand->operand != NULL)
                 code_instruction_operand_free(&operand->operand);
 
             // add variable to constants if second operand is constant
-            if(!operand->blocked && instruction_type == I_MOVE &&
-                    instruction->op1->type == TYPE_INSTRUCTION_OPERAND_CONSTANT) {
-                operand->operand = code_instruction_operand_copy(instruction->op1);
+            if(!(!propagate_global_vars && variable->frame == VARIABLE_FRAME_GLOBAL)) {
+                if(!operand->blocked && instruction_type == I_MOVE &&
+                        instruction->op1->type == TYPE_INSTRUCTION_OPERAND_CONSTANT) {
+                    operand->operand = code_instruction_operand_copy(instruction->op1);
+                }
             }
         }
 
@@ -1274,7 +1334,8 @@ void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
             constants_tables_stack,
             processed_blocks_ids,
             cycled_block_mod_vars,
-            set_int_contains(block->conditional_jump, next_block_id->value)
+            set_int_contains(block->conditional_jump, next_block_id->value),
+            propagate_global_vars
         );
         next_block_id = (SetIntItem*) next_block_id->base.next;
     }

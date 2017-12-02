@@ -1,6 +1,26 @@
 #include "code_optimizer_expr.h"
 #include "code_instruction_operand.h"
 
+bool is_rounded_zero_integer(ExprToken* token) {
+    NULL_POINTER_CHECK(token, true);
+    if(token->instruction == NULL) {
+        return true;
+    }
+    if(token->instruction->op0 == NULL) {
+        return true;
+    }
+    if(token->instruction->op0->type != TYPE_INSTRUCTION_OPERAND_CONSTANT) {
+        return true;
+    }
+    if(token->instruction->op0->data.constant.data_type == DATA_TYPE_INTEGER) {
+        return token->instruction->op0->data.constant.data.integer == 0;
+    } else if(token->instruction->op0->data.constant.data_type == DATA_TYPE_DOUBLE) {
+        return round_even(token->instruction->op0->data.constant.data.double_) == 0;
+    }
+
+    return true;
+
+}
 
 CodeInstructionOperand* code_optimizer_expr_eval(
         CodeOptimizer* optimizer,
@@ -140,6 +160,8 @@ CodeInstructionOperand* code_optimizer_expr_eval(
             }
             case OPERATION_DIVIDE: {
                 CEE_ENABLED_CHECK();
+                if(is_rounded_zero_integer(t2))
+                    return NULL;
                 switch(signature->result_type) {
                     case DATA_TYPE_DOUBLE:
                         TRY_TO_PERFORM_OPERATION(t1, DATA_TYPE_DOUBLE, result_d, +);
@@ -157,14 +179,16 @@ CodeInstructionOperand* code_optimizer_expr_eval(
 
             case OPERATION_INT_DIVIDE: {
                 CEE_ENABLED_CHECK();
+                if(is_rounded_zero_integer(t2))
+                    return NULL;
                 switch(signature->result_type) {
                     case DATA_TYPE_INTEGER:
                         if(t1->data_type == DATA_TYPE_DOUBLE)
-                            result_i = (int) round_even(t1->instruction->op0->data.constant.data.double_);
+                            result_i = round_even(t1->instruction->op0->data.constant.data.double_);
                         TRY_TO_PERFORM_OPERATION(t1, DATA_TYPE_INTEGER, result_i, +);
 
                         if(t2->data_type == DATA_TYPE_DOUBLE)
-                            result_i /= (int) round_even(t2->instruction->op0->data.constant.data.double_);
+                            result_i /= round_even(t2->instruction->op0->data.constant.data.double_);
                         TRY_TO_PERFORM_OPERATION(t2, DATA_TYPE_INTEGER, result_i, /);
                         break;
 
@@ -348,6 +372,7 @@ void code_optimizer_optimize_type_casts(CodeOptimizer* optimizer) {
                     next = replacement;
                 }
             }
+                break;
             case I_INT_TO_FLOAT_STACK: {
                 if(actual->prev != NULL &&
                    actual->prev->type == I_PUSH_STACK &&

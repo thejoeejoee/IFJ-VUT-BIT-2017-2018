@@ -81,6 +81,13 @@ code_optimizer_init(CodeGenerator* generator, SymbolVariable* temp1, SymbolVaria
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "!a", "c", NULL, -1, -1, 0);
     code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_MOVE, "!a", "c", NULL);
 
+    return optimizer;
+}
+
+void code_optimizer_add_advance_peep_hole_patterns(CodeOptimizer* optimizer)
+{
+    NULL_POINTER_CHECK(optimizer, );
+
     /* Use normal operations with memory instead of stack if there is only 2 operands and result
      * is then stored in variable.
      * PUSH <a>         => OP <b> <a> <c>
@@ -88,24 +95,25 @@ code_optimizer_init(CodeGenerator* generator, SymbolVariable* temp1, SymbolVaria
      * OPS
      * POP <b>
      */
-//    TypeInstruction stack_operations_instructions[] = {I_ADD_STACK, I_SUB_STACK, I_MUL_STACK, I_DIV_STACK,
-//                                                       I_LESSER_THEN_STACK, I_GREATER_THEN_STACK, I_EQUAL_STACK,
-//                                                       I_AND_STACK, I_OR_STACK, I_NOT_STACK};
+    PeepHolePattern* pattern = NULL;
+    TypeInstruction stack_operations_instructions[] = {I_ADD_STACK, I_SUB_STACK, I_MUL_STACK, I_DIV_STACK,
+                                                       I_LESSER_THEN_STACK, I_GREATER_THEN_STACK, I_EQUAL_STACK,
+                                                       I_AND_STACK, I_OR_STACK, I_NOT_STACK};
 
-//    TypeInstruction operations_instructions[] = {I_ADD, I_SUB, I_MUL, I_DIV, I_LESSER_THEN, I_GREATER_THEN, I_EQUAL,
-//                                                 I_AND, I_OR, I_NOT};
-//    const int operations_count = (sizeof(operations_instructions) / sizeof(operations_instructions[0]));
+    TypeInstruction operations_instructions[] = {I_ADD, I_SUB, I_MUL, I_DIV, I_LESSER_THEN, I_GREATER_THEN, I_EQUAL,
+                                                 I_AND, I_OR, I_NOT};
+    const int operations_count = (sizeof(operations_instructions) / sizeof(operations_instructions[0]));
 
-//    for(int i = 0; i < operations_count; i++) {
-//        pattern = code_optimizer_new_ph_pattern(optimizer);
-//        code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);
-//        code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "c", NULL, NULL, -1, 0, 0);
-//        code_optimizer_add_matching_instruction_to_ph_pattern(pattern, stack_operations_instructions[i], NULL, NULL,
-//                                                              NULL, 0, 0, 0);
-//        code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_STACK, "!b", NULL, NULL, -1, 0, 0);
+    for(int i = 0; i < operations_count; i++) {
+        pattern = code_optimizer_new_ph_pattern(optimizer);
+        code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);
+        code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "c", NULL, NULL, -1, 0, 0);
+        code_optimizer_add_matching_instruction_to_ph_pattern(pattern, stack_operations_instructions[i], NULL, NULL,
+                                                              NULL, 0, 0, 0);
+        code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_STACK, "!b", NULL, NULL, -1, 0, 0);
 
-//        code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, operations_instructions[i], "!b", "a", "c");
-//    }
+        code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, operations_instructions[i], "!b", "a", "c");
+    }
 
     /* Remove concatinating with empty string
      * PUSH string@         => PUSH <a>
@@ -115,14 +123,14 @@ code_optimizer_init(CodeGenerator* generator, SymbolVariable* temp1, SymbolVaria
      * CONCAT <b> <c> <b>
      * PUSH <b>
      */
-//    pattern = code_optimizer_new_ph_pattern(optimizer);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "]_", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_STACK, "!b", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_STACK, "!c", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_CONCAT_STRING, "!b", "!c", "!b", -1, -1, -1);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "!b", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL);
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "]_", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_STACK, "!b", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_STACK, "!c", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_CONCAT_STRING, "!b", "!c", "!b", -1, -1, -1);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "!b", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL);
 
     /* Remove concatinating with empty string (reversed operands)
      * PUSH <a>             => PUSH <a>
@@ -132,14 +140,14 @@ code_optimizer_init(CodeGenerator* generator, SymbolVariable* temp1, SymbolVaria
      * CONCAT <b> <c> <b>
      * PUSH <b>
      */
-//    pattern = code_optimizer_new_ph_pattern(optimizer);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "]_", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_STACK, "!b", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_STACK, "!c", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_CONCAT_STRING, "!b", "!c", "!b", -1, -1, -1);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "!b", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL);
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "]_", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_STACK, "!b", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_STACK, "!c", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_CONCAT_STRING, "!b", "!c", "!b", -1, -1, -1);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "!b", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL);
 
     /* Remove concatinating with empty string (resolving for example a = "" + b + "xx"), it's
      * not first operation to be resolved in expression
@@ -149,46 +157,46 @@ code_optimizer_init(CodeGenerator* generator, SymbolVariable* temp1, SymbolVaria
      * CONCAT <b> <c> <b>
      * PUSH <b>
      */
-//    pattern = code_optimizer_new_ph_pattern(optimizer);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "]_", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_STACK, "!b", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_STACK, "!c", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_CONCAT_STRING, "!b", "!c", "!b", -1, -1, -1);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "!b", NULL, NULL, -1, 0, 0);
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "]_", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_STACK, "!b", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_STACK, "!c", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_CONCAT_STRING, "!b", "!c", "!b", -1, -1, -1);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "!b", NULL, NULL, -1, 0, 0);
 
     /* Shorten print
      * MOVE <temp_1> <b>    => WRITE <b>
      * WRITE <temp_1>
      */
-//    pattern = code_optimizer_new_ph_pattern(optimizer);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "1a", "b", NULL, -1, -1, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_WRITE, "1a", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_WRITE, "b", NULL, NULL);
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "1a", "b", NULL, -1, -1, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_WRITE, "1a", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_WRITE, "b", NULL, NULL);
 
 
     /* Double not on stack
      * NOT              => E
      * NOT
      */
-//    pattern = code_optimizer_new_ph_pattern(optimizer);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_NOT_STACK, NULL, NULL, NULL, 0, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_NOT_STACK, NULL, NULL, NULL, 0, 0, 0);
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_NOT_STACK, NULL, NULL, NULL, 0, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_NOT_STACK, NULL, NULL, NULL, 0, 0, 0);
 
     /* Double not on stack
      * PUSH true       => E
      * ANDS
      */
-//    pattern = code_optimizer_new_ph_pattern(optimizer);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "<", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_AND_STACK, NULL, NULL, NULL, 0, 0, 0);
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "<", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_AND_STACK, NULL, NULL, NULL, 0, 0, 0);
 
     /* Double not on stack
      * PUSH true       => E
      * EQS
      */
-//    pattern = code_optimizer_new_ph_pattern(optimizer);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "<", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_EQUAL_STACK, NULL, NULL, NULL, 0, 0, 0);
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "<", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_EQUAL_STACK, NULL, NULL, NULL, 0, 0, 0);
 
     /* Pattern expanding to always true
      * PUSH <a>       => PUSH true
@@ -196,21 +204,21 @@ code_optimizer_init(CodeGenerator* generator, SymbolVariable* temp1, SymbolVaria
      * NOTS
      * ORS
      */
-//    pattern = code_optimizer_new_ph_pattern(optimizer);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "foobar", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "foobar", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_NOT_STACK, NULL, NULL, NULL, 0, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_OR_STACK, NULL, NULL, NULL, 0, 0, 0);
-//    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "<true", NULL, NULL);
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "foobar", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "foobar", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_NOT_STACK, NULL, NULL, NULL, 0, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_OR_STACK, NULL, NULL, NULL, 0, 0, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "<true", NULL, NULL);
 
     /* Pattern expanding to always true
      * PUSH false       => NOTS
      * EQS
      */
-//    pattern = code_optimizer_new_ph_pattern(optimizer);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, ">", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_EQUAL_STACK, NULL, NULL, NULL, 0, 0, 0);
-//    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_NOT_STACK, NULL, NULL, NULL);
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, ">", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_EQUAL_STACK, NULL, NULL, NULL, 0, 0, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_NOT_STACK, NULL, NULL, NULL);
 
     /* Pattern expanding to always true
      * LABEL <label>       => E
@@ -222,21 +230,20 @@ code_optimizer_init(CodeGenerator* generator, SymbolVariable* temp1, SymbolVaria
      * JUMP <label>       => JUMP <label>
      * JUMP <label>
      */
-
-//    pattern = code_optimizer_new_ph_pattern(optimizer);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_JUMP, "&l", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_JUMP, "&l", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_JUMP, "&l", NULL, NULL);
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_JUMP, "&l", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_JUMP, "&l", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_JUMP, "&l", NULL, NULL);
 
     /* Shorten print (can reduce variable in general)
      * MOVE <a> <b>    => MOVE <a> <b>
      * WRITE <a>       => WRITE <b>
      */
-//    pattern = code_optimizer_new_ph_pattern(optimizer);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "!a", "b", NULL, -1, -1, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_WRITE, "!a", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_MOVE, "!a", "b", NULL);
-//    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_WRITE, "b", NULL, NULL);
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "!a", "b", NULL, -1, -1, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_WRITE, "!a", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_MOVE, "!a", "b", NULL);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_WRITE, "b", NULL, NULL);
 
     /* Shorten equality condition
      * PUSH <a>        => JUMP <l> <a> <b>
@@ -245,13 +252,13 @@ code_optimizer_init(CodeGenerator* generator, SymbolVariable* temp1, SymbolVaria
      * PUSH false
      * JUMPS <l>
      */
-//    pattern = code_optimizer_new_ph_pattern(optimizer);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "b", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_EQUAL_STACK, NULL, NULL, NULL, 0, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, ">_", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_JUMP_IF_EQUAL_STACK, "&l", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_JUMP_IF_NOT_EQUAL, "&l", "a", "b");
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "b", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_EQUAL_STACK, NULL, NULL, NULL, 0, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, ">_", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_JUMP_IF_EQUAL_STACK, "&l", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_JUMP_IF_NOT_EQUAL, "&l", "a", "b");
 
     /* Shorten non-equality condition
      * PUSH <a>        => JUMPNEQ <l> <a> <b>
@@ -261,14 +268,14 @@ code_optimizer_init(CodeGenerator* generator, SymbolVariable* temp1, SymbolVaria
      * PUSH false
      * JUMPS <l>
      */
-//    pattern = code_optimizer_new_ph_pattern(optimizer);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "b", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_EQUAL_STACK, NULL, NULL, NULL, 0, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_NOT_STACK, NULL, NULL, NULL, 0, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, ">_", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_JUMP_IF_EQUAL_STACK, "&l", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_JUMP_IF_EQUAL, "&l", "a", "b");
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "b", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_EQUAL_STACK, NULL, NULL, NULL, 0, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_NOT_STACK, NULL, NULL, NULL, 0, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, ">_", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_JUMP_IF_EQUAL_STACK, "&l", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_JUMP_IF_EQUAL, "&l", "a", "b");
 
     /* Shorten greater condition
      * PUSHS <a>      =>  GT temp1 <a> <b>
@@ -277,14 +284,14 @@ code_optimizer_init(CodeGenerator* generator, SymbolVariable* temp1, SymbolVaria
      * PUSH <false>
      * JUMPIFEQS <l>
      */
-//    pattern = code_optimizer_new_ph_pattern(optimizer);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "b", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_GREATER_THEN_STACK, NULL, NULL, NULL, 0, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, ">f", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_JUMP_IF_EQUAL_STACK, "&l", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_GREATER_THEN, "temp", "a", "b");
-//    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_JUMP_IF_EQUAL, "&l", "temp", ">f");
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "b", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_GREATER_THEN_STACK, NULL, NULL, NULL, 0, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, ">f", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_JUMP_IF_EQUAL_STACK, "&l", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_GREATER_THEN, "temp", "a", "b");
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_JUMP_IF_EQUAL, "&l", "temp", ">f");
 
     /* Shorten lesser condition
      * PUSHS <a>      =>  LT temp1 <a> <b>
@@ -293,14 +300,14 @@ code_optimizer_init(CodeGenerator* generator, SymbolVariable* temp1, SymbolVaria
      * PUSH <false>
      * JUMPIFEQS <l>
      */
-//    pattern = code_optimizer_new_ph_pattern(optimizer);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "b", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_LESSER_THEN_STACK, NULL, NULL, NULL, 0, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, ">f", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_JUMP_IF_EQUAL_STACK, "&l", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_LESSER_THEN, "temp", "a", "b");
-//    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_JUMP_IF_EQUAL, "&l", "temp", ">f");
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "b", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_LESSER_THEN_STACK, NULL, NULL, NULL, 0, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, ">f", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_JUMP_IF_EQUAL_STACK, "&l", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_LESSER_THEN, "temp", "a", "b");
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_JUMP_IF_EQUAL, "&l", "temp", ">f");
 
     /* Shorten lesser or equal condition
      * PUSHS <a>      =>  GT temp1 <a> <b>
@@ -310,15 +317,15 @@ code_optimizer_init(CodeGenerator* generator, SymbolVariable* temp1, SymbolVaria
      * PUSH <false>
      * JUMPIFEQS <l>
      */
-//    pattern = code_optimizer_new_ph_pattern(optimizer);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "b", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_GREATER_THEN_STACK, NULL, NULL, NULL, 0, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_NOT_STACK, NULL, NULL, NULL, 0, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, ">f", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_JUMP_IF_EQUAL_STACK, "&l", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_GREATER_THEN, "temp", "a", "b");
-//    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_JUMP_IF_NOT_EQUAL, "&l", "temp", ">f");
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "b", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_GREATER_THEN_STACK, NULL, NULL, NULL, 0, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_NOT_STACK, NULL, NULL, NULL, 0, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, ">f", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_JUMP_IF_EQUAL_STACK, "&l", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_GREATER_THEN, "temp", "a", "b");
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_JUMP_IF_NOT_EQUAL, "&l", "temp", ">f");
 
 
     /* Shorten greater or equal condition
@@ -329,50 +336,47 @@ code_optimizer_init(CodeGenerator* generator, SymbolVariable* temp1, SymbolVaria
      * PUSH <false>
      * JUMPIFEQS <l>
      */
-//    pattern = code_optimizer_new_ph_pattern(optimizer);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "b", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_LESSER_THEN_STACK, NULL, NULL, NULL, 0, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_NOT_STACK, NULL, NULL, NULL, 0, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, ">f", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_JUMP_IF_EQUAL_STACK, "&l", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_LESSER_THEN, "temp", "a", "b");
-//    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_JUMP_IF_NOT_EQUAL, "&l", "temp", ">f");
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "b", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_LESSER_THEN_STACK, NULL, NULL, NULL, 0, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_NOT_STACK, NULL, NULL, NULL, 0, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, ">f", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_JUMP_IF_EQUAL_STACK, "&l", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_LESSER_THEN, "temp", "a", "b");
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_JUMP_IF_NOT_EQUAL, "&l", "temp", ">f");
 
     /* Unreal jump.
      * PUSHS <t>        => E
      * PUSHS <f>
      * JUMPIFEQS <l>
      */
-//    pattern = code_optimizer_new_ph_pattern(optimizer);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "<", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, ">", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_JUMP_IF_EQUAL_STACK, "&l", NULL, NULL, -1, 0, 0);
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "<", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, ">", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_JUMP_IF_EQUAL_STACK, "&l", NULL, NULL, -1, 0, 0);
 
     /* Always jump.
      * PUSHS <t>        => JUMP <l>
      * PUSHS <t>
      * JUMPIFEQS <l>
      */
-//    pattern = code_optimizer_new_ph_pattern(optimizer);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_JUMP_IF_EQUAL_STACK, "&l", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_JUMP, "&l", NULL, NULL);
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_JUMP_IF_EQUAL_STACK, "&l", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_JUMP, "&l", NULL, NULL);
 
     /* Skip empty else branch.
      * JUMP <l>        => LABEL <k>
      * LABEL <k>
      * LABEL <l>
      */
-//    pattern = code_optimizer_new_ph_pattern(optimizer);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_JUMP, "%l", NULL, NULL, 1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_LABEL, "%k", NULL, NULL, -1, 0, 0);
-//    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_LABEL, "&l", NULL, NULL, 1, 0, 0);
-//    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_LABEL, "%k", NULL, NULL);
-
-
-    return optimizer;
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_JUMP, "%l", NULL, NULL, 1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_LABEL, "%k", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_LABEL, "&l", NULL, NULL, 1, 0, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_LABEL, "%k", NULL, NULL);
 }
 
 void code_optimizer_free(CodeOptimizer** optimizer) {

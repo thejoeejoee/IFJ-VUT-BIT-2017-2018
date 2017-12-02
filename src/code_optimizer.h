@@ -80,6 +80,7 @@ SymbolTable* code_optimizer_modified_vars_in_blocks(CodeOptimizer* optimizer, Se
 // optimizing functions
 bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer, bool hard_remove, bool remove_special_temp);
 
+void code_optimizer_add_advance_peep_hole_patterns(CodeOptimizer* optimizer);
 bool code_optimizer_peep_hole_optimization(CodeOptimizer* optimizer);
 
 bool code_optimizer_remove_unused_functions(CodeOptimizer* optimizer);

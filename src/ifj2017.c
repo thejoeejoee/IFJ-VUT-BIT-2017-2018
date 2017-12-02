@@ -26,16 +26,22 @@ int main(int argc, char** argv) {
     code_optimizer_update_meta_data(parser->optimizer);
 
     while(
+            code_optimizer_peep_hole_optimization(parser->optimizer)
+            );
+    code_optimizer_split_code_to_graph(parser->optimizer);
+
+    code_optimizer_propate_constants_optimization(parser->optimizer);
+
+    while(
             code_optimizer_remove_unused_variables(parser->optimizer, true, false) ||
             code_optimizer_remove_unused_functions(parser->optimizer));
 
+    code_optimizer_add_advance_peep_hole_patterns(parser->optimizer);
     while(
             code_optimizer_peep_hole_optimization(parser->optimizer)
             );
 
-
     code_optimizer_remove_unused_variables(parser->optimizer, false, true);
-
     code_generator_render(parser->code_constructor->generator, stdout);
 
     fflush(stdout);

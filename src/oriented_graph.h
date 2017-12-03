@@ -48,6 +48,10 @@ bool oriented_graph_node_is_in_cycle(OrientedGraph* graph, GraphNodeBase* node);
 void _oriented_graph_expand_nodes(OrientedGraph* graph, SetInt* layer);
 
 OrientedGraph* oriented_graph_transpose(OrientedGraph* graph);
+/**
+  Tarjan's algorithm
+ * https://en.wikipedia.org/wiki/Tarjan%27s_strongly_connected_components_algorithm
+ */
 LList* oriented_graph_scc(OrientedGraph* graph);
 void oriented_graph_scc_util(OrientedGraph* graph, unsigned int u, int disc[], int low[], Stack* stack, bool stack_member[], int* discovery_time, LList* components);
 

@@ -143,7 +143,7 @@ void code_constructor_static_variable_declaration(CodeConstructor* constructor, 
             function
     );
 
-    static_variable->frame = VARIABLE_FRAME_GLOBAL; // TODO: here?
+    static_variable->frame = VARIABLE_FRAME_GLOBAL;
 
     // initialize to false (inverted order to respect stack-behaviour of inserting)
     CodeInstruction* declaration_flag_instruction_init = code_generator_new_instruction(

@@ -178,7 +178,6 @@ void expr_token_free(ExprToken* t) {
            ) && t->data.s != NULL) {
             memory_free(t->data.s);
         }
-//         TODO check free
         memory_free(t);
     }
 }
@@ -242,7 +241,7 @@ void expr_llist_append_after_last_terminal(LList* expr_token_buffer, ExprToken* 
 }
 
 void expr_token_update_unary(ExprToken* minus, const ExprToken* previous) {
-    //TODO: what about unary + ?
+    // unary + is not in project doc
     ASSERT(minus->type == EXPR_TOKEN_MINUS);
     ExprTokenType prev_t = previous->type;
     if(

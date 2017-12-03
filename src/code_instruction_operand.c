@@ -17,7 +17,6 @@ CodeInstructionOperand* code_instruction_operand_init(TypeInstructionOperand typ
 void code_instruction_operand_free(CodeInstructionOperand** operand_) {
     NULL_POINTER_CHECK(operand_,);
     NULL_POINTER_CHECK(*operand_,);
-    // TODO: free specific operands
     CodeInstructionOperand* operand = *operand_;
     switch(operand->type) {
         case TYPE_INSTRUCTION_OPERAND_CONSTANT:
@@ -33,7 +32,6 @@ void code_instruction_operand_free(CodeInstructionOperand** operand_) {
             memory_free((void*) operand->data.label);
             operand->data.label = NULL;
         default:
-            // TODO: free what?
             break;
     }
     memory_free(operand);

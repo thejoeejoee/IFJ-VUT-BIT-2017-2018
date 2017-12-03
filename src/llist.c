@@ -2,14 +2,15 @@
 #include "llist.h"
 #include <stdlib.h>
 
-void llist_init(LList** list, size_t item_size, llist_init_item_data_callback_f init_function, llist_free_item_data_callback_f free_function, llist_item_compare_function cmp_function) {
+void llist_init(LList** list, size_t item_size, llist_init_item_data_callback_f init_function,
+                llist_free_item_data_callback_f free_function, llist_item_compare_function cmp_function) {
     *list = (LList*) memory_alloc(sizeof(LList));
 
     llist_init_list(*list, item_size, init_function, free_function, cmp_function);
 }
 
-void llist_init_list(LList* list, size_t item_size, llist_init_item_data_callback_f init_function, llist_free_item_data_callback_f free_function, llist_item_compare_function cmp_function)
-{
+void llist_init_list(LList* list, size_t item_size, llist_init_item_data_callback_f init_function,
+                     llist_free_item_data_callback_f free_function, llist_item_compare_function cmp_function) {
     list->head = NULL;
     list->tail = NULL;
     list->init_data_callback = init_function;
@@ -27,8 +28,7 @@ LListBaseItem* llist_new_tail_item(LList* list) {
 }
 
 
-LListBaseItem* llist_append_item(LList* list, LListBaseItem* new_item)
-{
+LListBaseItem* llist_append_item(LList* list, LListBaseItem* new_item) {
     NULL_POINTER_CHECK(list, NULL);
     NULL_POINTER_CHECK(new_item, NULL);
 
@@ -49,16 +49,15 @@ LListBaseItem* llist_append_item(LList* list, LListBaseItem* new_item)
     return new_item;
 }
 
-LListBaseItem* llist_pop_back(LList* list)
-{
+LListBaseItem* llist_pop_back(LList* list) {
     LListBaseItem* tmp;
 
-    if (list->tail == NULL) {
+    if(list->tail == NULL) {
         return NULL;
     }
     tmp = list->tail;
     list->tail = list->tail->previous;
-    if (list->tail == NULL) {
+    if(list->tail == NULL) {
         list->head = NULL;
     }
 
@@ -66,13 +65,12 @@ LListBaseItem* llist_pop_back(LList* list)
     return tmp;
 }
 
-void llist_insert_after(LList* list, LListBaseItem* after, LListBaseItem* new_item)
-{
-    NULL_POINTER_CHECK(list, );
-    NULL_POINTER_CHECK(after, );
+void llist_insert_after(LList* list, LListBaseItem* after, LListBaseItem* new_item) {
+    NULL_POINTER_CHECK(list,);
+    NULL_POINTER_CHECK(after,);
     ASSERT(list->tail != NULL);
 
-    if (after->next == NULL) {
+    if(after->next == NULL) {
         ASSERT(after == list->tail);
         after->next = new_item;
         list->tail = new_item;
@@ -86,29 +84,28 @@ void llist_insert_after(LList* list, LListBaseItem* after, LListBaseItem* new_it
     }
 }
 
-LListBaseItem* llist_remove_item(LList* list, LListBaseItem* item)
-{
+LListBaseItem* llist_remove_item(LList* list, LListBaseItem* item) {
     NULL_POINTER_CHECK(list, NULL);
     NULL_POINTER_CHECK(item, NULL);
 
     LListBaseItem* next = item->next;
-    
-    if (item->previous == NULL) {
-        if (list->head == item) {
+
+    if(item->previous == NULL) {
+        if(list->head == item) {
             list->head = item->next;
         }
     } else {
         item->previous->next = item->next;
     }
-    if (item->next == NULL) {
-        if (list->tail == item) {
+    if(item->next == NULL) {
+        if(list->tail == item) {
             list->tail = item->previous;
         }
     } else {
         item->next->previous = item->previous;
     }
 
-    if (list->free_data_callback != NULL) {
+    if(list->free_data_callback != NULL) {
         list->free_data_callback(item);
     }
     memory_free(item);
@@ -126,7 +123,7 @@ void llist_free(LList** list) {
     if(current_item != NULL) {
         do {
             next_item = current_item->next;
-            if ((*list)->free_data_callback != NULL) {
+            if((*list)->free_data_callback != NULL) {
                 (*list)->free_data_callback(current_item);
             }
             memory_free(current_item);
@@ -138,8 +135,7 @@ void llist_free(LList** list) {
     *list = NULL;
 }
 
-size_t llist_length(LList* list)
-{
+size_t llist_length(LList* list) {
     LListBaseItem* item = list->head;
     size_t count = 0;
 
@@ -151,8 +147,7 @@ size_t llist_length(LList* list)
     return count;
 }
 
-LListBaseItem* llist_get_n_from_end(LList* list, size_t n)
-{
+LListBaseItem* llist_get_n_from_end(LList* list, size_t n) {
     LListBaseItem* item = list->tail;
 
     for(size_t i = 0; i < n; i++) {

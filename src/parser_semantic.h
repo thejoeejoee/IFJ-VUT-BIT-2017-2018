@@ -23,9 +23,9 @@ typedef enum {
 
     // Bool operations
 
-	OPERATION_NOT,
-	OPERATION_AND,
-	OPERATION_OR,
+    OPERATION_NOT,
+    OPERATION_AND,
+    OPERATION_OR,
 
     OPERATION_GREATER,
     OPERATION_GREATER_OR_EQUAL,
@@ -99,7 +99,7 @@ void parser_semantic_set_action(ParserSemantic* parser_semantic, SemanticAction 
  *
  * @param parser_semantic
  * @param char* name Name of function
- * @return bool
+ * @return bool was successfully sets?
  */
 bool parser_semantic_set_function_name(ParserSemantic* parser_semantic, char* name);
 
@@ -107,57 +107,109 @@ bool parser_semantic_set_function_name(ParserSemantic* parser_semantic, char* na
 /**
  * @brief Add Variable to the actual symbol table
  *
- * @param parser_semantic
- * @param name
- * @param data_type
- * @return bool
+ * @param parser_semantic instance
+ * @param name name of variable
+ * @param data_type data type of variable
+ * @return instance of created variable
  */
 SymbolVariable* parser_semantic_add_variable(ParserSemantic* parser_semantic, char* name, DataType data_type);
 
 /**
  * @brief If the actual action is ACTUAL_ACTION__FUNCTION_DECLARATION, then set return data type for actual function,
  *        If the actual action is ACTUAL_ACTION__FUNCTION_DEFINITION, then check return data type in symbol table
- *
- * @param parser_semantic
- * @param token_type
- * @return bool
+ * @param parser_semantic instance
+ * @param data_type return data type to set
+ * @return bool was successfully sets?
  */
-bool parser_semantic_set_function_return_data_type(ParserSemantic* parser_semantic, DataType token_type);
+bool parser_semantic_set_function_return_data_type(ParserSemantic* parser_semantic, DataType data_type);
 
 /**
- *
- * @param parser_semantic
- * @param name
- * @param data_type
+ *  Add function parameter to list of params.
+ * @param parser_semantic instant
+ * @param name parameter name
+ * @param data_type data types
+ * @return bool was successfully sets?
  */
 bool parser_semantic_add_function_parameter(ParserSemantic* parser_semantic, char* name, DataType data_type);
 
 /**
- *
- * @param parser_semantic
- * @return
+ *  Checks function parameter count with declaration.
+ * @param parser_semantic instance
+ * @return true if was check successful
  */
 bool parser_semantic_check_count_of_function_arguments(ParserSemantic* parser_semantic);
 
+/**
+ * Returns false if exists any declared function without definition.
+ * @param parser_semantic instance
+ * @return result of check
+ */
 bool parser_semantic_check_function_definitions(ParserSemantic* parser_semantic);
 
+/**
+ * Initialize all params into new variables table.
+ * @param parser_semantic instance
+ * @param function starting function
+ */
 void parser_semantic_function_start(ParserSemantic* parser_semantic, SymbolFunction* function);
 
+/**
+ * Pop variables table as ending function block.
+ * @param parser_semantic instance
+ */
 void parser_semantic_function_end(ParserSemantic* parser_semantic);
 
-// TODO doc and test
-void parser_semantic_add_operation_signature(ParserSemantic* parser_semantic, TypeExpressionOperation operation,
-                                             DataType operand_1_type, DataType operand_2_type, DataType target_type,
-                                             DataType result_type);
+/**
+ * Add new operation signature into signatures register.
+ * @param parser_semantic instance
+ * @param operation type of operation
+ * @param operand_1_type first operand type
+ * @param operand_2_type second operand type
+ * @param target_type step data types to convert input operands
+ * @param result_type result data type
+ */
+void parser_semantic_add_operation_signature(
+        ParserSemantic* parser_semantic, TypeExpressionOperation operation,
+        DataType operand_1_type, DataType operand_2_type, DataType target_type,
+        DataType result_type
+);
 
-OperationSignature*
-parser_semantic_get_operation_signature(ParserSemantic* parser_semantic, TypeExpressionOperation operation_type,
-                                        DataType operand_1_type, DataType operand_2_type, DataType target_type);
+/**
+ * Gets Signature or NULL if operand types and result type were matched.
+ * @param parser_semantic instance
+ * @param operation_type operation type
+ * @param operand_1_type first operand type
+ * @param operand_2_type second operand type
+ * @param target_type target type of operation
+ * @return NULL if was signature found
+ */
+OperationSignature* parser_semantic_get_operation_signature(
+        ParserSemantic* parser_semantic,
+        TypeExpressionOperation operation_type,
+        DataType operand_1_type, DataType operand_2_type,
+        DataType target_type
+);
 
-DataType parser_semantic_resolve_implicit_data_type_conversion(ParserSemantic* parser_semantic,
-                                                               TypeExpressionOperation operation_type,
-                                                               DataType operand_1_type, DataType operand_2_type, DataType target_conversion_type);
+/**
+ * Gets conversion data type to operands based by two operands and target conversion type.
+ * @param parser_semantic instance
+ * @param operation_type type of operation
+ * @param operand_1_type first operand type
+ * @param operand_2_type second operand type
+ * @param target_conversion_type conversion type
+ * @return data type of needed conversion type
+ */
+DataType parser_semantic_resolve_implicit_data_type_conversion(
+        ParserSemantic* parser_semantic,
+        TypeExpressionOperation operation_type,
+        DataType operand_1_type, DataType operand_2_type,
+        DataType target_conversion_type
+);
 
+/**
+ * Setups all temp variables used for writes/reads and implementation of builtin functions.
+ * @param parser_semantic instance
+ */
 void parser_semantic_setup_temp_variables(ParserSemantic* parser_semantic);
 
 #endif //_PARSER_SEMANTIC_H

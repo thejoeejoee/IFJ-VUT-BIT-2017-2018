@@ -27,7 +27,7 @@ bool parser_parse_expression(Parser* parser) {
     Token last_token;
     last_token.data = NULL;
     ExprToken* token, * precedence;
-    ExprIdx expression_idx = 0; //TODO: maybe should be static in expression_reduce, because of function calls
+    ExprIdx expression_idx = 0;
     LList* buffer;
     llist_init(&buffer, sizeof(ExprToken), NULL, expr_llist_free, expr_llist_type_cmp);
 

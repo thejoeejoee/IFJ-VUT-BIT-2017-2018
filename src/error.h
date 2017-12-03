@@ -17,8 +17,7 @@ typedef enum error_code_t {
 typedef struct error_report_t {
     ErrorCode error_code;
     size_t line;
-    int detail_information;
-    // TODO: Other information
+    short detail_information;
 } ErrorReport;
 
 /**

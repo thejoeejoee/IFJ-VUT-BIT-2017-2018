@@ -13,12 +13,11 @@
 #include "code_optimizer.h"
 #include "parser_expr_internal.h"
 
-//Todo: we need to invent better macros
 #define GET_NEXT_TOKEN_TYPE() do { \
     token_free(&token);\
     token = lexer_next_token(parser->lexer); \
     token_type = token.type; \
-    } while(0);
+} while(0);
 
 
 #define CALL_RULE(Rule) if (!parser_parse_##Rule(parser)) { token_free(&token); return false; }

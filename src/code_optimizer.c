@@ -3,9 +3,9 @@
 #include "meta_data_constants_tables_stack.h"
 #include "meta_data_cycled_blocks_mod_vars.h"
 
-CodeOptimizer*
-code_optimizer_init(CodeGenerator* generator, SymbolVariable* temp1, SymbolVariable* temp2, SymbolVariable* temp3,
-                    SymbolVariable* temp4, SymbolVariable* temp5, SymbolVariable* temp6) {
+CodeOptimizer* code_optimizer_init(CodeGenerator* generator, SymbolVariable* temp1, SymbolVariable* temp2,
+                                   SymbolVariable* temp3,
+                                   SymbolVariable* temp4, SymbolVariable* temp5, SymbolVariable* temp6) {
     NULL_POINTER_CHECK(generator, NULL);
     NULL_POINTER_CHECK(temp1, NULL);
     NULL_POINTER_CHECK(temp2, NULL);
@@ -16,11 +16,15 @@ code_optimizer_init(CodeGenerator* generator, SymbolVariable* temp1, SymbolVaria
 
 
     CodeOptimizer* optimizer = memory_alloc(sizeof(CodeOptimizer));
-    optimizer->variables_meta_data = symbol_table_init(32, sizeof(VariableMetaData), &init_variable_meta_data, NULL);
+    optimizer->variables_meta_data = symbol_table_init(SYMBOL_TABLE_BASE_SIZE, sizeof(VariableMetaData),
+                                                       &init_variable_meta_data, NULL);
 
-    optimizer->functions_meta_data = symbol_table_init(32, sizeof(FunctionMetaData), &init_function_meta_data, &free_function_meta_data);
+    optimizer->functions_meta_data = symbol_table_init(SYMBOL_TABLE_BASE_SIZE, sizeof(FunctionMetaData),
+                                                       &init_function_meta_data,
+                                                       &free_function_meta_data);
 
-    optimizer->labels_meta_data = symbol_table_init(32, sizeof(LabelMetaData), &init_label_meta_data, NULL);
+    optimizer->labels_meta_data = symbol_table_init(SYMBOL_TABLE_BASE_SIZE, sizeof(LabelMetaData),
+                                                    &init_label_meta_data, NULL);
 
     optimizer->code_graph = oriented_graph_init(sizeof(CodeBlock), &init_code_block, &free_code_block);
 
@@ -68,9 +72,8 @@ code_optimizer_init(CodeGenerator* generator, SymbolVariable* temp1, SymbolVaria
     return optimizer;
 }
 
-void code_optimizer_add_advance_peep_hole_patterns(CodeOptimizer* optimizer)
-{
-    NULL_POINTER_CHECK(optimizer, );
+void code_optimizer_add_advance_peep_hole_patterns(CodeOptimizer* optimizer) {
+    NULL_POINTER_CHECK(optimizer,);
 
     /* Use normal operations with memory instead of stack if there is only 2 operands and result
      * is then stored in variable.
@@ -518,7 +521,7 @@ void code_optimizer_update_meta_data(CodeOptimizer* optimizer) {
     CodeInstruction* expr_start_instruction = NULL;
     while(instruction != NULL) {
         if((instruction->meta_data.type & CODE_INSTRUCTION_META_TYPE_EXPRESSION_START) &&
-                instruction->meta_data.purity_type == META_TYPE_PURE) {
+           instruction->meta_data.purity_type == META_TYPE_PURE) {
             expr_start_instruction = instruction;
             // assume literal expression
             instruction->meta_data.interpretable = true;
@@ -537,19 +540,17 @@ void code_optimizer_update_meta_data(CodeOptimizer* optimizer) {
             // check if it is interpretable
             if(!interpreter_supported_instruction(instruction->type)) {
                 expr_start_instruction->meta_data.interpretable = false;
-            }
-
-            else {
+            } else {
                 CodeInstructionOperand* operands[OPERANDS_MAX_COUNT] = {
-                    instruction->op0,
-                    instruction->op1,
-                    instruction->op2
+                        instruction->op0,
+                        instruction->op1,
+                        instruction->op2
                 };
 
                 for(int j = 0; j < instruction->signature_buffer->operand_count; j++) {
                     if(operands[j] != NULL &&
-                            operands[j]->type == TYPE_INSTRUCTION_OPERAND_VARIABLE &&
-                            !symbol_variable_cmp(optimizer->temp1, operands[j]->data.variable)) {
+                       operands[j]->type == TYPE_INSTRUCTION_OPERAND_VARIABLE &&
+                       !symbol_variable_cmp(optimizer->temp1, operands[j]->data.variable)) {
                         expr_start_instruction->meta_data.interpretable = false;
                         break;
                     }
@@ -583,7 +584,7 @@ void code_optimizer_update_function_meta_data(CodeOptimizer* optimizer, CodeInst
     if((instruction_class(instruction) == INSTRUCTION_TYPE_WRITE ||
         instruction_class(instruction) == INSTRUCTION_TYPE_VAR_MODIFIERS) &&
        instruction->op0->type == TYPE_INSTRUCTION_OPERAND_VARIABLE &&
-            instruction->op0->data.variable->frame == VARIABLE_FRAME_GLOBAL) {
+       instruction->op0->data.variable->frame == VARIABLE_FRAME_GLOBAL) {
         flags |= META_TYPE_WITH_SIDE_EFFECT;
     }
     FunctionMetaData* meta_data = code_optimizer_function_meta_data(optimizer, current_func_label);
@@ -592,7 +593,7 @@ void code_optimizer_update_function_meta_data(CodeOptimizer* optimizer, CodeInst
     // set modified global variables
     const TypeInstructionClass instruction_cls = instruction_class(instruction);
     if(instruction_cls == INSTRUCTION_TYPE_WRITE ||
-            instruction_cls == INSTRUCTION_TYPE_VAR_MODIFIERS) {
+       instruction_cls == INSTRUCTION_TYPE_VAR_MODIFIERS) {
         SymbolVariable* variable = instruction->op0->data.variable;
         if(variable->frame == VARIABLE_FRAME_GLOBAL) {
             symbol_table_get_or_create(meta_data->mod_global_vars, variable_cached_identifier(variable));
@@ -601,20 +602,20 @@ void code_optimizer_update_function_meta_data(CodeOptimizer* optimizer, CodeInst
 
     // set read global variables
     CodeInstructionOperand* operands[OPERANDS_MAX_COUNT] = {
-        instruction->op0,
-        instruction->op1,
-        instruction->op2
+            instruction->op0,
+            instruction->op1,
+            instruction->op2
     };
 
     const TypeInstructionOperand operands_type[OPERANDS_MAX_COUNT] = {
-        instruction->signature_buffer->type0,
-        instruction->signature_buffer->type1,
-        instruction->signature_buffer->type2,
+            instruction->signature_buffer->type0,
+            instruction->signature_buffer->type1,
+            instruction->signature_buffer->type2,
     };
 
     for(int j = 0; j < instruction->signature_buffer->operand_count; j++) {
         if(operands[j]->type == TYPE_INSTRUCTION_OPERAND_VARIABLE &&
-                operands_type[j] == TYPE_INSTRUCTION_OPERAND_SYMBOL ) {
+           operands_type[j] == TYPE_INSTRUCTION_OPERAND_SYMBOL) {
             SymbolVariable* variable = operands[j]->data.variable;
             if(variable->frame == VARIABLE_FRAME_GLOBAL) {
                 symbol_table_get_or_create(meta_data->read_global_vars, variable_cached_identifier(variable));
@@ -676,9 +677,6 @@ bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer, bool hard_
     const size_t max_operands_count = 3;
     bool remove_something = false;
     MetaType expression_purity = META_TYPE_PURE;
-
-    // optimize
-    instruction = optimizer->generator->first;
 
     while(instruction != NULL) {
         bool delete_instruction = false;
@@ -757,11 +755,10 @@ SymbolTable* code_optimizer_check_ph_pattern(CodeOptimizer* optimizer,
     NULL_POINTER_CHECK(ph_pattern, NULL);
     NULL_POINTER_CHECK(instruction, NULL);
 
-//    code_optimizer_update_meta_data(optimizer);
-
     PeepHolePatternInstruction* pattern_instruction =
             (PeepHolePatternInstruction*) ph_pattern->matching_instructions->head;
-    SymbolTable* mapped_operands = symbol_table_init(32, sizeof(MappedOperand), &init_mapped_operand_item,
+    SymbolTable* mapped_operands = symbol_table_init(SYMBOL_TABLE_BASE_SIZE, sizeof(MappedOperand),
+                                                     &init_mapped_operand_item,
                                                      &free_mapped_operand_item);
     MappedOperand* temp = (MappedOperand*) symbol_table_get_or_create(mapped_operands, "temp");
     temp->operand = code_instruction_operand_init_variable(optimizer->temp6);
@@ -1155,15 +1152,14 @@ void code_optimizer_removing_instruction(CodeOptimizer* optimizer, CodeInstructi
     }
 }
 
-void code_optimizer_split_code_to_graph(CodeOptimizer* optimizer)
-{
-    NULL_POINTER_CHECK(optimizer, );
+void code_optimizer_split_code_to_graph(CodeOptimizer* optimizer) {
+    NULL_POINTER_CHECK(optimizer,);
 
     oriented_graph_clear(optimizer->code_graph);
 
     CodeInstruction* instruction = optimizer->generator->first;
     CodeBlock* code_block = (CodeBlock*) oriented_graph_new_node(optimizer->code_graph);
-    SymbolTable* mapped_blocks = symbol_table_init(32, sizeof(SymbolTableIntItem), NULL, NULL);
+    SymbolTable* mapped_blocks = symbol_table_init(SYMBOL_TABLE_BASE_SIZE, sizeof(SymbolTableIntItem), NULL, NULL);
 
     while(instruction != NULL) {
         const TypeInstructionClass prev_instruction_type_class = instruction_class(instruction->prev);
@@ -1176,17 +1172,18 @@ void code_optimizer_split_code_to_graph(CodeOptimizer* optimizer)
 
             // map block
             if(instruction->type == I_LABEL) {
-                SymbolTableIntItem* mapped_block = (SymbolTableIntItem*) symbol_table_get_or_create(mapped_blocks, instruction->op0->data.label);
+                SymbolTableIntItem* mapped_block = (SymbolTableIntItem*) symbol_table_get_or_create(mapped_blocks,
+                                                                                                    instruction->op0->data.label);
                 mapped_block->value = (int) new_code_block->base.id;
             }
 
             // can connect  indirect blocks
             if((prev_is_cond_jump || (instruction->type == I_LABEL && !prev_is_direct_jump)) &&
-                    code_block->last_instruction->type != I_RETURN) {
+               code_block->last_instruction->type != I_RETURN) {
                 oriented_graph_connect_nodes(
-                            optimizer->code_graph,
-                            (GraphNodeBase*) code_block,
-                            (GraphNodeBase*) new_code_block);
+                        optimizer->code_graph,
+                        (GraphNodeBase*) code_block,
+                        (GraphNodeBase*) new_code_block);
                 if(prev_is_cond_jump)
                     set_int_add(code_block->conditional_jump, (int) new_code_block->base.id);
             }
@@ -1209,10 +1206,10 @@ void code_optimizer_split_code_to_graph(CodeOptimizer* optimizer)
             continue;
         const TypeInstructionClass last_block_instruction_type_class = instruction_class(block->last_instruction);
         if(last_block_instruction_type_class == INSTRUCTION_TYPE_DIRECT_JUMP ||
-                last_block_instruction_type_class == INSTRUCTION_TYPE_CONDITIONAL_JUMP) {
+           last_block_instruction_type_class == INSTRUCTION_TYPE_CONDITIONAL_JUMP) {
             SymbolTableIntItem* mapped_block = (SymbolTableIntItem*) symbol_table_get_or_create(
-                                                   mapped_blocks,
-                                                   block->last_instruction->op0->data.label);
+                    mapped_blocks,
+                    block->last_instruction->op0->data.label);
 
             if(mapped_block == NULL) {
                 LOG_WARNING("Split code internal error");
@@ -1229,15 +1226,15 @@ void code_optimizer_split_code_to_graph(CodeOptimizer* optimizer)
     symbol_table_free(mapped_blocks);
 }
 
-void code_optimizer_propate_constants_optimization(CodeOptimizer* optimizer)
-{
-    NULL_POINTER_CHECK(optimizer, );
-    NULL_POINTER_CHECK(optimizer->code_graph, );
+void code_optimizer_propate_constants_optimization(CodeOptimizer* optimizer) {
+    NULL_POINTER_CHECK(optimizer,);
+    NULL_POINTER_CHECK(optimizer->code_graph,);
 
     OrientedGraph* graph = optimizer->code_graph;
     LList* blocks_in_cycles = oriented_graph_scc(optimizer->code_graph);
     LList* cycled_blocks_mod_vars;
-    llist_init(&cycled_blocks_mod_vars, sizeof(MetaDataCycledBlocksModVars), NULL, &meta_data_cycled_blocks_mod_vars_free, NULL);
+    llist_init(&cycled_blocks_mod_vars, sizeof(MetaDataCycledBlocksModVars), NULL,
+               &meta_data_cycled_blocks_mod_vars_free, NULL);
 
     SetInt* proccessed_blocks = set_int_init();
     Stack* constants_tables_stack = stack_init(&constants_table_stack_item_free);
@@ -1245,7 +1242,8 @@ void code_optimizer_propate_constants_optimization(CodeOptimizer* optimizer)
     // map modified variables in cycles
     LListItemSet* item = (LListItemSet*) blocks_in_cycles->head;
     while(item != NULL) {
-        MetaDataCycledBlocksModVars* cycle_mod_vars = (MetaDataCycledBlocksModVars*) llist_new_tail_item(cycled_blocks_mod_vars);
+        MetaDataCycledBlocksModVars* cycle_mod_vars = (MetaDataCycledBlocksModVars*) llist_new_tail_item(
+                cycled_blocks_mod_vars);
         cycle_mod_vars->blocks_ids = set_int_copy(item->set);
         cycle_mod_vars->mod_vars = code_optimizer_modified_vars_in_blocks(optimizer, item->set);
 
@@ -1262,37 +1260,38 @@ void code_optimizer_propate_constants_optimization(CodeOptimizer* optimizer)
         if((block->instructions->meta_data.type & CODE_INSTRUCTION_META_TYPE_FUNCTION_START) == 0)
             continue;
 
-        SymbolTable* constants = symbol_table_init(32, sizeof(MappedOperand),
-                                                         &init_mapped_operand_item,
-                                                         &free_mapped_operand_item);
+        SymbolTable* constants = symbol_table_init(SYMBOL_TABLE_BASE_SIZE, sizeof(MappedOperand),
+                                                   &init_mapped_operand_item,
+                                                   &free_mapped_operand_item);
         constants->copy_data_callback = &copy_mapped_operand_item;
         stack_push(constants_tables_stack, (StackBaseItem*) constants_table_stack_item_init(constants));
 
-        code_optimizer_propagate_constants_in_block(optimizer, block, constants_tables_stack, proccessed_blocks, cycled_blocks_mod_vars, false, false);
+        code_optimizer_propagate_constants_in_block(optimizer, block, constants_tables_stack, proccessed_blocks,
+                                                    cycled_blocks_mod_vars, false, false);
         StackBaseItem* old_table = stack_pop(constants_tables_stack);
         constants_table_stack_item_free(old_table);
         memory_free(old_table);
     }
 
     // propagate first block
-    SymbolTable* constants = symbol_table_init(32, sizeof(MappedOperand),
-                                                     &init_mapped_operand_item,
-                                                     &free_mapped_operand_item);
+    SymbolTable* constants = symbol_table_init(SYMBOL_TABLE_BASE_SIZE, sizeof(MappedOperand),
+                                               &init_mapped_operand_item,
+                                               &free_mapped_operand_item);
     constants->copy_data_callback = &copy_mapped_operand_item;
     stack_push(constants_tables_stack, (StackBaseItem*) constants_table_stack_item_init(constants));
     CodeBlock* block = (CodeBlock*) oriented_graph_node(graph, 0);
 
     // start
-    code_optimizer_propagate_constants_in_block(optimizer, block, constants_tables_stack, proccessed_blocks, cycled_blocks_mod_vars, false, true);
+    code_optimizer_propagate_constants_in_block(optimizer, block, constants_tables_stack, proccessed_blocks,
+                                                cycled_blocks_mod_vars, false, true);
 
     llist_free(&cycled_blocks_mod_vars);
     stack_free(&constants_tables_stack);
     set_int_free(&proccessed_blocks);
 }
 
-void block_variables_in_constants_table(const char* key, void* item, void* data)
-{
-    NULL_POINTER_CHECK(item, );
+void block_variables_in_constants_table(const char* key, void* item, void* data) {
+    NULL_POINTER_CHECK(item,);
     SymbolTable* constants_table = (SymbolTable*) data;
     MappedOperand* op = (MappedOperand*) symbol_table_function_get_or_create(constants_table, key);
     op->blocked = true;
@@ -1300,9 +1299,8 @@ void block_variables_in_constants_table(const char* key, void* item, void* data)
         op->setter->meta_data.without_effect = false;
 }
 
-void remove_variables_in_constants_table(const char* key, void* item, void* data)
-{
-    NULL_POINTER_CHECK(item, );
+void remove_variables_in_constants_table(const char* key, void* item, void* data) {
+    NULL_POINTER_CHECK(item,);
     SymbolTable* constants_table = (SymbolTable*) data;
     MappedOperand* op = (MappedOperand*) symbol_table_function_get_or_create(constants_table, key);
     if(op->operand != NULL)
@@ -1310,35 +1308,32 @@ void remove_variables_in_constants_table(const char* key, void* item, void* data
 }
 
 // TODO rename
-void remove_variables_setters_in_constants_table(const char* key, void* item, void* data)
-{
-    NULL_POINTER_CHECK(item, );
+void remove_variables_setters_in_constants_table(const char* key, void* item, void* data) {
+    NULL_POINTER_CHECK(item,);
     SymbolTable* constants_table = (SymbolTable*) data;
     MappedOperand* op = (MappedOperand*) symbol_table_function_get_or_create(constants_table, key);
     if(op->operand != NULL && op->setter != NULL)
         op->setter->meta_data.without_effect = false;
 }
 
-void remove_reset_var_setters_in_constants_table(const char* key, void* item, void* data)
-{
-    NULL_POINTER_CHECK(item, );
+void remove_reset_var_setters_in_constants_table(const char* key, void* item, void* data) {
+    NULL_POINTER_CHECK(item,);
     SymbolTable* constants_table = (SymbolTable*) data;
     MappedOperand* op = (MappedOperand*) symbol_table_function_get_or_create(constants_table, key);
     op->setter = NULL;
 }
 
 void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
-        CodeBlock* block,
-        Stack* constants_tables_stack,
-        SetInt* processed_blocks_ids,
-        LList* cycled_block_mod_vars,
-        bool is_conditional_block,
-        bool propagate_global_vars)
-{
-    NULL_POINTER_CHECK(optimizer, );
-    NULL_POINTER_CHECK(block, );
-    NULL_POINTER_CHECK(constants_tables_stack, );
-    NULL_POINTER_CHECK(processed_blocks_ids, );
+                                                 CodeBlock* block,
+                                                 Stack* constants_tables_stack,
+                                                 SetInt* processed_blocks_ids,
+                                                 LList* cycled_block_mod_vars,
+                                                 bool is_conditional_block,
+                                                 bool propagate_global_vars) {
+    NULL_POINTER_CHECK(optimizer,);
+    NULL_POINTER_CHECK(block,);
+    NULL_POINTER_CHECK(constants_tables_stack,);
+    NULL_POINTER_CHECK(processed_blocks_ids,);
 
     // check whether block was processed
     if(set_int_contains(processed_blocks_ids, (int) block->base.id))
@@ -1352,17 +1347,17 @@ void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
 
     // determining direct parent blocks
     SetIntItem* parent_id = (SetIntItem*) block->base.in_edges->head;
-    int direct_parent_blocks_count =  0;
+    int direct_parent_blocks_count = 0;
 
     while(parent_id != NULL) {
-        CodeBlock* parent_block = (CodeBlock*) oriented_graph_node(optimizer->code_graph, (unsigned int) parent_id->value);
+        CodeBlock* parent_block = (CodeBlock*) oriented_graph_node(optimizer->code_graph,
+                                                                   (unsigned int) parent_id->value);
         if(parent_block) {
             if(!set_int_contains(parent_block->conditional_jump, (int) block->base.id))
                 direct_parent_blocks_count++;
-        }
-
-        else
+        } else {
             LOG_WARNING("Internal error getting parent code block.");
+        }
 
         parent_id = (SetIntItem*) parent_id->base.next;
     }
@@ -1401,39 +1396,43 @@ void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
 
         // remove modified globals from function
         if(instruction->type == I_CALL) {
-            SymbolTable* modified_globals = code_optimizer_function_meta_data(optimizer, instruction->op0->data.label)->mod_global_vars;
-            if(modified_globals == NULL)
-                LOG_WARNING("Error getting function modified gloval vars table.");
+            SymbolTable* modified_globals = code_optimizer_function_meta_data(optimizer,
+                                                                              instruction->op0->data.label)->mod_global_vars;
+            if(modified_globals == NULL) {
+                LOG_WARNING("Error getting function modified global vars table.");
+            }
 
             symbol_table_foreach(modified_globals, &remove_variables_in_constants_table, constants_table);
 
-            SymbolTable* read_globals = code_optimizer_function_meta_data(optimizer, instruction->op0->data.label)->read_global_vars;
-            if(read_globals == NULL)
+            SymbolTable* read_globals = code_optimizer_function_meta_data(optimizer,
+                                                                          instruction->op0->data.label)->read_global_vars;
+            if(read_globals == NULL) {
                 LOG_WARNING("Error getting function read global vars table.");
+            }
 
             symbol_table_foreach(read_globals, &remove_variables_setters_in_constants_table, constants_table);
         }
 
         // replace variables with constant
         CodeInstructionOperand** operands[OPERANDS_MAX_COUNT] = {
-            &instruction->op0,
-            &instruction->op1,
-            &instruction->op2
+                &instruction->op0,
+                &instruction->op1,
+                &instruction->op2
         };
 
         const TypeInstructionOperand operands_type[OPERANDS_MAX_COUNT] = {
-            instruction->signature_buffer->type0,
-            instruction->signature_buffer->type1,
-            instruction->signature_buffer->type2,
+                instruction->signature_buffer->type0,
+                instruction->signature_buffer->type1,
+                instruction->signature_buffer->type2,
         };
 
         for(int j = 0; j < OPERANDS_MAX_COUNT; j++) {
             if((*(operands[j])) != NULL &&
-                    (*(operands[j]))->type == TYPE_INSTRUCTION_OPERAND_VARIABLE &&
-                    operands_type[j] == TYPE_INSTRUCTION_OPERAND_SYMBOL ) {
+               (*(operands[j]))->type == TYPE_INSTRUCTION_OPERAND_VARIABLE &&
+               operands_type[j] == TYPE_INSTRUCTION_OPERAND_SYMBOL) {
                 SymbolVariable* variable = (*(operands[j]))->data.variable;
                 MappedOperand* operand = (MappedOperand*) symbol_table_get(
-                                             constants_table, variable_cached_identifier(variable));
+                        constants_table, variable_cached_identifier(variable));
 
                 // replace operand
                 if(operand != NULL && operand->operand != NULL && !operand->blocked) {
@@ -1445,17 +1444,17 @@ void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
 
         // remove variable from constants table
         if(instruction_cls == INSTRUCTION_TYPE_WRITE ||
-                instruction_cls == INSTRUCTION_TYPE_VAR_MODIFIERS) {
+           instruction_cls == INSTRUCTION_TYPE_VAR_MODIFIERS) {
             SymbolVariable* variable = instruction->op0->data.variable;
             MappedOperand* operand = (MappedOperand*) symbol_table_get_or_create(
-                                         constants_table,
-                                         variable_cached_identifier(variable));
+                    constants_table,
+                    variable_cached_identifier(variable));
 
             MappedOperand* origin_table_operand = NULL;
             if(origin_constants_table != NULL) {
                 origin_table_operand = (MappedOperand*) symbol_table_get_or_create(
-                                           origin_constants_table,
-                                           variable_cached_identifier(variable));
+                        origin_constants_table,
+                        variable_cached_identifier(variable));
             }
 
             if(origin_table_operand != NULL && origin_table_operand->operand != NULL) {
@@ -1465,8 +1464,8 @@ void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
             if(operand->operand != NULL) {
                 code_instruction_operand_free(&operand->operand);
                 if(operand->setter != NULL &&
-                        !operand->blocked &&
-                        variable->frame != VARIABLE_FRAME_TEMP) {
+                   !operand->blocked &&
+                   variable->frame != VARIABLE_FRAME_TEMP) {
                     operand->setter->meta_data.without_effect = true;
                 }
                 operand->setter = NULL;
@@ -1475,7 +1474,7 @@ void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
             // add variable to constants if second operand is constant
             if(!(!propagate_global_vars && variable->frame == VARIABLE_FRAME_GLOBAL)) {
                 if(!operand->blocked && instruction_type == I_MOVE &&
-                        instruction->op1->type == TYPE_INSTRUCTION_OPERAND_CONSTANT) {
+                   instruction->op1->type == TYPE_INSTRUCTION_OPERAND_CONSTANT) {
                     // INFO new
                     operand->setter = instruction;
                     operand->operand = code_instruction_operand_copy(instruction->op1);
@@ -1495,13 +1494,13 @@ void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
     SetIntItem* next_block_id = (SetIntItem*) next_blocks_id->head;
     while(next_block_id != NULL) {
         code_optimizer_propagate_constants_in_block(
-            optimizer,
-            (CodeBlock*) oriented_graph_node(optimizer->code_graph, (unsigned int) next_block_id->value),
-            constants_tables_stack,
-            processed_blocks_ids,
-            cycled_block_mod_vars,
-            set_int_contains(block->conditional_jump, next_block_id->value),
-            propagate_global_vars
+                optimizer,
+                (CodeBlock*) oriented_graph_node(optimizer->code_graph, (unsigned int) next_block_id->value),
+                constants_tables_stack,
+                processed_blocks_ids,
+                cycled_block_mod_vars,
+                set_int_contains(block->conditional_jump, next_block_id->value),
+                propagate_global_vars
         );
         next_block_id = (SetIntItem*) next_block_id->base.next;
     }
@@ -1511,13 +1510,12 @@ void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
     memory_free(old_constants_table);
 }
 
-SymbolTable* code_optimizer_modified_vars_in_blocks(CodeOptimizer* optimizer, SetInt* blocks_ids)
-{
+SymbolTable* code_optimizer_modified_vars_in_blocks(CodeOptimizer* optimizer, SetInt* blocks_ids) {
     NULL_POINTER_CHECK(optimizer, NULL);
     NULL_POINTER_CHECK(blocks_ids, NULL);
 
     SetIntItem* item = (SetIntItem*) blocks_ids->head;
-    SymbolTable* mod_vars = symbol_table_init(32, sizeof(SymbolTableBaseItem), NULL, NULL);
+    SymbolTable* mod_vars = symbol_table_init(SYMBOL_TABLE_BASE_SIZE, sizeof(SymbolTableBaseItem), NULL, NULL);
 
     while(item != NULL) {
         CodeBlock* block = (CodeBlock*) oriented_graph_node(optimizer->code_graph, (unsigned int) item->value);
@@ -1526,10 +1524,10 @@ SymbolTable* code_optimizer_modified_vars_in_blocks(CodeOptimizer* optimizer, Se
         for(size_t i = 0; i < block->instructions_count; i++) {
             const TypeInstructionClass instruction_cls = instruction_class(instruction);
             if(instruction_cls == INSTRUCTION_TYPE_WRITE ||
-                    instruction_cls == INSTRUCTION_TYPE_VAR_MODIFIERS) {
+               instruction_cls == INSTRUCTION_TYPE_VAR_MODIFIERS) {
                 SymbolVariable* variable = instruction->op0->data.variable;
                 symbol_table_get_or_create(
-                                             mod_vars, variable_cached_identifier(variable));
+                        mod_vars, variable_cached_identifier(variable));
             }
 
             instruction = instruction->next;
@@ -1541,8 +1539,7 @@ SymbolTable* code_optimizer_modified_vars_in_blocks(CodeOptimizer* optimizer, Se
     return mod_vars;
 }
 
-bool code_optimizer_literal_expression_eval_optimization(CodeOptimizer* optimizer)
-{
+bool code_optimizer_literal_expression_eval_optimization(CodeOptimizer* optimizer) {
     NULL_POINTER_CHECK(optimizer, false);
 
     CodeInstruction* instruction = optimizer->generator->first;
@@ -1551,44 +1548,42 @@ bool code_optimizer_literal_expression_eval_optimization(CodeOptimizer* optimize
 
     while(instruction != NULL) {
         if(instruction->meta_data.type == CODE_INSTRUCTION_META_TYPE_EXPRESSION_START &&
-                instruction->meta_data.interpretable) {
+           instruction->meta_data.interpretable) {
             start_instruction = instruction;
         }
 
         if(instruction->meta_data.type == CODE_INSTRUCTION_META_TYPE_EXPRESSION_END &&
-                start_instruction != NULL) {
+           start_instruction != NULL) {
             CodeInstruction* end_instruction = instruction;
             if(instruction->type == I_POP_STACK)
                 end_instruction = instruction->prev;
 
             CodeInstructionOperand* lit_operand = interpreter_evaluate_instruction_block(
-                                                      optimizer->interpreter,
-                                                      start_instruction,
-                                                      end_instruction);
+                    optimizer->interpreter,
+                    start_instruction,
+                    end_instruction);
             if(lit_operand != NULL) {
                 CodeInstruction* new_instruction = NULL;
                 interpreted_something = true;
 
                 if(instruction->type == I_POP_STACK) {
-                    new_instruction =  code_generator_new_instruction(
-                                           optimizer->generator,
-                                           I_MOVE,
-                                           code_instruction_operand_copy(instruction->op0),
-                                           lit_operand,
-                                           NULL);
-                }
+                    new_instruction = code_generator_new_instruction(
+                            optimizer->generator,
+                            I_MOVE,
+                            code_instruction_operand_copy(instruction->op0),
+                            lit_operand,
+                            NULL);
+                } else {
 
-                else {
-
-                    new_instruction =  code_generator_new_instruction(
-                                           optimizer->generator, I_PUSH_STACK, lit_operand, NULL, NULL);
+                    new_instruction = code_generator_new_instruction(
+                            optimizer->generator, I_PUSH_STACK, lit_operand, NULL, NULL);
                 }
 
                 code_optimizer_adding_instruction(optimizer, new_instruction);
                 code_generator_insert_instruction_before(
-                            optimizer->generator,
-                            new_instruction,
-                            instruction->next);
+                        optimizer->generator,
+                        new_instruction,
+                        instruction->next);
 
                 // remove expression
                 CodeInstruction* expr_instruction = instruction;
@@ -1614,9 +1609,8 @@ bool code_optimizer_literal_expression_eval_optimization(CodeOptimizer* optimize
     return interpreted_something;
 }
 
-void code_optimizer_remove_instructions_without_effect_optimization(CodeOptimizer* optimizer)
-{
-    NULL_POINTER_CHECK(optimizer, );
+void code_optimizer_remove_instructions_without_effect_optimization(CodeOptimizer* optimizer) {
+    NULL_POINTER_CHECK(optimizer,);
 
     CodeInstruction* instruction = optimizer->generator->first;
     CodeInstruction* next_instruction;

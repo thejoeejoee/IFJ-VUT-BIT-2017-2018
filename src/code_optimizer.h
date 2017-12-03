@@ -26,7 +26,8 @@ typedef struct code_optimizer_t {
     OrientedGraph* code_graph;
 } CodeOptimizer;
 
-bool code_optimizer_check_operand_with_meta_type_flag(CodeOptimizer* optimizer, CodeInstructionOperand* operand, MetaPHPatternFlag meta_type_flag);
+bool code_optimizer_check_operand_with_meta_type_flag(CodeOptimizer* optimizer, CodeInstructionOperand* operand,
+                                                      MetaPHPatternFlag meta_type_flag);
 
 VariableMetaData* code_optimizer_variable_meta_data(CodeOptimizer* optimizer, SymbolVariable* variable);
 
@@ -47,7 +48,8 @@ void code_optimizer_split_code_to_graph(CodeOptimizer* optimizer);
 // peep hole patterns managing
 PeepHolePattern* code_optimizer_new_ph_pattern(CodeOptimizer* optimizer);
 
-SymbolTable* code_optimizer_check_ph_pattern(CodeOptimizer* optimizer, PeepHolePattern* ph_pattern, CodeInstruction* instruction);
+SymbolTable*
+code_optimizer_check_ph_pattern(CodeOptimizer* optimizer, PeepHolePattern* ph_pattern, CodeInstruction* instruction);
 
 CodeInstruction* code_optimizer_new_instruction_with_mapped_operands(CodeOptimizer* optimizer,
                                                                      PeepHolePatternInstruction* ph_pattern_instruction,
@@ -67,17 +69,20 @@ void code_optimizer_update_label_meta_data(CodeOptimizer* optimizer, CodeInstruc
 
 // constants propagating
 void block_variables_in_constants_table(const char* key, void* item, void* data);
+
 void remove_variables_in_constants_table(const char* key, void* item, void* data);
+
 void remove_variables_setters_in_constants_table(const char* key, void* item, void* data);
+
 void remove_reset_var_setters_in_constants_table(const char* key, void* item, void* data);
 
 void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
-        CodeBlock* block,
-        Stack* constants_tables_stack,
-        SetInt* processed_blocks_ids,
-        LList* cycled_block_mod_vars,
-        bool is_conditional_block,
-        bool propagate_global_vars);
+                                                 CodeBlock* block,
+                                                 Stack* constants_tables_stack,
+                                                 SetInt* processed_blocks_ids,
+                                                 LList* cycled_block_mod_vars,
+                                                 bool is_conditional_block,
+                                                 bool propagate_global_vars);
 
 SymbolTable* code_optimizer_modified_vars_in_blocks(CodeOptimizer* optimizer, SetInt* blocks_ids);
 
@@ -85,11 +90,15 @@ SymbolTable* code_optimizer_modified_vars_in_blocks(CodeOptimizer* optimizer, Se
 bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer, bool hard_remove, bool remove_special_temp);
 
 void code_optimizer_add_advance_peep_hole_patterns(CodeOptimizer* optimizer);
+
 bool code_optimizer_peep_hole_optimization(CodeOptimizer* optimizer);
 
 bool code_optimizer_remove_unused_functions(CodeOptimizer* optimizer);
+
 void code_optimizer_propate_constants_optimization(CodeOptimizer* optimizer);
+
 bool code_optimizer_literal_expression_eval_optimization(CodeOptimizer* optimizer);
+
 void code_optimizer_remove_instructions_without_effect_optimization(CodeOptimizer* optimizer);
 
 #endif // CODE_OPTIMIZER_H

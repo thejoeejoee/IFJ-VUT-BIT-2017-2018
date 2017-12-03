@@ -7,6 +7,9 @@
 #include <stdio.h>
 #include "memory.h"
 
+
+#define SYMBOL_TABLE_BASE_SIZE 32
+
 typedef struct symbol_table_base_list_item_t {
     char* key;
     struct symbol_table_base_list_item_t* next;

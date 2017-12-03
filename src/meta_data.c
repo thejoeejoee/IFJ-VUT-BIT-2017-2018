@@ -16,8 +16,8 @@ void init_function_meta_data(SymbolTableBaseItem* item) {
     FunctionMetaData* v = (FunctionMetaData*) item;
     v->call_count = 0;
     v->purity_type = META_TYPE_PURE;
-    v->mod_global_vars = symbol_table_init(32, sizeof(SymbolTableBaseItem), NULL, NULL);
-    v->read_global_vars = symbol_table_init(32, sizeof(SymbolTableBaseItem), NULL, NULL);
+    v->mod_global_vars = symbol_table_init(SYMBOL_TABLE_BASE_SIZE, sizeof(SymbolTableBaseItem), NULL, NULL);
+    v->read_global_vars = symbol_table_init(SYMBOL_TABLE_BASE_SIZE, sizeof(SymbolTableBaseItem), NULL, NULL);
 }
 
 void free_function_meta_data(SymbolTableBaseItem* item)

@@ -1,13 +1,14 @@
 #include "oriented_graph.h"
 #include "math.h"
 
-OrientedGraph* oriented_graph_init(size_t item_size, oriented_graph_init_data_callback_f init_callback, oriented_graph_free_data_callback_f free_callback)
-{
+OrientedGraph* oriented_graph_init(size_t item_size, oriented_graph_init_data_callback_f init_callback,
+                                   oriented_graph_free_data_callback_f free_callback) {
     return oriented_graph_init_with_capacity(item_size, 32, init_callback, free_callback);
 }
 
-OrientedGraph* oriented_graph_init_with_capacity(size_t item_size, size_t capacity, oriented_graph_init_data_callback_f init_callback, oriented_graph_free_data_callback_f free_callback)
-{
+OrientedGraph* oriented_graph_init_with_capacity(size_t item_size, size_t capacity,
+                                                 oriented_graph_init_data_callback_f init_callback,
+                                                 oriented_graph_free_data_callback_f free_callback) {
     OrientedGraph* graph = memory_alloc(sizeof(OrientedGraph));
     graph->nodes_count = 0;
     graph->item_size = item_size;
@@ -22,10 +23,9 @@ OrientedGraph* oriented_graph_init_with_capacity(size_t item_size, size_t capaci
     return graph;
 }
 
-void oriented_graph_free(OrientedGraph** graph)
-{
-    NULL_POINTER_CHECK(graph, );
-    NULL_POINTER_CHECK(*graph, );
+void oriented_graph_free(OrientedGraph** graph) {
+    NULL_POINTER_CHECK(graph,);
+    NULL_POINTER_CHECK(*graph,);
 
     oriented_graph_clear(*graph);
 
@@ -34,8 +34,7 @@ void oriented_graph_free(OrientedGraph** graph)
     *graph = NULL;
 }
 
-GraphNodeBase* oriented_graph_new_node(OrientedGraph* graph)
-{
+GraphNodeBase* oriented_graph_new_node(OrientedGraph* graph) {
     NULL_POINTER_CHECK(graph, NULL);
 
     // resize nodes container
@@ -43,11 +42,12 @@ GraphNodeBase* oriented_graph_new_node(OrientedGraph* graph)
         GraphNodeBase** nodes = graph->nodes;
         graph->nodes = memory_alloc(sizeof(GraphNodeBase*) * graph->capacity * 2);
 
-        for(unsigned int i = 0; i < graph->capacity; i++)
+        for(size_t i = 0; i < graph->capacity; i++)
             graph->nodes[i] = nodes[i];
+
         memory_free(nodes);
 
-        for(unsigned int i = graph->capacity; i < graph->capacity * 2; i++)
+        for(size_t i = graph->capacity; i < graph->capacity * 2; i++)
             graph->nodes[i] = NULL;
 
         graph->capacity *= 2;
@@ -67,14 +67,14 @@ GraphNodeBase* oriented_graph_new_node(OrientedGraph* graph)
         }
     }
 
-    if(!assigned)
+    if(!assigned) {
         LOG_WARNING("Graph internal error in insertion.");
+    }
 
     return new_node;
 }
 
-GraphNodeBase* _oriented_graph_init_node(OrientedGraph* graph)
-{
+GraphNodeBase* _oriented_graph_init_node(OrientedGraph* graph) {
     NULL_POINTER_CHECK(graph, NULL);
 
     GraphNodeBase* new_node = memory_alloc(graph->item_size);
@@ -86,9 +86,8 @@ GraphNodeBase* _oriented_graph_init_node(OrientedGraph* graph)
     return new_node;
 }
 
-void oriented_graph_remove_node(OrientedGraph* graph, unsigned int node_id)
-{
-    NULL_POINTER_CHECK(graph, );
+void oriented_graph_remove_node(OrientedGraph* graph, unsigned int node_id) {
+    NULL_POINTER_CHECK(graph,);
 
     GraphNodeBase* node = oriented_graph_node(graph, node_id);
     if(node == NULL)
@@ -97,19 +96,19 @@ void oriented_graph_remove_node(OrientedGraph* graph, unsigned int node_id)
     SetIntItem* id = (SetIntItem*) node->in_edges->head;
     GraphNodeBase* in_node = NULL;
     while(id != NULL) {
-        in_node = oriented_graph_node(graph, id->value);
+        in_node = oriented_graph_node(graph, (unsigned int) id->value);
         set_int_remove(in_node->out_edges, node_id);
 
-        id = (SetIntItem*)id->base.next;
+        id = (SetIntItem*) id->base.next;
     }
 
-    id = (SetIntItem*)node->out_edges->head;
+    id = (SetIntItem*) node->out_edges->head;
     GraphNodeBase* out_node = NULL;
     while(id != NULL) {
-        out_node = oriented_graph_node(graph, id->value);
+        out_node = oriented_graph_node(graph, (unsigned int) id->value);
         set_int_remove(out_node->in_edges, node_id);
 
-        id = (SetIntItem*)id->base.next;
+        id = (SetIntItem*) id->base.next;
     }
 
     if(graph->free_data_callback != NULL)
@@ -122,8 +121,7 @@ void oriented_graph_remove_node(OrientedGraph* graph, unsigned int node_id)
     graph->nodes_count--;
 }
 
-GraphNodeBase* oriented_graph_node(OrientedGraph* graph, unsigned int node_id)
-{
+GraphNodeBase* oriented_graph_node(OrientedGraph* graph, unsigned int node_id) {
     NULL_POINTER_CHECK(graph, NULL);
 
     if(node_id >= graph->capacity)
@@ -132,8 +130,7 @@ GraphNodeBase* oriented_graph_node(OrientedGraph* graph, unsigned int node_id)
     return graph->nodes[node_id];
 }
 
-void oriented_graph_clear(OrientedGraph* graph)
-{
+void oriented_graph_clear(OrientedGraph* graph) {
     for(unsigned int i = 0; i < graph->capacity; i++) {
         if(graph->nodes[i] != NULL) {
             if(graph->free_data_callback != NULL)
@@ -149,37 +146,34 @@ void oriented_graph_clear(OrientedGraph* graph)
     graph->nodes_count = 0;
 }
 
-void oriented_graph_print(OrientedGraph* graph)
-{
-    printf("OrientedGraph(\n");
+void oriented_graph_print(OrientedGraph* graph) {
+    fprintf(stderr, "OrientedGraph(\n");
     for(unsigned int i = 0; i < graph->capacity; i++) {
         if(graph->nodes[i] == NULL)
             continue;
 
         const GraphNodeBase* node = graph->nodes[i];
-        printf("Node %d -> ", node->id);
+        fprintf(stderr, "Node %d -> ", node->id);
         set_int_print(node->out_edges);
-        printf(" | ");
+        fprintf(stderr, " | ");
         set_int_print(node->in_edges);
-        printf("\n");
+        fprintf(stderr, "\n");
     }
 
-    printf(")\n");
+    fprintf(stderr, ")\n");
 }
 
-void oriented_graph_connect_nodes(OrientedGraph* graph, GraphNodeBase* from, GraphNodeBase* to)
-{
-    NULL_POINTER_CHECK(graph, );
-    NULL_POINTER_CHECK(from, );
-    NULL_POINTER_CHECK(to, );
+void oriented_graph_connect_nodes(OrientedGraph* graph, GraphNodeBase* from, GraphNodeBase* to) {
+    NULL_POINTER_CHECK(graph,);
+    NULL_POINTER_CHECK(from,);
+    NULL_POINTER_CHECK(to,);
 
     set_int_add(from->out_edges, to->id);
     set_int_add(to->in_edges, from->id);
 }
 
-void oriented_graph_connect_nodes_by_ids(OrientedGraph* graph, unsigned int from, unsigned int to)
-{
-    NULL_POINTER_CHECK(graph, );
+void oriented_graph_connect_nodes_by_ids(OrientedGraph* graph, unsigned int from, unsigned int to) {
+    NULL_POINTER_CHECK(graph,);
 
     GraphNodeBase* from_node = oriented_graph_node(graph, from);
     GraphNodeBase* to_node = oriented_graph_node(graph, to);
@@ -189,15 +183,13 @@ void oriented_graph_connect_nodes_by_ids(OrientedGraph* graph, unsigned int from
     oriented_graph_connect_nodes(graph, from_node, to_node);
 }
 
-bool oriented_graph_node_is_in_cycle_by_id(OrientedGraph* graph, unsigned int id)
-{
+bool oriented_graph_node_is_in_cycle_by_id(OrientedGraph* graph, unsigned int id) {
     NULL_POINTER_CHECK(graph, false);
 
     return oriented_graph_node_is_in_cycle(graph, oriented_graph_node(graph, id));
 }
 
-bool oriented_graph_node_is_in_cycle(OrientedGraph* graph, GraphNodeBase* node)
-{
+bool oriented_graph_node_is_in_cycle(OrientedGraph* graph, GraphNodeBase* node) {
     NULL_POINTER_CHECK(graph, false);
     NULL_POINTER_CHECK(node, false);
 
@@ -223,8 +215,7 @@ bool oriented_graph_node_is_in_cycle(OrientedGraph* graph, GraphNodeBase* node)
     return false;
 }
 
-void _oriented_graph_expand_nodes(OrientedGraph* graph, SetInt* layer)
-{
+void _oriented_graph_expand_nodes(OrientedGraph* graph, SetInt* layer) {
     SetInt* expanded = set_int_init();
     SetIntItem* item = (SetIntItem*) layer->head;
 
@@ -241,15 +232,14 @@ void _oriented_graph_expand_nodes(OrientedGraph* graph, SetInt* layer)
     set_int_free(&expanded);
 }
 
-OrientedGraph* oriented_graph_transpose(OrientedGraph* graph)
-{
+OrientedGraph* oriented_graph_transpose(OrientedGraph* graph) {
     NULL_POINTER_CHECK(graph, NULL);
 
     OrientedGraph* transposed = oriented_graph_init_with_capacity(
-                                    graph->item_size,
-                                    graph->capacity,
-                                    graph->init_data_callback,
-                                    graph->free_data_callback);
+            graph->item_size,
+            graph->capacity,
+            graph->init_data_callback,
+            graph->free_data_callback);
     transposed->nodes_count = graph->nodes_count;
 
     // add nodes
@@ -258,7 +248,7 @@ OrientedGraph* oriented_graph_transpose(OrientedGraph* graph)
             continue;
 
         GraphNodeBase* node = _oriented_graph_init_node(graph);
-        node->id = i;
+        node->id = (unsigned int) i;
         transposed->nodes[i] = node;
     }
 
@@ -272,9 +262,9 @@ OrientedGraph* oriented_graph_transpose(OrientedGraph* graph)
         SetIntItem* out_node_id = (SetIntItem*) node->out_edges->head;
         while(out_node_id != NULL) {
             oriented_graph_connect_nodes_by_ids(
-                        transposed,
-                        out_node_id->value,
-                        node->id);
+                    transposed,
+                    (unsigned int) out_node_id->value,
+                    node->id);
 
             out_node_id = (SetIntItem*) out_node_id->base.next;
         }
@@ -283,8 +273,7 @@ OrientedGraph* oriented_graph_transpose(OrientedGraph* graph)
     return transposed;
 }
 
-LList* oriented_graph_scc(OrientedGraph* graph)
-{
+LList* oriented_graph_scc(OrientedGraph* graph) {
     NULL_POINTER_CHECK(graph, NULL);
     LList* components;
     llist_init(&components, sizeof(LListItemSet), &llist_set_int_init, &llist_set_int_free, NULL);
@@ -307,7 +296,8 @@ LList* oriented_graph_scc(OrientedGraph* graph)
             continue;
 
         if(disc[i] == -1)
-            oriented_graph_scc_util(graph, i, disc, low, stack, stack_member, &discovery_time, components);
+            oriented_graph_scc_util(graph, (unsigned int) i, disc, low, stack,
+                                    stack_member, &discovery_time, components);
     }
 
     // remove on and zero sized sets
@@ -326,10 +316,10 @@ LList* oriented_graph_scc(OrientedGraph* graph)
     return components;
 }
 
-void oriented_graph_scc_util(OrientedGraph* graph, unsigned int u, int disc[], int low[], Stack* stack, bool stack_member[], int* discovery_time, LList* components)
-{
-    NULL_POINTER_CHECK(graph, );
-    NULL_POINTER_CHECK(stack, );
+void oriented_graph_scc_util(OrientedGraph* graph, unsigned int u, int disc[], int low[], Stack* stack,
+                             bool stack_member[], int* discovery_time, LList* components) {
+    NULL_POINTER_CHECK(graph,);
+    NULL_POINTER_CHECK(stack,);
 
     disc[u] = low[u] = ++(*discovery_time);
     stack_member[u] = true;
@@ -340,11 +330,9 @@ void oriented_graph_scc_util(OrientedGraph* graph, unsigned int u, int disc[], i
         unsigned int v = (unsigned int) v_item->value;
         if(disc[v] == -1) {
             oriented_graph_scc_util(graph, v, disc, low, stack, stack_member, discovery_time, components);
-            low[u] = (low[u] < low[v]) ?low[u] :low[v];
-        }
-
-        else if(stack_member[v] == true)
-            low[u] = (low[u] < disc[v]) ?low[u] :disc[v];
+            low[u] = (low[u] < low[v]) ? low[u] : low[v];
+        } else if(stack_member[v] == true)
+            low[u] = (low[u] < disc[v]) ? low[u] : disc[v];
 
         v_item = (SetIntItem*) v_item->base.next;
     }

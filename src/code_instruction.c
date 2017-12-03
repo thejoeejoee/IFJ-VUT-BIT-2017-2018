@@ -15,6 +15,7 @@ CodeInstruction* code_instruction_init(
     instruction->meta_data.type = CODE_INSTRUCTION_META_TYPE_NONE;
     instruction->meta_data.purity_type = META_TYPE_PURE;
     instruction->meta_data.interpretable = false;
+    instruction->meta_data.without_effect = false;
 
     instruction->prev = instruction->next = NULL;
 

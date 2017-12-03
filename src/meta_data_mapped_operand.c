@@ -6,12 +6,14 @@ void init_mapped_operand_item(SymbolTableBaseItem* item) {
     MappedOperand* v = (MappedOperand*) item;
     v->operand = NULL;
     v->blocked = false;
+    v->setter = NULL;
 }
 
 void free_mapped_operand_item(SymbolTableBaseItem* item) {
     NULL_POINTER_CHECK(item,);
 
     MappedOperand* v = (MappedOperand*) item;
+    v->setter = NULL;
     if(v->operand != NULL)
         code_instruction_operand_free(&v->operand);
 }
@@ -23,4 +25,5 @@ void copy_mapped_operand_item(SymbolTableBaseItem* to, SymbolTableBaseItem* from
 
     v_to->operand = code_instruction_operand_copy(v_from->operand);
     v_to->blocked = v_from->blocked;
+    v_to->setter = v_from->setter;
 }

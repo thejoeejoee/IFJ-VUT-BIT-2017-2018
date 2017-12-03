@@ -122,6 +122,7 @@ typedef struct {
     CodeInstructionMetaType type;
     MetaType purity_type;
     bool interpretable;
+    bool without_effect;
 } CodeInstructionMetaData;
 
 typedef struct code_instruction_signature_t {

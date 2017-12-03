@@ -25,6 +25,7 @@ typedef struct function_meta_data_t {
     MetaType purity_type;
 
     SymbolTable* mod_global_vars;
+    SymbolTable* read_global_vars;
 } FunctionMetaData;
 
 typedef struct label_meta_data_t {

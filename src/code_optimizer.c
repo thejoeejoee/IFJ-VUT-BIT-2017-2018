@@ -65,24 +65,6 @@ code_optimizer_init(CodeGenerator* generator, SymbolVariable* temp1, SymbolVaria
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_LABEL, "&a", NULL, NULL, -1, 0, 0);
     code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_LABEL, "&a", NULL, NULL);
 
-    /* Use move instead of stack if (b = a)
-     * PUSH <a>         => MOVE <b> <a>
-     * POP <b>
-     */
-    pattern = code_optimizer_new_ph_pattern(optimizer);
-    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);
-    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_STACK, "!b", NULL, NULL, -1, 0, 0);
-    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_MOVE, "!b", "a", NULL);
-
-    /* Delete move which is overwritten with another move (a = b; a = c) => (a = c)
-     * MOVE <a> <b>     => MOVE <a> <c>
-     * MOVE <a> <c>
-     */
-    pattern = code_optimizer_new_ph_pattern(optimizer);
-    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "!a", "b", NULL, -1, -1, 0);
-    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "!a", "c", NULL, -1, -1, 0);
-    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_MOVE, "!a", "c", NULL);
-
     return optimizer;
 }
 
@@ -447,6 +429,25 @@ void code_optimizer_add_advance_peep_hole_patterns(CodeOptimizer* optimizer)
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_WRITE, "a", NULL, NULL, -1, 0, 0);
     code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_WRITE, "a", NULL, NULL);
 
+
+    /* Use move instead of stack if (b = a)
+     * PUSH <a>         => MOVE <b> <a>
+     * POP <b>
+     */
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_STACK, "!b", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_MOVE, "!b", "a", NULL);
+
+    /* Delete move which is overwritten with another move (a = b; a = c) => (a = c)
+     * MOVE <a> <b>     => MOVE <a> <c>
+     * MOVE <a> <c>
+     */
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "!a", "b", NULL, -1, -1, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "!a", "c", NULL, -1, -1, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_MOVE, "!a", "c", NULL);
+
 }
 
 void code_optimizer_free(CodeOptimizer** optimizer) {
@@ -483,6 +484,7 @@ void code_optimizer_reset_function_meta_data(const char* key, void* item, void* 
     v->call_count = 0;
     v->purity_type = META_TYPE_PURE;
     symbol_table_clear_buckets(v->mod_global_vars);
+    symbol_table_clear_buckets(v->read_global_vars);
 }
 
 void code_optimizer_update_meta_data(CodeOptimizer* optimizer) {
@@ -549,9 +551,6 @@ void code_optimizer_update_meta_data(CodeOptimizer* optimizer) {
                             operands[j]->type == TYPE_INSTRUCTION_OPERAND_VARIABLE &&
                             !symbol_variable_cmp(optimizer->temp1, operands[j]->data.variable)) {
                         expr_start_instruction->meta_data.interpretable = false;
-//                        char* rendered = code_instruction_render(instruction);
-//                        printf("fuck no %s\n", rendered);
-//                        memory_free(rendered);
                         break;
                     }
                 }
@@ -597,6 +596,29 @@ void code_optimizer_update_function_meta_data(CodeOptimizer* optimizer, CodeInst
         SymbolVariable* variable = instruction->op0->data.variable;
         if(variable->frame == VARIABLE_FRAME_GLOBAL) {
             symbol_table_get_or_create(meta_data->mod_global_vars, variable_cached_identifier(variable));
+        }
+    }
+
+    // set read global variables
+    CodeInstructionOperand* operands[OPERANDS_MAX_COUNT] = {
+        instruction->op0,
+        instruction->op1,
+        instruction->op2
+    };
+
+    const TypeInstructionOperand operands_type[OPERANDS_MAX_COUNT] = {
+        instruction->signature_buffer->type0,
+        instruction->signature_buffer->type1,
+        instruction->signature_buffer->type2,
+    };
+
+    for(int j = 0; j < instruction->signature_buffer->operand_count; j++) {
+        if(operands[j]->type == TYPE_INSTRUCTION_OPERAND_VARIABLE &&
+                operands_type[j] == TYPE_INSTRUCTION_OPERAND_SYMBOL ) {
+            SymbolVariable* variable = operands[j]->data.variable;
+            if(variable->frame == VARIABLE_FRAME_GLOBAL) {
+                symbol_table_get_or_create(meta_data->read_global_vars, variable_cached_identifier(variable));
+            }
         }
     }
 }
@@ -1274,6 +1296,8 @@ void block_variables_in_constants_table(const char* key, void* item, void* data)
     SymbolTable* constants_table = (SymbolTable*) data;
     MappedOperand* op = (MappedOperand*) symbol_table_function_get_or_create(constants_table, key);
     op->blocked = true;
+    if(op->setter != NULL)
+        op->setter->meta_data.without_effect = false;
 }
 
 void remove_variables_in_constants_table(const char* key, void* item, void* data)
@@ -1285,6 +1309,23 @@ void remove_variables_in_constants_table(const char* key, void* item, void* data
         code_instruction_operand_free(&op->operand);
 }
 
+// TODO rename
+void remove_variables_setters_in_constants_table(const char* key, void* item, void* data)
+{
+    NULL_POINTER_CHECK(item, );
+    SymbolTable* constants_table = (SymbolTable*) data;
+    MappedOperand* op = (MappedOperand*) symbol_table_function_get_or_create(constants_table, key);
+    if(op->operand != NULL && op->setter != NULL)
+        op->setter->meta_data.without_effect = false;
+}
+
+void remove_reset_var_setters_in_constants_table(const char* key, void* item, void* data)
+{
+    NULL_POINTER_CHECK(item, );
+    SymbolTable* constants_table = (SymbolTable*) data;
+    MappedOperand* op = (MappedOperand*) symbol_table_function_get_or_create(constants_table, key);
+    op->setter = NULL;
+}
 
 void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
         CodeBlock* block,
@@ -1334,6 +1375,8 @@ void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
         origin_constants_table = constants_table;
     }
     constants_table = symbol_table_copy(constants_table);
+    // reset table setters
+    symbol_table_foreach(constants_table, &remove_reset_var_setters_in_constants_table, constants_table);
 
     // error
     if(constants_table == NULL) {
@@ -1363,6 +1406,12 @@ void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
                 LOG_WARNING("Error getting function modified gloval vars table.");
 
             symbol_table_foreach(modified_globals, &remove_variables_in_constants_table, constants_table);
+
+            SymbolTable* read_globals = code_optimizer_function_meta_data(optimizer, instruction->op0->data.label)->read_global_vars;
+            if(read_globals == NULL)
+                LOG_WARNING("Error getting function read global vars table.");
+
+            symbol_table_foreach(read_globals, &remove_variables_setters_in_constants_table, constants_table);
         }
 
         // replace variables with constant
@@ -1409,15 +1458,26 @@ void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
                                            variable_cached_identifier(variable));
             }
 
-            if(origin_table_operand != NULL && origin_table_operand->operand != NULL)
+            if(origin_table_operand != NULL && origin_table_operand->operand != NULL) {
                 code_instruction_operand_free(&origin_table_operand->operand);
-            if(operand->operand != NULL)
+                origin_table_operand->setter = NULL;
+            }
+            if(operand->operand != NULL) {
                 code_instruction_operand_free(&operand->operand);
+                if(operand->setter != NULL &&
+                        !operand->blocked &&
+                        variable->frame != VARIABLE_FRAME_TEMP) {
+                    operand->setter->meta_data.without_effect = true;
+                }
+                operand->setter = NULL;
+            }
 
             // add variable to constants if second operand is constant
             if(!(!propagate_global_vars && variable->frame == VARIABLE_FRAME_GLOBAL)) {
                 if(!operand->blocked && instruction_type == I_MOVE &&
                         instruction->op1->type == TYPE_INSTRUCTION_OPERAND_CONSTANT) {
+                    // INFO new
+                    operand->setter = instruction;
                     operand->operand = code_instruction_operand_copy(instruction->op1);
                 }
             }
@@ -1547,5 +1607,22 @@ void code_optimizer_literal_expression_eval_optimization(CodeOptimizer* optimize
         }
 
         instruction = instruction->next;
+    }
+}
+
+void code_optimizer_remove_instructions_without_effect_optimization(CodeOptimizer* optimizer)
+{
+    NULL_POINTER_CHECK(optimizer, );
+
+    CodeInstruction* instruction = optimizer->generator->first;
+    CodeInstruction* next_instruction;
+    while(instruction != NULL) {
+        next_instruction = instruction->next;
+        if(instruction->meta_data.without_effect) {
+            code_optimizer_removing_instruction(optimizer, instruction);
+            code_generator_remove_instruction(optimizer->generator, instruction);
+        }
+
+        instruction = next_instruction;
     }
 }

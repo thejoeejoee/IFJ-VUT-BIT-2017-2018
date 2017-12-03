@@ -89,7 +89,7 @@ bool code_optimizer_peep_hole_optimization(CodeOptimizer* optimizer);
 
 bool code_optimizer_remove_unused_functions(CodeOptimizer* optimizer);
 void code_optimizer_propate_constants_optimization(CodeOptimizer* optimizer);
-void code_optimizer_literal_expression_eval_optimization(CodeOptimizer* optimizer);
+bool code_optimizer_literal_expression_eval_optimization(CodeOptimizer* optimizer);
 void code_optimizer_remove_instructions_without_effect_optimization(CodeOptimizer* optimizer);
 
 #endif // CODE_OPTIMIZER_H

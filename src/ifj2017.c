@@ -28,10 +28,17 @@ int main(int argc, char** argv) {
     while(
             code_optimizer_peep_hole_optimization(parser->optimizer)
             );
-    code_optimizer_split_code_to_graph(parser->optimizer);
-    code_optimizer_propate_constants_optimization(parser->optimizer);
-    code_optimizer_update_meta_data(parser->optimizer);
-    code_optimizer_literal_expression_eval_optimization(parser->optimizer);
+
+    bool expr_interpreted = false;
+    do {
+        code_optimizer_split_code_to_graph(parser->optimizer);
+        code_optimizer_update_meta_data(parser->optimizer);
+        code_optimizer_propate_constants_optimization(parser->optimizer);
+        code_optimizer_update_meta_data(parser->optimizer);
+        expr_interpreted = code_optimizer_literal_expression_eval_optimization(parser->optimizer);
+    } while(expr_interpreted);
+
+    code_optimizer_remove_instructions_without_effect_optimization(parser->optimizer);
 
     while(
             code_optimizer_remove_unused_variables(parser->optimizer, true, false) ||

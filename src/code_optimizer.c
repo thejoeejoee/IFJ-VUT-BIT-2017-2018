@@ -1541,12 +1541,13 @@ SymbolTable* code_optimizer_modified_vars_in_blocks(CodeOptimizer* optimizer, Se
     return mod_vars;
 }
 
-void code_optimizer_literal_expression_eval_optimization(CodeOptimizer* optimizer)
+bool code_optimizer_literal_expression_eval_optimization(CodeOptimizer* optimizer)
 {
-    NULL_POINTER_CHECK(optimizer, );
+    NULL_POINTER_CHECK(optimizer, false);
 
     CodeInstruction* instruction = optimizer->generator->first;
     CodeInstruction* start_instruction = NULL;
+    bool interpreted_something = false;
 
     while(instruction != NULL) {
         if(instruction->meta_data.type == CODE_INSTRUCTION_META_TYPE_EXPRESSION_START &&
@@ -1566,6 +1567,7 @@ void code_optimizer_literal_expression_eval_optimization(CodeOptimizer* optimize
                                                       end_instruction);
             if(lit_operand != NULL) {
                 CodeInstruction* new_instruction = NULL;
+                interpreted_something = true;
 
                 if(instruction->type == I_POP_STACK) {
                     new_instruction =  code_generator_new_instruction(
@@ -1608,6 +1610,8 @@ void code_optimizer_literal_expression_eval_optimization(CodeOptimizer* optimize
 
         instruction = instruction->next;
     }
+
+    return interpreted_something;
 }
 
 void code_optimizer_remove_instructions_without_effect_optimization(CodeOptimizer* optimizer)

@@ -1,29 +1,15 @@
 \section{Práce v týmu}
-Náš tým se skládal ze čtyř členů, kteří byli odhodlaní začít
-pracovat už od prázdnin.
+Tým se skládal ze čtyř členů, kteří byli odhodlaní začít
+pracovat již před zadáním projektu. Projekt byl verzován pomocí systému Git hostovaným na serveru GitHub. jednotkové testy poté automaticky spouštěny na službě Travis CI. Pro sdílenou komunikaci byla využívána služba Gitter IM, pro správu úkolů poté GitHub Issues.
 
-Jako verzovací systém jsme použili GIT
-na serveru Github z důvodů nulové ceny pro studenty a jednoduché
-implementace. Pro vzájemnou komunikaci jsme zřidili kanál na komunikačním serveru
-gitter do kterého jsme se přihlašovali pomocí svých github účtů. Pro rozebírání
-důležitějších témat jsme použili github issues, pro neformálnější komunikaci
-společnou konverzaci na serveru facebook.
+Schůzky byly svolávány každý týden a pokaždé bylo jasně rozděleno, co který člen týmu bude mít v následujícím týdnu za úkol. Veškeré problémy byly řešeny ihned při vzniku aby bylo zabráněno vzniku nesrovnalostí mezi implementovanými moduly. 
 
-Schůzky jsme organizovali každý týden a na každé si stanovili objem práce, který by měl
-být hotový do konce týdne.
-
-
-Jelikož byly všechny požadavky a způsob řešení znám již od počátku, zvolili jsme pro vývoj
-vodopádový model.
-Z počátku jsme všechny části vymýšleli společně a vše si kontrolovali,
-aby později nemolo dojít k nedorozuměním. Když už byly vybudovíny principy,
-na kterých budou dané moduly fungovat, došlo k rozdělení
-odpovědností a každý dostal k dokončení jednu či více částí.
+V druhé polovině projektu započala práce na integračních testech, těch bylo veřejně vytvořeno přes 600 za přispění i ostatních týmů. V rámci těchto testů bylo také vytvořeno vývojové prostředí s debuggerem pro snažší kontroly generování cílového kódu.
 
 \subsection{Rozdělení práce}
 \begin{itemize}
-    \item Martin Kobelka - Vedoucí týmu, Lexikální analyzátor, syntaktický analyzátor, definice testů
-    \item Tomáš Pazdiora - Syntaktická analýza výrazů, dokumentace
-    \item Josef Kolář - Generátor kódu, implementace tabulky symbolů, systém rozšíření
-    \item Son Hai Nguyen - Optimalizace kódu, poloautomatické generování pravidel, debuger
+    \item Martin Kobelka - lexikální a syntaktická analýza, definice testů
+    \item Tomáš Pazdiora - syntaktická analýza výrazů, dokumentace
+    \item Josef Kolář - generátor kódu, sémantické kontroly, optimalizace výrazů
+    \item Son Hai Nguyen - architektura, interprocedurální optimalizace kódu
 \end{itemize}

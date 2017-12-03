@@ -130,7 +130,7 @@ CodeInstructionOperand* interpreter_evaluate_instruction_block(
             }
 
             case I_POP_STACK: {
-                if(actual->op0->type != TYPE_INSTRUCTION_OPERAND_VARIABLE || symbol_variable_cmp(
+                if(actual->op0->type == TYPE_INSTRUCTION_OPERAND_VARIABLE || symbol_variable_cmp(
                         actual->op0->data.variable,
                         interpreter->cast_buffer
                 )) {

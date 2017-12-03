@@ -134,6 +134,21 @@ void code_optimizer_add_advance_peep_hole_patterns(CodeOptimizer* optimizer)
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "!b", NULL, NULL, -1, 0, 0);
     code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL);
 
+    /* Remove concatinating with empty string
+     * PUSH string@         => PUSH <a>
+     * MOVE <b> <a>
+     * POP <c>
+     * CONCAT <b> <c> <b>
+     * PUSH <b>
+     */
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "]_", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "!b", "a", NULL, -1, -1, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_STACK, "!c", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_CONCAT_STRING, "!b", "!c", "!b", -1, -1, -1);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "!b", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL);
+
     /* Remove concatinating with empty string (reversed operands)
      * PUSH <a>             => PUSH <a>
      * PUSH string@
@@ -151,6 +166,21 @@ void code_optimizer_add_advance_peep_hole_patterns(CodeOptimizer* optimizer)
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "!b", NULL, NULL, -1, 0, 0);
     code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL);
 
+    /* Remove concatinating with empty string (reversed operands)
+     * PUSH <a>             => PUSH <a>
+     * MOVE <b> string@
+     * POP <c>
+     * CONCAT <b> <c> <b>
+     * PUSH <b>
+     */
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "!b", "]_", NULL, -1, -1, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_STACK, "!c", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_CONCAT_STRING, "!b", "!c", "!b", -1, -1, -1);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "!b", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL);
+
     /* Remove concatinating with empty string (resolving for example a = "" + b + "xx"), it's
      * not first operation to be resolved in expression
      * PUSH string@         => PUSH <b>
@@ -162,6 +192,19 @@ void code_optimizer_add_advance_peep_hole_patterns(CodeOptimizer* optimizer)
     pattern = code_optimizer_new_ph_pattern(optimizer);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "]_", NULL, NULL, -1, 0, 0);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_STACK, "!b", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_STACK, "!c", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_CONCAT_STRING, "!b", "!c", "!b", -1, -1, -1);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "!b", NULL, NULL, -1, 0, 0);
+
+    /* Remove concatinating with empty string (resolving for example a = "" + b + "xx"), it's
+     * not first operation to be resolved in expression
+     * MOVE <b> string@     => PUSH <b>
+     * POP <c>
+     * CONCAT <b> <c> <b>
+     * PUSH <b>
+     */
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "!b", "]_", NULL, -1, -1, 0);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_STACK, "!c", NULL, NULL, -1, 0, 0);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_CONCAT_STRING, "!b", "!c", "!b", -1, -1, -1);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "!b", NULL, NULL, -1, 0, 0);
@@ -379,6 +422,31 @@ void code_optimizer_add_advance_peep_hole_patterns(CodeOptimizer* optimizer)
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_LABEL, "%k", NULL, NULL, -1, 0, 0);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_LABEL, "&l", NULL, NULL, 1, 0, 0);
     code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_LABEL, "%k", NULL, NULL);
+
+    /* Use move instead of stack if (b = a)
+     * PUSH <a>         => MOVE <b> <a>
+     * POP <b>
+     */
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_STACK, "!b", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_MOVE, "!b", "a", NULL);
+
+    /* Delete move which is overwritten with another move (a = b; a = c) => (a = c)
+     * MOVE <a> <b>     => MOVE <a> <c>
+     * MOVE <a> <c>
+     */
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "!a", "b", NULL, -1, -1, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "!a", "c", NULL, -1, -1, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_MOVE, "!a", "c", NULL);
+
+    // TODO doc
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "1t", "a", NULL, -1, -1, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_WRITE, "a", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_WRITE, "a", NULL, NULL);
+
 }
 
 void code_optimizer_free(CodeOptimizer** optimizer) {
@@ -447,7 +515,7 @@ void code_optimizer_update_meta_data(CodeOptimizer* optimizer) {
     instruction = optimizer->generator->first;
     CodeInstruction* expr_start_instruction = NULL;
     while(instruction != NULL) {
-        if(instruction->meta_data.type & CODE_INSTRUCTION_META_TYPE_EXPRESSION_START &&
+        if((instruction->meta_data.type & CODE_INSTRUCTION_META_TYPE_EXPRESSION_START) &&
                 instruction->meta_data.purity_type == META_TYPE_PURE) {
             expr_start_instruction = instruction;
             // assume literal expression
@@ -460,7 +528,6 @@ void code_optimizer_update_meta_data(CodeOptimizer* optimizer) {
         if(expr_start_instruction != NULL && instruction->type == I_CALL) {
             FunctionMetaData* func_meta_data = code_optimizer_function_meta_data(optimizer,
                                                                                  instruction->op0->data.label);
-//            printf("--Fuck %s\n", instruction->op0->data.label);
             expr_start_instruction->meta_data.purity_type |= func_meta_data->purity_type;
         }
 
@@ -468,7 +535,6 @@ void code_optimizer_update_meta_data(CodeOptimizer* optimizer) {
             // check if it is interpretable
             if(!interpreter_supported_instruction(instruction->type)) {
                 expr_start_instruction->meta_data.interpretable = false;
-//                expr_start_instruction = NULL;
             }
 
             else {
@@ -483,7 +549,9 @@ void code_optimizer_update_meta_data(CodeOptimizer* optimizer) {
                             operands[j]->type == TYPE_INSTRUCTION_OPERAND_VARIABLE &&
                             !symbol_variable_cmp(optimizer->temp1, operands[j]->data.variable)) {
                         expr_start_instruction->meta_data.interpretable = false;
-//                        expr_start_instruction = NULL;
+//                        char* rendered = code_instruction_render(instruction);
+//                        printf("fuck no %s\n", rendered);
+//                        memory_free(rendered);
                         break;
                     }
                 }
@@ -1297,35 +1365,6 @@ void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
             symbol_table_foreach(modified_globals, &remove_variables_in_constants_table, constants_table);
         }
 
-        // remove variable from constants table
-        if(instruction_cls == INSTRUCTION_TYPE_WRITE ||
-                instruction_cls == INSTRUCTION_TYPE_VAR_MODIFIERS) {
-            SymbolVariable* variable = instruction->op0->data.variable;
-            MappedOperand* operand = (MappedOperand*) symbol_table_get_or_create(
-                                         constants_table,
-                                         variable_cached_identifier(variable));
-
-            MappedOperand* origin_table_operand = NULL;
-            if(origin_constants_table != NULL) {
-                origin_table_operand = (MappedOperand*) symbol_table_get_or_create(
-                                           origin_constants_table,
-                                           variable_cached_identifier(variable));
-            }
-
-            if(origin_table_operand != NULL && origin_table_operand->operand != NULL)
-                code_instruction_operand_free(&origin_table_operand->operand);
-            if(operand->operand != NULL)
-                code_instruction_operand_free(&operand->operand);
-
-            // add variable to constants if second operand is constant
-            if(!(!propagate_global_vars && variable->frame == VARIABLE_FRAME_GLOBAL)) {
-                if(!operand->blocked && instruction_type == I_MOVE &&
-                        instruction->op1->type == TYPE_INSTRUCTION_OPERAND_CONSTANT) {
-                    operand->operand = code_instruction_operand_copy(instruction->op1);
-                }
-            }
-        }
-
         // replace variables with constant
         CodeInstructionOperand** operands[OPERANDS_MAX_COUNT] = {
             &instruction->op0,
@@ -1351,26 +1390,35 @@ void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
                 if(operand != NULL && operand->operand != NULL && !operand->blocked) {
                     code_instruction_operand_free(&(*(operands[j])));
                     (*(operands[j])) = code_instruction_operand_copy(operand->operand);
+                }
+            }
+        }
 
-                    // if instruction is move and second operand was replaced with literal
-                    // then add variable to constants table
-                    if(instruction_type == I_MOVE  &&
-                            instruction->op1->type == TYPE_INSTRUCTION_OPERAND_CONSTANT) {
-                        variable = instruction->op0->data.variable;
-                        operand = (MappedOperand*) symbol_table_get_or_create(
-                                                     constants_table,
-                                                     variable_cached_identifier(variable));
-                        if(!(!propagate_global_vars &&
-                             variable->frame == VARIABLE_FRAME_GLOBAL)) {
-                            if(operand->operand != NULL)
-                                code_instruction_operand_free(&operand->operand);
-                            if(!operand->blocked) {
-                                operand->operand = code_instruction_operand_copy(instruction->op1);
+        // remove variable from constants table
+        if(instruction_cls == INSTRUCTION_TYPE_WRITE ||
+                instruction_cls == INSTRUCTION_TYPE_VAR_MODIFIERS) {
+            SymbolVariable* variable = instruction->op0->data.variable;
+            MappedOperand* operand = (MappedOperand*) symbol_table_get_or_create(
+                                         constants_table,
+                                         variable_cached_identifier(variable));
 
-                            }
-                        }
-                    }
+            MappedOperand* origin_table_operand = NULL;
+            if(origin_constants_table != NULL) {
+                origin_table_operand = (MappedOperand*) symbol_table_get_or_create(
+                                           origin_constants_table,
+                                           variable_cached_identifier(variable));
+            }
 
+            if(origin_table_operand != NULL && origin_table_operand->operand != NULL)
+                code_instruction_operand_free(&origin_table_operand->operand);
+            if(operand->operand != NULL)
+                code_instruction_operand_free(&operand->operand);
+
+            // add variable to constants if second operand is constant
+            if(!(!propagate_global_vars && variable->frame == VARIABLE_FRAME_GLOBAL)) {
+                if(!operand->blocked && instruction_type == I_MOVE &&
+                        instruction->op1->type == TYPE_INSTRUCTION_OPERAND_CONSTANT) {
+                    operand->operand = code_instruction_operand_copy(instruction->op1);
                 }
             }
         }
@@ -1447,18 +1495,32 @@ void code_optimizer_literal_expression_eval_optimization(CodeOptimizer* optimize
         }
 
         if(instruction->meta_data.type == CODE_INSTRUCTION_META_TYPE_EXPRESSION_END &&
-                start_instruction != NULL && instruction->type == I_POP_STACK) {
+                start_instruction != NULL) {
+            CodeInstruction* end_instruction = instruction;
+            if(instruction->type == I_POP_STACK)
+                end_instruction = instruction->prev;
+
             CodeInstructionOperand* lit_operand = interpreter_evaluate_instruction_block(
                                                       optimizer->interpreter,
                                                       start_instruction,
-                                                      instruction->prev);
+                                                      end_instruction);
             if(lit_operand != NULL) {
-                CodeInstruction* new_instruction = code_generator_new_instruction(
-                                                       optimizer->generator,
-                                                       I_MOVE,
-                                                       code_instruction_operand_copy(instruction->op0),
-                                                       lit_operand,
-                                                       NULL);
+                CodeInstruction* new_instruction = NULL;
+
+                if(instruction->type == I_POP_STACK) {
+                    new_instruction =  code_generator_new_instruction(
+                                           optimizer->generator,
+                                           I_MOVE,
+                                           code_instruction_operand_copy(instruction->op0),
+                                           lit_operand,
+                                           NULL);
+                }
+
+                else {
+
+                    new_instruction =  code_generator_new_instruction(
+                                           optimizer->generator, I_PUSH_STACK, lit_operand, NULL, NULL);
+                }
 
                 code_optimizer_adding_instruction(optimizer, new_instruction);
                 code_generator_insert_instruction_before(

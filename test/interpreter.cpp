@@ -369,3 +369,93 @@ TEST_F(InterpreterTestFixture, Comparing) {
     );
     code_instruction_operand_free(&operand);
 }
+
+TEST_F(InterpreterTestFixture, Division) {
+    GENERATE_CODE(
+            I_PUSH_STACK,
+            code_instruction_operand_init_double(12)
+    );
+    GENERATE_CODE(
+            I_POP_STACK,
+            code_instruction_operand_init_variable(buffer)
+    );
+    GENERATE_CODE(
+            I_PUSH_STACK,
+            code_instruction_operand_init_integer(48)
+    );
+    GENERATE_CODE(I_INT_TO_FLOAT_STACK);
+    GENERATE_CODE(
+            I_PUSH_STACK,
+            code_instruction_operand_init_variable(buffer)
+    );
+    GENERATE_CODE(I_DIV_STACK);
+
+    CodeInstructionOperand* operand = interpreter_evaluate_instruction_block(
+            interpreter,
+            constructor->generator->first,
+            constructor->generator->last
+    );
+    ASSERT_NE(
+            operand,
+            nullptr
+    );
+
+    EXPECT_EQ(
+            operand->type,
+            TYPE_INSTRUCTION_OPERAND_CONSTANT
+    );
+    EXPECT_EQ(
+            operand->data.constant.data_type,
+            DATA_TYPE_DOUBLE
+    );
+    EXPECT_EQ(
+            operand->data.constant.data.double_,
+            4.0
+    );
+    code_instruction_operand_free(&operand);
+}
+
+TEST_F(InterpreterTestFixture, Subs) {
+    GENERATE_CODE(
+            I_PUSH_STACK,
+            code_instruction_operand_init_double(12)
+    );
+    GENERATE_CODE(
+            I_POP_STACK,
+            code_instruction_operand_init_variable(buffer)
+    );
+    GENERATE_CODE(
+            I_PUSH_STACK,
+            code_instruction_operand_init_integer(48)
+    );
+    GENERATE_CODE(I_INT_TO_FLOAT_STACK);
+    GENERATE_CODE(
+            I_PUSH_STACK,
+            code_instruction_operand_init_variable(buffer)
+    );
+    GENERATE_CODE(I_SUB_STACK);
+
+    CodeInstructionOperand* operand = interpreter_evaluate_instruction_block(
+            interpreter,
+            constructor->generator->first,
+            constructor->generator->last
+    );
+    ASSERT_NE(
+            operand,
+            nullptr
+    );
+
+    EXPECT_EQ(
+            operand->type,
+            TYPE_INSTRUCTION_OPERAND_CONSTANT
+    );
+    EXPECT_EQ(
+            operand->data.constant.data_type,
+            DATA_TYPE_DOUBLE
+    );
+    EXPECT_EQ(
+            operand->data.constant.data.double_,
+            36.0
+    );
+    code_instruction_operand_free(&operand);
+}

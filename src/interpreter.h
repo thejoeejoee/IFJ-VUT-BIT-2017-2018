@@ -34,8 +34,8 @@ bool interpreter_supported_instruction(TypeInstruction instruction_type);
 
 #define DATA_STACK_OPERATION(case_, op) \
     case case_: { \
-        CodeInstructionOperandConstantData op1 = interpreter_data_stack_pop(interpreter); \
         CodeInstructionOperandConstantData op2 = interpreter_data_stack_pop(interpreter); \
+        CodeInstructionOperandConstantData op1 = interpreter_data_stack_pop(interpreter); \
         if (op1.data_type != op2.data_type) { \
             LOG_WARNING("Operands type mismatch %d:%d.", op1.data_type, op2.data_type);\
             return NULL; \

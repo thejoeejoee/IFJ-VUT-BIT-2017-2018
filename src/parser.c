@@ -286,10 +286,10 @@ bool parser_parse_function_definition(Parser* parser) {
             {
                 if(before_instruction == NULL)
                     parser->code_constructor->generator->buffer_first
-                            ->meta_data.type = CODE_INSTRUCTION_META_TYPE_FUNCTION_START;
+                            ->meta_data.type |= CODE_INSTRUCTION_META_TYPE_FUNCTION_START;
                 else
                     before_instruction->next
-                            ->meta_data.type = CODE_INSTRUCTION_META_TYPE_FUNCTION_START;
+                            ->meta_data.type |= CODE_INSTRUCTION_META_TYPE_FUNCTION_START;
 
                 parser->code_constructor->generator->buffer_last
                         ->meta_data.type |= CODE_INSTRUCTION_META_TYPE_FUNCTION_END;
@@ -882,9 +882,20 @@ bool parser_parse_print_expression(Parser* parser) {
      * RULE
      * <print_expression> -> <expression> SEMICOLON
      */
+
+    CodeInstruction* before_expression_instruction = NULL;
     NULL_POINTER_CHECK(parser, false);
     RULES(
+                CODE_GENERATION(
+                    before_expression_instruction = code_generator_last_instruction(parser->code_constructor->generator);
+        );
             CALL_EXPRESSION_RULE();
+            CODE_GENERATION({
+            before_expression_instruction->next->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_START;
+            code_generator_last_instruction(
+                    parser->code_constructor->generator
+            )->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_END;
+    });
             CODE_GENERATION(
                     {
                             code_constructor_print_expression(

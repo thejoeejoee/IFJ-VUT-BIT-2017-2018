@@ -798,9 +798,15 @@ bool parser_parse_return_(Parser* parser) {
      * <statement> -> RETURN <expr>
      */
     NULL_POINTER_CHECK(parser, false);
+    CodeInstruction* before_expression_instruction = NULL;
+    UNUSED(before_expression_instruction);
+
     CodeConstructor* constructor;
     RULES(
             CHECK_TOKEN(TOKEN_RETURN);
+            CODE_GENERATION(
+               before_expression_instruction = code_generator_last_instruction(parser->code_constructor->generator);
+            );
             CALL_EXPRESSION_RULE();
             CODE_GENERATION(
                     {
@@ -809,6 +815,10 @@ bool parser_parse_return_(Parser* parser) {
                             parser->parser_semantic->expression_result->data_type,
                             parser->parser_semantic->actual_function->return_data_type
                     );
+                            before_expression_instruction->next->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_START;
+                            code_generator_last_instruction(
+                                    parser->code_constructor->generator
+                            )->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_END;
                     }
             );
             CODE_GENERATION(
@@ -883,19 +893,21 @@ bool parser_parse_print_expression(Parser* parser) {
      * <print_expression> -> <expression> SEMICOLON
      */
 
-    CodeInstruction* before_expression_instruction = NULL;
     NULL_POINTER_CHECK(parser, false);
+    CodeInstruction* before_expression_instruction = NULL;
+    UNUSED(before_expression_instruction);
+
     RULES(
-                CODE_GENERATION(
-                    before_expression_instruction = code_generator_last_instruction(parser->code_constructor->generator);
-        );
+            CODE_GENERATION(
+               before_expression_instruction = code_generator_last_instruction(parser->code_constructor->generator);
+            );
             CALL_EXPRESSION_RULE();
             CODE_GENERATION({
-            before_expression_instruction->next->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_START;
-            code_generator_last_instruction(
-                    parser->code_constructor->generator
-            )->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_END;
-    });
+                before_expression_instruction->next->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_START;
+                code_generator_last_instruction(
+                        parser->code_constructor->generator
+                )->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_END;
+            });
             CODE_GENERATION(
                     {
                             code_constructor_print_expression(
@@ -915,6 +927,8 @@ bool parser_parse_while_(Parser* parser) {
      * <while_> -> DO WHILE <expression> EOL <eols> <statements> LOOP
      */
     NULL_POINTER_CHECK(parser, false);
+    CodeInstruction* before_expression_instruction = NULL;
+    UNUSED(before_expression_instruction);
 
     RULES(
             CHECK_TOKEN(TOKEN_DO);
@@ -927,9 +941,16 @@ bool parser_parse_while_(Parser* parser) {
             CODE_GENERATION(
                     {
                             code_constructor_while_before_condition(parser->code_constructor);
+                            before_expression_instruction = code_generator_last_instruction(parser->code_constructor->generator);
                     }
             );
             CALL_EXPRESSION_RULE();
+            CODE_GENERATION({
+                before_expression_instruction->next->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_START;
+                code_generator_last_instruction(
+                        parser->code_constructor->generator
+                )->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_END;
+            });
             SEMANTIC_ANALYSIS(
                     {
                             CHECK_IMPLICIT_CONVERSION(
@@ -1003,10 +1024,21 @@ bool parser_parse_condition(Parser* parser) {
      * <condition> -> IF <expr> THEN EOL <eols> <statements> <condition_elseif> <condition_else> END IF
      */
     NULL_POINTER_CHECK(parser, false);
+    CodeInstruction* before_expression_instruction = NULL;
+    UNUSED(before_expression_instruction);
 
     RULES(
             CHECK_TOKEN(TOKEN_IF);
+            CODE_GENERATION(
+               before_expression_instruction = code_generator_last_instruction(parser->code_constructor->generator);
+            );
             CALL_EXPRESSION_RULE();
+            CODE_GENERATION({
+                before_expression_instruction->next->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_START;
+                code_generator_last_instruction(
+                        parser->code_constructor->generator
+                )->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_END;
+            });
             SEMANTIC_ANALYSIS(
                     {
                             CHECK_IMPLICIT_CONVERSION(
@@ -1060,6 +1092,8 @@ bool parser_parse_condition_elseif(Parser* parser) {
      */
 
     NULL_POINTER_CHECK(parser, false);
+    CodeInstruction* before_expression_instruction = NULL;
+    UNUSED(before_expression_instruction);
 
     RULES(
             CONDITIONAL_RULES(
@@ -1088,6 +1122,9 @@ bool parser_parse_condition_elseif(Parser* parser) {
                             symbol_register_pop_variables_table(parser->parser_semantic->register_);
                     }
             );
+            CODE_GENERATION(
+               before_expression_instruction = code_generator_last_instruction(parser->code_constructor->generator);
+            );
             CALL_EXPRESSION_RULE();
             SEMANTIC_ANALYSIS(
                     {
@@ -1095,6 +1132,12 @@ bool parser_parse_condition_elseif(Parser* parser) {
                                                       parser->parser_semantic->expression_result->data_type);
                     }
             );
+            CODE_GENERATION({
+                before_expression_instruction->next->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_START;
+                code_generator_last_instruction(
+                        parser->code_constructor->generator
+                )->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_END;
+            });
             CODE_GENERATION(
                     {
                             code_constructor_if_else_if_after_expression(parser->code_constructor);

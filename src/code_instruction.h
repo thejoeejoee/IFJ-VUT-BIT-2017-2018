@@ -121,6 +121,7 @@ typedef enum {
 typedef struct {
     CodeInstructionMetaType type;
     MetaType purity_type;
+    bool interpretable;
 } CodeInstructionMetaData;
 
 typedef struct code_instruction_signature_t {

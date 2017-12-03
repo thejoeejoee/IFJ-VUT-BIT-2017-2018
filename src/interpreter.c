@@ -166,3 +166,27 @@ CodeInstructionOperand* interpreter_evaluate_instruction_block(
             return NULL;
     }
 }
+
+bool interpreter_supported_instruction(TypeInstruction instruction_type)
+{
+    switch (instruction_type) {
+        case I_SUB_STACK:
+        case I_ADD_STACK:
+        case I_MUL_STACK:
+        case I_DIV_STACK:
+        case I_AND_STACK:
+        case I_OR_STACK:
+        case I_EQUAL_STACK:
+        case I_GREATER_THEN_STACK:
+        case I_LESSER_THEN_STACK:
+        case I_NOT_STACK:
+        case I_INT_TO_FLOAT_STACK:
+        case I_FLOAT_TO_INT:
+        case I_FLOAT_ROUND_TO_EVEN_INT_STACK:
+        case I_PUSH_STACK:
+        case I_POP_STACK:
+            return true;
+        default:
+            return false;
+    }
+}

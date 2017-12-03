@@ -30,6 +30,8 @@ CodeInstructionOperand* interpreter_evaluate_instruction_block(
         CodeInstruction* end
 );
 
+bool interpreter_supported_instruction(TypeInstruction instruction_type);
+
 #define DATA_STACK_OPERATION(case_, op) \
     case case_: { \
         CodeInstructionOperandConstantData op1 = interpreter_data_stack_pop(interpreter); \

@@ -14,6 +14,7 @@ CodeInstruction* code_instruction_init(
     instruction->op2 = op2;
     instruction->meta_data.type = CODE_INSTRUCTION_META_TYPE_NONE;
     instruction->meta_data.purity_type = META_TYPE_PURE;
+    instruction->meta_data.interpretable = false;
 
     instruction->prev = instruction->next = NULL;
 

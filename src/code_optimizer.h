@@ -7,6 +7,7 @@
 #include "meta_data_peep_hole_pattern.h"
 #include "meta_data_code_block.h"
 #include "oriented_graph.h"
+#include "interpreter.h"
 
 typedef struct code_optimizer_t {
     CodeGenerator* generator;
@@ -20,6 +21,7 @@ typedef struct code_optimizer_t {
     SymbolVariable* temp4;
     SymbolVariable* temp5;
     SymbolVariable* temp6;
+    Interpreter* interpreter;
 
     OrientedGraph* code_graph;
 } CodeOptimizer;
@@ -85,5 +87,6 @@ bool code_optimizer_peep_hole_optimization(CodeOptimizer* optimizer);
 
 bool code_optimizer_remove_unused_functions(CodeOptimizer* optimizer);
 void code_optimizer_propate_constants_optimization(CodeOptimizer* optimizer);
+void code_optimizer_literal_expression_eval_optimization(CodeOptimizer* optimizer);
 
 #endif // CODE_OPTIMIZER_H

@@ -32,6 +32,8 @@ code_optimizer_init(CodeGenerator* generator, SymbolVariable* temp1, SymbolVaria
     optimizer->temp5 = temp5;
     optimizer->temp6 = temp6;
 
+    optimizer->interpreter = interpreter_init(optimizer->temp1);
+
     llist_init(&optimizer->peep_hole_patterns, sizeof(PeepHolePattern), &init_peep_hole_pattern,
                &free_peep_hole_pattern, NULL);
 
@@ -387,6 +389,7 @@ void code_optimizer_free(CodeOptimizer** optimizer) {
     symbol_table_free((*optimizer)->variables_meta_data);
     symbol_table_free((*optimizer)->functions_meta_data);
     symbol_table_free((*optimizer)->labels_meta_data);
+    interpreter_free(&(*optimizer)->interpreter);
     llist_free(&(*optimizer)->peep_hole_patterns);
     memory_free(*optimizer);
     *optimizer = NULL;
@@ -440,20 +443,50 @@ void code_optimizer_update_meta_data(CodeOptimizer* optimizer) {
         instruction = instruction->next;
     }
 
-    // another loop to spread dynamic
+    // another loop to spread dynamic and check literal expression
     instruction = optimizer->generator->first;
     CodeInstruction* expr_start_instruction = NULL;
     while(instruction != NULL) {
-        if(instruction->meta_data.type & CODE_INSTRUCTION_META_TYPE_EXPRESSION_START)
+        if(instruction->meta_data.type & CODE_INSTRUCTION_META_TYPE_EXPRESSION_START &&
+                instruction->meta_data.purity_type == META_TYPE_PURE) {
             expr_start_instruction = instruction;
+            // assume literal expression
+            instruction->meta_data.interpretable = true;
+        }
         if(instruction->meta_data.type & CODE_INSTRUCTION_META_TYPE_EXPRESSION_END)
             expr_start_instruction = NULL;
 
-        if(expr_start_instruction != NULL) {
-            if(instruction->type == I_CALL) {
-                FunctionMetaData* func_meta_data = code_optimizer_function_meta_data(optimizer,
-                                                                                     instruction->op0->data.label);
-                expr_start_instruction->meta_data.purity_type |= func_meta_data->purity_type;
+        // spread function purity
+        if(expr_start_instruction != NULL && instruction->type == I_CALL) {
+            FunctionMetaData* func_meta_data = code_optimizer_function_meta_data(optimizer,
+                                                                                 instruction->op0->data.label);
+//            printf("--Fuck %s\n", instruction->op0->data.label);
+            expr_start_instruction->meta_data.purity_type |= func_meta_data->purity_type;
+        }
+
+        if(expr_start_instruction != NULL && expr_start_instruction->meta_data.interpretable) {
+            // check if it is interpretable
+            if(!interpreter_supported_instruction(instruction->type)) {
+                expr_start_instruction->meta_data.interpretable = false;
+//                expr_start_instruction = NULL;
+            }
+
+            else {
+                CodeInstructionOperand* operands[OPERANDS_MAX_COUNT] = {
+                    instruction->op0,
+                    instruction->op1,
+                    instruction->op2
+                };
+
+                for(int j = 0; j < instruction->signature_buffer->operand_count; j++) {
+                    if(operands[j] != NULL &&
+                            operands[j]->type == TYPE_INSTRUCTION_OPERAND_VARIABLE &&
+                            !symbol_variable_cmp(optimizer->temp1, operands[j]->data.variable)) {
+                        expr_start_instruction->meta_data.interpretable = false;
+//                        expr_start_instruction = NULL;
+                        break;
+                    }
+                }
             }
         }
 
@@ -480,13 +513,11 @@ void code_optimizer_update_function_meta_data(CodeOptimizer* optimizer, CodeInst
         flags |= META_TYPE_DYNAMIC_DEPENDENT;
     else if(instruction->type == I_WRITE)
         flags |= META_TYPE_OUTPUTED;
-    else {
-        if((instruction->type == I_READ ||
-            instruction->type == I_MOVE ||
-            instruction->type == I_POP_STACK) &&
-           instruction->op0->type == TYPE_INSTRUCTION_OPERAND_VARIABLE &&
-           instruction->op0->data.variable->frame == VARIABLE_FRAME_GLOBAL)
-            flags |= META_TYPE_WITH_SIDE_EFFECT;
+    if((instruction_class(instruction) == INSTRUCTION_TYPE_WRITE ||
+        instruction_class(instruction) == INSTRUCTION_TYPE_VAR_MODIFIERS) &&
+       instruction->op0->type == TYPE_INSTRUCTION_OPERAND_VARIABLE &&
+            instruction->op0->data.variable->frame == VARIABLE_FRAME_GLOBAL) {
+        flags |= META_TYPE_WITH_SIDE_EFFECT;
     }
     FunctionMetaData* meta_data = code_optimizer_function_meta_data(optimizer, current_func_label);
     meta_data->purity_type |= flags;
@@ -590,8 +621,10 @@ bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer, bool hard_
                     break;
                 }
                 delete_instruction = !delete_expression;
-                if(!hard_remove)
+                if(!hard_remove) {
                     delete_instruction = true;
+                    delete_expression = false;
+                }
                 remove_something = true;
                 break;
             }
@@ -614,6 +647,7 @@ bool code_optimizer_remove_unused_variables(CodeOptimizer* optimizer, bool hard_
             }
 
             instruction = expr_instruction->prev;
+            code_optimizer_removing_instruction(optimizer, expr_instruction);
             code_generator_remove_instruction(optimizer->generator, expr_instruction);
         } else
             instruction = instruction->next;
@@ -1397,4 +1431,59 @@ SymbolTable* code_optimizer_modified_vars_in_blocks(CodeOptimizer* optimizer, Se
     }
 
     return mod_vars;
+}
+
+void code_optimizer_literal_expression_eval_optimization(CodeOptimizer* optimizer)
+{
+    NULL_POINTER_CHECK(optimizer, );
+
+    CodeInstruction* instruction = optimizer->generator->first;
+    CodeInstruction* start_instruction = NULL;
+
+    while(instruction != NULL) {
+        if(instruction->meta_data.type == CODE_INSTRUCTION_META_TYPE_EXPRESSION_START &&
+                instruction->meta_data.interpretable) {
+            start_instruction = instruction;
+        }
+
+        if(instruction->meta_data.type == CODE_INSTRUCTION_META_TYPE_EXPRESSION_END &&
+                start_instruction != NULL && instruction->type == I_POP_STACK) {
+            CodeInstructionOperand* lit_operand = interpreter_evaluate_instruction_block(
+                                                      optimizer->interpreter,
+                                                      start_instruction,
+                                                      instruction->prev);
+            if(lit_operand != NULL) {
+                CodeInstruction* new_instruction = code_generator_new_instruction(
+                                                       optimizer->generator,
+                                                       I_MOVE,
+                                                       code_instruction_operand_copy(instruction->op0),
+                                                       lit_operand,
+                                                       NULL);
+
+                code_optimizer_adding_instruction(optimizer, new_instruction);
+                code_generator_insert_instruction_before(
+                            optimizer->generator,
+                            new_instruction,
+                            instruction->next);
+
+                // remove expression
+                CodeInstruction* expr_instruction = instruction;
+                CodeInstruction* prev_expr_instruction;
+
+                while(expr_instruction->meta_data.type != CODE_INSTRUCTION_META_TYPE_EXPRESSION_START) {
+                    prev_expr_instruction = expr_instruction->prev;
+                    code_optimizer_removing_instruction(optimizer, expr_instruction);
+                    code_generator_remove_instruction(optimizer->generator, expr_instruction);
+                    expr_instruction = prev_expr_instruction;
+                }
+
+                instruction = expr_instruction->prev;
+                code_optimizer_removing_instruction(optimizer, expr_instruction);
+                code_generator_remove_instruction(optimizer->generator, expr_instruction);
+            }
+            start_instruction = NULL;
+        }
+
+        instruction = instruction->next;
+    }
 }

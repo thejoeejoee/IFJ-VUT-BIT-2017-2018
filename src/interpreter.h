@@ -32,6 +32,10 @@ CodeInstructionOperand* interpreter_evaluate_instruction_block(
 
 bool interpreter_supported_instruction(TypeInstruction instruction_type);
 
+bool interpreter_supported_binary_operation_instruction(TypeInstruction instruction_type);
+
+bool interpreter_supported_unary_operation_instruction(TypeInstruction instruction_type);
+
 #define DATA_STACK_OPERATION(case_, op) \
     case case_: { \
         CodeInstructionOperandConstantData op2 = interpreter_data_stack_pop(interpreter); \
@@ -42,14 +46,14 @@ bool interpreter_supported_instruction(TypeInstruction instruction_type);
         }\
         switch(op1.data_type) { \
             case DATA_TYPE_INTEGER: \
-                if(case_ == I_DIV_STACK && op2.data.integer == 0) \
+                if((case_) == I_DIV_STACK && op2.data.integer == 0) \
                     return NULL; \
                 data.data.integer = op1.data.integer op op2.data.integer; \
                 data.data_type = DATA_TYPE_INTEGER; \
                 interpreter_data_stack_push(interpreter, data); \
                 break; \
             case DATA_TYPE_DOUBLE: \
-                if(case_ == I_DIV_STACK && op2.data.double_ == 0) \
+                if((case_) == I_DIV_STACK && op2.data.double_ == 0) \
                     return NULL; \
                 data.data.double_ = op1.data.double_ op op2.data.double_; \
                 data.data_type = DATA_TYPE_DOUBLE; \

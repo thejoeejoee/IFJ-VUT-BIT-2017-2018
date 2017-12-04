@@ -1,6 +1,5 @@
 #include "interpreter.h"
 #include "code_instruction_operand.h"
-#include "code_optimizer_expr.h"
 
 void interpreter_data_stack_push(Interpreter* interpreter, CodeInstructionOperandConstantData data) {
     InterpreterDataStackItem* copied = memory_alloc(sizeof(InterpreterDataStackItem));
@@ -116,7 +115,7 @@ CodeInstructionOperand* interpreter_evaluate_instruction_block(
                 CodeInstructionOperandConstantData casted = {
                         .data_type = DATA_TYPE_INTEGER,
                         .data = {
-                                .integer=(int)(to_cast.data.double_)
+                                .integer=(int) (to_cast.data.double_)
                         }
                 };
                 interpreter_data_stack_push(interpreter, casted);
@@ -183,9 +182,8 @@ CodeInstructionOperand* interpreter_evaluate_instruction_block(
     }
 }
 
-bool interpreter_supported_instruction(TypeInstruction instruction_type)
-{
-    switch (instruction_type) {
+bool interpreter_supported_instruction(TypeInstruction instruction_type) {
+    switch(instruction_type) {
         case I_SUB_STACK:
         case I_ADD_STACK:
         case I_MUL_STACK:
@@ -206,3 +204,39 @@ bool interpreter_supported_instruction(TypeInstruction instruction_type)
             return false;
     }
 }
+
+
+bool interpreter_supported_binary_operation_instruction(TypeInstruction instruction_type) {
+    switch(instruction_type) {
+        case I_SUB_STACK:
+        case I_ADD_STACK:
+        case I_MUL_STACK:
+        case I_DIV_STACK:
+        case I_AND_STACK:
+        case I_OR_STACK:
+        case I_EQUAL_STACK:
+        case I_GREATER_THEN_STACK:
+        case I_LESSER_THEN_STACK:
+            /* case I_NOT_STACK:
+            case I_FLOAT_TO_INT_STACK:
+            case I_INT_TO_FLOAT_STACK:
+            case I_FLOAT_ROUND_TO_EVEN_INT_STACK: */
+            return true;
+        default:
+            return false;
+    }
+}
+
+
+bool interpreter_supported_unary_operation_instruction(TypeInstruction instruction_type) {
+    switch(instruction_type) {
+        case I_NOT_STACK:
+        case I_FLOAT_TO_INT_STACK:
+        case I_INT_TO_FLOAT_STACK:
+        case I_FLOAT_ROUND_TO_EVEN_INT_STACK:
+            return true;
+        default:
+            return false;
+    }
+}
+

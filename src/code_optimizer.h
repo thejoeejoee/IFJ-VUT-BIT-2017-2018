@@ -95,7 +95,7 @@ bool code_optimizer_peep_hole_optimization(CodeOptimizer* optimizer);
 
 bool code_optimizer_remove_unused_functions(CodeOptimizer* optimizer);
 
-bool code_optimizer_propate_constants_optimization(CodeOptimizer* optimizer);
+bool code_optimizer_propagate_constants_optimization(CodeOptimizer* optimizer);
 
 bool code_optimizer_literal_expression_eval_optimization(CodeOptimizer* optimizer);
 

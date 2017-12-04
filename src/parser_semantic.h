@@ -60,7 +60,6 @@ typedef struct parser_semantic_t {
     SymbolFunction* actual_function; // Pointer to actual function
     SymbolVariable* actual_variable; // Pointer to actual variable
     size_t argument_index;
-    // TODO: is was_actual_function_declared needed here? why is not controlled by scenarios or actual_function->declared?
     bool was_actual_function_declared;
     SymbolVariable* temp_variable1;
     SymbolVariable* temp_variable2;

@@ -821,11 +821,6 @@ void code_constructor_fn_substr(CodeConstructor* constructor, SymbolVariable* tm
     );
 
     GENERATE_CODE(
-            I_PUSH_STACK,
-            code_instruction_operand_init_variable(tmp3)
-    );
-
-    GENERATE_CODE(
             I_GET_CHAR,
             code_instruction_operand_init_variable(tmp5),
             code_instruction_operand_init_variable(tmp1),
@@ -833,18 +828,9 @@ void code_constructor_fn_substr(CodeConstructor* constructor, SymbolVariable* tm
     );
     GENERATE_CODE(
             I_CONCAT_STRING,
-            code_instruction_operand_init_variable(tmp3),
+            code_instruction_operand_init_variable(tmp4),
             code_instruction_operand_init_variable(tmp4),
             code_instruction_operand_init_variable(tmp5)
-    );
-    GENERATE_CODE(
-            I_MOVE,
-            code_instruction_operand_init_variable(tmp4),
-            code_instruction_operand_init_variable(tmp3)
-    );
-    GENERATE_CODE(
-            I_POP_STACK,
-            code_instruction_operand_init_variable(tmp3)
     );
 
     GENERATE_CODE(

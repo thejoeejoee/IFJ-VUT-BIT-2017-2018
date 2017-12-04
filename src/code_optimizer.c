@@ -1226,7 +1226,7 @@ void code_optimizer_split_code_to_graph(CodeOptimizer* optimizer) {
     symbol_table_free(mapped_blocks);
 }
 
-bool code_optimizer_propate_constants_optimization(CodeOptimizer* optimizer) {
+bool code_optimizer_propagate_constants_optimization(CodeOptimizer* optimizer) {
     NULL_POINTER_CHECK(optimizer, false);
     NULL_POINTER_CHECK(optimizer->code_graph, false);
 

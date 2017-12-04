@@ -229,9 +229,9 @@ void code_generator_remove_instruction(CodeGenerator* generator, CodeInstruction
             generator->first = instruction->next;
     }
 
-    if(instruction->prev)
+    if(instruction->prev != NULL)
         instruction->prev->next = instruction->next;
-    if(instruction->next)
+    if(instruction->next != NULL)
         instruction->next->prev = instruction->prev;
     code_instruction_free(&instruction);
 }

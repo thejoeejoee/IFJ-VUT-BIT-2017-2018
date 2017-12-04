@@ -325,11 +325,6 @@ CodeInstructionOperand* code_optimizer_expr_eval(
     return NULL;
 }
 
-int round_even(double x) {
-    x -= remainder(x, 1.0);
-    return (int) x;
-}
-
 void code_optimizer_optimize_type_casts(CodeOptimizer* optimizer) {
     NULL_POINTER_CHECK(optimizer,);
     CodeGenerator* generator = optimizer->generator;
@@ -362,6 +357,8 @@ void code_optimizer_optimize_type_casts(CodeOptimizer* optimizer) {
                             NULL,
                             NULL
                     );
+                    replacement->meta_data = actual->prev->meta_data;
+
                     code_generator_insert_instruction_before(
                             generator,
                             replacement,
@@ -371,8 +368,8 @@ void code_optimizer_optimize_type_casts(CodeOptimizer* optimizer) {
                     code_generator_remove_instruction(generator, actual);
                     next = replacement;
                 }
-            }
                 break;
+            }
             case I_INT_TO_FLOAT_STACK: {
                 if(actual->prev != NULL &&
                    actual->prev->type == I_PUSH_STACK &&
@@ -402,9 +399,122 @@ void code_optimizer_optimize_type_casts(CodeOptimizer* optimizer) {
                     code_generator_remove_instruction(generator, actual);
                     next = replacement;
                 }
+                break;
+            }
+            case I_FLOAT_TO_INT_STACK: {
+                if(actual->prev != NULL &&
+                   actual->prev->type == I_PUSH_STACK &&
+                   actual->prev->op0->type == TYPE_INSTRUCTION_OPERAND_CONSTANT) {
+                    if(actual->prev->op0->data.constant.data_type != DATA_TYPE_DOUBLE) {
+                        LOG_WARNING("Invalid operand to type cast.");
+                        continue;
+                    }
+
+                    replacement = code_generator_new_instruction(
+                            generator,
+                            I_PUSH_STACK,
+                            code_instruction_operand_init_integer(
+                                    (int) actual->prev->op0->data.constant.data.double_
+                            ),
+                            NULL,
+                            NULL
+                    );
+                    replacement->meta_data = actual->prev->meta_data;
+
+                    code_generator_insert_instruction_before(
+                            generator,
+                            replacement,
+                            actual->prev
+                    );
+                    code_generator_remove_instruction(generator, actual->prev);
+                    code_generator_remove_instruction(generator, actual);
+                    next = replacement;
+                }
+                break;
             }
             default:;
         }
         actual = next;
     } while(actual != end);
+}
+
+bool is_literal_push(CodeInstruction* instruction) {
+    if(instruction == NULL)
+        return false;
+
+    if(instruction->type != I_PUSH_STACK)
+        return false;
+
+    if(instruction->op0 == NULL || instruction->op0->type != TYPE_INSTRUCTION_OPERAND_CONSTANT)
+        return false;
+
+    return true;
+}
+
+void code_optimizer_optimize_partial_expression_eval(CodeOptimizer* optimizer) {
+    NULL_POINTER_CHECK(optimizer,);
+    CodeGenerator* generator = optimizer->generator;
+    CodeInstruction* start = generator->first;
+    NULL_POINTER_CHECK(start,);
+
+    CodeInstruction* actual = start;
+    CodeInstruction* next;
+    while(actual != generator->last) {
+        next = actual->next;
+        if(interpreter_supported_binary_operation_instruction(actual->type)) {
+            if(actual->prev != NULL && is_literal_push(actual->prev) && is_literal_push(actual->prev->prev)) {
+                CodeInstructionOperand* evaluated = interpreter_evaluate_instruction_block(
+                        optimizer->interpreter,
+                        actual->prev->prev,
+                        actual
+                );
+                if(evaluated == NULL) {
+                    LOG_WARNING("Fuck it");
+                    return;
+                }
+
+                code_generator_insert_instruction_before(
+                        optimizer->generator,
+                        code_generator_new_instruction(
+                                optimizer->generator,
+                                I_PUSH_STACK,
+                                evaluated,
+                                NULL,
+                                NULL
+                        ),
+                        actual->prev->prev
+                );
+                code_generator_remove_instruction(optimizer->generator, actual->prev->prev);
+                code_generator_remove_instruction(optimizer->generator, actual->prev);
+                code_generator_remove_instruction(optimizer->generator, actual);
+            }
+        } else if(interpreter_supported_unary_operation_instruction(actual->type)) {
+            if(is_literal_push(actual->prev)) {
+                CodeInstructionOperand* evaluated = interpreter_evaluate_instruction_block(
+                        optimizer->interpreter,
+                        actual->prev,
+                        actual
+                );
+                if(evaluated == NULL) {
+                    LOG_WARNING("Fuck it");
+                    return;
+                }
+
+                code_generator_insert_instruction_before(
+                        optimizer->generator,
+                        code_generator_new_instruction(
+                                optimizer->generator,
+                                I_PUSH_STACK,
+                                evaluated,
+                                NULL,
+                                NULL
+                        ),
+                        actual->prev
+                );
+                code_generator_remove_instruction(optimizer->generator, actual->prev);
+                code_generator_remove_instruction(optimizer->generator, actual);
+            }
+        }
+        actual = next;
+    }
 }

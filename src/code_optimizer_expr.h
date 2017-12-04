@@ -58,10 +58,8 @@
         else { LOG_WARNING("Unknown data type"); } \
 }} while(0)
 
-int round_even(double x);
-
 /**
- * Try 'constantize' operation `E op E` by defined signature, source T1 a T2 and result E.
+ * Try to 'constantize' operation `E op E` by defined signature, source T1 a T2 and result E.
  * @param optimizer instance
  * @param t1 first expr token
  * @param t2 second expr token - for unary ops is NULL
@@ -74,6 +72,16 @@ CodeInstructionOperand* code_optimizer_expr_eval(
         ExprToken* t1, ExprToken* t2, ExprToken* result, const OperationSignature* signature
 );
 
+/**
+ * Try replace PUSH lit, CONVERSION_ON_STACK by PUSH conversed_literal.
+ * @param optimizer instance
+ */
 void code_optimizer_optimize_type_casts(CodeOptimizer* optimizer);
+
+/**
+ * Try to replace all PUSH lit, PUSH lit, OP_STACK by PUSH (lit op lit).
+ * @param optimizer instance
+ */
+void code_optimizer_optimize_partial_expression_eval(CodeOptimizer* optimizer);
 
 #endif //_CODE_OPTIMIZER_EXPR_H

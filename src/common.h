@@ -18,11 +18,10 @@
 char* c_string_copy(const char* string);
 
 /**
- * @brief Transform char to integer
- *
- * @param char_
- * @return integer value
+ * Round double to nearest even integer.
+ * @param x to round
+ * @return rounded
  */
-int hex_to_int(char char_);
+int round_even(double x);
 
 #endif // _COMMON_H

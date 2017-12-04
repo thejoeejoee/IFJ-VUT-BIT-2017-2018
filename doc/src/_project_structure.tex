@@ -343,14 +343,13 @@ Jelikož překladač je založen na přímém překladu, tak při redukování p
     \centering
     \label{Redukční pravidla}
     \begin{tabular}{lll}
-        $E \to i$ &  $E \to (E)$ & $E \to (E)$ \\
-        $E \to (E)$ & $E \to i()$ & $E \to i(E)$\\
-        $E \to i(E, E)$ & $E \to i(E, E, ...)$ &  $E \to E + E$\\
-        $E \to E - E$ & $E \to E ~ / ~ E$ & $E \to E ~ \backslash ~ E$\\
-        $E \to - E$ &  $E \to E = E$ & $E \to E <> E$\\
-        $E \to E > E$ & $E \to E >= E$ & $E \to E < E$\\
-        $E \to E <= E$ & $E \to NOT ~ E$ & $E \to E ~ AND ~ E$\\
-        $E \to E ~ OR ~ E$ & & \\
+        $E \to i$ & $E \to E - E$ & $E \to E >= E$\\
+        $E \to (E)$ & $E \to E ~ / ~ E$ & $E \to E < E$\\
+        $E \to i()$ & $E \to E ~ \backslash ~ E$ & $E \to E <= E$\\
+        $E \to i(E)$ & $E \to - E$ & $E \to NOT ~ E$\\
+        $E \to i(E, E)$ & $E \to E = E$ & $E \to E ~ AND ~ E$\\
+        $E \to i(E, E, ...)$ & $E \to E <> E$ & $E \to E ~ OR ~ E$\\
+        $E \to E + E$ & $E \to E > E$\\
     \end{tabular}
 \end{table}
 

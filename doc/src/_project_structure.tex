@@ -6,7 +6,7 @@ je jako tokeny.
 Lexikální analyzátor je implementací deterministického konečného
 automatu. Jediný nedeterministický případ nastává tehdy, když má automat načítat znak ve tvatu $\backslash$ddd.
 Případ je vyřešen implementací interního čítače počtu číslic. Pokud čítač dosáhne hodnoty 3 a číslo je
-v intervalu $<001-255>$, je znak úspěšné načten, v opačném případě je vygenerována chyba
+v~intervalu $<001-255>$, je znak úspěšné načten, v~opačném případě je vygenerována chyba
 
 Lexikální analyzátor je rozdělen do tří modulů: \ic|lexer.c|, \ic|lexer_fsm.c| a \ic|token.c|
 . Modul \ic|token.c| obsahuje implementaci abstraktního datového typu token. Modul \ic|lexer_fsm.c|
@@ -21,45 +21,46 @@ která vrací další token.
 \end{figure}
 
 \subsection{Synataktická analýza}
-Syntaxí řízený překlad je naimplementován v modulu \ic|parser.c|, pro syntaktickou analýzu programu jako takového je
-použita SA shoda dolů, konkrétně metoda rekurzivního sestupu. Pro každé pravidlo z LL gramatiky existuje v tomto
+Syntaxí řízený překlad je naimplementován v~modulu \ic|parser.c|, pro syntaktickou analýzu programu jako takového je
+použita SA shoda dolů, konkrétně metoda rekurzivního sestupu. Pro každé pravidlo z~LL gramatiky existuje v~tomto
 modulu funkce realizující toto pravidlo.
 
-Pro snažší zápis v jazyce C byl implementován poloautomatický systém generování funkcí reprezentujících tato pravidla za pomocí maker.
+Pro snažší zápis v~jazyce C byl implementován poloautomatický systém generování funkcí reprezentujících tato pravidla za pomocí maker.
 Makra konkrétní pravidlo zavolají a zkontrolují jeho splnění. Pro kontrolu terminálu bylo naimplemntováno makro
 \ic|CHECK_TOKEN(TOKEN_TYPE)|,
 Pro zavolání pravidla bylo naimplementováno pravidlo \ic|CALL_RULE(NAME_OF_RULE);|.
 Pro podmínečná volání pravidel poté makro ve stylu
 \ic|CHECK_RULE(token_type == TOKEN_TYPE, NAME_OF_RULE, REWIND_AND_SUCCESS)| - Pri použití se zavolá pravidlo
-\ic|NAME_OF_RULE| v případě, že je následující token typu \ic|TOKEN_TYPE| a jestliže bylo úspěšné, další načtený
+\ic|NAME_OF_RULE| v~případě, že je následující token typu \ic|TOKEN_TYPE| a jestliže bylo úspěšné, další načtený
 token navrátí zpět a prohlásí volání za úspěšné.
 
 Všechny pravidla pracují nad strukturou \ic|Parser|, která zapouzdřuje základní komponenty pro syntaxí řízený překlad.
 Jedná se především od struktury \ic!ParserSemantic!, \ic!CodeConstructor! a \ic!Lexer!. První zmíněná zajištuje sémantické
 kontroly programu; uchovává \emph{registr symbolů}, dočasné proměnné, pravidla pro implicitní konverze datových typů či
-aktuální scénář SA. Konstruktor kódu je poté popsán v příslušné sekci \ref{subsec:code-constructor}, Lexer v sekci
+aktuální scénář SA. Konstruktor kódu je poté popsán v~příslušné sekci \ref{subsec:code-constructor}, Lexer v~sekci
 \ref{subsec:lexer}.
 
 Pro analýzu výrazů není analýza shora dolů příliš vhodná, proto byla
-použita metoda zdola nahoru v našem případě založená na precedenční
-syntaktické analýza implementovaná v souboru \ic|parser_expr.c|.
+použita metoda zdola nahoru v~našem případě založená na precedenční
+syntaktické analýza implementovaná v~souboru \ic|parser_expr.c|.
 
 Přepínání mezi metodami je realizováno následujícím mechanismem. Na celý program je použita funkce \ic|parser_parse|
-z modulu \ic|parser.c|. V případě že je jako neterminál očekáván výraz, je volána funkce \ic|parser_parse_expr|
-z modulu \ic|parser_expr.c|, která provede precedenční syntaktickou analýzu výrazu.
+z~modulu \ic|parser.c|. V~případě že je jako neterminál očekáván výraz, je volána funkce \ic|parser_parse_expr|
+z~modulu \ic|parser_expr.c|, která provede precedenční syntaktickou analýzu výrazu.
 
-Pravidlo <statements> obsahuje i derivace, které nemohou v určitém kontextu nastat.
-Například return se nemůže vyskytovat v hlavním bloku. Kdybychom toto chtěli řešit
+Pravidlo <statements> obsahuje i derivace, které nemohou v~určitém kontextu nastat.
+Například return se nemůže vyskytovat v~hlavním bloku. Kdybychom toto chtěli řešit
 přímo pomocí gramatiky, bylo by to možné ale gramatika by narozstla do monstrózních rozměrů.
-Proto nám v tomto napomáhají sémantické akce.
+Proto nám v~tomto napomáhají sémantické akce.
 
 Pravidlo \ic|eols| slouží ke "zkonzumování" všech přebytečných znaků EOL.
-Jedná se o univerzální pravidlo, které je voláno kdykoliv kdy je v programu
+Jedná se o~univerzální pravidlo, které je voláno kdykoliv kdy je v~programu
 mmožný výskyt prázdných řádků.
 
 \subsubsection{Gramatika}
 \begin{normalsize}
     \begin{enumerate}
+        {\small
         \item <prog> $\rightarrow$ <body> <eols> EOF
         \item <body> $\rightarrow$ <definitions\_block> <scope> <shared\_variables\_declarations>
 
@@ -146,7 +147,7 @@ mmožný výskyt prázdných řádků.
 
         \item <eols> $\rightarrow$ $\varepsilon$
         \item <eols> $\rightarrow$ EOL <eols>
-
+        }
         \newpage
         \begin{landscape}
             \begin{table}[htbp]
@@ -328,16 +329,15 @@ mmožný výskyt prázdných řádků.
 \end{normalsize}
 \subsection{Precedenční analýza výrazů}
 Precedenční analýza je řízena precedenční tabulkou, kterou se vyhodnocuje pořadí zpracování tokenů. \ref{table:prec}
-\ic|parser_expr_prec_table_data.c|. V tabulce se nachází jak binární, tak i unární mínus.
+\ic|parser_expr_prec_table_data.c|. V~tabulce se nachází jak binární, tak i unární mínus.
 Lexikální analyzátor nám ovšem poskytuje pouze jeden token mínus a proto se unární a binární mínus
 musí vyhodnotit podle kontextu.
 
-Precedenční analýza využívá zásobníku v podobě obousměrně vázaného seznamu, do kterého se ukládají terminály,
-precedenční symboly a neterminály. Pomocí redukčních pravidel, která jsou vypsána v příloze, se postupně výraz redukuje.
+Precedenční analýza využívá zásobníku v~podobě obousměrně vázaného seznamu, do kterého se ukládají terminály,
+precedenční symboly a neterminály. Pomocí redukčních pravidel, která jsou vypsána v~příloze, se postupně výraz redukuje.
 Jelikož překladač je založen na přímém překladu, tak při redukování pomocí pravidel konstruktor kódu rovnou generuje kód programu.
 
 \subsubsection{Redukční pravidla}
-
 
 \begin{table}[htbp]
     \centering
@@ -359,7 +359,7 @@ Jelikož překladač je založen na přímém překladu, tak při redukování p
 \centering
 \caption{Precedenční tabulka}
 \label{precedencni-tabulka}
-\begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|}
+\begin{tabular}{|r|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
 \hline
 & $un -$ & $*$ & $/$ & $\backslash$ & $+$ & $-$ & $=$ & $<>$ & $<$ & $<=$ & $>=$ & $>$ & $NOT$ & $AND$ & $OR$ & $($ & $)$ & $,$ & $i$ & \$ \\ \hline
 $un -$ &$<$&$>$&$>$&$>$&$>$&$>$&$>$&$>$&$>$&$>$&$>$&$>$& x &$>$&$>$&$<$&$>$&$>$&$<$&$>$\\ \hline
@@ -387,7 +387,7 @@ $i$ & x &$>$&$>$&$>$&$>$&$>$&$>$&$>$&$>$&$>$&$>$&$>$& x &$>$&$>$& = &$>$&$>$& x 
 
 
 \subsection{Sémantická analýza}
-Sémantické kontroly jsou přidruženy k syntaktickým pravidlům v rekurzivním sestupu a
+Sémantické kontroly jsou přidruženy k~syntaktickým pravidlům v~rekurzivním sestupu a
 precedenční syntaktické analýze výrazů. Jsou organizovány do tzv. scénářů. Jeden
 sémantický scénář sémanticky popisuje související část kódu. Například definici
 nebo deklaraci funkce. Sémantická analýza nám také pomáhá hlídat některé gramatické aspekty,
@@ -401,47 +401,61 @@ Konstruktor cílového kódu je komponenta překladače, který hlídá význam 
 \subsection{Generátor cílového kódu}
 Generátor kódu je nízkoúrovňová komponenta zastřešující skládání, validaci a vykreslování cílového kódu \ic|IFJcode17|.
 Kontroluje generované instrukce a její operandy, tedy správné kombinace typů operandů (přístupy do rámců, konstatní
-literály, návěští či datové typy) u konkrétních instrukcí.
+literály, návěští či datové typy) u~konkrétních instrukcí.
 
 Interní implementace spoléhá na \emph{obousměrně svázaný lineární seznam} struktur \ic|CodeInstruction|, které kromě
 režijních ukazatelů uchovávají typ instrukce a ukazatele na až tři operandy, struktury \ic|CodeInstructionOperand|.
-Tento seznam je uložen v datové struktuře \ic|CodeGenerator|, která dále obsahuje pole podpisů\footnote{Podpis
-instrukce je složena z bitových masek definující povolené typy operandů a její textové reprezentace v kódu
+Tento seznam je uložen v~datové struktuře \ic|CodeGenerator|, která dále obsahuje pole podpisů\footnote{Podpis
+instrukce je složena z~bitových masek definující povolené typy operandů a její textové reprezentace v~kódu
 \texttt{IFJcode17}.} instrukcí pro jejich validace.
-Struktura \ic|CodeInstructionOperand| uchovává informace o svém typu a poté unii dat pro konkrétní typ operandu, tedy
+Struktura \ic|CodeInstructionOperand| uchovává informace o~svém typu a poté unii dat pro konkrétní typ operandu, tedy
 ukazatel na proměnnou \ic|SymbolVariable|,
-data konstanty \ic|CodeInstructionOperandConstantData| v unii s datovým typem nebo řetězec uchovávající název návěští.
+data konstanty \ic|CodeInstructionOperandConstantData| v~unii s~datovým typem nebo řetězec uchovávající název návěští.
+
 \subsection{Optimalizátor kódu}
-\todo{Sony alespoň pár odstavečků by to chtělo}
+\begin{description}
+    \item[Vyhodnocování konstatních výrazů v~PA] Trololo
+    \item[Odstranění nepoužitých symbolů] Trololo
+    \item[Optimalizace \uv{peephole}] Trololo
+    \item[Šíření konstant] Trololo
+    \item[Interpretace celých konstantních výrazů] Trololo
+    \item[Částečná interpretace] Trololo
+\end{description}
 
 \section{Rozšíření}
 
-\subsubsection{SCOPE}
+\subsection{SCOPE}
 Pro rozšíření bylo třeba upravit tabulku symbolů, sekci proměnných tak, aby
 měla zásobníkovou strukturu a umožňovala libovolné operace push a pop na úrovni tabulek.
-Dále byly vytvořeny sémantické akce pro vyhledání v libovolné z těchto tabulek,
-nebo jen v tabulce která je na vrcholu zásobníku. Definice proměnných v těle cyklu
+Dále byly vytvořeny sémantické akce pro vyhledání v~libovolné z~těchto tabulek,
+nebo jen v~tabulce která je na vrcholu zásobníku. Definice proměnných v~těle cyklu
 bylo vyřešeno přesunutím instrukce defvar před cyklus samotný.
-\subsubsection{GLOBAL}
+
+\subsection{GLOBAL}
 Rozšíření GLOBAL bylo zapotřebí implementovat gramaticky přidáním
 nových pravidel pro definici statických a globálních proměnných.
 Dále bla upravena tabulka proměnných, ve které je jedna tabulka vyhrazena
 pro globální proměnné a statické proměnné které jsou prefixovány
 jménem funkce ve které se vyskytují.
-\subsubsection{UNARY}
+
+\subsection{UNARY}
 Rozšíření UNARY jsme implementovali jako nová gramatická pravidla. Sémantické
 akce odpovídají přiřazení, liší se pouze vygenerovaný kód.
-\subsubsection{BASE}
-Rozšíření bylo implementováno v lexikálním analýzatoru. Jsme schopni rozpoznat
+
+\subsection{BASE}
+Rozšíření bylo implementováno v~lexikálním analýzatoru. Jsme schopni rozpoznat
 lexémy označující čísla ve dvojkové, osmičkové a šestnáctkové soustavě a
 výsledek převést na desítkové číslo se kterým již nakládáme stejně.
-\subsubsection{FUNEXP}
+
+\subsection{FUNEXP}
 Volání funkcí bylo implementováno na úrovni precedenční syntaktické analýzy,
 takže lze ve výrazu volat libovolné funkce.
-\subsubsection{IFTHEN}
+
+\subsection{IFTHEN}
 Implementováno na gramatické úrovni přidáním nepovinných částí
 elseif a odstraněních povinnosti mít část if. Generátor kodu poté používá zásobník návěští pro skoky mezi jednotlivými bloky podmínky.
-\subsubsection{BOOLOP}
+
+\subsection{BOOLOP}
 Bylo potřeba upravit precedenční tabulku tak, aby podporovala nové
 operace AND a OR, dále gramatiku tak, abychom jako datový typ mohli
 použít typ boolean a sémantické akce pro ověření nového datového typu.

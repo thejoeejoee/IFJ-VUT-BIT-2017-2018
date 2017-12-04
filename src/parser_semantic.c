@@ -16,7 +16,8 @@ ParserSemantic* parser_semantic_init() {
     parser_semantic->temp_variable6 = NULL;
     parser_semantic->expression_result = NULL;
     parser_semantic->error_report.error_code = ERROR_NONE;
-
+    parser_semantic->argument_index = 0;
+    parser_semantic->was_actual_function_declared = false;
 
     parser_semantic_setup_temp_variables(parser_semantic);
     // Add allowed operations signatures

@@ -126,6 +126,7 @@ bool expression_rule_id(Parser* parser, LList* expr_token_buffer, ExprIdx* expre
         );
 
         e->is_variable = true;
+        e->is_constant = false;
         CODE_GENERATION(
                 {
                     e->instruction = GENERATE_CODE(

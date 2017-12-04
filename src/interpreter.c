@@ -107,6 +107,22 @@ CodeInstructionOperand* interpreter_evaluate_instruction_block(
                 break;
             }
 
+            case I_FLOAT_TO_INT_STACK: {
+                CodeInstructionOperandConstantData to_cast = interpreter_data_stack_pop(interpreter);
+                if(to_cast.data_type != DATA_TYPE_DOUBLE) {
+                    LOG_WARNING("Invalid data type to convert: %d", to_cast.data_type);
+                    return NULL;
+                }
+                CodeInstructionOperandConstantData casted = {
+                        .data_type = DATA_TYPE_INTEGER,
+                        .data = {
+                                .integer=(int)(to_cast.data.double_)
+                        }
+                };
+                interpreter_data_stack_push(interpreter, casted);
+                break;
+            }
+
             case I_PUSH_STACK: {
                 if(actual->op0->type == TYPE_INSTRUCTION_OPERAND_VARIABLE && symbol_variable_cmp(
                         actual->op0->data.variable,
@@ -180,8 +196,8 @@ bool interpreter_supported_instruction(TypeInstruction instruction_type)
         case I_GREATER_THEN_STACK:
         case I_LESSER_THEN_STACK:
         case I_NOT_STACK:
+        case I_FLOAT_TO_INT_STACK:
         case I_INT_TO_FLOAT_STACK:
-        case I_FLOAT_TO_INT:
         case I_FLOAT_ROUND_TO_EVEN_INT_STACK:
         case I_PUSH_STACK:
         case I_POP_STACK:

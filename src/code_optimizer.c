@@ -1226,10 +1226,11 @@ void code_optimizer_split_code_to_graph(CodeOptimizer* optimizer) {
     symbol_table_free(mapped_blocks);
 }
 
-void code_optimizer_propate_constants_optimization(CodeOptimizer* optimizer) {
-    NULL_POINTER_CHECK(optimizer,);
-    NULL_POINTER_CHECK(optimizer->code_graph,);
+bool code_optimizer_propate_constants_optimization(CodeOptimizer* optimizer) {
+    NULL_POINTER_CHECK(optimizer, false);
+    NULL_POINTER_CHECK(optimizer->code_graph, false);
 
+    bool propagated_something = false;
     OrientedGraph* graph = optimizer->code_graph;
     LList* blocks_in_cycles = oriented_graph_scc(optimizer->code_graph);
     LList* cycled_blocks_mod_vars;
@@ -1266,7 +1267,7 @@ void code_optimizer_propate_constants_optimization(CodeOptimizer* optimizer) {
         constants->copy_data_callback = &copy_mapped_operand_item;
         stack_push(constants_tables_stack, (StackBaseItem*) constants_table_stack_item_init(constants));
 
-        code_optimizer_propagate_constants_in_block(optimizer, block, constants_tables_stack, proccessed_blocks,
+        propagated_something |= code_optimizer_propagate_constants_in_block(optimizer, block, constants_tables_stack, proccessed_blocks,
                                                     cycled_blocks_mod_vars, false, false);
         StackBaseItem* old_table = stack_pop(constants_tables_stack);
         constants_table_stack_item_free(old_table);
@@ -1282,12 +1283,14 @@ void code_optimizer_propate_constants_optimization(CodeOptimizer* optimizer) {
     CodeBlock* block = (CodeBlock*) oriented_graph_node(graph, 0);
 
     // start
-    code_optimizer_propagate_constants_in_block(optimizer, block, constants_tables_stack, proccessed_blocks,
+    propagated_something |= code_optimizer_propagate_constants_in_block(optimizer, block, constants_tables_stack, proccessed_blocks,
                                                 cycled_blocks_mod_vars, false, true);
 
     llist_free(&cycled_blocks_mod_vars);
     stack_free(&constants_tables_stack);
     set_int_free(&proccessed_blocks);
+
+    return propagated_something;
 }
 
 void block_variables_in_constants_table(const char* key, void* item, void* data) {
@@ -1323,21 +1326,23 @@ void remove_reset_var_setters_in_constants_table(const char* key, void* item, vo
     op->setter = NULL;
 }
 
-void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
+bool code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
                                                  CodeBlock* block,
                                                  Stack* constants_tables_stack,
                                                  SetInt* processed_blocks_ids,
                                                  LList* cycled_block_mod_vars,
                                                  bool is_conditional_block,
                                                  bool propagate_global_vars) {
-    NULL_POINTER_CHECK(optimizer,);
-    NULL_POINTER_CHECK(block,);
-    NULL_POINTER_CHECK(constants_tables_stack,);
-    NULL_POINTER_CHECK(processed_blocks_ids,);
+    NULL_POINTER_CHECK(optimizer, false);
+    NULL_POINTER_CHECK(block, false);
+    NULL_POINTER_CHECK(constants_tables_stack, false);
+    NULL_POINTER_CHECK(processed_blocks_ids, false);
+
+    bool propagated_something = false;
 
     // check whether block was processed
     if(set_int_contains(processed_blocks_ids, (int) block->base.id))
-        return;
+        return false;
     set_int_add(processed_blocks_ids, (int) block->base.id);
 
     // get constants table
@@ -1376,7 +1381,7 @@ void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
     // error
     if(constants_table == NULL) {
         LOG_WARNING("Internal error getting constants table.");
-        return;
+        return false;
     }
 
     // remove modified variables in cycles if block is in cycle
@@ -1436,6 +1441,7 @@ void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
 
                 // replace operand
                 if(operand != NULL && operand->operand != NULL && !operand->blocked) {
+                    propagated_something = true;
                     code_instruction_operand_free(&(*(operands[j])));
                     (*(operands[j])) = code_instruction_operand_copy(operand->operand);
                 }
@@ -1493,7 +1499,7 @@ void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
     SetInt* next_blocks_id = block->base.out_edges;
     SetIntItem* next_block_id = (SetIntItem*) next_blocks_id->head;
     while(next_block_id != NULL) {
-        code_optimizer_propagate_constants_in_block(
+        propagated_something |= code_optimizer_propagate_constants_in_block(
                 optimizer,
                 (CodeBlock*) oriented_graph_node(optimizer->code_graph, (unsigned int) next_block_id->value),
                 constants_tables_stack,
@@ -1508,6 +1514,8 @@ void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
     ConstantsTableStackItem* old_constants_table = (ConstantsTableStackItem*) stack_pop(constants_tables_stack);
     constants_tables_stack->stack_item_free_callback((StackBaseItem*) old_constants_table);
     memory_free(old_constants_table);
+
+    return propagated_something;
 }
 
 SymbolTable* code_optimizer_modified_vars_in_blocks(CodeOptimizer* optimizer, SetInt* blocks_ids) {
@@ -1562,6 +1570,7 @@ bool code_optimizer_literal_expression_eval_optimization(CodeOptimizer* optimize
                     optimizer->interpreter,
                     start_instruction,
                     end_instruction);
+
             if(lit_operand != NULL) {
                 CodeInstruction* new_instruction = NULL;
                 interpreted_something = true;

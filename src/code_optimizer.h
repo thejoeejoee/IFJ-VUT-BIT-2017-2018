@@ -76,7 +76,7 @@ void remove_variables_setters_in_constants_table(const char* key, void* item, vo
 
 void remove_reset_var_setters_in_constants_table(const char* key, void* item, void* data);
 
-void code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
+bool code_optimizer_propagate_constants_in_block(CodeOptimizer* optimizer,
                                                  CodeBlock* block,
                                                  Stack* constants_tables_stack,
                                                  SetInt* processed_blocks_ids,
@@ -95,7 +95,7 @@ bool code_optimizer_peep_hole_optimization(CodeOptimizer* optimizer);
 
 bool code_optimizer_remove_unused_functions(CodeOptimizer* optimizer);
 
-void code_optimizer_propate_constants_optimization(CodeOptimizer* optimizer);
+bool code_optimizer_propate_constants_optimization(CodeOptimizer* optimizer);
 
 bool code_optimizer_literal_expression_eval_optimization(CodeOptimizer* optimizer);
 

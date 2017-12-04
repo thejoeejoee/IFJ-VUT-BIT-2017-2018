@@ -31,11 +31,12 @@ int main(int argc, char** argv) {
 
     bool expr_interpreted = false;
     do {
+        expr_interpreted = false;
         code_optimizer_split_code_to_graph(parser->optimizer);
         code_optimizer_update_meta_data(parser->optimizer);
-        code_optimizer_propate_constants_optimization(parser->optimizer);
+        expr_interpreted |= code_optimizer_propate_constants_optimization(parser->optimizer);
         code_optimizer_update_meta_data(parser->optimizer);
-        expr_interpreted = code_optimizer_literal_expression_eval_optimization(parser->optimizer);
+        expr_interpreted |= code_optimizer_literal_expression_eval_optimization(parser->optimizer);
     } while(expr_interpreted);
 
     code_optimizer_remove_instructions_without_effect_optimization(parser->optimizer);

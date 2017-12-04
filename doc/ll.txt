@@ -20,16 +20,13 @@
 <function_n_param> -> E
 <function_n_param> -> <function_param> <function_n_param>
 
-<function_param> -> IDENTIFIER AS TYPE
+<function_param> -> IDENTIFIER AS <type>
 
 <body_statements> -> E
 <body_statements> -> <body_statement_single> EOL <eols> <body_statements>
 
 <function_statements> -> E
 <function_statements> -> <function_statement_single> EOL <eols> <function_statements>
-
-<cycle_statements> -> E
-<cycle_statements> -> <cycle_statement_single> EOL <eols> <cycle_statements>
 
 <function_statement_single> -> <identifier_assignment>
 <function_statement_single> -> <input>
@@ -48,18 +45,15 @@
 <body_statement_single> -> <scope>
 <body_statement_single> -> <condition>
 <body_statement_single> -> <variable_declaration>
-<function_statement_single> -> <for>
 
 <cycle_statement_single> -> <identifier_assignment>
 <cycle_statement_single> -> <input>
-<cycle_statement_single> -> <for>
+<function_statement_single> -> <for>
 <cycle_statement_single> -> <return>
 <cycle_statement_single> -> <print>
 <cycle_statement_single> -> <condition>
 <cycle_statement_single> -> <while_>
 <cycle_statement_single> -> <variable_declaration>
-<cycle_statement_single> -> <continue>
-<cycle_statement_single> -> <exit>
 
 <variable_declaration> -> DIM IDENTIFIER AS <type> <declaration_assignment>
 <declaration_assignment> -> E
@@ -105,8 +99,6 @@
 
 <condition_else> -> E
 <condition_else> -> ELSE EOL <eols> <statements>
-
-<for> -> FOR IDENTIFIER <assignment> <step> EOL <eols> <cycle_statements> NEXT
 
 <eols> -> E
 <eols> -> EOL <eols>

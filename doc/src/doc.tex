@@ -1,4 +1,4 @@
-\documentclass[11pt,a4paper,titlepage]{article}
+\documentclass[8pt,a4paper,titlepage]{article}
 
 % Set document dimensions
 \usepackage[paper=a4paper,top=2cm,left=2cm,right=2cm,bottom=2cm,includefoot]{geometry}
@@ -16,6 +16,8 @@
 \usepackage{svg}
 \graphicspath{ {src/assets/} }
 \usepackage{pdfpages}
+\usepackage{color} % barvy
+\usepackage{xcolor} % vytváření barev
 
 % Include pseudo-algorithm to latex document
 \usepackage{algorithm2e}
@@ -36,8 +38,17 @@
 % Cool maths printing
 \usepackage{amsmath}
 
+% latex magic
+\usepackage{newverbs}
+
+\usepackage{enumitem}
+
 % Packages for including source code to latex document
 \usepackage{listings}
+
+\definecolor{codeprimary}{HTML}{3300CC}
+\colorlet{keywordstyle}{codeprimary!50!black}
+
 \lstset{
 	escapeinside={/*@}{@*/}, language=C,
 	basicstyle=\fontsize{12}{14}\selectfont,
@@ -53,6 +64,21 @@
 	stringstyle=\color[rgb]{0.627,0.126,0.941}
 }
 
+% \ic for inline code
+\makeatletter
+\newcommand\ic[1][green]{%
+    \@testopt{\@ic{#1}}{-#1}% Handle second optional argument
+}
+\def\@ic#1[#2]{%
+    \Collectverb{\@@ic{#1}{#2}}%
+}
+\def\@@ic#1#2#3{%
+    {\lstinline[basicstyle=\ttfamily\color{codeprimary},breaklines=true]|#3|}%
+}
+\newcommand{\icmacro}[1]{{\lstinline[basicstyle=\ttfamily\color{codeprimary},breaklines=true]|#1|}}
+\makeatother
+
+\usepackage{pdflscape}
 % For table of contents
 \usepackage[tocflat]{tocstyle}
 \usetocstyle{standard}

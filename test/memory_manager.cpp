@@ -40,10 +40,12 @@ TEST_F(MemoryManagerTestFixture, InvalidMemoryAllocation) {
 }
 
 TEST_F(MemoryManagerTestFixture, InvalidMemoryDealocation) {
-    DISABLE_LOG({
-                    // TODO: free does return void.. so no method to check valid address
-                    memory_free(&memory_manager, &memory_manager);
-                });
+    DISABLE_LOG(
+            {
+                // free does return void.. so no method to check valid address
+                memory_free(&memory_manager, &memory_manager);
+            }
+    );
 }
 
 TEST_F(MemoryManagerTestFixture, SingleMemoryAllocation) {

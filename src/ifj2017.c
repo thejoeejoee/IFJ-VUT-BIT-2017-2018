@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
             code_optimizer_peep_hole_optimization(parser->optimizer)
             );
 
-    bool expr_interpreted = false;
+    bool expr_interpreted;
     do {
         expr_interpreted = false;
         code_optimizer_split_code_to_graph(parser->optimizer);

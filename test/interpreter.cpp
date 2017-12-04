@@ -73,7 +73,7 @@ TEST_F(InterpreterTestFixture, IntegerWithoutBuffer) {
     );
     EXPECT_EQ(
             operand->data.constant.data.integer,
-            -55
+            0
     );
     code_instruction_operand_free(&operand);
 }
@@ -122,9 +122,9 @@ TEST_F(InterpreterTestFixture, DoubleWithoutBuffer) {
             operand->data.constant.data_type,
             DATA_TYPE_DOUBLE
     );
-    EXPECT_EQ(
+    EXPECT_FLOAT_EQ(
             operand->data.constant.data.double_,
-            (((10.12 + 74.8) - 3.5) / 10.2) * 12.1
+            -1.5158437
     );
     code_instruction_operand_free(&operand);
 }
@@ -322,7 +322,7 @@ TEST_F(InterpreterTestFixture, Comparing) {
             I_PUSH_STACK,
             code_instruction_operand_init_double(25)
     );
-    GENERATE_CODE(I_GREATER_THEN_STACK);
+    GENERATE_CODE(I_LESSER_THEN_STACK);
     GENERATE_CODE(
             I_PUSH_STACK,
             code_instruction_operand_init_double(120.14)
@@ -331,7 +331,7 @@ TEST_F(InterpreterTestFixture, Comparing) {
             I_PUSH_STACK,
             code_instruction_operand_init_double(-12.14)
     );
-    GENERATE_CODE(I_LESSER_THEN_STACK);
+    GENERATE_CODE(I_GREATER_THEN_STACK);
     GENERATE_CODE(I_AND_STACK);
 
     GENERATE_CODE(

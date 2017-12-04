@@ -110,7 +110,6 @@ TEST_F(SymbolTableTestFixture, InsertItems) {
 }
 
 TEST_F(SymbolTableTestFixture, MemoryDeallocation) {
-    // TODO: Test memory deallocation
 }
 
 TEST_F(SymbolTableTestFixture, GetOnEmptyTable) {

@@ -14,6 +14,11 @@ typedef struct LListBaseItem {
     struct LListBaseItem* previous;
 } LListBaseItem;
 
+typedef struct {
+    LListBaseItem base;
+    char* str;
+} LListItemStr;
+
 /**
 * @brief Function to free LListItem data
 */
@@ -45,6 +50,9 @@ typedef struct LList {
     llist_init_item_data_callback_f init_data_callback;
     llist_item_compare_function cmp_function;
 } LList;
+
+void llist_item_str_init(LListBaseItem* item);
+void llist_item_str_free(LListBaseItem* item);
 
 /**
  * @brief llist_init Allocates memory for list and null head and tail.

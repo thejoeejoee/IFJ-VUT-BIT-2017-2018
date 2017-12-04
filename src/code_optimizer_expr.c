@@ -391,6 +391,8 @@ void code_optimizer_optimize_type_casts(CodeOptimizer* optimizer) {
                             NULL,
                             NULL
                     );
+                    replacement->meta_data = actual->prev->meta_data;
+
                     code_generator_insert_instruction_before(
                             generator,
                             replacement,

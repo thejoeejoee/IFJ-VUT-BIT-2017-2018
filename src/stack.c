@@ -20,8 +20,7 @@ void stack_free(Stack** stack) {
         next = item->next;
         if(stack_item_free_callback != NULL)
             stack_item_free_callback(item);
-        else
-            memory_free(item);
+        memory_free(item);
         item = next;
     }
     memory_free(*stack);
@@ -53,4 +52,17 @@ StackBaseItem* stack_get_by_index(Stack* stack, size_t index) {
         index--;
     }
     return item;
+}
+
+StackBaseItem* stack_item_int_init(int value)
+{
+    StackItemInt* item = memory_alloc(sizeof(StackItemInt));
+    item->value = value;
+
+    return (StackBaseItem*) item;
+}
+
+void stack_pop_free(Stack* stack)
+{
+    memory_free(stack_pop(stack));
 }

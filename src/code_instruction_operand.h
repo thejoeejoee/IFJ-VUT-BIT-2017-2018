@@ -8,6 +8,8 @@
 #include "symtable_variable.h"
 #include "symtable_function.h"
 
+#define OPERANDS_MAX_COUNT 3
+
 typedef enum type_instruction_operand_t {
     TYPE_INSTRUCTION_OPERAND_NONE = 0,
 
@@ -74,6 +76,8 @@ void code_instruction_operand_free(CodeInstructionOperand** operand);
 char* code_instruction_operand_render(CodeInstructionOperand* operand);
 
 char* code_instruction_render_variable_identifier(SymbolVariable* variable);
+char* variable_cached_identifier(SymbolVariable* variable);
+
 size_t code_instruction_rendered_variable_identifier_max_len(SymbolVariable* variable);
 void code_instruction_operand_render_variable_identifier(SymbolVariable* variable, char* rendered, size_t identifier_max_len);
 

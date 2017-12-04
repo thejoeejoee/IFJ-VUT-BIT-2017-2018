@@ -102,6 +102,15 @@ typedef enum type_instruction_t {
 } TypeInstruction;
 
 typedef enum {
+    INSTRUCTION_TYPE_WRITE,
+    INSTRUCTION_TYPE_DIRECT_JUMP,
+    INSTRUCTION_TYPE_CONDITIONAL_JUMP,
+    INSTRUCTION_TYPE_OTHER,
+    INSTRUCTION_TYPE_INVALID,
+    INSTRUCTION_TYPE_VAR_MODIFIERS,
+} TypeInstructionClass;
+
+typedef enum {
     CODE_INSTRUCTION_META_TYPE_NONE,
     CODE_INSTRUCTION_META_TYPE_EXPRESSION_START = 1,
     CODE_INSTRUCTION_META_TYPE_EXPRESSION_END = 2,
@@ -112,6 +121,8 @@ typedef enum {
 typedef struct {
     CodeInstructionMetaType type;
     MetaType purity_type;
+    bool interpretable;
+    bool without_effect;
 } CodeInstructionMetaData;
 
 typedef struct code_instruction_signature_t {
@@ -146,5 +157,7 @@ CodeInstruction* code_instruction_init(
 void code_instruction_free(CodeInstruction** instruction);
 
 char* code_instruction_render(CodeInstruction* instruction);
+
+TypeInstructionClass instruction_class(CodeInstruction* instruction);
 
 #endif //_INSTRUCTION_H

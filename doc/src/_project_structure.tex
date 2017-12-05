@@ -5,34 +5,38 @@ je jako tokeny.
 
 Lexikální analyzátor je implementací deterministického konečného
 automatu. Jediný nedeterministický případ nastává tehdy, když má automat načítat znak ve tvatu $\backslash$ddd.
-Případ je vyřešen implementací interního čítače počtu číslic. Pokud čítač dosáhne hodnoty 3 a číslo je
-v~intervalu $<001-255>$, je znak úspěšné načten, v~opačném případě je vygenerována chyba
+Případ je vyřešen implementací interního čítače počtu načtených číslic. Pokud čítač dosáhne hodnoty 3 a číslo je
+v~intervalu $\langle 001 - 255\rangle$, je znak úspěšné načten, v~opačném případě je vygenerována chyba v lexikální
+analýze.
 
 Lexikální analyzátor je rozdělen do tří modulů: \ic|lexer.c|, \ic|lexer_fsm.c| a \ic|token.c|
 . Modul \ic|token.c| obsahuje implementaci abstraktního datového typu token. Modul \ic|lexer_fsm.c|
-obsahuje implementaci deterministického konečného automatu. Modul \ic|lexer.c| poskytuje funkci
-\ic|lexer_next_token|, která řídí činnost deterministického konečného automatu a
-která vrací další token.
+obsahuje implementaci deterministického konečného automatu. Automat je oddělen od samožného lexeru z nutnosti simulování
+přechodu z jedné konfigurace do konfigurace jiné v jednotkových testech. Modul \ic|lexer.c| poskytuje funkci
+\ic|lexer_next_token|, která řídí činnost deterministického konečného automatu vrací další token. Chyba v lexikální
+analýze je rozpoznána navrácením chybného tokenu.
 
 \vspace*{16px}
 \begin{figure}[htbp]
+    \label{subsec:automat}
+    \caption{Grafická reprezentace konečného automatu}
     \centering
     \includegraphics[width=1\textwidth, angle=0]{src/assets/automat.pdf}
 \end{figure}
+
 
 \subsection{Synataktická analýza}
 Syntaxí řízený překlad je naimplementován v~modulu \ic|parser.c|, pro syntaktickou analýzu programu jako takového je
 použita SA shoda dolů, konkrétně metoda rekurzivního sestupu. Pro každé pravidlo z~LL gramatiky existuje v~tomto
 modulu funkce realizující toto pravidlo.
 
-Pro snažší zápis v~jazyce C byl implementován poloautomatický systém generování funkcí reprezentujících tato pravidla za pomocí maker.
-Makra konkrétní pravidlo zavolají a zkontrolují jeho splnění. Pro kontrolu terminálu bylo naimplemntováno makro
-\ic|CHECK_TOKEN(TOKEN_TYPE)|,
-Pro zavolání pravidla bylo naimplementováno pravidlo \ic|CALL_RULE(NAME_OF_RULE);|.
-Pro podmínečná volání pravidel poté makro ve stylu
-\ic|CHECK_RULE(token_type == TOKEN_TYPE, NAME_OF_RULE, REWIND_AND_SUCCESS)| - Pri použití se zavolá pravidlo
+Pro snažší zápis v~jazyce C byl implementován poloautomatický systém generování těchto funkcí za pomocí maker.
+Makra konkrétní pravidlo zavolají a zkontrolují jeho splnění. Pro kontrolu přítomnosti terminálu bylo
+naimplemntováno makro \ic|CHECK_TOKEN(TOKEN_TYPE)|, pro zavolání pravidla bylo naimplementováno pravidlo
+\ic|CALL_RULE(NAME_OF_RULE)|. Pro podmínečná volání pravidel makro
+\ic|CHECK_RULE(token_type == TOKEN_TYPE, NAME_OF_RULE, REWIND_AND_SUCCESS)| - Při použití se zavolá pravidlo
 \ic|NAME_OF_RULE| v~případě, že je následující token typu \ic|TOKEN_TYPE| a jestliže bylo úspěšné, další načtený
-token navrátí zpět a prohlásí volání za úspěšné.
+token navrátí zpět lexikálnímu analyzátoru a prohlásí volání za úspěšné.
 
 Všechny pravidla pracují nad strukturou \ic|Parser|, která zapouzdřuje základní komponenty pro syntaxí řízený překlad.
 Jedná se především od struktury \ic!ParserSemantic!, \ic!CodeConstructor! a \ic!Lexer!. První zmíněná zajištuje sémantické
@@ -44,18 +48,16 @@ Pro analýzu výrazů není analýza shora dolů příliš vhodná, proto byla
 použita metoda zdola nahoru v~našem případě založená na precedenční
 syntaktické analýza implementovaná v~souboru \ic|parser_expr.c|.
 
-Přepínání mezi metodami je realizováno následujícím mechanismem. Na celý program je použita funkce \ic|parser_parse|
-z~modulu \ic|parser.c|. V~případě že je jako neterminál očekáván výraz, je volána funkce \ic|parser_parse_expr|
-z~modulu \ic|parser_expr.c|, která provede precedenční syntaktickou analýzu výrazu.
-
-Pravidlo <statements> obsahuje i derivace, které nemohou v~určitém kontextu nastat.
-Například return se nemůže vyskytovat v~hlavním bloku. Kdybychom toto chtěli řešit
+Na celý program je použita funkce \ic|parser_parse| z~modulu \ic|parser.c|. V~případě že je jako neterminál
+očekáván výraz, je volána funkce \ic|parser_parse_expr| z~modulu \ic|parser_expr.c|, která provede precedenční
+syntaktickou analýzu výrazu. Některé derivace neterninálu \ic|<statement_single>| nemohou v určitém kontextu nastat
+Například příkaz \ic|return| se nemůže vyskytovat v~hlavním bloku. Kdybychom toto chtěli řešit
 přímo pomocí gramatiky, bylo by to možné ale gramatika by narozstla do monstrózních rozměrů.
-Proto nám v~tomto napomáhají sémantické akce.
+V tomto případě nám napomáhají sémantické akce.
 
-Pravidlo \ic|eols| slouží ke "zkonzumování" všech přebytečných znaků EOL.
-Jedná se o~univerzální pravidlo, které je voláno kdykoliv kdy je v~programu
-mmožný výskyt prázdných řádků.
+Neterminál \ic|<eols>| slouží ke "zkonzumování" všech přebytečných znaků EOL. Jedná se o~univerzální neterminál použitelné
+i mimo naší gramatiku, proto pro všechny terminály kromě \ic|EOL| používá poravidlo 60. Toto pravidlo je voláno kdykoliv
+je v programu možný výskyt více prázdných řádků.
 
 \subsubsection{Gramatika a LL tabulka}
 \begin{normalsize}
@@ -73,16 +75,16 @@ mmožný výskyt prázdných řádků.
         \item <definition> $\rightarrow$ <function\_definition>
         \item <definition> $\rightarrow$ <shared\_variable\_declaration>
 
-        \item <function\_definition> $\rightarrow$ <function\_header> EOL <eols> <statements> END FUNCTION
-        \item <function\_declaration> $\rightarrow$ DECLARE <function\_header> EOL <eols>
+        \item <function\_definition> $\rightarrow$ <function\_header> EOL <eols> <statements> END FUNCTION EOL
+        \item <function\_declaration> $\rightarrow$ DECLARE <function\_header> EOL
 
-        \item <function\_header> $\rightarrow$ FUNCTION IDENTIFIER (<function\_params>) AS <type>
+        \item <function\_header> $\rightarrow$ FUNCTION IDENTIFIER (<function\_params>) AS <type> EOL
 
         \item <function\_params> $\rightarrow$ $\varepsilon$
         \item <function\_params> $\rightarrow$ <function\_param> <function\_n\_param>
 
         \item <function\_n\_param> $\rightarrow$ $\varepsilon$
-        \item <function\_n\_param> $\rightarrow$ <function\_param> <function\_n\_param>
+        \item <function\_n\_param> $\rightarrow$ , <function\_param> <function\_n\_param>
 
         \item <function\_param> $\rightarrow$ IDENTIFIER AS <type>
 
@@ -138,7 +140,6 @@ mmožný výskyt prázdných řádků.
         \item <identifier\_assignment> $\rightarrow$  IDENTIF <assignment>
 
         \item <condition> $\rightarrow$ IF <expr> THEN EOL <eols> <statements> <condition\_elseif> <condition\_else> END IF
-        \item <condition\_elseif> <condition\_else>
         \item <condition\_elseif> $\rightarrow$ $\varepsilon$
         \item <condition\_elseif> $\rightarrow$ ELSEIF <expr> THEN EOL <eols> <statements> <condition\_elseif>
 
@@ -225,11 +226,11 @@ mmožný výskyt prázdných řádků.
                     \\ \hline
                     <con>&&&&&&&&&&&&&&&&&&54&&&&&&
                     \\ \hline
-                    <con\_ei>&&&&&&&&&&&&&&&&&&54&&&&&&
+                    <con\_ei>&&&&&&&&&&&&&&55&55&&&54&&&&&&
                     \\ \hline
-                    <con\_e>&&&&&&&&&&&&&&&&&&&&&&&&
+                    <con\_e>&&&&&&&&&&&&&&58&57&&&&&&&&&
                     \\ \hline
-                    <con\_eols>&60&60&60&60&60&60&60&60&60&60&60&60&60&60&60&60&60&60&60&60&60&60&60&60
+                    <con\_eols>&59&59&59&59&59&59&59&59&59&59&59&59&59&59&59&59&59&59&59&59&59&59&59&59
                     \\ \hline
                 \end{tabular}
             \end{table}
@@ -313,11 +314,11 @@ mmožný výskyt prázdných řádků.
                     \\ \hline
                     <con>&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
                     \\ \hline
-                    <con\_ei>&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+                    <con\_ei>&&&&&&&&&56&&&&&&&&&&&&&&&&&&&&
                     \\ \hline
                     <con\_e>&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
                     \\ \hline
-                    <con\_eols>&60&60&60&60&60&60&60&60&60&60&60&60&60&60&60&60&60&60&60&60&60&61&60&60&60&60&60&60&60
+                    <con\_eols>&59&59&59&59&59&59&59&59&59&59&59&59&59&59&59&59&59&59&59&59&59&60&59&59&59&59&59&59&59
 
                     \\ \hline
                 \end{tabular}
@@ -327,21 +328,21 @@ mmožný výskyt prázdných řádků.
         \newpage
     \end{enumerate}
 \end{normalsize}
-\subsubsection{Precedenční analýza výrazů a precedenč}
+\subsubsection{Precedenční analýza výrazů}
 
-Precedenční analýza je řízena precedenční tabulkou, kterou se vyhodnocuje pořadí zpracování tokenů. \ref{table:prec}
-\ic|parser_expr_prec_table_data.c|. V~tabulce se nachází jak binární, tak i unární mínus.
-Lexikální analyzátor nám ovšem poskytuje pouze jeden token mínus a proto se unární a binární mínus
-musí vyhodnotit podle kontextu.
+Precedenční analýza je řízena precedenční tabulkou, kterou se vyhodnocuje pořadí zpracování tokenů.
+. V~tabulce se nachází jak binární, tak i unární mínus. Lexikální analyzátor nám ovšem poskytuje pouze jeden
+token mínus a proto se unární a binární mínus musí vyhodnotit podle kontextu.
 
 Precedenční analýza využívá zásobníku v~podobě obousměrně vázaného seznamu, do kterého se ukládají terminály,
 precedenční symboly a neterminály. Pomocí redukčních pravidel, která jsou vypsána v~příloze, se postupně výraz redukuje.
-Jelikož překladač je založen na přímém překladu, tak při redukování pomocí pravidel konstruktor kódu rovnou generuje kód programu.
+Jelikož překladač je založen na přímém překladu, tak při redukování pomocí pravidel konstruktor kódu rovnou generuje kód
+programu.
 
 
 \begin{table}[!htbp]
     \centering
-    \label{Redukční pravidla}
+    \label{tabul:prav}
     \caption{Redukční pravidla}
     \begin{tabular}{lll}
         $E \to i$ & $E \to E - E$ & $E \to E >= E$\\
@@ -355,7 +356,7 @@ Jelikož překladač je založen na přímém překladu, tak při redukování p
 \end{table}
 
 \begin{table}[htbp]
-\label{table:prec}
+\label{tabul:prec}
 \centering
 \caption{Precedenční tabulka}
 \label{precedencni-tabulka}
@@ -388,9 +389,9 @@ $i$ & x &$>$&$>$&$>$&$>$&$>$&$>$&$>$&$>$&$>$&$>$&$>$& x &$>$&$>$& = &$>$&$>$& x 
 
 \subsection{Sémantická analýza}
 Sémantické kontroly jsou přidruženy k~syntaktickým pravidlům v~rekurzivním sestupu a
-precedenční syntaktické analýze výrazů. Jsou organizovány do tzv. scénářů. Jeden
-sémantický scénář sémanticky popisuje související část kódu. Například definici
-nebo deklaraci funkce. Sémantická analýza nám také pomáhá hlídat některé gramatické aspekty,
+precedenční syntaktické analýze výrazů. Jsou organizovány do tzv. scénářů. Jeden scénář
+sémanticky popisuje související část kódu. Například definici
+nebo deklaraci funkce. Sémantická analýza nám také pomáhá hlídat i některé gramatické aspekty,
 které by byly pro LL gramatiku příliš kompikované, nebo by měly příliš dlouhý zápis.
 
 
@@ -425,7 +426,7 @@ data konstanty \ic|CodeInstructionOperandConstantData| v~unii s~datovým typem n
 \section{Rozšíření}
 
 \subsection{SCOPE}
-Pro rozšíření bylo třeba upravit tabulku symbolů, sekci proměnných tak, aby
+Pro rozšíření bylo třeba upravit tabulku symbolů a sekci proměnných tak, aby
 měla zásobníkovou strukturu a umožňovala libovolné operace push a pop na úrovni tabulek.
 Dále byly vytvořeny sémantické akce pro vyhledání v~libovolné z~těchto tabulek,
 nebo jen v~tabulce která je na vrcholu zásobníku. Definice proměnných v~těle cyklu
@@ -449,11 +450,13 @@ výsledek převést na desítkové číslo se kterým již nakládáme stejně.
 
 \subsection{FUNEXP}
 Volání funkcí bylo implementováno na úrovni precedenční syntaktické analýzy,
-takže lze ve výrazu volat libovolné funkce.
+Precedenční tabulka obsahuje redukční pravidla pro redukování funkční čímž jsme implementovali
+možnost libovolného volání výrazů ve funkcích.
 
 \subsection{IFTHEN}
 Implementováno na gramatické úrovni přidáním nepovinných částí
-elseif a odstraněních povinnosti mít část if. Generátor kodu poté používá zásobník návěští pro skoky mezi jednotlivými bloky podmínky.
+elseif a odstraněních povinnosti mít část if.
+Generátor kodu poté používá zásobník návěští pro skoky mezi jednotlivými bloky podmínky.
 
 \subsection{BOOLOP}
 Bylo potřeba upravit precedenční tabulku tak, aby podporovala nové

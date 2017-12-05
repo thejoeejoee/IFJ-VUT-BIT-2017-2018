@@ -17,6 +17,9 @@ void free_code_block(GraphNodeBase* base)
 
     CodeBlock* v = (CodeBlock*)base;
     set_int_free(&v->conditional_jump);
+    v->instructions_count = 0;
+    v->instructions = NULL;
+    v->last_instruction = NULL;
 }
 
 void code_block_set_start_instruction(CodeBlock* block, CodeInstruction* instruction)

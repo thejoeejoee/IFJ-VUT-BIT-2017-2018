@@ -432,7 +432,6 @@ void code_optimizer_add_advance_peep_hole_patterns(CodeOptimizer* optimizer) {
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_WRITE, "a", NULL, NULL, -1, 0, 0);
     code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_WRITE, "a", NULL, NULL);
 
-
     /* Use move instead of stack if (b = a)
      * PUSH <a>         => MOVE <b> <a>
      * POP <b>
@@ -450,6 +449,78 @@ void code_optimizer_add_advance_peep_hole_patterns(CodeOptimizer* optimizer) {
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "!a", "b", NULL, -1, -1, 0);
     code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "!a", "c", NULL, -1, -1, 0);
     code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_MOVE, "!a", "c", NULL);
+
+    /*
+     * CONCAT tmp1 tmp2 tmp1    => CONCAT result tmp2 tmp1
+     * MOVE result tmp1
+     */
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "2t", "s2", NULL, -1, -1, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_CONCAT_STRING, "!r", "2t", "s1", -1, -1, -1);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_CONCAT_STRING, "!r", "s2", "s1");
+
+    /*
+     * CONCAT tmp1 tmp2 tmp1    => CONCAT result tmp2 tmp1
+     * MOVE result tmp1
+     */
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "1t", "s1", NULL, -1, -1, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_CONCAT_STRING, "!r", "1t", "s2", -1, -1, -1);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_CONCAT_STRING, "!r", "s1", "s2");
+
+    /*
+     * CONCAT tmp1 tmp2 tmp1    => CONCAT result tmp2 tmp1
+     * MOVE result tmp1
+     */
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "2t", "s1", NULL, -1, -1, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_CONCAT_STRING, "!r", "2t", "s2", -1, -1, -1);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_CONCAT_STRING, "!r", "s1", "s2");
+
+    /*
+     * CONCAT tmp1 tmp2 tmp1    => CONCAT result tmp2 tmp1
+     * MOVE result tmp1
+     */
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "1t", "s2", NULL, -1, -1, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_CONCAT_STRING, "!r", "s1", "1t", -1, -1, -1);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_CONCAT_STRING, "!r", "s1", "s2");
+
+    /*
+     * CONCAT tmp1 tmp2 tmp1    => CONCAT result tmp2 tmp1
+     * MOVE result tmp1
+     */
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_CONCAT_STRING, "1a", "b", "a", -1, -1, -1);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "r", "1a", NULL, -1, -1, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_CONCAT_STRING, "r", "b", "a");
+
+
+    /* Use move instead of stack
+     * PUSH <a>         => MOVE _ __
+     * MOVE _ __        => MOVE <b> <a>
+     * POP <b>
+     */
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "_", "__", NULL, -1, -1, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_STACK, "!b", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_MOVE, "!b", "a", NULL);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_MOVE, "_", "__", NULL);
+
+    /* Use move instead of stack
+     * PUSH <a>         => MOVE _ __
+     * MOVE _ __        => MOVE <b> <a>
+     * POP <b>
+     */
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "a", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "_1", "__1", NULL, -1, -1, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "_2", "__2", NULL, -1, -1, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_POP_STACK, "!b", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_MOVE, "!b", "a", NULL);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_MOVE, "_1", "__1", NULL);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_MOVE, "_2", "__2", NULL);
 
 }
 
@@ -1202,7 +1273,7 @@ void code_optimizer_split_code_to_graph(CodeOptimizer* optimizer) {
             continue;
 
         CodeBlock* block = (CodeBlock*) graph->nodes[i];
-        if(block->last_instruction->type == I_RETURN)
+        if(block->last_instruction == NULL || block->last_instruction->type == I_RETURN)
             continue;
         const TypeInstructionClass last_block_instruction_type_class = instruction_class(block->last_instruction);
         if(last_block_instruction_type_class == INSTRUCTION_TYPE_DIRECT_JUMP ||
@@ -1255,7 +1326,7 @@ bool code_optimizer_propagate_constants_optimization(CodeOptimizer* optimizer) {
     // propagate constants in functions
     for(unsigned int i = 0; i < graph->capacity; i++) {
         CodeBlock* block = (CodeBlock*) oriented_graph_node(graph, i);
-        if(block == NULL)
+        if(block == NULL || block->instructions == NULL)
             continue;
 
         if((block->instructions->meta_data.type & CODE_INSTRUCTION_META_TYPE_FUNCTION_START) == 0)
@@ -1267,8 +1338,9 @@ bool code_optimizer_propagate_constants_optimization(CodeOptimizer* optimizer) {
         constants->copy_data_callback = &copy_mapped_operand_item;
         stack_push(constants_tables_stack, (StackBaseItem*) constants_table_stack_item_init(constants));
 
-        propagated_something |= code_optimizer_propagate_constants_in_block(optimizer, block, constants_tables_stack, proccessed_blocks,
-                                                    cycled_blocks_mod_vars, false, false);
+        propagated_something |= code_optimizer_propagate_constants_in_block(optimizer, block, constants_tables_stack,
+                                                                            proccessed_blocks,
+                                                                            cycled_blocks_mod_vars, false, false);
         StackBaseItem* old_table = stack_pop(constants_tables_stack);
         constants_table_stack_item_free(old_table);
         memory_free(old_table);
@@ -1283,8 +1355,9 @@ bool code_optimizer_propagate_constants_optimization(CodeOptimizer* optimizer) {
     CodeBlock* block = (CodeBlock*) oriented_graph_node(graph, 0);
 
     // start
-    propagated_something |= code_optimizer_propagate_constants_in_block(optimizer, block, constants_tables_stack, proccessed_blocks,
-                                                cycled_blocks_mod_vars, false, true);
+    propagated_something |= code_optimizer_propagate_constants_in_block(optimizer, block, constants_tables_stack,
+                                                                        proccessed_blocks,
+                                                                        cycled_blocks_mod_vars, false, true);
 
     llist_free(&cycled_blocks_mod_vars);
     stack_free(&constants_tables_stack);

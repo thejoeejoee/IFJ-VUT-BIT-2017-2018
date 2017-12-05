@@ -57,7 +57,7 @@ Pravidlo \ic|eols| slouží ke "zkonzumování" všech přebytečných znaků EO
 Jedná se o~univerzální pravidlo, které je voláno kdykoliv kdy je v~programu
 mmožný výskyt prázdných řádků.
 
-\subsubsection{Gramatika}
+\subsubsection{Gramatika a LL tabulka}
 \begin{normalsize}
     \begin{enumerate}
         {\small
@@ -327,7 +327,8 @@ mmožný výskyt prázdných řádků.
         \newpage
     \end{enumerate}
 \end{normalsize}
-\subsection{Precedenční analýza výrazů}
+\subsubsection{Precedenční analýza výrazů a precedenč}
+
 Precedenční analýza je řízena precedenční tabulkou, kterou se vyhodnocuje pořadí zpracování tokenů. \ref{table:prec}
 \ic|parser_expr_prec_table_data.c|. V~tabulce se nachází jak binární, tak i unární mínus.
 Lexikální analyzátor nám ovšem poskytuje pouze jeden token mínus a proto se unární a binární mínus
@@ -337,11 +338,11 @@ Precedenční analýza využívá zásobníku v~podobě obousměrně vázaného 
 precedenční symboly a neterminály. Pomocí redukčních pravidel, která jsou vypsána v~příloze, se postupně výraz redukuje.
 Jelikož překladač je založen na přímém překladu, tak při redukování pomocí pravidel konstruktor kódu rovnou generuje kód programu.
 
-\subsubsection{Redukční pravidla}
 
-\begin{table}[htbp]
+\begin{table}[!htbp]
     \centering
     \label{Redukční pravidla}
+    \caption{Redukční pravidla}
     \begin{tabular}{lll}
         $E \to i$ & $E \to E - E$ & $E \to E >= E$\\
         $E \to (E)$ & $E \to E ~ / ~ E$ & $E \to E < E$\\
@@ -352,7 +353,6 @@ Jelikož překladač je založen na přímém překladu, tak při redukování p
         $E \to E + E$ & $E \to E > E$\\
     \end{tabular}
 \end{table}
-
 
 \begin{table}[htbp]
 \label{table:prec}

@@ -662,6 +662,7 @@ bool parser_parse_shared_variables_declarations(Parser* parser) {
                     lexer_rewind_token(parser->lexer, token);
             CHECK_RULE(token_type != TOKEN_DIM, epsilon, NO_CODE);
             CHECK_RULE(shared_variable_declaration);
+            CHECK_TOKEN(TOKEN_EOL);
             CHECK_RULE(shared_variables_declarations);
     );
     );

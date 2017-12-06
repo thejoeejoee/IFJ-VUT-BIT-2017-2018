@@ -10,11 +10,13 @@ Pro sémantické kontroly v~modulu \ic|ParserSemantic| existuje struktura \ic|Sy
 
 \begin{figure}[htbp]
     \centering
+	\vspace*{-10pt}
     \includegraphics[width=0.6\textwidth, angle=0]{src/assets/symbol_table.pdf}
+	\vspace*{-10pt}
 \end{figure}
 
 \subsection{Správa paměti}
 Pro kontroly neuvolněných paměťových bloků dynamické správy paměti byl vytvořen modul \ic|MemoryManager|, na který je napojen pár maker \ic|memory_alloc| a \ic|memory_free|. Tato makra mají identické rozhraní s~vestavěnými funkcemi \ic|malloc| a \ic|free|, avšak zachovávají informace o~alokovaných \uv{stránkách} paměti, které se vždy uvolňují až na konci běhu programu. Stránky jsou dvousměrně svázány do seznamu pro přístup (\uv{uvoľňování}) s~časovou složitostí $\mathcal{O}(1)$.
 
 \subsection{Optimalizace}
-Z~takový struktur je zde použit z~vyšších dat. struktur orientovaný graf a množina. Z~těch nižších poté obecný dvousměrně svázaný seznam, zásobník implementovaný pomocí jednosměrně svázaného seznamu a tabulka s~rozptýlenými položkami. Množina je zde implementována jako dvousměrně svázaný seznam (narozdíl od doporučované varianty s~binárním stromem) vzhledem k~očekávanému nízkému počtu položek v~ní a tím i příznivé časové složitosti $\mathcal{O}(n\cdot log(n))$. Orientovaný graf je implementován jako jednorozměrné pole uzlů tohoto grafu - každý uzel poté obsahuje množina vstupních a výstupních hran pro konkrétní uzel. V~tomto grafu jsou silně propojené komponenty vyhledávány pomocí Tarjanova algoritmu \footnote{https://en.wikipedia.org/wiki/Tarjan\'s\_strongly\_connected\_components\_algorithm} pro vyhledávání takto silně spojených komponent s~časovou složitostí $\mathcal{O}(n)$.
+Z~vyšších datových struktur je zde použit \textbf{orientovaný graf a množina}. Z~těch nižších poté obecný dvousměrně svázaný seznam, zásobník implementovaný pomocí jednosměrně svázaného seznamu a tabulka s~rozptýlenými položkami. Množina je zde implementována jako dvousměrně svázaný seznam (\emph{narozdíl od doporučované varianty s~binárním stromem}) vzhledem k~očekávanému nízkému počtu položek v~ní a tím i příznivé časové složitosti $\mathcal{O}(n\cdot log(n))$. Orientovaný graf je implementován jako \textbf{jednorozměrné pole uzlů tohoto grafu} - každý uzel poté obsahuje množinu vstupních a výstupních hran pro konkrétní uzel. V~tomto grafu jsou silně propojené komponenty vyhledávány pomocí \textbf{Tarjanova algoritmu} \footnote{https://en.wikipedia.org/wiki/Tarjan\'s\_strongly\_connected\_components\_algorithm} pro vyhledávání s~časovou složitostí $\mathcal{O}(n)$.

@@ -519,7 +519,6 @@ void code_optimizer_optimize_partial_expression_eval(CodeOptimizer* optimizer) {
     }
 }
 
-
 void code_optimizer_optimize_jumps(CodeOptimizer* optimizer) {
     NULL_POINTER_CHECK(optimizer,);
     CodeGenerator* generator = optimizer->generator;
@@ -558,6 +557,71 @@ void code_optimizer_optimize_jumps(CodeOptimizer* optimizer) {
             }
 
             code_generator_remove_instruction(optimizer->generator, actual);
+        }
+        actual = next;
+    }
+}
+
+void code_optimizer_optimize_comparements(CodeOptimizer* optimizer) {
+    NULL_POINTER_CHECK(optimizer,);
+    CodeGenerator* generator = optimizer->generator;
+    CodeInstruction* start = generator->first;
+    NULL_POINTER_CHECK(start,);
+
+    CodeInstruction* actual = start;
+    CodeInstruction* next;
+    while(actual != generator->last) {
+        next = actual->next;
+        if((actual->type == I_GREATER_THEN || actual->type == I_LESSER_THEN) &&
+           actual->op1->type == TYPE_INSTRUCTION_OPERAND_CONSTANT &&
+           actual->op2->type == TYPE_INSTRUCTION_OPERAND_CONSTANT) {
+
+            CodeInstruction* const_move = NULL;
+            if(actual->op1->data.constant.data_type == DATA_TYPE_INTEGER) {
+                const_move = code_generator_new_instruction(
+                        optimizer->generator,
+                        I_MOVE,
+                        code_instruction_operand_copy(actual->op0),
+                        code_instruction_operand_init_boolean(
+                                actual->type == I_GREATER_THEN ?
+                                actual->op1->data.constant.data.integer > actual->op2->data.constant.data.integer :
+                                actual->op1->data.constant.data.integer < actual->op2->data.constant.data.integer
+                        ),
+                        NULL
+                );
+            } else if(actual->op1->data.constant.data_type == DATA_TYPE_DOUBLE) {
+                const_move = code_generator_new_instruction(
+                        optimizer->generator,
+                        I_MOVE,
+                        code_instruction_operand_copy(actual->op0),
+                        code_instruction_operand_init_boolean(
+                                actual->type == I_GREATER_THEN ?
+                                actual->op1->data.constant.data.double_ > actual->op2->data.constant.data.double_ :
+                                actual->op1->data.constant.data.double_ < actual->op2->data.constant.data.double_
+                        ),
+                        NULL
+                );
+            } else if(actual->op1->data.constant.data_type == DATA_TYPE_STRING) {
+                int result = strcmp(
+                        string_content(actual->op1->data.constant.data.string),
+                        string_content(actual->op2->data.constant.data.string)
+                );
+                const_move = code_generator_new_instruction(
+                        optimizer->generator,
+                        I_MOVE,
+                        code_instruction_operand_copy(actual->op0),
+                        code_instruction_operand_init_boolean(
+                                actual->type != I_GREATER_THEN ? result < 0 : result > 0
+                        ),
+                        NULL
+                );
+            }
+
+
+            if(const_move != NULL) {
+                code_generator_insert_instruction_before(optimizer->generator, const_move, actual);
+                code_generator_remove_instruction(optimizer->generator, actual);
+            }
         }
         actual = next;
     }

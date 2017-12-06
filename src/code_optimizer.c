@@ -524,6 +524,29 @@ void code_optimizer_add_advance_peep_hole_patterns(CodeOptimizer* optimizer) {
     code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_MOVE, "_1", "__1", NULL);
     code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_MOVE, "_2", "__2", NULL);
 
+    /**
+     * MOVE GF@%foo_a int@10
+        PUSHS GF@%foo_a
+        RETURN
+     */
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "!a", "b", NULL, -1, -1, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "!a", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_RETURN, NULL, NULL, NULL, 0, 0, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "b", NULL, NULL);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_RETURN, NULL, NULL, NULL);
+
+    /**
+     * MOVE GF@%foo_a int@10
+        PUSHS GF@%foo_a
+     */
+    pattern = code_optimizer_new_ph_pattern(optimizer);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_MOVE, "!a", "b", NULL, -1, -1, 0);
+    code_optimizer_add_matching_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "!a", NULL, NULL, -1, 0, 0);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_MOVE, "!a", "b", NULL);
+    code_optimizer_add_replacement_instruction_to_ph_pattern(pattern, I_PUSH_STACK, "b", NULL, NULL);
+
+
 }
 
 void code_optimizer_free(CodeOptimizer** optimizer) {

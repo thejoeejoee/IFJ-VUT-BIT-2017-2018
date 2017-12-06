@@ -518,3 +518,47 @@ void code_optimizer_optimize_partial_expression_eval(CodeOptimizer* optimizer) {
         actual = next;
     }
 }
+
+
+void code_optimizer_optimize_jumps(CodeOptimizer* optimizer) {
+    NULL_POINTER_CHECK(optimizer,);
+    CodeGenerator* generator = optimizer->generator;
+    CodeInstruction* start = generator->first;
+    NULL_POINTER_CHECK(start,);
+
+    CodeInstruction* actual = start;
+    CodeInstruction* next;
+    while(actual != generator->last) {
+        next = actual->next;
+        if(actual->type == I_JUMP_IF_EQUAL && actual->op1->type == TYPE_INSTRUCTION_OPERAND_CONSTANT &&
+           actual->op2->type == TYPE_INSTRUCTION_OPERAND_CONSTANT) {
+            if(code_instruction_operand_cmp(actual->op1, actual->op2)) {
+                CodeInstruction* const_jump = code_generator_new_instruction(
+                        optimizer->generator,
+                        I_JUMP,
+                        code_instruction_operand_copy(actual->op0),
+                        NULL,
+                        NULL
+                );
+                code_generator_insert_instruction_before(optimizer->generator, const_jump, actual);
+            }
+
+            code_generator_remove_instruction(optimizer->generator, actual);
+        } else if(actual->type == I_JUMP_IF_NOT_EQUAL && actual->op1->type == TYPE_INSTRUCTION_OPERAND_CONSTANT &&
+                  actual->op2->type == TYPE_INSTRUCTION_OPERAND_CONSTANT) {
+            if(!code_instruction_operand_cmp(actual->op1, actual->op2)) {
+                CodeInstruction* const_jump = code_generator_new_instruction(
+                        optimizer->generator,
+                        I_JUMP,
+                        code_instruction_operand_copy(actual->op0),
+                        NULL,
+                        NULL
+                );
+                code_generator_insert_instruction_before(optimizer->generator, const_jump, actual);
+            }
+
+            code_generator_remove_instruction(optimizer->generator, actual);
+        }
+        actual = next;
+    }
+}

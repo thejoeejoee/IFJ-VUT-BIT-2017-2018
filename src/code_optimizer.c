@@ -2,6 +2,8 @@
 #include "memory.h"
 #include "meta_data_constants_tables_stack.h"
 #include "meta_data_cycled_blocks_mod_vars.h"
+#include "oriented_graph.h"
+#include "meta_data_code_block.h"
 
 CodeOptimizer* code_optimizer_init(CodeGenerator* generator, SymbolVariable* temp1, SymbolVariable* temp2,
                                    SymbolVariable* temp3,
@@ -1249,8 +1251,9 @@ void code_optimizer_split_code_to_graph(CodeOptimizer* optimizer) {
             }
 
             // can connect  indirect blocks
-            if((prev_is_cond_jump || (instruction->type == I_LABEL && !prev_is_direct_jump)) &&
-               code_block->last_instruction->type != I_RETURN) {
+            if(code_block->last_instruction != NULL &&
+               ((prev_is_cond_jump || (instruction->type == I_LABEL && !prev_is_direct_jump)) &&
+                code_block->last_instruction->type != I_RETURN)) {
                 oriented_graph_connect_nodes(
                         optimizer->code_graph,
                         (GraphNodeBase*) code_block,
@@ -1269,7 +1272,7 @@ void code_optimizer_split_code_to_graph(CodeOptimizer* optimizer) {
     // connect nodes
     OrientedGraph* graph = optimizer->code_graph;
     for(size_t i = 0; i < graph->capacity; i++) {
-        if(graph->nodes[i] == NULL)
+        if(graph->nodes[i] == NULL || ((CodeBlock*) graph->nodes[i])->instructions_count == 0)
             continue;
 
         CodeBlock* block = (CodeBlock*) graph->nodes[i];

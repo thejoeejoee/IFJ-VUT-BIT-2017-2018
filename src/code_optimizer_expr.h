@@ -84,4 +84,7 @@ void code_optimizer_optimize_type_casts(CodeOptimizer* optimizer);
  */
 void code_optimizer_optimize_partial_expression_eval(CodeOptimizer* optimizer);
 
+
+void code_optimizer_optimize_jumps(CodeOptimizer* optimizer);
+
 #endif //_CODE_OPTIMIZER_EXPR_H

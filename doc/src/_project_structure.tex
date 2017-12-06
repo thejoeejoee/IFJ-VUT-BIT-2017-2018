@@ -415,12 +415,19 @@ data konstanty \ic|CodeInstructionOperandConstantData| v~unii s~datovým typem n
 
 \subsection{Optimalizátor kódu}
 \begin{description}
-    \item[Vyhodnocování konstatních výrazů v~PA] Trololo
-    \item[Odstranění nepoužitých symbolů] Trololo
-    \item[Optimalizace \uv{peephole}] Trololo
-    \item[Šíření konstant] Trololo
-    \item[Interpretace celých konstantních výrazů] Trololo
-    \item[Částečná interpretace] Trololo
+    \item[Značkování nagenerovaného IFJcode17 kódu] Protože jsme nebyli schopni jednoznačně určit, zda daná instrukce patří do těla funkce, či je součásti výrazu, byla zvolena metoda označení instrukcí již při \emph{syntaktické analýze}, kde je možno určit instrukce, které se vygenerovali v rámci určitého pravidla např. výrazu.
+    
+    \item[Vyhodnocování konstatních výrazů v~PA]\label{subsec:optimization-cee} Tato optimalizace jako jediná \textbf{nepracuje s instrukcemi} jazyka \ic|IFJcode17|. Pracuje již při redukci výrazu pomocí \emph{precedenční syntaktické analýzy}, v jednotlivých pravidlech se zjistí zda dané výrazy jsou konstantní hodnoty a pokud ano, tak se na místo generování operačních instrukcí vygeneruje jedna instrukce, která vloží vypočtenou hodnotu na zásobník.
+    
+    \item[Odstranění nepoužitých symbolů] Před odstraněním nepoužitých symbolů, se nejdříve \textbf{provede analýza} nagenerovaného \ic|IFJcode17| kódu, kde se vytvoří \emph{tabulka s rozptýlenými položkami}, kde klíč je unikátní identifikátor symbolu a hodnota je počet použití z daného symbolu. Avšak přestože \ic|READ| je zapisovací instrukce, má vliv na chování programu, tudíž inkrementujeme počet použití symbolu. Ostatní zapisovací instrukce a \ic|DEFVAR| instrukce se nepoučítají jako použití proměnné. Následně se odstraní všechny nepoužité funkce a proměnné včetně jejich přiřazené výrazy.
+    
+    \item[Optimalizace \uv{peephole}] Tato optimalizace pracuje nad malými segmenty vygenerovaného kódu. Pracuje tak, že nalezne sekvenci instrukcí, které odpovídají určitému \textbf{vzoru} a následně danou sekvenci \textbf{nahradí efektivnější} sekvencí instrukcí. Tuto optimalizaci jsme navíc rozšířili o podmíněnost počtu výskytů symbolů, které se mohou objevit v operandech. Bohužel tato optimalizace může odstranit značky instrukcí, tudíž již není bezpečné mazat sekvence instrukcí podle jejich příslušnosti.
+    
+    \item[Interpretace celých konstantních výrazů] Při aktualizaci meta dat se také zjistí, zda výrazy obsahují pouze literálové operandy a jednu pomocnou proměnnou, která je používána pro přetypování hodnoty pod vrcholem zásobníku. Jestliže je obsah intepretovatelný, tak se poté provede \emph{interpretace}, kterou zapouzdřuje struktura \ic|Interpreter|. Tento interpreter interpretuje \textbf{pouze zásobníkové instrukce}. Toto omezení jsme si mohli dovolit z důvodu, že všechny výrazy jsou generovány pouze pomocí zásobníkových instrukcí.
+    
+    \item[Částečná interpretace] Narozdíl od \emph{interpretace celých konstantních výrazů} tato optimalizace pracuje s co nejmenší možnou interpretovatelnou \emph{sekvencí instrukcí}. Proto tato optimalizace nepracuje s příznaky instrukcí, ale pouze hledá předem zadanou sekvencí instrukcí, kterou je schopna interpretovat a nahradit na vložení instrukce s vypočtenou hodnotou.
+    
+    \item[Šíření konstant] Algoritmus této optimalizace byl ze všech výše zmíněných nejkomplikovanější. Nejdříve je nutno jednotlivé instrukce rozdělit do bloků, které jsou uzly \emph{orientovaného grafu}. Následně se zjistí \emph{silně propojené komponenty}, které označují cykly, či rekurzi a naleznou se všechny proměnné, které byly v daných blocích modifikovány, tyto proměnné budou vyřazeny při šíření konstant v daných blocích. Při šíření konstant je použit \emph{zásobník tabulek konstant}. \\Blok, který je spojen s předchozím blokem podmíněnou hranou např. podmínka, je použita nejvyšší tabulka na zásobníku, která je označená příznakem, že daná tabulka byla vytvořena v předchozím bloku a do daného bloku vedla přímá hrana. Jestliže je do bloku lze dostat přímým skokem, je pužita tabulka z vrcholu zásobníku a daná tabulka se označí příznakem. \\Po zpracování bloku a všech bloků, do kterých vedla z daného bloku hrana, je \textbf{vyjmuta} z vrcholu zásobníku tabulka konstant, která odpovídá tabulce, která byla vytvořena v daném bloku. Kvůli možnosti funkcí ovlivňovat globální proměnné, jsou \textbf{funkce odříznuté od uzlů} hlavního programu. Následně se začíná šíření konstant ve funkcích s prázdnými tabulkami, čímž se docílí izolovaného šíření konstant ve funkcích.
 \end{description}
 
 \section{Rozšíření}

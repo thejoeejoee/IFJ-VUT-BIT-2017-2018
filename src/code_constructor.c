@@ -126,14 +126,21 @@ void code_constructor_static_variable_declaration(CodeConstructor* constructor, 
                                                   SymbolFunction* function) {
     NULL_POINTER_CHECK(constructor,);
     NULL_POINTER_CHECK(static_variable,);
-    NULL_POINTER_CHECK(function,);
     // TODO: what about static in cycle?
 
     String* skip_label_string = string_init();
     string_append_s(skip_label_string, "DECLARED__");
-    string_append_s(skip_label_string, function->base.key);
+    if(function != NULL)
+        string_append_s(skip_label_string, function->base.key);
     string_append_s(skip_label_string, "_");
     string_append_s(skip_label_string, static_variable->base.key);
+    string_append_s(skip_label_string, "_");
+
+    char* scope_depth = memory_alloc(sizeof(char) * (64 + 1));
+    snprintf(scope_depth, 64, "%lu", (unsigned long) static_variable->scope_depth);
+    string_append_s(skip_label_string, scope_depth);
+    memory_free(scope_depth);
+
 
     char* skip_label = code_constructor_generate_label(constructor, string_content(skip_label_string));
     stack_code_label_push(constructor->code_label_stack, skip_label);
@@ -200,7 +207,6 @@ void code_constructor_static_variable_declaration_end(
 ) {
     NULL_POINTER_CHECK(constructor,);
     NULL_POINTER_CHECK(static_variable,);
-    NULL_POINTER_CHECK(function,);
 
     CodeLabel* skip_label = stack_code_label_pop(constructor->code_label_stack);
 

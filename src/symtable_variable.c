@@ -95,13 +95,19 @@ SymbolVariable* symbol_variable_init_flag_for_static_variable(
         SymbolFunction* function
 ) {
     NULL_POINTER_CHECK(static_variable, NULL);
-    NULL_POINTER_CHECK(function, NULL);
 
     String* declaration_flag_variable_name = string_init();
     string_append_s(declaration_flag_variable_name, "IS_DECLARED__");
-    string_append_s(declaration_flag_variable_name, function->base.key);
+    if(function != NULL)
+        string_append_s(declaration_flag_variable_name, function->base.key);
     string_append_s(declaration_flag_variable_name, "_");
     string_append_s(declaration_flag_variable_name, static_variable->base.key);
+    string_append_s(declaration_flag_variable_name, "_");
+
+    char* scope_depth = memory_alloc(sizeof(char) * (64 + 1));
+    snprintf(scope_depth, 64, "%lu", (unsigned long) static_variable->scope_depth);
+    string_append_s(declaration_flag_variable_name, scope_depth);
+    memory_free(scope_depth);
 
     SymbolVariable* declaration_flag_variable = symbol_variable_init(string_content(declaration_flag_variable_name));
     symbol_variable_init_data((SymbolTableBaseItem*) declaration_flag_variable);

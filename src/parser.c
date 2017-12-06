@@ -812,8 +812,14 @@ bool parser_parse_return_(Parser* parser) {
                     }
             );
             CALL_EXPRESSION_RULE();
-            CHECK_IMPLICIT_CONVERSION(parser->parser_semantic->actual_function->return_data_type,
-                                      parser->parser_semantic->expression_result->data_type);
+            SEMANTIC_ANALYSIS(
+                    {
+                            CHECK_IMPLICIT_CONVERSION(
+                                    parser->parser_semantic->actual_function->return_data_type,
+                                    parser->parser_semantic->expression_result->data_type
+                            );
+                    }
+            );
             CODE_GENERATION(
                     {
                             constructor = parser->code_constructor;

@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
 
 
     while(code_optimizer_peep_hole_optimization(parser->optimizer));
-    code_optimizer_optimize_comparements(parser->optimizer);
+    code_optimizer_optimize_comparisons(parser->optimizer);
 
 
     code_optimizer_update_meta_data(parser->optimizer);
@@ -91,7 +91,7 @@ int main(int argc, char** argv) {
     code_optimizer_update_meta_data(parser->optimizer);
     code_optimizer_remove_unused_variables(parser->optimizer, false, true);
 
-
+    code_optimizer_multi_write(parser->optimizer);
     code_generator_render(parser->code_constructor->generator, stdout);
     fflush(stdout);
 

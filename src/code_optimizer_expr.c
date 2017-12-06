@@ -562,7 +562,7 @@ void code_optimizer_optimize_jumps(CodeOptimizer* optimizer) {
     }
 }
 
-void code_optimizer_optimize_comparements(CodeOptimizer* optimizer) {
+void code_optimizer_optimize_comparisons(CodeOptimizer* optimizer) {
     NULL_POINTER_CHECK(optimizer,);
     CodeGenerator* generator = optimizer->generator;
     CodeInstruction* start = generator->first;
@@ -623,6 +623,81 @@ void code_optimizer_optimize_comparements(CodeOptimizer* optimizer) {
                 code_generator_remove_instruction(optimizer->generator, actual);
             }
         }
+        actual = next;
+    }
+}
+
+
+void code_optimizer_multi_write(CodeOptimizer* optimizer) {
+    NULL_POINTER_CHECK(optimizer,);
+    CodeGenerator* generator = optimizer->generator;
+    CodeInstruction* start = generator->first;
+    NULL_POINTER_CHECK(start,);
+
+    CodeInstruction* actual = start;
+    CodeInstruction* next;
+    while(actual != NULL) {
+        next = actual->next;
+
+        if(actual->type == I_WRITE && actual->next != NULL && actual->next->type == I_WRITE) {
+            if(actual->op0->type == TYPE_INSTRUCTION_OPERAND_CONSTANT &&
+               actual->next->op0->type == TYPE_INSTRUCTION_OPERAND_CONSTANT) {
+                String* together = string_init();
+                size_t max_buffer = 512;
+                char* tmp = memory_alloc(sizeof(char) * max_buffer);
+
+                if(actual->op0->data.constant.data_type == DATA_TYPE_STRING) {
+                    string_append(together, actual->op0->data.constant.data.string);
+                } else if(actual->op0->data.constant.data_type == DATA_TYPE_INTEGER) {
+                    snprintf(tmp, max_buffer, "% d", actual->op0->data.constant.data.integer);
+                    string_append_s(together, tmp);
+                } else if(actual->op0->data.constant.data_type == DATA_TYPE_DOUBLE) {
+                    snprintf(tmp, max_buffer, "% g", actual->op0->data.constant.data.double_);
+                    string_append_s(together, tmp);
+                } else if(actual->op0->data.constant.data_type == DATA_TYPE_BOOLEAN) {
+                    if(actual->op0->data.constant.data.boolean) {
+                        snprintf(tmp, max_buffer, "%s", "true");
+                    } else {
+                        snprintf(tmp, max_buffer, "%s", "false");
+                    }
+                    string_append_s(together, tmp);
+                } else {
+                    memory_free(tmp);
+                    actual = next;
+                    continue;
+                }
+                if(actual->next->op0->data.constant.data_type == DATA_TYPE_STRING) {
+                    string_append(together, actual->next->op0->data.constant.data.string);
+                } else if(actual->next->op0->data.constant.data_type == DATA_TYPE_INTEGER) {
+                    snprintf(tmp, max_buffer, "% d", actual->next->op0->data.constant.data.integer);
+                    string_append_s(together, tmp);
+                } else if(actual->next->op0->data.constant.data_type == DATA_TYPE_DOUBLE) {
+                    snprintf(tmp, max_buffer, "% g", actual->next->op0->data.constant.data.double_);
+                    string_append_s(together, tmp);
+                } else if(actual->next->op0->data.constant.data_type == DATA_TYPE_BOOLEAN) {
+                    if(actual->next->op0->data.constant.data.boolean) {
+                        snprintf(tmp, max_buffer, "%s", "true");
+                    } else {
+                        snprintf(tmp, max_buffer, "%s", "false");
+                    }
+                    string_append_s(together, tmp);
+                } else {
+                    memory_free(tmp);
+                    actual = next;
+                    continue;
+                }
+
+                memory_free(tmp);
+
+                code_instruction_operand_free(&actual->op0);
+                actual->op0 = code_instruction_operand_init_string(together);
+                string_free(&together);
+
+                code_generator_remove_instruction(optimizer->generator, actual->next);
+                next = actual;
+            }
+        }
+
         actual = next;
     }
 }

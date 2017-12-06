@@ -1055,9 +1055,9 @@ bool expression_rule_fn_substr(Parser* parser, LList* expr_token_buffer, ExprIdx
                 parser->parser_semantic->temp_variable3,
                 parser->parser_semantic->temp_variable4,
                 parser->parser_semantic->temp_variable5,
-                string_expr->data_type,
-                index_expr->data_type,
-                length_expr->data_type
+                string_expr,
+                index_expr,
+                length_expr
         );
     }
     // SubStr(s As String, i As Integer, n As Integer) As String

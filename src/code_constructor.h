@@ -5,6 +5,7 @@
 #include "stack_code_label.h"
 #include "symtable_function.h"
 #include "llist.h"
+#include "parser_expr_internal.h"
 
 #define _GENERATE_CODE_1(name) _GENERATE_CODE_4(name, NULL, NULL, NULL)
 #define _GENERATE_CODE_2(name, op0) _GENERATE_CODE_4(name, op0, NULL, NULL)
@@ -317,13 +318,13 @@ void code_constructor_fn_asc(CodeConstructor* constructor, SymbolVariable* tmp_v
  * @param tmp_variable3 tmp var 3
  * @param tmp_variable4 tmp var 4
  * @param tmp_variable5 tmp var 5
- * @param param_1_type first argument type
- * @param param_2_type second argument type
- * @param param_3_type third argument type
+ * @param string_expr first argument type
+ * @param index_expr second argument type
+ * @param length_expr third argument type
  */
 void code_constructor_fn_substr(CodeConstructor* constructor, SymbolVariable* tmp1, SymbolVariable* tmp_variable2,
                                 SymbolVariable* tmp_variable3, SymbolVariable* tmp_variable4,
                                 SymbolVariable* tmp_variable5,
-                                DataType param_1_type, DataType param_2_type, DataType param_3_type);
+                                ExprToken* string_expr, ExprToken* index_expr, ExprToken* length_expr);
 
 #endif //_CODE_CONSTRUCTOR_H

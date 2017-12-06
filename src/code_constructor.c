@@ -1,4 +1,5 @@
 #include "code_constructor.h"
+#include "parser_expr_internal.h"
 
 
 CodeConstructor* code_constructor_init() {
@@ -675,8 +676,9 @@ void code_constructor_fn_asc(
 }
 
 void code_constructor_fn_substr(CodeConstructor* constructor, SymbolVariable* tmp1, SymbolVariable* tmp2,
-                                SymbolVariable* tmp3, SymbolVariable* tmp4, SymbolVariable* tmp5, DataType param_1_type,
-                                DataType param_2_type, DataType param_3_type) {
+                                SymbolVariable* tmp3, SymbolVariable* tmp4, SymbolVariable* tmp5,
+                                ExprToken* string_expr,
+                                ExprToken* index_expr, ExprToken* length_expr) {
 
 
     char* continue_label = code_constructor_generate_label(constructor, "substr_continue");
@@ -686,24 +688,49 @@ void code_constructor_fn_substr(CodeConstructor* constructor, SymbolVariable* tm
     char* end_label = code_constructor_generate_label(constructor, "substr_end");
 
     String* empty_string = string_init();
+    if((length_expr->is_constant || length_expr->is_variable) && length_expr->data_type == DATA_TYPE_INTEGER) {
+        GENERATE_CODE(
+                I_MOVE,
+                code_instruction_operand_init_variable(tmp3),
+                code_instruction_operand_copy(length_expr->instruction->op0)
+        );
+        code_generator_remove_instruction(constructor->generator, length_expr->instruction);
+    } else {
+        GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(length_expr->data_type, DATA_TYPE_INTEGER);
+        GENERATE_CODE(
+                I_POP_STACK,
+                code_instruction_operand_init_variable(tmp3)
+        );
+    }
+    if((index_expr->is_constant || index_expr->is_variable) && index_expr->data_type == DATA_TYPE_INTEGER) {
+        GENERATE_CODE(
+                I_MOVE,
+                code_instruction_operand_init_variable(tmp2),
+                code_instruction_operand_copy(index_expr->instruction->op0)
+        );
+        code_generator_remove_instruction(constructor->generator, index_expr->instruction);
+    } else {
+        GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(index_expr->data_type, DATA_TYPE_INTEGER);
+        GENERATE_CODE(
+                I_POP_STACK,
+                code_instruction_operand_init_variable(tmp2)
+        );
+    }
 
-    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(param_3_type, DATA_TYPE_INTEGER);
-    GENERATE_CODE(
-            I_POP_STACK,
-            code_instruction_operand_init_variable(tmp3)
-    );
-
-    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(param_2_type, DATA_TYPE_INTEGER);
-    GENERATE_CODE(
-            I_POP_STACK,
-            code_instruction_operand_init_variable(tmp2)
-    );
-
-    GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(param_1_type, DATA_TYPE_STRING);
-    GENERATE_CODE(
-            I_POP_STACK,
-            code_instruction_operand_init_variable(tmp1)
-    );
+    if((string_expr->is_constant || string_expr->is_variable) && string_expr->data_type == DATA_TYPE_STRING) {
+        GENERATE_CODE(
+                I_MOVE,
+                code_instruction_operand_init_variable(tmp1),
+                code_instruction_operand_copy(string_expr->instruction->op0)
+        );
+        code_generator_remove_instruction(constructor->generator, string_expr->instruction);
+    } else {
+        GENERATE_STACK_DATA_TYPE_CONVERSION_CODE(string_expr->data_type, DATA_TYPE_STRING);
+        GENERATE_CODE(
+                I_POP_STACK,
+                code_instruction_operand_init_variable(tmp1)
+        );
+    }
 
     GENERATE_CODE(
             I_LESSER_THEN,

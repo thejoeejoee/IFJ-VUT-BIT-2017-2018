@@ -410,14 +410,14 @@ bool parser_parse_body_statement_single(Parser* parser) {
     RULES(
             CONDITIONAL_RULES(
                     CHECK_RULE(token_type == TOKEN_INPUT, input, REWIND_AND_SUCCESS);
-                    CHECK_RULE(token_type == TOKEN_IDENTIFIER, identifier_assignment, REWIND_AND_SUCCESS);
-                    CHECK_RULE(token_type == TOKEN_DO, while_, REWIND_AND_SUCCESS);
-                    CHECK_RULE(token_type == TOKEN_PRINT, print, REWIND_AND_SUCCESS);
-                    CHECK_RULE(token_type == TOKEN_SCOPE, scope, REWIND_AND_SUCCESS);
-                    CHECK_RULE(token_type == TOKEN_IF, condition, REWIND_AND_SUCCESS);
-                    CHECK_RULE(token_type == TOKEN_DIM, variable_declaration, REWIND_AND_SUCCESS);
-                    CHECK_RULE(token_type == TOKEN_STATIC, static_variable_declaration, REWIND_AND_SUCCESS);
-            );
+            CHECK_RULE(token_type == TOKEN_IDENTIFIER, identifier_assignment, REWIND_AND_SUCCESS);
+            CHECK_RULE(token_type == TOKEN_DO, while_, REWIND_AND_SUCCESS);
+            CHECK_RULE(token_type == TOKEN_PRINT, print, REWIND_AND_SUCCESS);
+            CHECK_RULE(token_type == TOKEN_SCOPE, scope, REWIND_AND_SUCCESS);
+            CHECK_RULE(token_type == TOKEN_IF, condition, REWIND_AND_SUCCESS);
+            CHECK_RULE(token_type == TOKEN_DIM, variable_declaration, REWIND_AND_SUCCESS);
+            CHECK_RULE(token_type == TOKEN_STATIC, static_variable_declaration, REWIND_AND_SUCCESS);
+    );
     );
 
     return false;
@@ -806,9 +806,14 @@ bool parser_parse_return_(Parser* parser) {
     RULES(
             CHECK_TOKEN(TOKEN_RETURN);
             CODE_GENERATION(
-               before_expression_instruction = code_generator_last_instruction(parser->code_constructor->generator);
+                    {
+                            before_expression_instruction = code_generator_last_instruction(
+                                    parser->code_constructor->generator);
+                    }
             );
             CALL_EXPRESSION_RULE();
+            CHECK_IMPLICIT_CONVERSION(parser->parser_semantic->actual_function->return_data_type,
+                                      parser->parser_semantic->expression_result->data_type);
             CODE_GENERATION(
                     {
                             constructor = parser->code_constructor;
@@ -818,8 +823,8 @@ bool parser_parse_return_(Parser* parser) {
                     );
                             before_expression_instruction->next->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_START;
                             code_generator_last_instruction(
-                                    parser->code_constructor->generator
-                            )->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_END;
+                            parser->code_constructor->generator
+                    )->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_END;
                     }
             );
             CODE_GENERATION(
@@ -900,23 +905,24 @@ bool parser_parse_print_expression(Parser* parser) {
 
     RULES(
             CODE_GENERATION(
-               before_expression_instruction = code_generator_last_instruction(parser->code_constructor->generator);
-            );
+                    before_expression_instruction = code_generator_last_instruction(
+                            parser->code_constructor->generator);
+    );
             CALL_EXPRESSION_RULE();
             CODE_GENERATION({
-                before_expression_instruction->next->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_START;
-                code_generator_last_instruction(
-                        parser->code_constructor->generator
-                )->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_END;
-            });
+            before_expression_instruction->next->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_START;
+            code_generator_last_instruction(
+            parser->code_constructor->generator
+    )->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_END;
+    });
             CODE_GENERATION(
-                    {
-                            code_constructor_print_expression(
-                                    parser->code_constructor,
-                                    parser->parser_semantic->temp_variable1
-                            );
-                    }
-            );
+    {
+            code_constructor_print_expression(
+            parser->code_constructor,
+            parser->parser_semantic->temp_variable1
+    );
+    }
+    );
             CHECK_TOKEN(TOKEN_SEMICOLON);
     );
     return true;
@@ -947,11 +953,11 @@ bool parser_parse_while_(Parser* parser) {
             );
             CALL_EXPRESSION_RULE();
             CODE_GENERATION({
-                before_expression_instruction->next->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_START;
-                code_generator_last_instruction(
-                        parser->code_constructor->generator
-                )->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_END;
-            });
+                                    before_expression_instruction->next->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_START;
+                                    code_generator_last_instruction(
+                                    parser->code_constructor->generator
+                            )->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_END;
+                            });
             SEMANTIC_ANALYSIS(
                     {
                             CHECK_IMPLICIT_CONVERSION(
@@ -1031,56 +1037,57 @@ bool parser_parse_condition(Parser* parser) {
     RULES(
             CHECK_TOKEN(TOKEN_IF);
             CODE_GENERATION(
-               before_expression_instruction = code_generator_last_instruction(parser->code_constructor->generator);
-            );
+                    before_expression_instruction = code_generator_last_instruction(
+                            parser->code_constructor->generator);
+    );
             CALL_EXPRESSION_RULE();
             CODE_GENERATION({
-                before_expression_instruction->next->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_START;
-                code_generator_last_instruction(
-                        parser->code_constructor->generator
-                )->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_END;
-            });
+            before_expression_instruction->next->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_START;
+            code_generator_last_instruction(
+            parser->code_constructor->generator
+    )->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_END;
+    });
             SEMANTIC_ANALYSIS(
-                    {
-                            CHECK_IMPLICIT_CONVERSION(
-                                    DATA_TYPE_BOOLEAN,
-                                    parser->parser_semantic->expression_result->data_type
-                            );
-                    }
-            );
+    {
+            CHECK_IMPLICIT_CONVERSION(
+            DATA_TYPE_BOOLEAN,
+            parser->parser_semantic->expression_result->data_type
+    );
+    }
+    );
             CODE_GENERATION(
-                    {
-                            code_constructor_if_after_expression(parser->code_constructor);
-                    }
-            );
+    {
+            code_constructor_if_after_expression(parser->code_constructor);
+    }
+    );
             CHECK_TOKEN(TOKEN_THEN);
             CHECK_TOKEN(TOKEN_EOL);
             SEMANTIC_ANALYSIS(
-                    {
-                            symbol_register_push_variables_table(parser->parser_semantic->register_);
-                    }
-            );
+    {
+            symbol_register_push_variables_table(parser->parser_semantic->register_);
+    }
+    );
             CALL_RULE(eols)
             CALL_RULE_STATEMENTS();
             CODE_GENERATION(
-                    {
-                            code_constructor_if_end_if_block(parser->code_constructor);
-                    }
-            );
+    {
+            code_constructor_if_end_if_block(parser->code_constructor);
+    }
+    );
             CALL_RULE(condition_elseif);
             CALL_RULE(condition_else);
             CHECK_TOKEN(TOKEN_END);
             CHECK_TOKEN(TOKEN_IF);
             SEMANTIC_ANALYSIS(
-                    {
-                            symbol_register_pop_variables_table(parser->parser_semantic->register_);
-                    }
-            );
+    {
+            symbol_register_pop_variables_table(parser->parser_semantic->register_);
+    }
+    );
             CODE_GENERATION(
-                    {
-                            code_constructor_if_after_end_if(parser->code_constructor);
-                    }
-            );
+    {
+            code_constructor_if_after_end_if(parser->code_constructor);
+    }
+    );
     );
     return true;
 }
@@ -1124,35 +1131,36 @@ bool parser_parse_condition_elseif(Parser* parser) {
                     }
             );
             CODE_GENERATION(
-               before_expression_instruction = code_generator_last_instruction(parser->code_constructor->generator);
-            );
+                    before_expression_instruction = code_generator_last_instruction(
+                            parser->code_constructor->generator);
+    );
             CALL_EXPRESSION_RULE();
             SEMANTIC_ANALYSIS(
-                    {
-                            CHECK_IMPLICIT_CONVERSION(DATA_TYPE_BOOLEAN,
-                                                      parser->parser_semantic->expression_result->data_type);
-                    }
-            );
+    {
+            CHECK_IMPLICIT_CONVERSION(DATA_TYPE_BOOLEAN,
+            parser->parser_semantic->expression_result->data_type);
+    }
+    );
             CODE_GENERATION({
-                before_expression_instruction->next->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_START;
-                code_generator_last_instruction(
-                        parser->code_constructor->generator
-                )->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_END;
-            });
+            before_expression_instruction->next->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_START;
+            code_generator_last_instruction(
+            parser->code_constructor->generator
+    )->meta_data.type |= CODE_INSTRUCTION_META_TYPE_EXPRESSION_END;
+    });
             CODE_GENERATION(
-                    {
-                            code_constructor_if_else_if_after_expression(parser->code_constructor);
-                    }
-            );
+    {
+            code_constructor_if_else_if_after_expression(parser->code_constructor);
+    }
+    );
             CHECK_TOKEN(TOKEN_THEN);
             CHECK_TOKEN(TOKEN_EOL);
             CALL_RULE(eols);
             CALL_RULE_STATEMENTS();
             SEMANTIC_ANALYSIS(
-                    {
-                            symbol_register_push_variables_table(parser->parser_semantic->register_);
-                    }
-            );
+    {
+            symbol_register_push_variables_table(parser->parser_semantic->register_);
+    }
+    );
             CALL_RULE(condition_elseif);
     );
     );

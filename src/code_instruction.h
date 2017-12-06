@@ -147,6 +147,14 @@ typedef struct code_instruction_t {
     CodeInstructionSignature* signature_buffer;
 } CodeInstruction;
 
+/**
+ * Constructor for instruction.
+ * @param type type of instruction
+ * @param op0 first operand
+ * @param op1 second operand
+ * @param op2 third operand
+ * @return new instruction
+ */
 CodeInstruction* code_instruction_init(
         TypeInstruction type,
         CodeInstructionOperand* op0,
@@ -154,10 +162,24 @@ CodeInstruction* code_instruction_init(
         CodeInstructionOperand* op2
 );
 
+/**
+ * Frees instruction with operands.
+ * @param instruction instance
+ */
 void code_instruction_free(CodeInstruction** instruction);
 
+/**
+ * Render instruction with operands.
+ * @param instruction instance
+ * @return rendered string
+ */
 char* code_instruction_render(CodeInstruction* instruction);
 
+/**
+ * Returns metaclass
+ * @param instruction instruction to detect
+ * @return class
+ */
 TypeInstructionClass instruction_class(CodeInstruction* instruction);
 
 #endif //_INSTRUCTION_H

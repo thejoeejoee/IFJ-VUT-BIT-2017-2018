@@ -82,15 +82,14 @@ CodeInstruction* code_generator_new_instruction(
         CodeInstructionOperand* op2
 );
 
+/**
+ * Removes given instruction.
+ * @param generator instance
+ * @param instruction to remove
+ */
 void code_generator_remove_instruction(
         CodeGenerator* generator,
         CodeInstruction* instruction
-);
-
-void code_generator_insert_instruction_before(
-        CodeGenerator* generator,
-        CodeInstruction* to_insert,
-        CodeInstruction* before_what
 );
 
 /**
@@ -129,7 +128,6 @@ void code_generator_append_instruction(
         CodeInstruction* instruction
 );
 
-
 /**
  * Inserts instruction before another instruction. if before_what is NULL,
  * instruction is inserted at start of all instruction.
@@ -149,8 +147,19 @@ void code_generator_insert_instruction_before(
  */
 void code_generator_flush_buffer(CodeGenerator* generator);
 
-
+/**
+ * Returns last generated instruction.
+ * @param generator
+ * @return last instruction or NULL
+ */
 CodeInstruction* code_generator_last_instruction(CodeGenerator* generator);
+
+/**
+ * Shortcut getter for instruction operand count.
+ * @param generator instance
+ * @param instruction_type type of instruction
+ * @return 0-3
+ */
 short code_generator_instruction_operands_count(CodeGenerator* generator, TypeInstruction instruction_type);
 
 /**

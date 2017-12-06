@@ -34,23 +34,23 @@ naimplemntováno makro \ic|CHECK_TOKEN(TOKEN_TYPE)|, pro spuštění jiného pra
 Pro podmínečná volání pravidel makro
 \ic|CHECK_RULE(type==TOKEN_TYPE,| \ic|NAME_OF_RULE,| \ic|REWIND_AND_SUCCESS)| - při jeho použití se spustí pravidlo
 \ic|NAME_OF_RULE| v~případě, že je následující token typu \ic|TOKEN_TYPE| a jestliže bylo úspěšné, další načtený
-token navrátí zpět lexikálnímu analyzátoru a prohlásí se volání za úspěšné.
+token navrátí zpět lexikálnímu analyzátoru a prohlásí se volání za úspěšné - konfigurace typu \ic|REWIND_AND_SUCCESS|.
 
 Všechny pravidla pracují nad strukturou \ic|Parser|, která zapouzdřuje základní komponenty pro syntaxí řízený překlad.
-Jedná se především od struktury \ic!ParserSemantic!, \ic!CodeConstructor! a \ic!Lexer!. První zmíněná zajištuje sémantické
-kontroly programu; uchovává \emph{registr symbolů}, dočasné proměnné, pravidla pro implicitní konverze datových typů či
-aktuální scénář SA, o~dalších kapitolách pojednávají jiné kapitoly. Po splnění některých pravidlech se v~SA vyskytují volání konstrukce kódu, kde je využito rozhraní z~modulu \ic!CodeConstructor! - SA tedy \textbf{není přímo zodpovědná za výslednou podobu cílového kódu}.
+Jedná se především o komponenty \ic!ParserSemantic!, \ic!CodeConstructor! a \ic!Lexer!. První zmíněná komponenta zajištuje sémantické
+kontroly programu; uchovává \emph{registr symbolů} (viz rozšíření \emph{SCOPE}), dočasné proměnné, pravidla pro implicitní konverze datových typů či
+aktuální scénář SA. Po splnění některých pravidlech se v~SA volá konstrukce kódu, kde je využito rozhraní z~modulu \ic!CodeConstructor! - SA tedy \textbf{není přímo zodpovědná za výslednou podobu cílového kódu}.
 
 Některé derivace neterninálu \ic|<statement_single>| nemohou v~určitém kontextu nastat
-- např. příkaz \ic|return| v~hlavním bloku programu. Syntaktická analýza si v~tomto případě \uv{vypomáhá} \textbf{sémantickými akcemi}, ačkoliv by tento problém mohla řešit sama. Takto upravená gramatika by se velmi rozrostla, což by snížilo její čitelnost.
+- např. příkaz pro návrat z funkce \ic|return| v~hlavním bloku programu. Syntaktická analýza si v~tomto případě \uv{vypomáhá} \textbf{sémantickými akcemi}, ačkoliv by tento problém mohla řešit sama. Takto upravená gramatika by se velmi rozrostla, což by snížilo její čitelnost.
 
-Pro analýzu výrazů není analýza shora dolů v~případě jazyka \ic!IFJ17! možná, proto byla
+Pro analýzu výrazů není analýza shora dolů v~případě jazyka \ic!IFJ17! vhodná, proto byla
 použita standardní metoda zdola nahoru, v~našem případě založená na precedenční
 syntaktické analýze - implementovaná v~modulu \ic|parser_expr.c|.
 
 V~případě že je jako neterminál očekáván výraz, je volána funkce \ic|parser_parse_expr| ze zmíněného modulu, která provede \textbf{precedenční syntaktickou analýzu} výrazu a opět, jako ostatní pravidla, navrátí příznak úspěchu. V~rámci zpracování výrazů pomocí PA je také přímo generován cílový kód pomocí rozhraní modulu \ic|CodeGenerator|.
 
-Neterminál \ic|<eols>| slouží ke \uv{zkonzumování} všech přebytečných znaků nového řádku - resp. terminálu \ic!EOL!. Jedná se o~univerzální neterminál použitý pro všechny možné výskyty většího množství znaků konců řádků. Proto je pro všechny terminály (kromě samotného \ic|EOL|) tohoto použito pravidlo \emph{60}.
+Neterminál \ic|<eols>| slouží ke \uv{zkonzumování} všech přebytečných znaků nového řádku - resp. terminálu \ic!EOL!. Jedná se o~univerzální neterminál použitý pro všechny možné výskyty většího množství znaků konců řádků. Proto je pro všechny terminály (kromě samotného \ic|EOL|) použito pravidlo \emph{60}.
 
 \subsubsection{Gramatika a LL tabulka}
 \begin{normalsize}
@@ -322,11 +322,10 @@ Neterminál \ic|<eols>| slouží ke \uv{zkonzumování} všech přebytečných z
 \end{normalsize}
 \subsubsection{Precedenční analýza výrazů}
 
-Precedenční analýza je řízena precedenční tabulkou, kterou se vyhodnocuje pořadí zpracování tokenů.
-. V~tabulce se nachází jak \textbf{binární, tak i unární mínus}. Lexikální analyzátor nám ovšem poskytuje pouze jeden token mínus a proto se unární a binární mínus musí vyhodnotit \textbf{podle kontextu}.
+Precedenční analýza je řízena precedenční tabulkou, kterou se vyhodnocuje pořadí zpracování tokenů. V~tabulce se nachází jak \textbf{binární, tak i unární mínus}. Lexikální analyzátor nám ovšem poskytuje pouze jeden token mínus a proto se unární a binární mínus musí vyhodnotit \textbf{podle kontextu}.
 
-Precedenční analýza využívá \textbf{zásobník v~podobě obousměrně vázaného seznamu}, do kterého se ukládají terminály,precedenční symboly a neterminály. Pomocí redukčních pravidel, která jsou vypsána v~příloze, je výraz postupně redukován.
-Vzhledem k~tomu, že je překladač založen na přímém překladu, je při redukování pomocí pravidel přímo voláno generování kódu, resp. v~případech konstatních literálů je \textbf{výraz rovnou vyhodnocován}, viz kapitola \ref{subsec:optimization-cee}.
+Precedenční analýza využívá \textbf{zásobník v~podobě obousměrně vázaného seznamu}, do kterého se ukládají terminály, precedenční symboly a neterminály. Pomocí redukčních pravidel, která jsou vypsána v~tabulce, je výraz postupně redukován.
+Vzhledem k~tomu, že je překladač založen na syntaxí řízeném překladu, je při redukování pomocí pravidel přímo přímo generován cílový kód pomocí rozhraní modulu \ic|CodeGenerator|, resp. v~případech konstatních literálů je \textbf{výraz rovnou vyhodnocován}, viz kapitola \ref{subsec:optimization-cee}.
 
 \begin{table}[!htbp]
     \centering
@@ -379,22 +378,23 @@ $i$ & x &$>$&$>$&$>$&$>$&$>$&$>$&$>$&$>$&$>$&$>$&$>$& x &$>$&$>$& = &$>$&$>$& x 
 Sémantické kontroly jsou přidruženy k~syntaktickým pravidlům v~rekurzivním sestupu a
 precedenční syntaktické analýze výrazů. Jsou organizovány do tzv. \textbf{scénářů}. Jeden scénář
 sémanticky popisuje související část kódu. - např. definici
-či deklaraci funkce. Sémantická analýza nám také pomáhá hlídat i některé \textbf{gramatické aspekty},
+či deklaraci funkce. Sémantická analýza nám také pomáhá hlídat i některé \textbf{gramatické aspekty} (např. zmíněný \ic|return|, deklarace vs. definice funkce),
 které by byly pro LL gramatiku příliš kompikované, nebo by měly příliš dlouhý zápis.
 
 \subsection{Konstruktor kódu}
 \label{subsec:code-constructor}
-Konstruktor cílového kódu je komponenta překladače, který hlídá význam a odpovědnosti vygenerovaného tříadresného kódu \ic!IFJcode17!. Drží informace o~\textbf{vygenerovaných návěštích pro podmínky, cykly i funkce}, příznak generování kódu do bloku cyklu/vně, registr instrukcí pro konverze datových typů a další.
+Konstruktor cílového kódu je komponenta překladače, který hlídá význam a odpovědnosti vygenerovaného tříadresného kódu \ic!IFJcode17!. Drží informace o~\textbf{vygenerovaných návěštích pro podmínky, cykly i funkce}, příznak generování kódu do bloku cyklu/vně, tabulku instrukcí pro konverze datových typů a další.
 
 \subsection{Generátor cílového kódu}
-Generátor kódu je nízkoúrovňová komponenta zastřešující skládání, validaci a vykreslování cílového kódu \ic|IFJcode17|.
+Generátor kódu je nízkoúrovňová komponenta zastřešující skládání, validaci a výpis cílového kódu - v tomto případě kódu jazyka \ic!IFJcode17!.
 Kontroluje generované instrukce a její operandy, tedy \textbf{validní kombinace typů operandů} (přístupy do rámců, konstatní
 literály, návěští či datové typy) u~konkrétních instrukcí.
 
-Interní implementace spoléhá na \emph{obousměrně svázaný lineární seznam} struktur \ic|CodeInstruction|, které kromě
+Interní implementace využívá \emph{obousměrně vázaný lineární seznam} struktur \ic|CodeInstruction|, které kromě
 režijních ukazatelů uchovávají typ instrukce a ukazatele na až tři operandy, struktury \ic|CodeInstructionOperand|.
-Tento seznam je uložen v~datové struktuře \ic|CodeGenerator|, která dále obsahuje pole podpisů\footnote{Podpis
-instrukce je složena z~bitových masek definující povolené typy operandů a její textové reprezentace v~kódu} \ic!IFJcode17!. instrukcí pro jejich validace.
+Tento seznam je uložen v~datové struktuře \ic|CodeGenerator|, která dále obsahuje pole podpisů\footnote{
+    Podpis instrukce je složen z~bitových masek definující povolené typy operandů a jeho textové reprezentace v~kódu.
+} instrukcí jazyka \ic!IFJcode17! pro jejich validace.
 Struktura \ic|CodeInstructionOperand| uchovává informace o~svém typu a poté unii dat pro konkrétní typ operandu, tedy
 ukazatel na proměnnou \ic|SymbolVariable|,
 data konstanty \ic|CodeInstructionOperandConstantData| v~unii s~datovým typem nebo řetězec uchovávající název návěští.
@@ -407,48 +407,48 @@ Následující blok obsahuje výčet implementovaných optimalizačních proces�
     
     \item[Vyhodnocování konstatních výrazů v~PA]\label{subsec:optimization-cee} Optimalizace pracuje již při redukci výrazu pomocí \emph{precedenční syntaktické analýzy}, v~jednotlivých pravidlech se zjišťuje, zda jsou dané \textbf{výrazy konstantní literály} a pokud ano, tak se místo generování diskrétních instrukcí pro vyhodnocení generuje instrukce pro přímé vložení již vyhodnocené hodnoty na základě konstatních literálů. Tato optimalizace tedy jako jediná \textbf{nepracuje s~instrukcemi} jazyka \ic|IFJcode17|.
     
-    \item[Odstranění nepoužitých symbolů] Před odstraněním nepoužitých symbolů, se nejdříve \textbf{provede analýza} nagenerovaného \ic|IFJcode17| kódu, kde se vytvoří \emph{tabulka s~rozptýlenými položkami}, kde klíč je unikátní identifikátor symbolu a hodnota je počet použití z~daného symbolu. Avšak přestože je \ic|READ| instrukce zápisu, má věnjší vliv, tudíž inkrementujeme počet použití symbolu. Ostatní instrukce zápisu včetně \ic|DEFVAR| se nepoučítají jako použití proměnné. Následně jsou odstraněny všechny nepoužité funkce a proměnné včetně jejich výrazy do nich zapisující.
+    \item[Odstranění nepoužitých symbolů] Před odstraněním nepoužitých symbolů, se nejdříve \textbf{provede analýza} nagenerovaného \ic|IFJcode17| kódu, kde se vytvoří \emph{tabulka s~rozptýlenými položkami}, kde klíč je unikátní identifikátor symbolu a hodnota je počet použití daného symbolu. Přestože je \ic|READ| instrukce zápisu, má vnější vliv, tudíž \textbf{inkrementujeme počet použití symbolu}. Ostatní instrukce zápisu včetně \ic|DEFVAR| se nepočítají jako použití proměnné. Následně jsou odstraněny všechny nepoužité funkce a proměnné (s nulovým počtem použití) včetně jejich výrazů do nich zapisujících.
     
-    \item[Optimalizace \uv{peephole}] Tato optimalizace pracuje nad malými segmenty vygenerovaného kódu. Pracuje tak, že nalezne sekvenci instrukcí, které odpovídají určitému \textbf{vzoru} a následně danou sekvenci \textbf{nahradí efektivnější} (ce se týče ceny \ic|IFJcode17|) sekvencí instrukcí. Tuto optimalizaci jsme navíc rozšířili o~podmíněnost počtu výskytů symbolů, které se mohou objevit v~operandech. Bohužel tato optimalizace může odstranit značky instrukcí, v~prvním běhu jsou použita \uv{mírnější pravidla}, narozdíl od toho druhého, který zároveň porušuje značky.
+    \item[Optimalizace \uv{peephole}] Tato optimalizace pracuje nad malými segmenty vygenerovaného kódu. Pracuje tak, že nalezne sekvenci instrukcí, které odpovídají určitému \textbf{vzoru} a následně danou sekvenci \textbf{nahradí efektivnější} (ce se týče ceny \ic|IFJcode17|) sekvencí instrukcí. Tuto optimalizaci jsme navíc rozšířili o~podmíněnost počtu výskytů symbolů, které se mohou objevit v~operandech. Bohužel tato optimalizace může odstranit příznaky instrukcí, v~prvním běhu jsou použita \uv{mírnější pravidla}, narozdíl od toho druhého, který zároveň porušuje příznaky.
     
-    \item[Interpretace celých konstantních výrazů] Při aktualizaci statistikách o~instrukcích se také zjistí, zda výrazy obsahují pouze literálové operandy a až jednu pomocnou proměnnou, která je používána pro přetypování hodnoty pod vrcholem zásobníku. Jestliže je obsah intepretovatelný, je poté provedena \emph{interpretace}, kterou zapouzdřuje struktura \ic|Interpreter|. Tento interpreter interpretuje \textbf{pouze zásobníkové instrukce}. Toto omezení jsme si mohli dovolit z~důvodu, že všechny výrazy jsou generovány pouze pomocí zásobníkových instrukcí.
+    \item[Interpretace celých konstantních výrazů] Při aktualizaci statistik o~instrukcích se také zjistí, zda výrazy obsahují pouze literálové operandy a až jednu pomocnou proměnnou, která je používána pro přetypování hodnoty pod vrcholem zásobníku. Jestliže je obsah intepretovatelný, je poté provedena \emph{interpretace}, kterou zapouzdřuje struktura \ic|Interpreter|. Tento interpreter zpracovává \textbf{pouze zásobníkové instrukce} - toto omezení jsme si mohli dovolit z~důvodu, že všechny výrazy jsou generovány pouze pomocí zásobníkových instrukcí. Všechny \textbf{operace nad literály} jsou tímto krokem zredukovány do \uv{levnějších}.
     
-    \item[Částečná interpretace] Narozdíl od \emph{interpretace celých konstantních výrazů} tato optimalizace pracuje s~co nejmenší možnou interpretovatelnou \emph{sekvencí instrukcí}. Proto tato optimalizace nepracuje s~příznaky instrukcí, ale pouze hledá předem zadanou sekvencí instrukcí, kterou je schopna interpretovat a nahradit na vložení instrukce s~vypočtenou hodnotou.
+    \item[Částečná interpretace] Narozdíl od \emph{interpretace celých konstantních výrazů} tato optimalizace pracuje s~co nejmenší možnou interpretovatelnou \emph{sekvencí instrukcí}. Proto tato optimalizace nepracuje s~příznaky instrukcí, ale pouze hledá předem zadanou sekvencí instrukcí, kterou je schopna interpretovat a nahradit vložením instrukce s~vypočtenou hodnotou.
     
-    \item[Šíření konstant] Algoritmus této optimalizace byl ze všech výše zmíněných nejkomplikovanější. Nejdříve je nutno jednotlivé instrukce rozdělit do bloků, které jsou uzly \emph{orientovaného grafu}. Následně se zjistí \emph{silně propojené komponenty}, které označují cykly, či rekurzi a naleznou se všechny proměnné, které byly v~daných blocích modifikovány, tyto proměnné budou vyřazeny při šíření konstant v~daných blocích. Při šíření konstant je použit \emph{zásobník tabulek konstant}. \\Blok, který je spojen s~předchozím blokem podmíněnou hranou např. podmínka, je použita nejvyšší tabulka na zásobníku, která je označená příznakem, že daná tabulka byla vytvořena v~předchozím bloku a do daného bloku vedla přímá hrana. Jestliže je do bloku lze dostat přímým skokem, je použita tabulka z~vrcholu zásobníku a daná tabulka se označí příznakem. \\Po zpracování bloku a všech bloků, do kterých vedla z~daného bloku hrana, je \textbf{vyjmuta} z~vrcholu zásobníku tabulka konstant, která odpovídá tabulce, která byla vytvořena v~daném bloku. Kvůli možnosti funkcí ovlivňovat globální proměnné, jsou \textbf{funkce odříznuté od uzlů} hlavního programu. Následně se začíná šíření konstant ve funkcích s~prázdnými tabulkami, čímž se docílí izolovaného šíření konstant ve funkcích.
+    \item[Šíření konstant] Algoritmus této optimalizace byl ze všech výše zmíněných nejkomplikovanější. Nejdříve je nutno jednotlivé instrukce rozdělit do bloků, které jsou uzly \emph{orientovaného grafu}. Následně se zjistí \emph{silně propojené komponenty}, které označují cykly, či rekurzi a naleznou se všechny proměnné, které byly v~daných blocích modifikovány, tyto proměnné budou vyřazeny při šíření konstant v~daných blocích. Při šíření konstant je použit \emph{zásobník tabulek konstant}. \\
+    Pro blok, který je spojen s~předchozím blokem podmíněnou hranou (např. podmínka), je použita nejvyšší tabulka na zásobníku s příznakem. Tento příznak určuje vytvoření tabulky z bloku, do kterého vedla přímá hrana.
+    Jestliže se lze do bloku dostat přímým skokem, je použita tabulka z~vrcholu zásobníku a daná tabulka se označí příznakem. \\Po zpracování bloku a všech bloků, do kterých vedla z~daného bloku hrana, je \textbf{vyjmuta} z~vrcholu zásobníku tabulka konstant, která odpovídá tabulce, která byla vytvořena v~daném bloku. Kvůli možnosti funkcí ovlivňovat globální proměnné, jsou \textbf{funkce odříznuté od uzlů} hlavního programu. Následně se začíná šíření konstant ve funkcích s~prázdnými tabulkami, čímž se docílí izolovaného šíření konstant ve funkcích.
 \end{description}
 
-\newpage
 \section{Rozšíření}
 \begin{multicols}{2}
 
 \subsection{SCOPE}
 Pro implementaci tohoto rozšíření byla upravena tabulka symbolů na \textbf{zásobníkovou strukturu tabulek} tak, aby byla schopna reagovat vložením/výjmutím na základě průchodu zdrojovým programem.
-Takto je možno dosáhnout až potenciálně nekonečné hloubky \textbf{zanoření bloků bez konfliktních symbolů proměnných} - tuto strukturu jsme pracovně nazvali \ic!SymbolRegister! - rozhraní této struktury poté volají konkrétní sémantické akce.
+Takto je možno dosáhnout až potenciálně nekonečné hloubky \textbf{zanoření bloků bez konfliktních symbolů proměnných} - tuto strukturu jsme pracovně nazvali registr symbolů, \ic!SymbolRegister! - rozhraní této struktury poté volají konkrétní sémantické akce.
 
 Definici proměnné v~bloku cyklu je poté problém pro konstruktor kódu, který příšlušnou instrukci definující nový symbol umístí před tělo cyklu.
 
 \subsection{GLOBAL}
 Rozšíření GLOBAL bylo implementováno v~gramatice přidáním
 nových \textbf{pravidel pro definici statických a globálních proměnných}.
-Dále byla upraven registr symbolů (jak je popsáno pro \ic|SCOPE|),
+Dále byl upraven registr symbolů (jak je popsáno pro \ic|SCOPE|),
 ve kterém je nejnižší tabulka vyhrazena
 pro globální proměnné. Názvy statických proměnných jsou zaprefixovány
 jménem funkce a jsou uloženy v~globálním rámci cílového jazyka. 
 \emph{Způsobem implementace by si kompilátor mohl dovolit i možnost inicializace statické proměné ve funkci \textbf{nestaticky} (např. parametrem), ale dle chování FREEBASIC bylo toto potlačeno.}
 
 \subsection{UNARY}
-Pro rozšíření UNARY byla implementována nová \textbf{gramatická pravidla} pro zkrácené přířazování - i sémantické akce odpovídají přiřazení, liší se pouze vygenerovaný kód. Unární mínus poté řeší \textbf{PA pomocí speciálního případu} při zpracování.
+Pro rozšíření UNARY byla implementována nová \textbf{gramatická pravidla} pro zkrácené přířazování, i sémantické akce odpovídají přiřazení - liší se pouze vygenerovaný kód. Unární mínus poté vyhodnocuje \textbf{PA pomocí kontextu} při zpracování.
 
 \subsection{BASE}
-Rozšíření bylo implementuje LA - ta je schopna \textbf{rozpoznat
+Rozšíření BASE implementuje LA - ta je schopna \textbf{rozpoznat
 lexémy označující čísla ve dvojkové, osmičkové a šestnáctkové} soustavě a
 výsledek převést na desítkové číslo, se kterým již nakládáno dále identicky jako původně s~desítkovým.
 
 \subsection{FUNEXP}
-Volání funkcí ve výrazech bylo implementováno na úrovni \textbf{precedenční syntaktické analýzy},
-precedenční tabulka obsahuje redukční pravidla pro redukování funkcí, čímž implementuje i
-možnost \textbf{libovolného volání funkcí} ve výrazech.
+Volání funkcí ve výrazech bylo implementováno na úrovni \textbf{precedenční syntaktické analýzy}
+- obsahuje redukční pravidla pro volání funkcí, čímž implementuje možnost \textbf{libovolného volání funkcí} ve výrazech.
 
 \subsection{IFTHEN}
 Implementováno na gramatické úrovni přidáním \textbf{nepovinných částí}

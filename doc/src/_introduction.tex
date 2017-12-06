@@ -1,14 +1,10 @@
 \section{Úvod}
 Následující dokument popisuje způsob implementace kompilátoru z~jazyka IFJ17 do mezikódu
-IFJcode17 ve variantě 2. Jedná se o~projekt,
-který byl vyprácován podle zadání do předmětů IFJ a IAL na Fakultě
-informačních technologí Vysokého učení technického v~Brně.
-
-Dokumentace popisuje způsob řešení, dekompozici překladače na jednotlivé moduly,
-popis použitých algoritmů a datových struktur a způsob práce v~týmu.
+IFJcode17 ve variantě 2. Jedná se o~projekt, který byl vyprácován podle zadání do předmětů IFJ a IAL na Fakultě
+informačních technologí Vysokého učení technického v~Brně. Dokumentuje způsob řešení, dekompozici překladače na jednotlivé moduly, popis použitých algoritmů a datových struktur a  v závěru je zmíněn také způsob práce v~týmu.
 
 \section{Teoretický rozbor}
-Naším úkolem bylo implementovat překladač jazyka IFJ17 (který je podmnožinou jazyka známého jako \mbox{FREEBASIC})
+Naším úkolem bylo implementovat překladač jazyka IFJ17 (který je modifikovanou podmnožinou jazyka známého jako \mbox{FREEBASIC})
 do mezikódu IFJcode17. Program čte zdrojový kód ze standardního vstupu a v~případě překladu bez chyby generuje cílový
 kód. V~případě chyby je navrácen odpovídající chybový kód a vytisknuta informace o~typu chyby. Varianta 2 specifikuje
 zadání na užití tabulky s~rozptýlenými položkami při implementaci tabulky symbolů.
@@ -18,7 +14,7 @@ celého překladače. SA tedy získává vstupní tokeny a kontroluje, zda tvoř
 LL gramatikou, spouští sémantické kontroly a řídí konstrukci kódu.
 Optimalizátor poté pracuje po dokončení syntaxí řízeného překladu nad vygenerovaným kódem.
 
-Implementace překladače se nám tedy rozpadla na následující moduly:
+Implementace překladače se nám tedy dělí na následující moduly:
 \begin{itemize}
     \item Lexikální analyzátor
     \item Syntaktický analyzátor

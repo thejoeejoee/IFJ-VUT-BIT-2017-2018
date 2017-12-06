@@ -5,6 +5,8 @@
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.6\textwidth, angle=0]{src/assets/symbol_table.pdf}
+    \caption{Registr symbolů}
+	\vspace*{-10pt}
 \end{figure}
 
 Pro implementaci tabulky symbolů jsme zvolili tabulku s~rozptýlenými položkami s~použitým lineárním seznamem pro synonyma.
@@ -15,7 +17,7 @@ Pro konkrétní použití jsou poté vytvořeny struktury \ic|SymbolVariable| a 
 Pro sémantické kontroly v~modulu \ic|ParserSemantic| existuje struktura \ic|SymbolRegister| zapouzdřující tabulku funkcí a zásobník tabulek proměnných. Dále obsahuje čítač pro generování unikátních identifikátorů pro symboly v~cílovém kódu. Zásobník je implementován jako jednosměrně svázaný seznam tabulek proměnných a tabulky jsou do něj vkládány/vyjímány při každé zanoření bloků jazyka IFJ17.
 
 \subsection{Správa paměti}
-Pro kontroly neuvolněných paměťových bloků dynamické správy paměti byl vytvořen modul \ic|MemoryManager|, na který je napojen pár maker \ic|memory_alloc| a \ic|memory_free|. Tato makra mají identické rozhraní s~vestavěnými funkcemi \ic|malloc| a \ic|free|, avšak zachovávají informace o~alokovaných \uv{stránkách} paměti, které se vždy uvolňují až na konci běhu programu. Stránky jsou dvousměrně svázány do seznamu pro přístup (\uv{uvoľňování}) s~časovou složitostí $\mathcal{O}(1)$.
+Pro kontroly neuvolněných paměťových bloků dynamické správy paměti byl vytvořen modul \ic|MemoryManager|, na který je napojen pár maker \ic|memory_alloc| a \ic|memory_free|. Tato makra mají identické rozhraní s~vestavěnými funkcemi \ic|malloc| a \ic|free|, avšak zachovávají informace o~alokovaných blocích (\uv{stránkách}) paměti, které se vždy uvolňují až na konci běhu programu. Stránky jsou dvousměrně svázány do seznamu pro následné \uv{uvoľňování} s~časovou složitostí $\mathcal{O}(1)$.
 
-\subsection{Optimalizace}
-Z~vyšších datových struktur je zde použit \textbf{orientovaný graf a množina}. Z~těch nižších poté obecný dvousměrně svázaný seznam, zásobník implementovaný pomocí jednosměrně svázaného seznamu a tabulka s~rozptýlenými položkami. Množina je zde implementována jako dvousměrně svázaný seznam (\emph{narozdíl od doporučované varianty s~binárním stromem}) vzhledem k~očekávanému nízkému počtu položek v~ní a tím i příznivé časové složitosti $\mathcal{O}(n\cdot log(n))$. Orientovaný graf je implementován jako \textbf{jednorozměrné pole uzlů tohoto grafu} - každý uzel poté obsahuje množinu vstupních a výstupních hran pro konkrétní uzel. V~tomto grafu jsou silně propojené komponenty vyhledávány pomocí \textbf{Tarjanova algoritmu} \footnote{https://en.wikipedia.org/wiki/Tarjan\'s\_strongly\_connected\_components\_algorithm} pro vyhledávání s~časovou složitostí $\mathcal{O}(n)$.
+\subsection{Algoritmy a datové struktury pro optimalizace}
+Z~vyšších datových struktur je zde použit \textbf{orientovaný graf a množina}. Z~těch nižších poté obecný dvousměrně svázaný seznam, zásobník implementovaný pomocí jednosměrně svázaného seznamu a tabulka s~rozptýlenými položkami. Množina je zde implementována jako dvousměrně svázaný seznam (\emph{narozdíl od doporučované varianty s~binárním stromem}) vzhledem k~očekávanému nízkému počtu položek v~ní a tím i příznivé časové složitosti $\mathcal{O}(n\cdot log(n))$. Orientovaný graf je implementován jako \textbf{jednorozměrné pole uzlů tohoto grafu} - každý uzel poté obsahuje množinu vstupních a výstupních hran pro konkrétní uzel. V~tomto grafu jsou silně propojené komponenty vyhledávány pomocí \textbf{Tarjanova algoritmu} \footnote{\href{https://en.wikipedia.org/wiki/Tarjan\'s\_strongly\_connected\_components\_algorithm}{https://en.wikipedia.org/wiki/Tarjan\'s\_strongly\_connected\_components\_algorithm}} pro vyhledávání s~časovou složitostí $\mathcal{O}(n)$.

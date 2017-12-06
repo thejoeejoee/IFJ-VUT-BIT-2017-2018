@@ -16,7 +16,7 @@ zadání na užití tabulky s~rozptýlenými položkami při implementaci tabulk
 Pro běh překladače byl použit tzv. \textbf{Syntaxí řízený překlad}, což předurčuje syntaktický analyzátor k~řízení činnosti
 celého překladače. SA tedy získává vstupní tokeny a kontroluje, zda tvoří řetězec generovaný
 LL gramatikou, spouští sémantické kontroly a řídí konstrukci kódu.
-Optimalizátor poté pracuje mimo hlavní zpracování, je spuštěn po syntaktické analýze nad vygenerovaným kódem.
+Optimalizátor poté pracuje po dokončení syntaxí řízeného překladu nad vygenerovaným kódem.
 
 Implementace překladače se nám tedy rozpadla na následující moduly:
 \begin{itemize}

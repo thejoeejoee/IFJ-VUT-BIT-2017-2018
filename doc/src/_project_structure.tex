@@ -11,7 +11,7 @@ analýze.
 
 Lexikální analyzátor je rozdělen do tří modulů: \ic|lexer.c|, \ic|lexer_fsm.c| a \ic|token.c|
 . Modul \ic|token.c| obsahuje implementaci abstraktního datového typu token. Modul \ic|lexer_fsm.c|
-obsahuje implementaci \textbf{deterministického konečného automatu}. Automat je oddělen od samotné implementace řízení lexikální analýzy z~důvodu snažšího testování veškerých přechodových stavů automatu mezi jednotlivými konfiguracemi. Modul \ic|lexer.c| poskytuje funkci
+obsahuje implementaci \textbf{deterministického konečného automatu}. Automat je oddělen od samotné implementace řízení lexikální analýzy z~důvodu snažšího testování veškerých přechodů automatu mezi jednotlivými konfiguracemi. Modul \ic|lexer.c| poskytuje funkci
 \ic|lexer_next_token|, která řídí činnost deterministického konečného automatu a vrací další token. Chyba v~lexikální analýze je rozpoznána \emph{navrácením tokenu s~příznakem chyby}.
 
 \begin{figure}[htbp]
@@ -311,8 +311,7 @@ Neterminál \ic|<eols>| slouží ke \uv{zkonzumování} všech přebytečných z
                     \\ \hline
                     <con\_e>&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
                     \\ \hline
-                    <con\_eols>&59&59&59&59&59&59&59&59&59&59&59&59&59&59&59&59&59&59&59&59&59&60&59&59&59&59&59&59&59
-
+                    <eols>&59&59&59&59&59&59&59&59&59&59&59&59&59&59&59&59&59&59&59&59&59&60&59&59&59&59&59&59&59
                     \\ \hline
                 \end{tabular}
 
